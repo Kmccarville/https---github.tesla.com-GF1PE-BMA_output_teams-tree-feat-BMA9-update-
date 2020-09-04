@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bmaoutput-prod-env
+  namespace: gf1-pe
+data:
+  ENVVAR1: bmaoutputg@tesla.com
+  ENVVAR2: prod-k8s
+  ENVVAR3: prod
+  ENVVAR4: sa-prodengdb
+  SECRET: /app/secrets/credentials
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bmaoutput-prod
+  namespace: gf1-pe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bmaoutput-prod
+  template:
+    metadata:
+      labels:
+        app: bmaoutput-prod
+    spec:
+      containers:
+      - name: bmaoutput-prod
+        image: artifactory.teslamotors.com:2002/tesla/m3bppe/bmaoutput:$IMG_TAG
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: creds-vol
+          mountPath: /app/secrets
+        resources:
+          limits:
+            cpu: 2
+            memory: 4Gi
+          requests:
+            cpu: 200m
+            memory: 512Mi
+        envFrom:
+        - configMapRef:
+            name: bmaoutput-prod-env
+      volumes:
+      - name: creds-vol
+        secret:
+          secretName: bmaoutput-prod-creds
+      imagePullSecrets:
+      - name: regsecret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bmaoutput-prod
+  namespace: gf1-pe
+  labels:
+    app: bmaoutput-prod
+spec:
+  ports:
+  - name: web
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: bmaoutput-prod
