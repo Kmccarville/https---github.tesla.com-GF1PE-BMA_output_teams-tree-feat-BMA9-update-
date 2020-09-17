@@ -1,0 +1,15 @@
+.PHONY: run build
+
+BUILD_DATE := $(shell python -c "from datetime import datetime; d=datetime.utcnow(); print (str(d.year)+str(d.month)+str(d.day)+'T'+str(d.hour-7)+'h'+str(d.minute)+'m')")
+BUILD_MACHINE := $(shell hostname)
+username:=$(shell echo %username%)
+
+pullrebase:  #only used to seperate out action, try to use deploy
+	cd $(repo) && git pull --rebase origin $(targetbranch):master
+commit: #only used to seperate out action, try to use deploy
+	cd $(repo) && git add -A && git commit -a -m $(message) && git pull --rebase origin $(targetbranch):dev
+push: #only used to seperate out action, try to use deploy
+	cd $(repo) && git push origin dev:$(BUILD_MACHINE)_$(BUILD_DATE)
+deploy: #quick command to push a branch for you, then have to pull request into target branch via stash
+	- git add -A && git commit -a -m updatecode && git pull --rebase origin master:master
+	git push origin master:$(username)/$(feature)_$(BUILD_MACHINE)_$(BUILD_DATE)

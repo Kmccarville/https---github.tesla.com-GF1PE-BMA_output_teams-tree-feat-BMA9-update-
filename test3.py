@@ -75,7 +75,7 @@ def output():
     #post to BMA123-PE --> Output Channel
     response = requests.post(teams_webhook, json.dumps(payload))
 
-output()
+#output()
 
 def run_schedule():
     while 1:
