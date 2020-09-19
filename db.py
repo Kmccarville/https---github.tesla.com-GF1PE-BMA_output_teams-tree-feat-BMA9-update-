@@ -38,7 +38,7 @@ elif debug ==False:
     with open(r'/app/secrets/credentials') as f:
         lines = f.readlines()
         f.close()
-        env=os.getenv('ENVVAR2')
+        env=os.getenv('ENVVAR3')
  
 #MOS db connection information
 localhost_mos=str(lines[0])
