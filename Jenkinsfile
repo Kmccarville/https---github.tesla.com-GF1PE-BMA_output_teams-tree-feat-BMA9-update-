@@ -87,7 +87,7 @@ podTemplate(label: label,
         println "Deploying image_tag=${imageTag} \n"
         println "sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/bmaoutput.yaml | kubectl apply -f -"
         container('kubectl') {
-          withCredentials([file(credentialsId: 'k8s-prod-RNO-cred', variable: 'KUBECONFIG',)]) {
+          withCredentials([file(credentialsId: 'k8s-prod-cred', variable: 'KUBECONFIG',)]) {
           sh """
               sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/bmaoutput.yaml | kubectl apply -f -
           """
