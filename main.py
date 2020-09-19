@@ -87,4 +87,5 @@ if __name__ == '__main__':
         logging.info("serve_active")
     elif debug==False:
         schedule.every().hour.at(":00").do(output)
+        run_schedule()
         logging.info("serve_active")
