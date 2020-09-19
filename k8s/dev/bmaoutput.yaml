@@ -46,7 +46,7 @@ spec:
       volumes:
       - name: creds-vol
         secret:
-          secretName: bmaoutput-creds
+          secretName: bmaoutput-prod-creds
       imagePullSecrets:
       - name: regsecret
 ---
