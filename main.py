@@ -30,11 +30,11 @@ def uph_calculation(df):
     string = []
     if len(df.index)>0:
         for index, row in df.iterrows():  
-            if row['ActorModifiedby']  =='3BM1-26400-01':
+            if row['CreatedBy']  =='ignition-gf1-bm-tag7-prod':
                 ACTA1.append(f"{row['Thingname']}")
-            elif row['ActorModifiedby']  =='3BM2-26400-01':
+            elif row['CreatedBy']  =='ignition-gf1-bm-tag8-prod':
                 ACTA2.append(f"{row['Thingname']}")
-            elif row['ActorModifiedby']  =='3BM3-26400-01':
+            elif row['CreatedBy']  =='ignition-gf1-bm-tag9-prod':
                 ACTA3.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM1-29500-01':
                 NESTED1.append(f"{row['Thingname']}") 
@@ -75,7 +75,7 @@ def output():
     #post to BMA123-PE --> Output Channel
     response = requests.post(teams_webhook, json.dumps(payload))
 
-output()
+#output()
 
 def run_schedule():
     while 1:
@@ -86,5 +86,5 @@ if __name__ == '__main__':
     if debug==True:
         logging.info("serve_active")
     elif debug==False:
-        schedule.every().hour.at(":01").do(output)
+        schedule.every().hour.at(":00").do(output)
         logging.info("serve_active")

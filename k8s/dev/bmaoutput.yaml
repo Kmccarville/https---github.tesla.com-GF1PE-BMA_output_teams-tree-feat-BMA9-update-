@@ -16,7 +16,7 @@ metadata:
   name: bmaoutput
   namespace: gf1-pe
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: bmaoutput

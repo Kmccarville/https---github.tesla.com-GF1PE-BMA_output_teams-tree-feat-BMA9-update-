@@ -54,8 +54,12 @@ database_mos=str.strip(database_mos)
 #MOS db connection information
 
 #Teams webhooks
-teams_webhook=str(lines[6]) 
-teams_webhook=str.strip(teams_webhook)
+if env=='local_laptop' or env=='dev':
+    teams_webhook=str(lines[6]) 
+    teams_webhook=str.strip(teams_webhook)
+elif env=='prod':
+    teams_webhook=str(lines[7]) 
+    teams_webhook=str.strip(teams_webhook)
 
 def logger (device,time,env,state):
     t1='{:%Y-%m-%d %H:%M:%S}'.format(time)
