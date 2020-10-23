@@ -92,7 +92,7 @@ def output45():
     bma4cta_o=df_bma4cta['count(distinct tp.thingid)/28'][0]
 
     sql_bma5cta=stash_reader.bma5cta_output()
-    sql_bma5cta=sql_bma4cta.format(start_time=start,end_time=end)
+    sql_bma5cta=sql_bma5cta.format(start_time=start,end_time=end)
     df_bma5cta=db_connector(False,"MOS",sql=sql_bma5cta)
     bma5cta_o=df_bma5cta['count(distinct tp.thingid)/28'][0]
     
