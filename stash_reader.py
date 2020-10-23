@@ -29,7 +29,39 @@ password=str(password)
 password=str.strip(password)
 
 
+
+
 def bmaoutput():
     url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bmaoutput.sql'
+    r = requests.get(url, auth=(user, password ))
+    return r.text
+
+def bma4cta_output():
+    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma4cta_output.sql'
+    r = requests.get(url, auth=(user, password ))
+    return r.text
+
+def bma5cta_output():
+    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma5cta_output.sql'
+    r = requests.get(url, auth=(user, password ))
+    return r.text
+
+def bma4mamc_output():
+    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma4mamc_output.sql'
+    r = requests.get(url, auth=(user, password ))
+    return r.text
+
+def bma5mamc_output():
+    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma5mamc_output.sql'
+    r = requests.get(url, auth=(user, password ))
+    return r.text
+
+def bma4c3a_output():
+    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma4c3a_output.sql'
+    r = requests.get(url, auth=(user, password ))
+    return r.text
+
+def bma5c3a_output():
+    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma5c3a_output.sql'
     r = requests.get(url, auth=(user, password ))
     return r.text
