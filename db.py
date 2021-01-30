@@ -59,11 +59,15 @@ if env=='local_laptop' or env=='dev':
     teams_webhook=str.strip(teams_webhook)
     teams_webhook_45=str(lines[9]) 
     teams_webhook_45=str.strip(teams_webhook_45)
+    teams_webhook_Z4=str(lines[6]) 
+    teams_webhook_Z4=str.strip(teams_webhook_Z4)
 elif env=='prod':
     teams_webhook=str(lines[7]) 
     teams_webhook=str.strip(teams_webhook)
     teams_webhook_45=str(lines[8]) 
     teams_webhook_45=str.strip(teams_webhook_45)
+    teams_webhook_Z4=str(lines[10]) 
+    teams_webhook_Z4=str.strip(teams_webhook_Z4)
 
 def logger (device,time,env,state):
     t1='{:%Y-%m-%d %H:%M:%S}'.format(time)

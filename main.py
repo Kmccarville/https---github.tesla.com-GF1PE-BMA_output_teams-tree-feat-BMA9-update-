@@ -7,6 +7,7 @@ import logging
 import urllib3
 from db import teams_webhook
 from db import teams_webhook_45
+from db import teams_webhook_Z4
 from db import db_connector
 import requests
 import json
@@ -71,8 +72,12 @@ def output():
     payload={"title":title, 
         "summary":"summary",
         "sections":[
-            {'text':"""<table><tr><th>BMA</th><th>ACTA UPH</th><th>NESTED UPH</th><th>AC3A UPH</th></tr><tr><td>BMA1</td>
-            <td> {o1}</td><td> {o2}</td><td> {o3}</td></tr><tr><td>BMA2</td><td> {o4}</td><td> {o5}</td><td> {o6}</td></tr></tr><td>BMA3</td><td> {o7}</td><td> {o8}</td><td> {o9}</td></tr></tr></table>""".format(o1=output_string[0], o2=output_string[1] ,
+            {'text':"""<table>
+            <tr><th>BMA</th><th>ACTA UPH</th><th>NESTED UPH</th><th>AC3A UPH</th></tr>
+            <tr><td>BMA1</td><td> {o1}</td><td> {o2}</td><td> {o3}</td></tr>
+            <tr><td>BMA2</td><td> {o4}</td><td> {o5}</td><td> {o6}</td></tr>
+            <tr><td>BMA3</td><td> {o7}</td><td> {o8}</td><td> {o9}</td></tr>
+            </table>""".format(o1=output_string[0], o2=output_string[1] ,
             o3=output_string[2], o4=output_string[3], o5=output_string[4], o6=output_string[5], o7=output_string[6], o8=output_string[7], o9=output_string[8]) }]}
  
     #post to BMA123-PE --> Output Channel
@@ -123,7 +128,6 @@ def output45():
     <tr><td>BMA4</td><td>{bma4cta_o}</td><td>{bma4mamc_o}</td><td>{bma4c3a_o}</td></tr>
     <tr><td>BMA5</td><td>{bma5cta_o}</td><td>{bma5mamc_o}</td><td>{bma5c3a_o}</td></tr>
     <tr><td><b>TOTAL</b></td><td>{bma4cta_o+bma5cta_o}</td><td>{bma4mamc_o+bma5mamc_o}</td><td>{bma4c3a_o+bma5c3a_o}</td></tr>
-    </tr>
     </table>
     """
     payload={"title":title, 
@@ -133,7 +137,45 @@ def output45():
     #post to BMA123-PE --> Output Channel
     response = requests.post(teams_webhook_45, json.dumps(payload))
 
-#output45()
+def outputz4():
+    
+    lookback=1 #1 hr
+    now=datetime.utcnow()
+    now_sub1hr=now+timedelta(hours=-lookback)
+    start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
+    end=start+timedelta(hours=lookback)
+    #grab hourly 
+    sql=f"""
+    SELECT left(f.name,3) as line,count(distinct tp.thingid)/4 as UPH FROM thingpath tp
+    JOIN flowstep f ON tp.flowstepid = f.id
+    WHERE f.name in ('MC1-30000','MC2-28000') AND tp.exitcompletioncode = 'PASS'
+    AND tp.completed between '{start}' and '{end}'
+    group by f.name
+    """
+
+    df=db_connector(False,"MOS",sql=sql)
+    outout_MC1=df['UPH'][0]
+    outout_MC2=df['UPH'][1]
+
+    title='Zone 4 Hourly Update'
+    html_table=f"""
+    <table>
+    <tr><th>LINE</th><th>UPH</th></tr>
+    <tr><td>MC1</td><td>{outout_MC1}</td></tr>
+    <tr><td>MC2</td><td>{outout_MC2}</td></tr>
+    <tr><td><b>TOTAL</b></td><td>{outout_MC1+outout_MC2}</td></tr>
+    </table>
+    """
+    payload={"title":title, 
+        "summary":"summary",
+        "sections":[
+            {'text':html_table}]}
+    #post to BMA123-PE --> Output Channel
+    response = requests.post(teams_webhook_Z4, json.dumps(payload))
+
+    
+#output()
+#outputz4()
 
 def run_schedule():
     while 1:
@@ -146,5 +188,6 @@ if __name__ == '__main__':
     elif debug==False:
         schedule.every().hour.at(":00").do(output)
         schedule.every().hour.at(":01").do(output45)
+        schedule.every().hour.at(":02").do(outputz4)
         run_schedule()
         logging.info("serve_active")

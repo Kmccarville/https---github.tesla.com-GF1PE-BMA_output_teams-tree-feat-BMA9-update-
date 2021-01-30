@@ -65,3 +65,8 @@ def bma5c3a_output():
     url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma5c3a_output.sql'
     r = requests.get(url, auth=(user, password ))
     return r.text
+
+def zone4_output():
+    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma5c3a_output.sql'
+    r = requests.get(url, auth=(user, password ))
+    return r.text
