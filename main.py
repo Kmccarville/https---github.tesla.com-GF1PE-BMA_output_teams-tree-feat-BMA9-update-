@@ -8,6 +8,7 @@ import urllib3
 from db import teams_webhook
 from db import teams_webhook_45
 from db import teams_webhook_Z4
+from db import teams_webhook_Z3
 from db import db_connector
 import requests
 import json
@@ -173,9 +174,52 @@ def outputz4():
     #post to BMA123-PE --> Output Channel
     response = requests.post(teams_webhook_Z4, json.dumps(payload))
 
+def outputz3():
+    
+    lookback=1 #1 hr
+    now=datetime.utcnow()
+    now_sub1hr=now+timedelta(hours=-lookback)
+    start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
+    end=start+timedelta(hours=lookback)
+    #grab hourly 
+    sql=f"""
+
+    SELECT left(a.name,4) as line,count(distinct tp.thingid)/4 as UPH 
+    FROM thingpath tp
+    JOIN actor a on a.id = tp.modifiedby
+    WHERE tp.flowstepname = ('3BM-57000') AND tp.exitcompletioncode = 'PASS'
+    AND tp.completed between  '{start}' and '{end}'
+    and a.name like '3BM%%'
+    group by a.name
+    """
+    df=db_connector(False,"MOS",sql=sql)
+    outout_BMA1=df['UPH'][0]
+    outout_BMA2=df['UPH'][1]
+    outout_BMA3=df['UPH'][2]
+    outout_BMA4=df['UPH'][3]
+    outout_BMA5=df['UPH'][4]
+    title='Zone 3 Hourly Update'
+    html_table=f"""
+    <table>
+    <tr><th>LINE</th><th>UPH</th></tr>
+    <tr><td>3BM1</td><td>{outout_BMA1}</td></tr>
+    <tr><td>3BM2</td><td>{outout_BMA2}</td></tr>
+    <tr><td>3BM3</td><td>{outout_BMA3}</td></tr>
+    <tr><td>3BM4</td><td>{outout_BMA4}</td></tr>
+    <tr><td>3BM5</td><td>{outout_BMA5}</td></tr>
+    <tr><td><b>TOTAL</b></td><td>{outout_BMA1+outout_BMA2+outout_BMA3+outout_BMA4+outout_BMA5}</td></tr>
+    </table>
+    """
+    payload={"title":title, 
+        "summary":"summary",
+        "sections":[
+            {'text':html_table}]}
+    #post to BMA123-PE --> Output Channel
+    response = requests.post(teams_webhook_Z3, json.dumps(payload))
+
     
 #output()
-#outputz4()
+#outputz3()
 
 def run_schedule():
     while 1:
@@ -189,5 +233,6 @@ if __name__ == '__main__':
         schedule.every().hour.at(":00").do(output)
         schedule.every().hour.at(":01").do(output45)
         schedule.every().hour.at(":02").do(outputz4)
+        schedule.every().hour.at(":03").do(outputz3)
         run_schedule()
         logging.info("serve_active")

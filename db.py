@@ -61,6 +61,7 @@ if env=='local_laptop' or env=='dev':
     teams_webhook_45=str.strip(teams_webhook_45)
     teams_webhook_Z4=str(lines[6]) 
     teams_webhook_Z4=str.strip(teams_webhook_Z4)
+    teams_webhook_Z3=teams_webhook_Z4
 elif env=='prod':
     teams_webhook=str(lines[7]) 
     teams_webhook=str.strip(teams_webhook)
@@ -68,6 +69,8 @@ elif env=='prod':
     teams_webhook_45=str.strip(teams_webhook_45)
     teams_webhook_Z4=str(lines[10]) 
     teams_webhook_Z4=str.strip(teams_webhook_Z4)
+    teams_webhook_Z3=str(lines[11]) 
+    teams_webhook_Z3=str.strip(teams_webhook_Z3)
 
 def logger (device,time,env,state):
     t1='{:%Y-%m-%d %H:%M:%S}'.format(time)
@@ -101,6 +104,7 @@ def db_connector(write,db,**kwargs): #db=MOS,PLC,Pallet,prodengdb kwargs=**sql,*
                 df=pd.read_sql(sql2,con=con_db)
                 con_db.close()
             except Exception as e:
+                print (e)
                 error_handler.e_handler(e)
                 con_db.close()
             if (now-df['Update_time'][0])>timedelta(minutes=5) or len(df.index)==0:
@@ -112,6 +116,7 @@ def db_connector(write,db,**kwargs): #db=MOS,PLC,Pallet,prodengdb kwargs=**sql,*
                     df=pd.read_sql(sql2,con=con_db)
                     con_db.close()
                 except Exception as e:
+                    print (e)
                     error_handler.e_handler(e)
                     con_db.close()
                 if (now-df['Update_time'][0])>timedelta(minutes=5) and len(df.index)==0:
@@ -125,6 +130,7 @@ def db_connector(write,db,**kwargs): #db=MOS,PLC,Pallet,prodengdb kwargs=**sql,*
                 df=pd.read_sql(sql,con=con_db)
                 con_db.close()
             except Exception as e:
+                print (eval)
                 error_handler.e_handler(e)
                 con_db.close()
         elif replication_error==True and rpt2==True:
@@ -134,6 +140,7 @@ def db_connector(write,db,**kwargs): #db=MOS,PLC,Pallet,prodengdb kwargs=**sql,*
                 df=pd.read_sql(sql,con=con_db)
                 con_db.close()
             except Exception as e:
+                print (e)
                 error_handler.e_handler(e)
                 con_db.close()
     return df
