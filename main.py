@@ -237,7 +237,7 @@ def outputz3():
     response = requests.post(teams_webhook_Z3, json.dumps(payload))
 
     
-output()
+#output()
 #outputz3()
 
 def run_schedule():
