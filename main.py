@@ -99,9 +99,13 @@ def output():
             <tr><td>SA53</td><td> 0 </td><td> {df_sql_mamac_53['count(distinct tp.thingid)/4'][0]} </td><td> {df_sql_c3a_53['count(distinct tp.thingid)/4'][0]} </td></tr>
             <tr><td><b>TOTAL</b></td><td>{round(output_string[0]+output_string[3]+output_string[6],2)}</td><td>{round(output_string[1]+output_string[4]+output_string[7]+df_sql_mamac_53['count(distinct tp.thingid)/4'][0],2)}</td><td>{round(output_string[2]+output_string[5]+output_string[8]+df_sql_c3a_53['count(distinct tp.thingid)/4'][0],2)}</td></tr>
             </table>""" }]}
- 
+    
+    headers = {
+    'Content-Type': 'application/json'
+    }
     #post to BMA123-PE --> Output Channel
-    response = requests.post(teams_webhook, json.dumps(payload))
+    response = requests.post(teams_webhook,headers=headers, data=json.dumps(payload))
+    print(response.text.encode('utf8'))
 
 
 def output45():
@@ -142,20 +146,20 @@ def output45():
     bma5c3a_o=df_bma5c3a['count(distinct tp.thingid)/4'][0]
     
     title='BMA45 Hourly Update'
-    html_table=f"""
-    <table>
-    <tr><th>BMA</th><th>CTA UPH</th><th>MAMC UPH</th><th>C3A UPH</th></tr>
-    <tr><td>BMA4</td><td>{bma4cta_o}</td><td>{bma4mamc_o}</td><td>{bma4c3a_o}</td></tr>
-    <tr><td>BMA5</td><td>{bma5cta_o}</td><td>{bma5mamc_o}</td><td>{bma5c3a_o}</td></tr>
-    <tr><td><b>TOTAL</b></td><td>{bma4cta_o+bma5cta_o}</td><td>{bma4mamc_o+bma5mamc_o}</td><td>{bma4c3a_o+bma5c3a_o}</td></tr>
-    </table>
-    """
     payload={"title":title, 
         "summary":"summary",
         "sections":[
-            {'text':html_table}]}
+            {'text':f"""<table>
+            <tr><th>BMA</th><th>CTA UPH</th><th>MAMC UPH</th><th>C3A UPH</th></tr>
+            <tr><td>BMA4</td><td>{bma4cta_o}</td><td>{bma4mamc_o}</td><td>{bma4c3a_o}</td></tr>
+            <tr><td>BMA5</td><td>{bma5cta_o}</td><td>{bma5mamc_o}</td><td>{bma5c3a_o}</td></tr>
+            <tr><td><b>TOTAL</b></td><td>{bma4cta_o+bma5cta_o}</td><td>{bma4mamc_o+bma5mamc_o}</td><td>{bma4c3a_o+bma5c3a_o}</td></tr>
+            </table>"""}]}
+    headers = {
+    'Content-Type': 'application/json'
+    }
     #post to BMA123-PE --> Output Channel
-    response = requests.post(teams_webhook_45, json.dumps(payload))
+    response = requests.post(teams_webhook_45,headers=headers, data=json.dumps(payload))
 
 def outputz4():
     
@@ -178,20 +182,20 @@ def outputz4():
     outout_MC2=df['UPH'][1]
 
     title='Zone 4 Hourly Update'
-    html_table=f"""
-    <table>
-    <tr><th>LINE</th><th>UPH</th></tr>
-    <tr><td>MC1</td><td>{outout_MC1}</td></tr>
-    <tr><td>MC2</td><td>{outout_MC2}</td></tr>
-    <tr><td><b>TOTAL</b></td><td>{outout_MC1+outout_MC2}</td></tr>
-    </table>
-    """
     payload={"title":title, 
         "summary":"summary",
         "sections":[
-            {'text':html_table}]}
+            {'text':f"""<table>
+            <tr><th>LINE</th><th>UPH</th></tr>
+            <tr><td>MC1</td><td>{outout_MC1}</td></tr>
+            <tr><td>MC2</td><td>{outout_MC2}</td></tr>
+            <tr><td><b>TOTAL</b></td><td>{outout_MC1+outout_MC2}</td></tr>
+            </table>"""}]}
     #post to BMA123-PE --> Output Channel
-    response = requests.post(teams_webhook_Z4, json.dumps(payload))
+    headers = {
+    'Content-Type': 'application/json'
+    }
+    response = requests.post(teams_webhook_Z4,headers=headers, data=json.dumps(payload))
 
 def outputz3():
     
@@ -218,27 +222,29 @@ def outputz3():
     outout_BMA4=df['UPH'][3]
     outout_BMA5=df['UPH'][4]
     title='Zone 3 Hourly Update'
-    html_table=f"""
-    <table>
-    <tr><th>LINE</th><th>UPH</th></tr>
-    <tr><td>3BM1</td><td>{outout_BMA1}</td></tr>
-    <tr><td>3BM2</td><td>{outout_BMA2}</td></tr>
-    <tr><td>3BM3</td><td>{outout_BMA3}</td></tr>
-    <tr><td>3BM4</td><td>{outout_BMA4}</td></tr>
-    <tr><td>3BM5</td><td>{outout_BMA5}</td></tr>
-    <tr><td><b>TOTAL</b></td><td>{outout_BMA1+outout_BMA2+outout_BMA3+outout_BMA4+outout_BMA5}</td></tr>
-    </table>
-    """
     payload={"title":title, 
         "summary":"summary",
         "sections":[
-            {'text':html_table}]}
+            {'text':f"""<table>
+            <tr><th>LINE</th><th>UPH</th></tr>
+            <tr><td>3BM1</td><td>{outout_BMA1}</td></tr>
+            <tr><td>3BM2</td><td>{outout_BMA2}</td></tr>
+            <tr><td>3BM3</td><td>{outout_BMA3}</td></tr>
+            <tr><td>3BM4</td><td>{outout_BMA4}</td></tr>
+            <tr><td>3BM5</td><td>{outout_BMA5}</td></tr>
+            <tr><td><b>TOTAL</b></td><td>{outout_BMA1+outout_BMA2+outout_BMA3+outout_BMA4+outout_BMA5}</td></tr>
+            </table>"""}]}
+    headers = {
+    'Content-Type': 'application/json'
+    }
     #post to BMA123-PE --> Output Channel
-    response = requests.post(teams_webhook_Z3, json.dumps(payload))
+    response = requests.post(teams_webhook_Z3,headers=headers, data=json.dumps(payload))
 
     
 #output()
 #outputz3()
+#outputz4()
+#output45()
 
 def run_schedule():
     while 1:
