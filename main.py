@@ -5,10 +5,10 @@ import error_handler
 from test import debug as masterdebug
 import logging 
 import urllib3
-from db import teams_webhook
-from db import teams_webhook_45
-from db import teams_webhook_Z4
-from db import teams_webhook_Z3
+# from db import teams_webhook
+# from db import teams_webhook_45
+# from db import teams_webhook_Z4
+# from db import teams_webhook_Z3
 from db import db_connector
 import requests
 import json
@@ -17,6 +17,7 @@ from stash_reader import bmaoutput
 import stash_reader
 from datetime import timedelta
 
+testUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/f229c49c229e4563b218df3f751aa116/6b1271fb-dfad-4abd-b25a-f204b0dbab0b'
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
 debug=masterdebug
@@ -104,9 +105,10 @@ def output():
     'Content-Type': 'application/json'
     }
     #post to BMA123-PE --> Output Channel
-    response = requests.post(teams_webhook,headers=headers, data=json.dumps(payload))
+   # response = requests.post(teams_webhook,headers=headers, data=json.dumps(payload))
+    response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
     print(response.text.encode('utf8'))
-
+   
 
 def output45():
     lookback=1 #1 hr
@@ -159,7 +161,8 @@ def output45():
     'Content-Type': 'application/json'
     }
     #post to BMA123-PE --> Output Channel
-    response = requests.post(teams_webhook_45,headers=headers, data=json.dumps(payload))
+    #response = requests.post(teams_webhook_45,headers=headers, data=json.dumps(payload))
+    response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
 
 def outputz4():
     
@@ -195,7 +198,8 @@ def outputz4():
     headers = {
     'Content-Type': 'application/json'
     }
-    response = requests.post(teams_webhook_Z4,headers=headers, data=json.dumps(payload))
+    #response = requests.post(teams_webhook_Z4,headers=headers, data=json.dumps(payload))
+    response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
 
 def outputz3():
     
@@ -238,8 +242,9 @@ def outputz3():
     'Content-Type': 'application/json'
     }
     #post to BMA123-PE --> Output Channel
-    response = requests.post(teams_webhook_Z3,headers=headers, data=json.dumps(payload))
+   # response = requests.post(teams_webhook_Z3,headers=headers, data=json.dumps(payload))
 
+    response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
     
 #output()
 #outputz3()
