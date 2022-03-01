@@ -44,11 +44,7 @@ properties([
 
 podTemplate(label: label,
   containers: [
-<<<<<<< HEAD
-     containerTemplate(name: 'docker', image: 'artifactory.teslamotors.com:2046/docker:latest', ttyEnabled: true, command: 'cat', resourceLimitCpu: '1' , resourceLimitMemory : '4Gi' ,resourceRequestCpu : '100m' , resourceRequestMemory : '512Mi'),
-=======
     containerTemplate(name: 'docker', image: 'artifactory.teslamotors.com:2046/docker:latest', ttyEnabled: true, command: 'cat', resourceLimitCpu: '1' , resourceLimitMemory : '4Gi' ,resourceRequestCpu : '100m' , resourceRequestMemory : '512Mi'),
->>>>>>> 27ee03b9c27f8c3a72ac25d669c996a37b0cdd69
     containerTemplate(name: 'kubectl', image: 'artifactory.teslamotors.com:2153/atm-baseimages/alpine:kubectl', ttyEnabled: true, command: 'cat',resourceLimitCpu: '1' , resourceLimitMemory : '4Gi' ,resourceRequestCpu : '100m' , resourceRequestMemory : '512Mi'),
   ],
   volumes: [
