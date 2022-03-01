@@ -5,10 +5,6 @@ import error_handler
 from test import debug as masterdebug
 import logging 
 import urllib3
-# from db import teams_webhook
-# from db import teams_webhook_45
-# from db import teams_webhook_Z4
-# from db import teams_webhook_Z3
 from db import db_connector
 import requests
 import json
@@ -16,6 +12,7 @@ import pandas
 from stash_reader import bmaoutput
 import stash_reader
 from datetime import timedelta
+import helper_creds
 
 testUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/f229c49c229e4563b218df3f751aa116/6b1271fb-dfad-4abd-b25a-f204b0dbab0b'
 logging.basicConfig(level=logging.INFO)
@@ -66,7 +63,7 @@ def output():
     sql=bmaoutput()
     df=db_connector(False,"MOS",sql=sql) 
     output_string= uph_calculation(df)
-    title='Hourly Summary'
+    title='*TEST* Hourly Summary'
 
     lookback=1 #1 hr
     now=datetime.utcnow()
@@ -106,7 +103,8 @@ def output():
     }
     #post to BMA123-PE --> Output Channel
    # response = requests.post(teams_webhook,headers=headers, data=json.dumps(payload))
-    response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
+    #response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
+    response = requests.post(helper_creds.get_teams_webhook_BMA123,headers=headers, data=json.dumps(payload))
     print(response.text.encode('utf8'))
    
 
@@ -260,6 +258,7 @@ if __name__ == '__main__':
     if debug==True:
         logging.info("serve_active")
     elif debug==False:
+        output
         schedule.every().hour.at(":00").do(output)
         schedule.every().hour.at(":01").do(output45)
         schedule.every().hour.at(":02").do(outputz4)
