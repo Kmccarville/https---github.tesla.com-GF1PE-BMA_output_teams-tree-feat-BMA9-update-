@@ -17,11 +17,15 @@ PyMySQL==0.9.3
 pyparsing==2.3.1
 python-dateutil==2.8.0
 pytz==2018.9
-requests==2.21.0
+requests==2.27.1
 schedule==0.6.0
 six==1.12.0
 SQLAlchemy==1.3.0
+<<<<<<< HEAD
 urllib3==1.26.5
+=======
+urllib3==1.25
+>>>>>>> 27ee03b9c27f8c3a72ac25d669c996a37b0cdd69
 wrapt==1.11.1
 Flask==1.0.2
 jira==2.0.0
@@ -36,4 +40,8 @@ Flask-Bootstrap==3.3.7.1
 Flask-WTF==0.14.3
 Flask-Login==0.5.0
 Flask-SQLAlchemy==2.4.3
+<<<<<<< HEAD
 PyGithub==1.55
+=======
+PyGithub==1.55
+>>>>>>> 27ee03b9c27f8c3a72ac25d669c996a37b0cdd69

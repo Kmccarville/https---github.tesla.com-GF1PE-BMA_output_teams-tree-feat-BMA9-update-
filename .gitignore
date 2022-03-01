@@ -3,4 +3,8 @@ pass.txt
 passMaster.txt
 .vscode
 test.py
+<<<<<<< HEAD
+=======
+heartbeat.py
+>>>>>>> 27ee03b9c27f8c3a72ac25d669c996a37b0cdd69
 gf1pe_prod_cred.json

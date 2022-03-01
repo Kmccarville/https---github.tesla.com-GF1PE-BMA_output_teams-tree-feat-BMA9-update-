@@ -11,7 +11,6 @@ import helper_creds
 import urllib.parse
 
 debug=masterdebug
-
 logging.basicConfig(level=logging.INFO)
 
 
