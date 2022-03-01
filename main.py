@@ -5,6 +5,10 @@ import error_handler
 from test import debug as masterdebug
 import logging 
 import urllib3
+# from db import teams_webhook
+# from db import teams_webhook_45
+# from db import teams_webhook_Z4
+# from db import teams_webhook_Z3
 from db import db_connector
 import requests
 import json
@@ -12,8 +16,9 @@ import pandas
 from stash_reader import bmaoutput
 import stash_reader
 from datetime import timedelta
-import helper_creds
 
+#testUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/f229c49c229e4563b218df3f751aa116/6b1271fb-dfad-4abd-b25a-f204b0dbab0b'
+testUrl =  'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/87128b24446d478f852d70d7977bfbbf/6b1271fb-dfad-4abd-b25a-f204b0dbab0b'
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
 debug=masterdebug
@@ -62,7 +67,7 @@ def output():
     sql=bmaoutput()
     df=db_connector(False,"MOS",sql=sql) 
     output_string= uph_calculation(df)
-    title='Hourly Summary (GitHub Test)'
+    title='Hourly Summary'
 
     lookback=1 #1 hr
     now=datetime.utcnow()
@@ -101,7 +106,8 @@ def output():
     'Content-Type': 'application/json'
     }
     #post to BMA123-PE --> Output Channel
-    response = requests.post(helper_creds.get_teams_webhook_BMA123(),headers=headers, data=json.dumps(payload))
+   # response = requests.post(teams_webhook,headers=headers, data=json.dumps(payload))
+    response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
     print(response.text.encode('utf8'))
    
 
@@ -142,7 +148,7 @@ def output45():
     df_bma5c3a=db_connector(False,"MOS",sql=sql_bma5c3a)
     bma5c3a_o=df_bma5c3a['count(distinct tp.thingid)/4'][0]
     
-    title='BMA45 Hourly Update (GitHub Test)'
+    title='BMA45 Hourly Update'
     payload={"title":title, 
         "summary":"summary",
         "sections":[
@@ -156,8 +162,8 @@ def output45():
     'Content-Type': 'application/json'
     }
     #post to BMA123-PE --> Output Channel
-    response = requests.post(helper_creds.get_teams_webhook_BMA45(),headers=headers, data=json.dumps(payload))
-    # response = requests.post(testUrl,headers=headers, data=json.dumps(payload)) #testing link
+    #response = requests.post(teams_webhook_45,headers=headers, data=json.dumps(payload))
+    response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
 
 def outputz4():
     
@@ -179,7 +185,7 @@ def outputz4():
     outout_MC1=df['UPH'][0]
     outout_MC2=df['UPH'][1]
 
-    title='Zone 4 Hourly Update (GitHub Test)'
+    title='Zone 4 Hourly Update'
     payload={"title":title, 
         "summary":"summary",
         "sections":[
@@ -193,53 +199,55 @@ def outputz4():
     headers = {
     'Content-Type': 'application/json'
     }
-    response = requests.post(helper_creds.get_teams_webhook_Z4(),headers=headers, data=json.dumps(payload))
-
+    #response = requests.post(teams_webhook_Z4,headers=headers, data=json.dumps(payload))
+    response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
 
 def outputz3():
     
-    lookback=1 #1 hr
-    now=datetime.utcnow()
-    now_sub1hr=now+timedelta(hours=-lookback)
-    start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
-    end=start+timedelta(hours=lookback)
-    #grab hourly 
-    sql=f"""
+    # lookback=1 #1 hr
+    # now=datetime.utcnow()
+    # now_sub1hr=now+timedelta(hours=-lookback)
+    # start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
+    # end=start+timedelta(hours=lookback)
+    # #grab hourly 
+    # sql=f"""
 
-    SELECT left(a.name,4) as line,count(distinct tp.thingid)/4 as UPH 
-    FROM thingpath tp
-    JOIN actor a on a.id = tp.modifiedby
-    WHERE tp.flowstepname = ('3BM-57000') AND tp.exitcompletioncode = 'PASS'
-    AND tp.completed between  '{start}' and '{end}'
-    and a.name like '3BM%%'
-    group by a.name
-    """
-    df=db_connector(False,"MOS",sql=sql)
-    outout_BMA1=df['UPH'][0]
-    outout_BMA2=df['UPH'][1]
-    outout_BMA3=df['UPH'][2]
-    outout_BMA4=df['UPH'][3]
-    outout_BMA5=df['UPH'][4]
-    title='Zone 3 Hourly Update (GitHub Test)'
-    payload={"title":title, 
-        "summary":"summary",
-        "sections":[
-            {'text':f"""<table>
-            <tr><th>LINE</th><th>UPH</th></tr>
-            <tr><td>3BM1</td><td>{outout_BMA1}</td></tr>
-            <tr><td>3BM2</td><td>{outout_BMA2}</td></tr>
-            <tr><td>3BM3</td><td>{outout_BMA3}</td></tr>
-            <tr><td>3BM4</td><td>{outout_BMA4}</td></tr>
-            <tr><td>3BM5</td><td>{outout_BMA5}</td></tr>
-            <tr><td><b>TOTAL</b></td><td>{outout_BMA1+outout_BMA2+outout_BMA3+outout_BMA4+outout_BMA5}</td></tr>
-            </table>"""}]}
+    # SELECT left(a.name,4) as line,count(distinct tp.thingid)/4 as UPH 
+    # FROM thingpath tp
+    # JOIN actor a on a.id = tp.modifiedby
+    # WHERE tp.flowstepname = ('3BM-57000') AND tp.exitcompletioncode = 'PASS'
+    # AND tp.completed between  '{start}' and '{end}'
+    # and a.name like '3BM%%'
+    # group by a.name
+    # """
+    # df=db_connector(False,"MOS",sql=sql)
+    # outout_BMA1=df['UPH'][0]
+    # outout_BMA2=df['UPH'][1]
+    # outout_BMA3=df['UPH'][2]
+    # outout_BMA4=df['UPH'][3]
+    # outout_BMA5=df['UPH'][4]
+    title='Zone 3 Hourly Update'
+    # payload={"title":title, 
+    #     "summary":"summary",
+    #     "sections":[
+    #         {'text':f"""<table>
+    #         <tr><th>LINE</th><th>UPH</th></tr>
+    #         <tr><td>3BM1</td><td>{outout_BMA1}</td></tr>
+    #         <tr><td>3BM2</td><td>{outout_BMA2}</td></tr>
+    #         <tr><td>3BM3</td><td>{outout_BMA3}</td></tr>
+    #         <tr><td>3BM4</td><td>{outout_BMA4}</td></tr>
+    #         <tr><td>3BM5</td><td>{outout_BMA5}</td></tr>
+    #         <tr><td><b>TOTAL</b></td><td>{outout_BMA1+outout_BMA2+outout_BMA3+outout_BMA4+outout_BMA5}</td></tr>
+    #         </table>"""}]}
     headers = {
     'Content-Type': 'application/json'
     }
     #post to BMA123-PE --> Output Channel
-    response = requests.post(helper_creds.get_teams_webhook_Z3(),headers=headers, data=json.dumps(payload))
-
-
+   # response = requests.post(teams_webhook_Z3,headers=headers, data=json.dumps(payload))
+    data = 'test'
+    response = requests.post(testUrl,headers=headers,data = 'test')
+    print(response.text.encode('utf8'))
+    
 #output()
 #outputz3()
 #outputz4()
@@ -253,10 +261,14 @@ def run_schedule():
 if __name__ == '__main__':
     if debug==True:
         logging.info("serve_active")
-    elif debug==False:
-        schedule.every().hour.at(":00").do(output)
-        schedule.every().hour.at(":01").do(output45)
-        schedule.every().hour.at(":02").do(outputz4)
-        schedule.every().hour.at(":03").do(outputz3)
-        run_schedule()
-        logging.info("serve_active")
+        response = requests.post(testUrl,"hello")
+        print(response.text.encode('utf8'))
+   
+elif debug==False:
+    output
+    schedule.every().hour.at(":00").do(output)
+    schedule.every().hour.at(":01").do(output45)
+    schedule.every().hour.at(":02").do(outputz4)
+    schedule.every().hour.at(":03").do(outputz3)
+    run_schedule()
+    logging.info("serve_active")
