@@ -1,4 +1,4 @@
-FROM python:3.7.6-buster
+FROM artifactory.teslamotors.com:2149/python:3.7.6-buster
 
 COPY . /app
 

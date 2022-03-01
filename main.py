@@ -5,10 +5,6 @@ import error_handler
 from test import debug as masterdebug
 import logging 
 import urllib3
-from db import teams_webhook
-from db import teams_webhook_45
-from db import teams_webhook_Z4
-from db import teams_webhook_Z3
 from db import db_connector
 import requests
 import json
@@ -16,6 +12,7 @@ import pandas
 from stash_reader import bmaoutput
 import stash_reader
 from datetime import timedelta
+import helper_creds
 
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
@@ -65,7 +62,7 @@ def output():
     sql=bmaoutput()
     df=db_connector(False,"MOS",sql=sql) 
     output_string= uph_calculation(df)
-    title='Hourly Summary'
+    title='Hourly Summary (GitHub Test)'
 
     lookback=1 #1 hr
     now=datetime.utcnow()
@@ -104,9 +101,9 @@ def output():
     'Content-Type': 'application/json'
     }
     #post to BMA123-PE --> Output Channel
-    response = requests.post(teams_webhook,headers=headers, data=json.dumps(payload))
+    response = requests.post(helper_creds.get_teams_webhook_BMA123(),headers=headers, data=json.dumps(payload))
     print(response.text.encode('utf8'))
-
+   
 
 def output45():
     lookback=1 #1 hr
@@ -145,7 +142,7 @@ def output45():
     df_bma5c3a=db_connector(False,"MOS",sql=sql_bma5c3a)
     bma5c3a_o=df_bma5c3a['count(distinct tp.thingid)/4'][0]
     
-    title='BMA45 Hourly Update'
+    title='BMA45 Hourly Update (GitHub Test)'
     payload={"title":title, 
         "summary":"summary",
         "sections":[
@@ -159,7 +156,8 @@ def output45():
     'Content-Type': 'application/json'
     }
     #post to BMA123-PE --> Output Channel
-    response = requests.post(teams_webhook_45,headers=headers, data=json.dumps(payload))
+    response = requests.post(helper_creds.get_teams_webhook_BMA45(),headers=headers, data=json.dumps(payload))
+    # response = requests.post(testUrl,headers=headers, data=json.dumps(payload)) #testing link
 
 def outputz4():
     
@@ -181,7 +179,7 @@ def outputz4():
     outout_MC1=df['UPH'][0]
     outout_MC2=df['UPH'][1]
 
-    title='Zone 4 Hourly Update'
+    title='Zone 4 Hourly Update (GitHub Test)'
     payload={"title":title, 
         "summary":"summary",
         "sections":[
@@ -195,7 +193,8 @@ def outputz4():
     headers = {
     'Content-Type': 'application/json'
     }
-    response = requests.post(teams_webhook_Z4,headers=headers, data=json.dumps(payload))
+    response = requests.post(helper_creds.get_teams_webhook_Z4(),headers=headers, data=json.dumps(payload))
+
 
 def outputz3():
     
@@ -221,7 +220,7 @@ def outputz3():
     outout_BMA3=df['UPH'][2]
     outout_BMA4=df['UPH'][3]
     outout_BMA5=df['UPH'][4]
-    title='Zone 3 Hourly Update'
+    title='Zone 3 Hourly Update (GitHub Test)'
     payload={"title":title, 
         "summary":"summary",
         "sections":[
@@ -238,9 +237,9 @@ def outputz3():
     'Content-Type': 'application/json'
     }
     #post to BMA123-PE --> Output Channel
-    response = requests.post(teams_webhook_Z3,headers=headers, data=json.dumps(payload))
+    response = requests.post(helper_creds.get_teams_webhook_Z3(),headers=headers, data=json.dumps(payload))
 
-    
+
 #output()
 #outputz3()
 #outputz4()

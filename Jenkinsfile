@@ -44,8 +44,8 @@ properties([
 
 podTemplate(label: label,
   containers: [
-    containerTemplate(name: 'docker', image: 'docker:latest', ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'docker', image: 'artifactory.teslamotors.com:2046/docker:latest', ttyEnabled: true, command: 'cat', resourceLimitCpu: '1' , resourceLimitMemory : '4Gi' ,resourceRequestCpu : '100m' , resourceRequestMemory : '512Mi'),
+    containerTemplate(name: 'kubectl', image: 'artifactory.teslamotors.com:2153/atm-baseimages/alpine:kubectl', ttyEnabled: true, command: 'cat',resourceLimitCpu: '1' , resourceLimitMemory : '4Gi' ,resourceRequestCpu : '100m' , resourceRequestMemory : '512Mi'),
   ],
   volumes: [
     hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
@@ -54,7 +54,7 @@ podTemplate(label: label,
 
   node(label) {
 
-    git poll: true, branch: env.BRANCH_NAME, credentialsId: 'git-creds', url: 'ssh://git@stash.teslamotors.com:7999/gf1pe/bma_output_teams.git'
+    git poll: true, branch: env.BRANCH_NAME, credentialsId: 'github-gf1pe-token', url: 'https://github.tesla.com/GF1PE/BMA_output_teams.git'
     def imageTag = getImageTag()
 
     stage('Build') {
@@ -72,9 +72,11 @@ podTemplate(label: label,
         }
 
         container('kubectl') {
-          sh """
-              sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/bmaoutput.yaml | kubectl apply -f -
-          """
+           withCredentials([file(credentialsId: 'us-sjc37-eng-factory-config', variable: 'KUBECONFIG',)]) {
+            sh """
+                sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/bmaoutput.yaml | kubectl apply -f -
+            """
+           }
         }
       }
 
@@ -87,7 +89,7 @@ podTemplate(label: label,
         println "Deploying image_tag=${imageTag} \n"
         println "sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/bmaoutput.yaml | kubectl apply -f -"
         container('kubectl') {
-          withCredentials([file(credentialsId: 'k8s-prod-cred', variable: 'KUBECONFIG',)]) {
+           withCredentials([file(credentialsId: 'us-sjc37-eng-factory-config', variable: 'KUBECONFIG',)]) {
           sh """
               sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/bmaoutput.yaml | kubectl apply -f -
           """
