@@ -74,3 +74,15 @@ def get_mos_db():
 
 def get_flux_token():
     return pw_json["kubeless_fluxcounter_token"]
+
+def get_teams_webhook_BMA123():
+    return pw_json["teams_webhook_BMA123_Updates"]
+
+def get_teams_webhook_BMA45():
+    return pw_json["teams_webhook_BMA45_Updates"]
+
+def get_teams_webhook_Z3():
+    return pw_json["teams_webhook_Zone3_Updates"]
+
+def get_teams_webhook_Z4():
+    return pw_json["teams_webhook_Zone4_Updates"]
