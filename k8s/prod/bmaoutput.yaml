@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: bmaoutput-prod
-        image: artifactory.teslamotors.com:2002/tesla/m3bppe/bmaoutput:$IMG_TAG
+        image: artifactory.teslamotors.com:2194/battery-pack/bmaoutput:$IMG_TAG
         ports:
         - containerPort: 80
         volumeMounts:
