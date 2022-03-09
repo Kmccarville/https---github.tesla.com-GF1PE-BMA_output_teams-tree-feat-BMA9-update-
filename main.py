@@ -13,8 +13,10 @@ from stash_reader import bmaoutput
 import stash_reader
 from datetime import timedelta
 import helper_creds
+import os
 
 testUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/f229c49c229e4563b218df3f751aa116/6b1271fb-dfad-4abd-b25a-f204b0dbab0b'
+diffTeam = 'https://teslamotorsinc.webhook.office.com/webhookb2/d0dd0b4c-1758-4f4d-b84f-cfcd9eb8157b@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/6a8c5c3ce1124abb8b570ae99460f525/639be172-eebc-463e-931d-b6622209677d'
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
 debug=masterdebug
@@ -52,8 +54,7 @@ def uph_calculation(df):
             elif row['ActorModifiedby']  =='3BM3-40001-01':
                 AC3A3.append(f"{row['Thingname']}")                                
 
-    
-    
+        
     string = [len(ACTA1)/28 ,len(NESTED1)/4, len(AC3A1)/4, len(ACTA2)/28 ,len(NESTED2)/4 , len(AC3A2)/4, len(ACTA3)/28, len(NESTED3)/4 , len(AC3A3)/4]
     string_format = [ round(elem,2) for elem in string ]
     return(string_format)
@@ -62,8 +63,11 @@ def output():
     #grab hourly data
     sql=bmaoutput()
     df=db_connector(False,"MOS",sql=sql) 
+    df.fillna(0)
+    print('zone 1 df ' , df)
     output_string= uph_calculation(df)
-    title='*TEST* Hourly Summary'
+    print('zone 1 output string ' ,output_string)
+    title='Hourly Summary'
 
     lookback=1 #1 hr
     now=datetime.utcnow()
@@ -85,6 +89,10 @@ def output():
 
     df_sql_mamac_53=db_connector(False,"MOS",sql=sql_mamac_53)
     df_sql_c3a_53=db_connector(False,"MOS",sql=sql_c3a_53)
+    df_sql_mamac_53.fillna(0)
+    df_sql_c3a_53.fillna(0)
+    print(df_sql_mamac_53)
+    print(df_sql_c3a_53)
 
     payload={"title":title, 
         "summary":"summary",
@@ -101,11 +109,15 @@ def output():
     headers = {
     'Content-Type': 'application/json'
     }
+   
     #post to BMA123-PE --> Output Channel
-   # response = requests.post(teams_webhook,headers=headers, data=json.dumps(payload))
-    #response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
-    response = requests.post(helper_creds.get_teams_webhook_BMA123,headers=headers, data=json.dumps(payload))
+    if env=="prod":
+        response = requests.post(helper_creds.get_teams_webhook_BMA123()['url'],headers=headers, data=json.dumps(payload))
+        requests.post(diffTeam,headers=headers, data=json.dumps(payload))
+    else:
+         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
     print(response.text.encode('utf8'))
+    
    
 
 def output45():
@@ -118,33 +130,46 @@ def output45():
     sql_bma4cta=stash_reader.bma4cta_output()
     sql_bma4cta=sql_bma4cta.format(start_time=start,end_time=end)
     df_bma4cta=db_connector(False,"MOS",sql=sql_bma4cta)
+    df_bma4cta.fillna(0)
+    print(df_bma4cta)
     bma4cta_o=df_bma4cta['count(distinct tp.thingid)/28'][0]
 
     sql_bma5cta=stash_reader.bma5cta_output()
     sql_bma5cta=sql_bma5cta.format(start_time=start,end_time=end)
     df_bma5cta=db_connector(False,"MOS",sql=sql_bma5cta)
+    df_bma5cta.fillna(0)
+    print(df_bma5cta)
     bma5cta_o=df_bma5cta['count(distinct tp.thingid)/28'][0]
     
     sql_bma4mamc=stash_reader.bma4mamc_output()
     sql_bma4mamc=sql_bma4mamc.format(start_time=start,end_time=end)
     df_bma4mamc=db_connector(False,"MOS",sql=sql_bma4mamc)
+    df_bma4mamc.fillna(0)
+    print( df_bma4mamc)
     bma4mamc_o=df_bma4mamc['count(distinct tp.thingid)/4'][0]
 
     sql_bma5mamc=stash_reader.bma5mamc_output()
     sql_bma5mamc=sql_bma5mamc.format(start_time=start,end_time=end)
     df_bma5mamc=db_connector(False,"MOS",sql=sql_bma5mamc)
+    df_bma5mamc.fillna(0)
+    print(df_bma5mamc)
     bma5mamc_o=df_bma5mamc['count(distinct tp.thingid)/4'][0]
 
     sql_bma4c3a=stash_reader.bma4c3a_output()
     sql_bma4c3a=sql_bma4c3a.format(start_time=start,end_time=end)
     df_bma4c3a=db_connector(False,"MOS",sql=sql_bma4c3a)
+    df_bma4c3a.fillna(0)
+    print(df_bma4c3a)
     bma4c3a_o=df_bma4c3a['count(distinct tp.thingid)/4'][0]
 
     sql_bma5c3a=stash_reader.bma5c3a_output()
     sql_bma5c3a=sql_bma5c3a.format(start_time=start,end_time=end)
     df_bma5c3a=db_connector(False,"MOS",sql=sql_bma5c3a)
+    df_bma5c3a.fillna(0)
+    print(df_bma5c3a)
     bma5c3a_o=df_bma5c3a['count(distinct tp.thingid)/4'][0]
-    
+
+
     title='BMA45 Hourly Update'
     payload={"title":title, 
         "summary":"summary",
@@ -160,15 +185,21 @@ def output45():
     }
     #post to BMA123-PE --> Output Channel
     #response = requests.post(teams_webhook_45,headers=headers, data=json.dumps(payload))
-    response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
+    if env=="prod":
+        response = requests.post(helper_creds.get_teams_webhook_BMA45()['url'],headers=headers, data=json.dumps(payload))
+        requests.post(diffTeam,headers=headers, data=json.dumps(payload))
+    else: 
+        response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
 
 def outputz4():
-    
+    logging.info("made it to zone 4 output for the hour")
+
     lookback=1 #1 hr
-    now=datetime.utcnow()
+    now=datetime.utcnow() 
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
+
     #grab hourly 
     sql=f"""
     SELECT left(f.name,3) as line,count(distinct tp.thingid)/4 as UPH FROM thingpath tp
@@ -177,11 +208,15 @@ def outputz4():
     AND tp.completed between '{start}' and '{end}'
     group by f.name
     """
-
+    
     df=db_connector(False,"MOS",sql=sql)
+    print(df)
+    payload={"title":"connection to db_connector is made"}
+    df.fillna(0)
+
     outout_MC1=df['UPH'][0]
     outout_MC2=df['UPH'][1]
-
+        
     title='Zone 4 Hourly Update'
     payload={"title":title, 
         "summary":"summary",
@@ -196,16 +231,21 @@ def outputz4():
     headers = {
     'Content-Type': 'application/json'
     }
-    #response = requests.post(teams_webhook_Z4,headers=headers, data=json.dumps(payload))
-    response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
+    
+    if env=="prod":
+        response = requests.post(helper_creds.get_teams_webhook_Z4()['url'],headers=headers, data=json.dumps(payload))
+        requests.post(diffTeam,headers=headers, data=json.dumps(payload))
+    else:
+        response = requests.post(testUrl,headers=headers, data=json.dumps(payload))   
 
 def outputz3():
-    
+ 
     lookback=1 #1 hr
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
+            
     #grab hourly 
     sql=f"""
 
@@ -217,12 +257,20 @@ def outputz3():
     and a.name like '3BM%%'
     group by a.name
     """
+    
     df=db_connector(False,"MOS",sql=sql)
-    outout_BMA1=df['UPH'][0]
+    print('**df before 0',df)
+    payload={"title":"connection to db_connector is made"}
+    df.fillna(0)
+    print('**df after 0 filled',df)
+    
+    outout_BMA1= df['UPH'][0]
     outout_BMA2=df['UPH'][1]
     outout_BMA3=df['UPH'][2]
     outout_BMA4=df['UPH'][3]
-    outout_BMA5=df['UPH'][4]
+    outout_BMA5=df['UPH'][4] 
+
+
     title='Zone 3 Hourly Update'
     payload={"title":title, 
         "summary":"summary",
@@ -240,9 +288,17 @@ def outputz3():
     'Content-Type': 'application/json'
     }
     #post to BMA123-PE --> Output Channel
-   # response = requests.post(teams_webhook_Z3,headers=headers, data=json.dumps(payload))
+# response = requests.post(teams_webhook_Z3,headers=headers, data=json.dumps(payload))
 
-    response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
+
+    if env=="prod":
+        requests.post(helper_creds.get_teams_webhook_Z3()['url'],headers=headers, data=json.dumps(payload))
+        requests.post(diffTeam,headers=headers, data=json.dumps(payload))
+    
+    else:   
+        response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
+
+
     
 #output()
 #outputz3()
@@ -257,11 +313,16 @@ def run_schedule():
 if __name__ == '__main__':
     if debug==True:
         logging.info("serve_active")
+        outputz3()
+        outputz4()
+        output45()
     elif debug==False:
-        output
+        env=os.getenv('ENVVAR3')
+        logging.info("Code is running...better go catch it!")
         schedule.every().hour.at(":00").do(output)
         schedule.every().hour.at(":01").do(output45)
         schedule.every().hour.at(":02").do(outputz4)
         schedule.every().hour.at(":03").do(outputz3)
         run_schedule()
-        logging.info("serve_active")
+        logging.info.info("serve_active")
+        
