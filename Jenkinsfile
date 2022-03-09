@@ -85,7 +85,7 @@ podTemplate(label: label,
 
         container('docker') {
           //dockerTagAndPush("docker-registry-creds", dockerRegistry, applicationName, imageTag)
-          dockerTagAndPush("gf1pe-docker-registry-creds", dockerRegistry, applicationName, imageTag)
+          dockerTagAndPush("docker-registry-creds", dockerRegistry, applicationName, imageTag)
         }
         println "Deploying image_tag=${imageTag} \n"
         println "sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/bmaoutput.yaml | kubectl apply -f -"
