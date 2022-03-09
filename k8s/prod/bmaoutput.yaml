@@ -48,7 +48,7 @@ spec:
         secret:
           secretName: gf1pe-creds
       imagePullSecrets:
-      - name: regsecret
+      - name: gf1pe-docker-registry-creds
 ---
 apiVersion: v1
 kind: Service
