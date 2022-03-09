@@ -20,7 +20,7 @@ def dockerLogin(credentialsID, dockerRegistry) {
 
 def dockerTagAndPush(credentialsID, dockerRegistry, applicationName, imageTag) {
   def image = sh(returnStdout: true, script: "docker inspect --format='{{.Id}}' $applicationName:latest").toString().trim()
-  def dockerImage = "$dockerRegistry/tesla/m3bppe/$applicationName"
+  def dockerImage = "$dockerRegistry/$dockerShop/$applicationName"
 
   dockerLogin(credentialsID, dockerRegistry)
 
@@ -35,7 +35,8 @@ def label = "build-" + uuid.take(8)
 
 // Application variables
 def applicationName = "bmaoutput"
-def dockerRegistry = "artifactory.teslamotors.com:2002"
+def dockerRegistry = "artifactory.teslamotors.com:2194"
+def dockerShop = "battery-pack"
 def branchName = getBranchName()
 
 properties([
@@ -68,7 +69,7 @@ podTemplate(label: label,
         println "Deploying to Development\n"
 
         container('docker') {
-          dockerTagAndPush("docker-registry-creds", dockerRegistry, applicationName, imageTag)
+          dockerTagAndPush("gf1pe-docker-registry-creds", dockerRegistry, applicationName, imageTag)
         }
 
         container('kubectl') {
@@ -84,8 +85,7 @@ podTemplate(label: label,
         println "Deploying to Production\n"
 
         container('docker') {
-          //dockerTagAndPush("docker-registry-creds", dockerRegistry, applicationName, imageTag)
-          dockerTagAndPush("docker-registry-creds", dockerRegistry, applicationName, imageTag)
+          dockerTagAndPush("gf1pe-docker-registry-creds", dockerRegistry, applicationName, imageTag)
         }
         println "Deploying image_tag=${imageTag} \n"
         println "sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/bmaoutput.yaml | kubectl apply -f -"
