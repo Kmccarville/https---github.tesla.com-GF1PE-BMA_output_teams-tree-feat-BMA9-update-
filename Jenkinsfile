@@ -18,7 +18,7 @@ def dockerLogin(credentialsID, dockerRegistry) {
   }
 }
 
-def dockerTagAndPush(credentialsID, dockerRegistry, applicationName, imageTag) {
+def dockerTagAndPush(credentialsID, dockerRegistry, dockerShop, applicationName, imageTag) {
   def image = sh(returnStdout: true, script: "docker inspect --format='{{.Id}}' $applicationName:latest").toString().trim()
   def dockerImage = "$dockerRegistry/$dockerShop/$applicationName"
 
