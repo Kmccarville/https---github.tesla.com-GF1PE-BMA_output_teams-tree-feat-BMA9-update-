@@ -68,8 +68,8 @@ podTemplate(label: label,
       if (branchName ==~ /dev/) {
         println "Deploying to Development\n"
 
-        container('docker') {
-          dockerTagAndPush("gf1pe-docker-registry-creds", dockerRegistry, applicationName, imageTag)
+          container('docker') {
+          dockerTagAndPush("gf1pe-docker-registry-creds", dockerRegistry, dockerShop,applicationName, imageTag)
         }
 
         container('kubectl') {
@@ -84,9 +84,10 @@ podTemplate(label: label,
       if (branchName ==~ /prod/) {
         println "Deploying to Production\n"
 
-        container('docker') {
-          dockerTagAndPush("gf1pe-docker-registry-creds", dockerRegistry, applicationName, imageTag)
+          container('docker') {
+          dockerTagAndPush("gf1pe-docker-registry-creds", dockerRegistry, dockerShop,applicationName, imageTag)
         }
+
         println "Deploying image_tag=${imageTag} \n"
         println "sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/bmaoutput.yaml | kubectl apply -f -"
         container('kubectl') {
