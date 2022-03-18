@@ -6,14 +6,16 @@ from xml.etree import ElementTree
 from io import BytesIO
 import pandas as pd
 from io import StringIO
+from github import Github
+import helper_creds
+import urllib.parse
 
 debug=masterdebug
-
 logging.basicConfig(level=logging.INFO)
 
 
 if debug == True:
-    with open('pass.txt') as f:
+    with open('gf1pe_prod_cred.json') as f:
         lines = f.readlines()
         f.close()
         env='local_laptop'
@@ -24,49 +26,51 @@ elif debug ==False:
         f.close()
         env=os.getenv('ENVVAR2')
         user=os.getenv('ENVVAR4')
-password=lines[5]
-password=str(password)
-password=str.strip(password)
 
+#get service account token to read github repos
+sa_ghe_json=helper_creds.get_sa_ghe()
+user=sa_ghe_json["user"]
+password=urllib.parse.quote_plus(sa_ghe_json["password"])
+g = Github(base_url="https://github.tesla.com/api/v3", login_or_token=password)
 
 
 
 def bmaoutput():
-    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bmaoutput.sql'
-    r = requests.get(url, auth=(user, password ))
-    return r.text
+    repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
+    contents = repo.get_contents("bmaoutput.sql").decoded_content.decode()
+    return contents
 
 def bma4cta_output():
-    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma4cta_output.sql'
-    r = requests.get(url, auth=(user, password ))
-    return r.text
+    repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
+    contents = repo.get_contents("bma4cta_output.sql").decoded_content.decode()
+    return contents
 
 def bma5cta_output():
-    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma5cta_output.sql'
-    r = requests.get(url, auth=(user, password ))
-    return r.text
+    repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
+    contents = repo.get_contents("bma5cta_output.sql").decoded_content.decode()
+    return contents
 
 def bma4mamc_output():
-    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma4mamc_output.sql'
-    r = requests.get(url, auth=(user, password ))
-    return r.text
+    repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
+    contents = repo.get_contents("bma4mamc_output.sql").decoded_content.decode()
+    return contents
 
 def bma5mamc_output():
-    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma5mamc_output.sql'
-    r = requests.get(url, auth=(user, password ))
-    return r.text
+    repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
+    contents = repo.get_contents("bma5mamc_output.sql").decoded_content.decode()
+    return contents
 
 def bma4c3a_output():
-    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma4c3a_output.sql'
-    r = requests.get(url, auth=(user, password ))
-    return r.text
+    repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
+    contents = repo.get_contents("bma4c3a_output.sql").decoded_content.decode()
+    return contents
 
 def bma5c3a_output():
-    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma5c3a_output.sql'
-    r = requests.get(url, auth=(user, password ))
-    return r.text
+    repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
+    contents = repo.get_contents("bma5c3a_output.sql").decoded_content.decode()
+    return contents
 
 def zone4_output():
-    url = 'https://stash.teslamotors.com/projects/GF1PE/repos/gf1-pe-mysql-scripts/raw/bma5c3a_output.sql'
-    r = requests.get(url, auth=(user, password ))
-    return r.text
+    repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
+    contents = repo.get_contents("bma5c3a_output.sql").decoded_content.decode()
+    return contents

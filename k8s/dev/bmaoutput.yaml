@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: bmaoutput
-        image: artifactory.teslamotors.com:2002/tesla/m3bppe/bmaoutput:$IMG_TAG
+        image: artifactory.teslamotors.com:2194/battery-pack/bmaoutput:$IMG_TAG
         ports:
         - containerPort: 80
         volumeMounts:
@@ -46,9 +46,9 @@ spec:
       volumes:
       - name: creds-vol
         secret:
-          secretName: bmaoutput-prod-creds
+          secretName: gf1pe-creds
       imagePullSecrets:
-      - name: regsecret
+      - name: gf1pe-docker-registry-creds
 ---
 apiVersion: v1
 kind: Service

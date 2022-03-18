@@ -18,9 +18,9 @@ def dockerLogin(credentialsID, dockerRegistry) {
   }
 }
 
-def dockerTagAndPush(credentialsID, dockerRegistry, applicationName, imageTag) {
+def dockerTagAndPush(credentialsID, dockerRegistry, dockerShop, applicationName, imageTag) {
   def image = sh(returnStdout: true, script: "docker inspect --format='{{.Id}}' $applicationName:latest").toString().trim()
-  def dockerImage = "$dockerRegistry/tesla/m3bppe/$applicationName"
+  def dockerImage = "$dockerRegistry/$dockerShop/$applicationName"
 
   dockerLogin(credentialsID, dockerRegistry)
 
@@ -35,7 +35,8 @@ def label = "build-" + uuid.take(8)
 
 // Application variables
 def applicationName = "bmaoutput"
-def dockerRegistry = "artifactory.teslamotors.com:2002"
+def dockerRegistry = "artifactory.teslamotors.com:2194"
+def dockerShop = "battery-pack"
 def branchName = getBranchName()
 
 properties([
@@ -44,8 +45,8 @@ properties([
 
 podTemplate(label: label,
   containers: [
-    containerTemplate(name: 'docker', image: 'docker:latest', ttyEnabled: true, command: 'cat'),
-    containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl', ttyEnabled: true, command: 'cat'),
+    containerTemplate(name: 'docker', image: 'artifactory.teslamotors.com:2046/docker:latest', ttyEnabled: true, command: 'cat', resourceLimitCpu: '1' , resourceLimitMemory : '4Gi' ,resourceRequestCpu : '100m' , resourceRequestMemory : '512Mi'),
+    containerTemplate(name: 'kubectl', image: 'artifactory.teslamotors.com:2153/atm-baseimages/alpine:kubectl', ttyEnabled: true, command: 'cat',resourceLimitCpu: '1' , resourceLimitMemory : '4Gi' ,resourceRequestCpu : '100m' , resourceRequestMemory : '512Mi'),
   ],
   volumes: [
     hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
@@ -54,7 +55,7 @@ podTemplate(label: label,
 
   node(label) {
 
-    git poll: true, branch: env.BRANCH_NAME, credentialsId: 'git-creds', url: 'ssh://git@stash.teslamotors.com:7999/gf1pe/bma_output_teams.git'
+    git poll: true, branch: env.BRANCH_NAME, credentialsId: 'github-gf1pe-token', url: 'https://github.tesla.com/GF1PE/BMA_output_teams.git'
     def imageTag = getImageTag()
 
     stage('Build') {
@@ -67,27 +68,30 @@ podTemplate(label: label,
       if (branchName ==~ /dev/) {
         println "Deploying to Development\n"
 
-        container('docker') {
-          dockerTagAndPush("docker-registry-creds", dockerRegistry, applicationName, imageTag)
+          container('docker') {
+          dockerTagAndPush("gf1pe-docker-registry-creds", dockerRegistry, dockerShop,applicationName, imageTag)
         }
 
         container('kubectl') {
-          sh """
-              sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/bmaoutput.yaml | kubectl apply -f -
-          """
+           withCredentials([file(credentialsId: 'us-sjc37-eng-factory-config', variable: 'KUBECONFIG',)]) {
+            sh """
+                sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/bmaoutput.yaml | kubectl apply -f -
+            """
+           }
         }
       }
 
       if (branchName ==~ /prod/) {
         println "Deploying to Production\n"
 
-        container('docker') {
-          dockerTagAndPush("docker-registry-creds", dockerRegistry, applicationName, imageTag)
+          container('docker') {
+          dockerTagAndPush("gf1pe-docker-registry-creds", dockerRegistry, dockerShop,applicationName, imageTag)
         }
+
         println "Deploying image_tag=${imageTag} \n"
         println "sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/bmaoutput.yaml | kubectl apply -f -"
         container('kubectl') {
-          withCredentials([file(credentialsId: 'k8s-prod-cred', variable: 'KUBECONFIG',)]) {
+           withCredentials([file(credentialsId: 'us-sjc37-eng-factory-config', variable: 'KUBECONFIG',)]) {
           sh """
               sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/bmaoutput.yaml | kubectl apply -f -
           """
