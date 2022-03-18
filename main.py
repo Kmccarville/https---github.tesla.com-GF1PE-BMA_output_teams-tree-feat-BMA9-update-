@@ -15,6 +15,7 @@ from datetime import timedelta
 import helper_creds
 import os
 
+# test url is for a testing separate teams channel to debug without disruption to live team channel
 testUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/f229c49c229e4563b218df3f751aa116/6b1271fb-dfad-4abd-b25a-f204b0dbab0b'
 diffTeam = 'https://teslamotorsinc.webhook.office.com/webhookb2/d0dd0b4c-1758-4f4d-b84f-cfcd9eb8157b@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/6a8c5c3ce1124abb8b570ae99460f525/639be172-eebc-463e-931d-b6622209677d'
 logging.basicConfig(level=logging.INFO)
@@ -63,10 +64,10 @@ def output():
     #grab hourly data
     sql=bmaoutput()
     df=db_connector(False,"MOS",sql=sql) 
-    df.fillna(0)
-    print('zone 1 df ' , df)
+    df.fillna(0) # fills all sections with a 0 to be overwritten when pulled via db_connector, this avoids any null pointer errors
+    # print('zone 1 df ' , df)
     output_string= uph_calculation(df)
-    print('zone 1 output string ' ,output_string)
+    # print('zone 1 output string ' ,output_string)
     title='Hourly Summary'
 
     lookback=1 #1 hr
@@ -91,8 +92,8 @@ def output():
     df_sql_c3a_53=db_connector(False,"MOS",sql=sql_c3a_53)
     df_sql_mamac_53.fillna(0)
     df_sql_c3a_53.fillna(0)
-    print(df_sql_mamac_53)
-    print(df_sql_c3a_53)
+    # print(df_sql_mamac_53)
+    # print(df_sql_c3a_53)
 
     payload={"title":title, 
         "summary":"summary",
@@ -131,42 +132,42 @@ def output45():
     sql_bma4cta=sql_bma4cta.format(start_time=start,end_time=end)
     df_bma4cta=db_connector(False,"MOS",sql=sql_bma4cta)
     df_bma4cta.fillna(0)
-    print(df_bma4cta)
+    # print(df_bma4cta)
     bma4cta_o=df_bma4cta['count(distinct tp.thingid)/28'][0]
 
     sql_bma5cta=stash_reader.bma5cta_output()
     sql_bma5cta=sql_bma5cta.format(start_time=start,end_time=end)
     df_bma5cta=db_connector(False,"MOS",sql=sql_bma5cta)
     df_bma5cta.fillna(0)
-    print(df_bma5cta)
+    # print(df_bma5cta)
     bma5cta_o=df_bma5cta['count(distinct tp.thingid)/28'][0]
     
     sql_bma4mamc=stash_reader.bma4mamc_output()
     sql_bma4mamc=sql_bma4mamc.format(start_time=start,end_time=end)
     df_bma4mamc=db_connector(False,"MOS",sql=sql_bma4mamc)
     df_bma4mamc.fillna(0)
-    print( df_bma4mamc)
+    # print( df_bma4mamc)
     bma4mamc_o=df_bma4mamc['count(distinct tp.thingid)/4'][0]
 
     sql_bma5mamc=stash_reader.bma5mamc_output()
     sql_bma5mamc=sql_bma5mamc.format(start_time=start,end_time=end)
     df_bma5mamc=db_connector(False,"MOS",sql=sql_bma5mamc)
     df_bma5mamc.fillna(0)
-    print(df_bma5mamc)
+    # print(df_bma5mamc)
     bma5mamc_o=df_bma5mamc['count(distinct tp.thingid)/4'][0]
 
     sql_bma4c3a=stash_reader.bma4c3a_output()
     sql_bma4c3a=sql_bma4c3a.format(start_time=start,end_time=end)
     df_bma4c3a=db_connector(False,"MOS",sql=sql_bma4c3a)
     df_bma4c3a.fillna(0)
-    print(df_bma4c3a)
+    # print(df_bma4c3a)
     bma4c3a_o=df_bma4c3a['count(distinct tp.thingid)/4'][0]
 
     sql_bma5c3a=stash_reader.bma5c3a_output()
     sql_bma5c3a=sql_bma5c3a.format(start_time=start,end_time=end)
     df_bma5c3a=db_connector(False,"MOS",sql=sql_bma5c3a)
     df_bma5c3a.fillna(0)
-    print(df_bma5c3a)
+    # print(df_bma5c3a)
     bma5c3a_o=df_bma5c3a['count(distinct tp.thingid)/4'][0]
 
 
@@ -210,7 +211,7 @@ def outputz4():
     """
     
     df=db_connector(False,"MOS",sql=sql)
-    print(df)
+    # print(df)
     payload={"title":"connection to db_connector is made"}
     df.fillna(0)
 
@@ -259,10 +260,10 @@ def outputz3():
     """
     
     df=db_connector(False,"MOS",sql=sql)
-    print('**df before 0',df)
+    # print('**df before 0',df)
     payload={"title":"connection to db_connector is made"}
-    df.fillna(0)
-    print('**df after 0 filled',df)
+    df.fillna(0) 
+    # print('**df after 0 filled',df)
     
     outout_BMA1= df['UPH'][0]
     outout_BMA2=df['UPH'][1]
@@ -288,16 +289,12 @@ def outputz3():
     'Content-Type': 'application/json'
     }
     #post to BMA123-PE --> Output Channel
-# response = requests.post(teams_webhook_Z3,headers=headers, data=json.dumps(payload))
-
-
     if env=="prod":
         requests.post(helper_creds.get_teams_webhook_Z3()['url'],headers=headers, data=json.dumps(payload))
         requests.post(diffTeam,headers=headers, data=json.dumps(payload))
     
     else:   
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
-
 
     
 #output()
