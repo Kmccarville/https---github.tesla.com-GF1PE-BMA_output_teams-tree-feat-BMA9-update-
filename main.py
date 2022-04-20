@@ -17,7 +17,7 @@ import os
 
 # test url is for a testing separate teams channel to debug without disruption to live team channel
 testUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/f229c49c229e4563b218df3f751aa116/6b1271fb-dfad-4abd-b25a-f204b0dbab0b'
-diffTeam = 'https://teslamotorsinc.webhook.office.com/webhookb2/d0dd0b4c-1758-4f4d-b84f-cfcd9eb8157b@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/6a8c5c3ce1124abb8b570ae99460f525/639be172-eebc-463e-931d-b6622209677d'
+
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
 debug=masterdebug
@@ -114,7 +114,7 @@ def output():
     #post to BMA123-PE --> Output Channel
     if env=="prod":
         response = requests.post(helper_creds.get_teams_webhook_BMA123()['url'],headers=headers, data=json.dumps(payload))
-        requests.post(diffTeam,headers=headers, data=json.dumps(payload))
+        requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
     else:
          response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
     print(response.text.encode('utf8'))
@@ -185,10 +185,9 @@ def output45():
     'Content-Type': 'application/json'
     }
     #post to BMA123-PE --> Output Channel
-    #response = requests.post(teams_webhook_45,headers=headers, data=json.dumps(payload))
     if env=="prod":
         response = requests.post(helper_creds.get_teams_webhook_BMA45()['url'],headers=headers, data=json.dumps(payload))
-        requests.post(diffTeam,headers=headers, data=json.dumps(payload))
+        requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
     else: 
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
 
@@ -235,7 +234,7 @@ def outputz4():
     
     if env=="prod":
         response = requests.post(helper_creds.get_teams_webhook_Z4()['url'],headers=headers, data=json.dumps(payload))
-        requests.post(diffTeam,headers=headers, data=json.dumps(payload))
+        requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
     else:
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))   
 
@@ -291,7 +290,7 @@ def outputz3():
     #post to BMA123-PE --> Output Channel
     if env=="prod":
         requests.post(helper_creds.get_teams_webhook_Z3()['url'],headers=headers, data=json.dumps(payload))
-        requests.post(diffTeam,headers=headers, data=json.dumps(payload))
+        requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
     
     else:   
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
@@ -310,11 +309,11 @@ def run_schedule():
 if __name__ == '__main__':
     if debug==True:
         logging.info("serve_active")
-        outputz3()
-        outputz4()
-        output45()
+        output()
+  
     elif debug==False:
         env=os.getenv('ENVVAR3')
+
         logging.info("Code is running...better go catch it!")
         schedule.every().hour.at(":00").do(output)
         schedule.every().hour.at(":01").do(output45)

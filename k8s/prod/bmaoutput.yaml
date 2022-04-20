@@ -46,7 +46,7 @@ spec:
       volumes:
       - name: creds-vol
         secret:
-          secretName: gf1pe-creds
+          secretName: gf1pe-creds-bma
       imagePullSecrets:
       - name: gf1pe-docker-registry-creds
 ---
