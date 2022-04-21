@@ -86,3 +86,6 @@ def get_teams_webhook_Z3():
 
 def get_teams_webhook_Z4():
     return pw_json["teams_webhook_Zone4_Updates"]
+
+def get_teams_webhook_MY3():
+    return pw_json["teams_webhook_MY3_Leadership"]
