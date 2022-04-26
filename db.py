@@ -89,7 +89,7 @@ def db_connector(write,db,**kwargs): #db=MOS,PLC,Pallet,prodengdb kwargs=**sql,*
                 error_handler.e_handler(e)
                 con_db.close()
 
-     if db=="PLC" and "sql" in kwargs and write==False:
+    if db=="PLC" and "sql" in kwargs and write==False:
         sql=kwargs['sql']
         try:
             engine=create_engine(f"mysql+pymysql://{plc_creds['user']}:{plc_creds['password']}@{plc_creds['host']}:{plc_creds['port']}/{plc_creds['db']['info_eq_module']}")
