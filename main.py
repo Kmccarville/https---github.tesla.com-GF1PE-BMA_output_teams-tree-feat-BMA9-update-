@@ -427,11 +427,19 @@ def outputz3():
         end = f"<tr><td><b>TOTAL</b></td><td>{total_output}</td></tr>  </table>"
             
         return start+header+data+end
-    
+    print('about to read first zone 3 query')
     uph_df = query_uph(start,end)
+    print('got uph_df')
+    print(uph_df.head())
     ing_df = query_tsm_state(start,end,INGRESS_PATHS,"Starved")
+    print('got ing_df')
+    print(ing_df.head())
     po_df = query_tsm_state(start,end,PO_PATHS,"Starved",1)
+    print('got po_df')
+    print(po_df.head())
     wb_ct_df,wb_i_ct_df = query_bonder_ct(start,end)
+    print('got wb_ct_df')
+    print(wb_ct_df.head())
 
     row = []
     all_dfs = [uph_df,ing_df,po_df,wb_ct_df,wb_i_ct_df]
@@ -441,12 +449,14 @@ def outputz3():
         row = [get_val(df,line) for df in all_dfs]
         row.insert(0,line)
         main_df.loc[len(main_df)] = row
-
+    print('generated main_df')
+    print(main_df.head())
     total_output = 0
     for row in main_df.itertuples(False,'Tuples'):
         total_output += row.UPH
-
+    print("this is the total_output" + str(total_output))
     html_payload = make_html_payload(main_df,total_output)
+    print("created payload")
     title='Zone 3 Hourly Update'
     payload={"title":title, 
             "summary":"summary",
@@ -485,7 +495,7 @@ if __name__ == '__main__':
         schedule.every().hour.at(":00").do(output)
         schedule.every().hour.at(":01").do(output45)
         schedule.every().hour.at(":02").do(outputz4)
-        schedule.every().hour.at(":03").do(outputz3)
+        schedule.every().hour.at(":44").do(outputz3)
         run_schedule()
         logging.info.info("serve_active")
         
