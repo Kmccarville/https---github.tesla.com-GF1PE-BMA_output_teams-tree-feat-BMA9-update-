@@ -351,8 +351,8 @@ def outputz3():
         """
         df= db_connector(False,"MOS",sql=ct_query)
         
-        ct_df = pd.DataFrame(columns=['LINE','CT'])
-        i_ct_df = pd.DataFrame(columns=['LINE','I_CT'])
+        ct_df = pd.DataFrame({'LINE' : [], 'CT' : []})
+        i_ct_df = pd.DataFrame({'LINE' : [], 'I_CT' : []})
         row = []
         for line in LINE_LIST:
             sub_df = df.query(f"LINE=='{line}'")
@@ -444,7 +444,7 @@ def outputz3():
     row = []
     all_dfs = [uph_df,ing_df,po_df,wb_ct_df,wb_i_ct_df]
     column_names = ['LINE','UPH','STARVED_WIP','STARVED_MTR','WB_ACTUAL_CT','WB_IDEAL_CT']
-    main_df = pd.DataFrame(columns=column_names)
+    main_df = pd.DataFrame({'LINE' : [], 'UPH' : [], 'STARVED_WIP' : [], 'STARVED_MTR' : [], 'WB_ACTUAL_CT' : [], 'WB_IDEAL_CT' : []})
     for line in LINE_LIST:
         row = [get_val(df,line) for df in all_dfs]
         row.insert(0,line)
