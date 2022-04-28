@@ -1,3 +1,4 @@
+from contextlib import nullcontext
 import time
 import schedule
 from datetime import datetime
@@ -364,8 +365,12 @@ def outputz3():
                 ideal_ct = WB_CT_DICT[line][row.MODEL]
                 count_x_ct += row.MOD_COUNT*row.CT
                 count_x_ict += row.MOD_COUNT*ideal_ct
-            avg_ct = round(count_x_ct/mod_count)
-            avg_i_ct = round(count_x_ict/mod_count)
+            if mod_count:
+                avg_ct = round(count_x_ct/mod_count)
+                avg_i_ct = round(count_x_ict/mod_count)
+            else:
+                avg_ct = 'null'
+                avg_i_ct = 'null'
             row = [line,avg_ct]
             i_row = [line,avg_i_ct]
             ct_df.loc[len(ct_df)] = row
