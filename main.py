@@ -399,6 +399,8 @@ def outputz3():
         if len(df):
             sub_df = df.query(f"LINE=='{line}'")
             val = sub_df.iloc[0][1] if len(sub_df) else 0
+        elif not list(df.columns):
+            val = -99
         else:
             val = 0
         return val
@@ -433,8 +435,12 @@ def outputz3():
             
         return start+header+data+end
     uph_df = query_uph(start,end)
-    ing_df = query_tsm_state(start,end,INGRESS_PATHS,"Starved")
-    po_df = query_tsm_state(start,end,PO_PATHS,"Starved",1)
+    try:
+        ing_df = query_tsm_state(start,end,INGRESS_PATHS,"Starved")
+        po_df = query_tsm_state(start,end,PO_PATHS,"Starved",1)
+    except:
+        ing_df = pd.DataFrame({})
+        po_df = pd.DataFrame({})
     wb_ct_df,wb_i_ct_df = query_bonder_ct(start,end)
 
     row = []
