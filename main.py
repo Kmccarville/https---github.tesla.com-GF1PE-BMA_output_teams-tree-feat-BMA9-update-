@@ -493,10 +493,7 @@ if __name__ == '__main__':
         schedule.every().hour.at(":00").do(output)
         schedule.every().hour.at(":01").do(output45)
         schedule.every().hour.at(":02").do(outputz4)
-        schedule.every().hour.at(":10").do(outputz3)
-        schedule.every().hour.at(":25").do(outputz3)
-        schedule.every().hour.at(":40").do(outputz3)
-        schedule.every().hour.at(":55").do(outputz3)
+        schedule.every().hour.at(":03").do(outputz3)
         run_schedule()
         logging.info.info("serve_active")
         
