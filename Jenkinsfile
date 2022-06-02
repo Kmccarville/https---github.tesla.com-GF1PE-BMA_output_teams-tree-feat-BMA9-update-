@@ -40,7 +40,7 @@ def dockerShop = "battery-pack"
 def branchName = getBranchName()
 
 properties([
-  pipelineTriggers([pollSCM('H/5 * * * *')])
+  pipelineTriggers([githubPush()])
 ])
 
 podTemplate(label: label,
