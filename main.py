@@ -498,5 +498,6 @@ if __name__ == '__main__':
         run_schedule()
 
         if env == "dev":
-            schedule.run_all(delay_seconds=20)
             logging.info("Run all command executed")
+            schedule.run_all(delay_seconds=20)
+            logging.info("Run all command complete")
