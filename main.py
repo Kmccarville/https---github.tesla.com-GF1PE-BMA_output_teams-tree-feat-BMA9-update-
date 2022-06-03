@@ -495,13 +495,8 @@ if __name__ == '__main__':
         schedule.every().hour.at(":01").do(output45)
         schedule.every().hour.at(":02").do(outputz4)
         schedule.every().hour.at(":03").do(outputz3)
-        # run_schedule()
+        run_schedule()
 
         if env == "dev":
-            schedule.run_all(delay_seconds=60)
+            schedule.run_all(delay_seconds=20)
             logging.info("Run all command executed")
-        elif env == "prod":
-            run_schedule()
-            logging.info("Prod output scheduled")
-        else:
-            logging.info("ENVVAR3 not valid")
