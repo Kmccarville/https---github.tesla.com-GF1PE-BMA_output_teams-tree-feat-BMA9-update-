@@ -80,19 +80,19 @@ def output():
     sql_mamac_53=f"""
     SELECT count(distinct tp.thingid)/4 FROM thingpath tp
     JOIN flowstep f ON tp.flowstepid = f.id
-    WHERE f.name in ('MBM-26000-02', 'MBM-27000-02') AND tp.exitcompletioncode = 'PASS' AND tp.completed between '{start}' and '{end}'
+    WHERE f.name in ('MBM-27000') AND tp.exitcompletioncode = 'PASS' AND tp.completed between '{start}' and '{end}'
     """
 
-    sql_c3a_53=f"""
-    SELECT count(distinct tp.thingid)/4 FROM thingpath tp
-    JOIN flowstep f ON tp.flowstepid = f.id
-    WHERE f.name in ('MBM-44000') AND tp.exitcompletioncode = 'PASS' AND tp.completed between '{start}' and '{end}'
-    """
+    # sql_c3a_53=f"""
+    # SELECT count(distinct tp.thingid)/4 FROM thingpath tp
+    # JOIN flowstep f ON tp.flowstepid = f.id
+    # WHERE f.name in ('MBM-44000') AND tp.exitcompletioncode = 'PASS' AND tp.completed between '{start}' and '{end}'
+    # """
 
     df_sql_mamac_53=db_connector(False,"MOS",sql=sql_mamac_53)
-    df_sql_c3a_53=db_connector(False,"MOS",sql=sql_c3a_53)
+    #df_sql_c3a_53=db_connector(False,"MOS",sql=sql_c3a_53)
     df_sql_mamac_53.fillna(0)
-    df_sql_c3a_53.fillna(0)
+    #df_sql_c3a_53.fillna(0)
     # print(df_sql_mamac_53)
     # print(df_sql_c3a_53)
 
@@ -104,8 +104,8 @@ def output():
             <tr><td>BMA1</td><td> {output_string[0]}</td><td> {output_string[1]}</td><td> {output_string[2]}</td></tr>
             <tr><td>BMA2</td><td> {output_string[3]}</td><td> {output_string[4]}</td><td> {output_string[5]}</td></tr>
             <tr><td>BMA3</td><td> {output_string[6]}</td><td> {output_string[7]}</td><td> {output_string[8]}</td></tr>
-            <tr><td>SA53</td><td> 0 </td><td> {df_sql_mamac_53['count(distinct tp.thingid)/4'][0]} </td><td> {df_sql_c3a_53['count(distinct tp.thingid)/4'][0]} </td></tr>
-            <tr><td><b>TOTAL</b></td><td>{round(output_string[0]+output_string[3]+output_string[6],2)}</td><td>{round(output_string[1]+output_string[4]+output_string[7]+df_sql_mamac_53['count(distinct tp.thingid)/4'][0],2)}</td><td>{round(output_string[2]+output_string[5]+output_string[8]+df_sql_c3a_53['count(distinct tp.thingid)/4'][0],2)}</td></tr>
+            <tr><td>MMAMC3</td><td> 0 </td><td> {df_sql_mamac_53['count(distinct tp.thingid)/4'][0]} </td><td> 0 </td></tr>
+            <tr><td><b>TOTAL</b></td><td>{round(output_string[0]+output_string[3]+output_string[6],2)}</td><td>{round(output_string[1]+output_string[4]+output_string[7]+df_sql_mamac_53['count(distinct tp.thingid)/4'][0],2)}</td><td>{round(output_string[2]+output_string[5]+output_string[8],2)}</td></tr>
             </table>""" }]}
     
     headers = {
