@@ -498,7 +498,7 @@ if __name__ == '__main__':
         # run_schedule()
 
         if env == "dev":
-            schedule.run_all(delay_minutes=1)
+            schedule.run_all(delay_seconds=60)
             logging.info("Run all command executed")
         elif env == "prod":
             run_schedule()
