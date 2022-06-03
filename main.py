@@ -80,7 +80,7 @@ def output():
     sql_mamac_53=f"""
     SELECT count(distinct tp.thingid)/4 FROM thingpath tp
     JOIN flowstep f ON tp.flowstepid = f.id
-    WHERE f.name in ('MBM-27000') AND tp.exitcompletioncode = 'PASS' AND tp.completed between '{start}' and '{end}'
+    WHERE f.name in ('MBM-25000') AND tp.exitcompletioncode = 'PASS' AND tp.completed between '{start}' and '{end}'
     """
 
     # sql_c3a_53=f"""
