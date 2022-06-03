@@ -495,9 +495,11 @@ if __name__ == '__main__':
         schedule.every().hour.at(":01").do(output45)
         schedule.every().hour.at(":02").do(outputz4)
         schedule.every().hour.at(":03").do(outputz3)
-        run_schedule()
 
         if env == "dev":
             logging.info("Run all command executed")
             schedule.run_all(delay_seconds=20)
             logging.info("Run all command complete")
+
+        logging.info("Run Schedule initiated")
+        run_schedule()
