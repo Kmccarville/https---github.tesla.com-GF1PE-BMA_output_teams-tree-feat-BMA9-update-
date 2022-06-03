@@ -489,10 +489,19 @@ if __name__ == '__main__':
         env=os.getenv('ENVVAR3')
 
         logging.info("Code is running...better go catch it!")
+        logging.info("Environment: %s", env)
+
         schedule.every().hour.at(":00").do(output)
         schedule.every().hour.at(":01").do(output45)
         schedule.every().hour.at(":02").do(outputz4)
         schedule.every().hour.at(":03").do(outputz3)
-        run_schedule()
-        logging.info.info("serve_active")
-        
+        # run_schedule()
+
+        if env == "dev":
+            schedule.run_all(delay_minutes=1)
+            logging.info("Run all command executed")
+        elif env == "prod":
+            run_schedule()
+            logging.info("Prod output scheduled")
+        else:
+            logging.info("ENVVAR3 not valid")
