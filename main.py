@@ -59,8 +59,8 @@ def uph_calculation(df):
     string = [len(ACTA1)/28 ,len(NESTED1)/4, len(AC3A1)/4, len(ACTA2)/28 ,len(NESTED2)/4 , len(AC3A2)/4, len(ACTA3)/28, len(NESTED3)/4 , len(AC3A3)/4]
     string_format = [ round(elem,2) for elem in string ]
     return(string_format)
-   
-def output():
+
+def output123():
     lookback=1 #1 hr
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
@@ -116,8 +116,6 @@ def output():
     else:
          response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
     print(response.text.encode('utf8'))
-    
-   
 
 def output45():
     lookback=1 #1 hr
@@ -467,12 +465,6 @@ def outputz3():
     else:   
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
 
-    
-#output()
-#outputz3()
-#outputz4()
-#output45()
-
 def run_schedule():
     while 1:
         schedule.run_pending()
@@ -481,23 +473,26 @@ def run_schedule():
 if __name__ == '__main__':
     if debug==True:
         logging.info("serve_active")
-        output()
+        output123()
   
     elif debug==False:
         env=os.getenv('ENVVAR3')
+        firstscan = False
 
         logging.info("Code is running...better go catch it!")
         logging.info("Environment: %s", env)
 
-        schedule.every().hour.at(":00").do(output)
+        schedule.every().hour.at(":00").do(output123)
         schedule.every().hour.at(":01").do(output45)
         schedule.every().hour.at(":02").do(outputz4)
         schedule.every().hour.at(":03").do(outputz3)
 
-        if env == "dev":
+        firstscan=TRUE
+        if env == "dev" and firstscan == True:
             logging.info("Run all command executed")
             schedule.run_all(delay_seconds=10)
             logging.info("Run all command complete")
+            firstscan = False
 
         logging.info("Hourly run schedule initiated")
         run_schedule()
