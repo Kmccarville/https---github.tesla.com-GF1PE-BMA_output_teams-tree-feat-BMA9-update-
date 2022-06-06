@@ -38,6 +38,7 @@ if env == "prod":
     branchstring = "master"
 else:
     branchstring = "dev"
+logging.info("Branchstring: %s", branchstring)
 
 def bma123_output():
     repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts",ref=branchstring)
