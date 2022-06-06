@@ -130,6 +130,7 @@ def output45():
     df_bma4cta.fillna(0)
     # print(df_bma4cta)
     bma4cta_o=df_bma4cta['count(distinct tp.thingid)/28'][0]
+    bma4cta_o=round(bma4cta_o,2)
 
     sql_bma5cta=stash_reader.bma5cta_output()
     sql_bma5cta=sql_bma5cta.format(start_time=start,end_time=end)
@@ -137,7 +138,8 @@ def output45():
     df_bma5cta.fillna(0)
     # print(df_bma5cta)
     bma5cta_o=df_bma5cta['count(distinct tp.thingid)/28'][0]
-    
+    bma5cta_o=round(bma5cta_o,2)
+
     sql_bma4mamc=stash_reader.bma4mamc_output()
     sql_bma4mamc=sql_bma4mamc.format(start_time=start,end_time=end)
     df_bma4mamc=db_connector(False,"MOS",sql=sql_bma4mamc)
