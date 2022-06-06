@@ -62,13 +62,6 @@ def uph_calculation(df):
     return(string_format)
    
 def output():
-    #grab hourly data
-    sql=bmaoutput()
-    df=db_connector(False,"MOS",sql=sql) 
-    df.fillna(0) # fills all sections with a 0 to be overwritten when pulled via db_connector, this avoids any null pointer errors
-    # print('zone 1 df ' , df)
-    output_string= uph_calculation(df)
-    # print('zone 1 output string ' ,output_string)
     title='Hourly Summary'
 
     lookback=1 #1 hr
@@ -76,8 +69,16 @@ def output():
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
-    #grab hourly 
-    sql_mamac_53=f"""
+
+    #grab hourly bma123
+    sql_bma123=stash_reader.bma123_output()
+    sql_bma123=sql_bma123.format(start_time=start,end_time=end)
+    df_bma123=db_connector(False,"MOS",sql=sql_bma123)
+    df_bma123.fillna(0)
+    output_string= uph_calculation(df_bma123)
+
+    #grab hourly MMAMC 
+    sql_mmamc3=f"""
     SELECT count(distinct tp.thingid)/4 FROM thingpath tp
     WHERE tp.flowstepname = 'MBM-25000' AND tp.exitcompletioncode = 'PASS' AND tp.completed between '{start}' and '{end}'
     """
@@ -88,11 +89,11 @@ def output():
     # WHERE f.name in ('MBM-44000') AND tp.exitcompletioncode = 'PASS' AND tp.completed between '{start}' and '{end}'
     # """
 
-    df_sql_mamac_53=db_connector(False,"MOS",sql=sql_mamac_53)
+    df_sql_mmamc3=db_connector(False,"MOS",sql=sql_mmamc3)
     #df_sql_c3a_53=db_connector(False,"MOS",sql=sql_c3a_53)
-    df_sql_mamac_53.fillna(0)
+    df_sql_mmamc3.fillna(0)
     #df_sql_c3a_53.fillna(0)
-    # print(df_sql_mamac_53)
+    # print(df_sql_mmamc3)
     # print(df_sql_c3a_53)
 
     payload={"title":title, 
@@ -103,8 +104,8 @@ def output():
             <tr><td>BMA1</td><td> {output_string[0]}</td><td> {output_string[1]}</td><td> {output_string[2]}</td></tr>
             <tr><td>BMA2</td><td> {output_string[3]}</td><td> {output_string[4]}</td><td> {output_string[5]}</td></tr>
             <tr><td>BMA3</td><td> {output_string[6]}</td><td> {output_string[7]}</td><td> {output_string[8]}</td></tr>
-            <tr><td>MMAMC3</td><td> 0 </td><td> {df_sql_mamac_53['count(distinct tp.thingid)/4'][0]} </td><td> 0 </td></tr>
-            <tr><td><b>TOTAL</b></td><td>{round(output_string[0]+output_string[3]+output_string[6],2)}</td><td>{round(output_string[1]+output_string[4]+output_string[7]+df_sql_mamac_53['count(distinct tp.thingid)/4'][0],2)}</td><td>{round(output_string[2]+output_string[5]+output_string[8],2)}</td></tr>
+            <tr><td>MMAMC3</td><td> 0 </td><td> {df_sql_mmamc3['count(distinct tp.thingid)/4'][0]} </td><td> 0 </td></tr>
+            <tr><td><b>TOTAL</b></td><td>{round(output_string[0]+output_string[3]+output_string[6],2)}</td><td>{round(output_string[1]+output_string[4]+output_string[7]+df_sql_mmamc3['count(distinct tp.thingid)/4'][0],2)}</td><td>{round(output_string[2]+output_string[5]+output_string[8],2)}</td></tr>
             </table>""" }]}
     
     headers = {
