@@ -47,7 +47,7 @@ def bma123_output():
 
 def bma4cta_output():
     repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
-    contents = repo.get_contents("bma4cta_output.sql",ref="dev").decoded_content.decode()
+    contents = repo.get_contents("bma4cta_output.sql",ref=branchstring).decoded_content.decode()
     return contents
 
 def bma5cta_output():
