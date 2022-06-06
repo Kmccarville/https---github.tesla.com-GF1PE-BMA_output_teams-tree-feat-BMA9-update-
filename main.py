@@ -477,7 +477,6 @@ if __name__ == '__main__':
   
     elif debug==False:
         env=os.getenv('ENVVAR3')
-        firstscan = False
 
         logging.info("Code is running...better go catch it!")
         logging.info("Environment: %s", env)
@@ -487,12 +486,10 @@ if __name__ == '__main__':
         schedule.every().hour.at(":02").do(outputz4)
         schedule.every().hour.at(":03").do(outputz3)
 
-        firstscan=TRUE
-        if env == "dev" and firstscan == True:
+        if env == "dev":
             logging.info("Run all command executed")
             schedule.run_all(delay_seconds=10)
             logging.info("Run all command complete")
-            firstscan = False
 
         logging.info("Hourly run schedule initiated")
         run_schedule()
