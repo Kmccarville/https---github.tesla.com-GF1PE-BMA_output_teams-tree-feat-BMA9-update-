@@ -10,7 +10,6 @@ from db import db_connector
 import requests
 import json
 import pandas as pd
-from stash_reader import bmaoutput
 import stash_reader
 from datetime import timedelta
 import helper_creds

@@ -42,7 +42,7 @@ logging.info("Branchstring: %s", branchstring)
 
 def bma123_output():
     repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts",ref=branchstring)
-    contents = repo.get_contents("bmaoutput.sql").decoded_content.decode()
+    contents = repo.get_contents("bma123_output.sql").decoded_content.decode()
     return contents
 
 def bma4cta_output():
