@@ -62,8 +62,6 @@ def uph_calculation(df):
     return(string_format)
    
 def output():
-    title='Hourly Summary'
-
     lookback=1 #1 hr
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
@@ -95,7 +93,7 @@ def output():
     #df_sql_c3a_53.fillna(0)
     # print(df_sql_mmamc3)
     # print(df_sql_c3a_53)
-
+    title='Hourly Summary'
     payload={"title":title, 
         "summary":"summary",
         "sections":[
@@ -193,7 +191,7 @@ def output45():
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
 
 def outputz4():
-    logging.info("made it to zone 4 output for the hour")
+    #logging.info("made it to zone 4 output for the hour")
 
     lookback=1 #1 hr
     now=datetime.utcnow() 
@@ -209,14 +207,14 @@ def outputz4():
     AND tp.completed between '{start}' and '{end}'
     group by f.name
     """
-    
-    df=db_connector(False,"MOS",sql=sql)
-    # print(df)
-    payload={"title":"connection to db_connector is made"}
-    df.fillna(0)
 
-    outout_MC1=df['UPH'][0]
-    outout_MC2=df['UPH'][1]
+    sql_bmaZ4=stash_reader.bmaZ4_output()
+    sql_bmaZ4=sql_bmaZ4.format(start_time=start,end_time=end)
+    df_bmaZ4=db_connector(False,"MOS",sql=sql_bmaZ4)
+    df_bmaZ4.fillna(0)
+
+    outout_MC1=df_bmaZ4['UPH'][0]
+    outout_MC2=df_bmaZ4['UPH'][1]
         
     title='Zone 4 Hourly Update'
     payload={"title":title, 
