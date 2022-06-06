@@ -42,40 +42,40 @@ logging.info("Branchstring: %s", branchstring)
 
 def bma123_output():
     repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
-    contents = repo.get_contents("bma123_output.sql",ref=branchstring).decoded_content.decode()
+    contents = repo.get_contents("bma123_output.sql",ref="dev").decoded_content.decode()
     return contents
 
 def bma4cta_output():
     repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
-    contents = repo.get_contents("bma4cta_output.sql",ref=branchstring).decoded_content.decode()
+    contents = repo.get_contents("bma4cta_output.sql",ref="dev").decoded_content.decode()
     return contents
 
 def bma5cta_output():
     repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
-    contents = repo.get_contents("bma5cta_output.sql",ref=branchstring).decoded_content.decode()
+    contents = repo.get_contents("bma5cta_output.sql",ref="dev").decoded_content.decode()
     return contents
 
 def bma4mamc_output():
     repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
-    contents = repo.get_contents("bma4mamc_output.sql",ref=branchstring).decoded_content.decode()
+    contents = repo.get_contents("bma4mamc_output.sql",ref="dev").decoded_content.decode()
     return contents
 
 def bma5mamc_output():
     repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
-    contents = repo.get_contents("bma5mamc_output.sql",ref=branchstring).decoded_content.decode()
+    contents = repo.get_contents("bma5mamc_output.sql",ref="dev").decoded_content.decode()
     return contents
 
 def bma4c3a_output():
     repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
-    contents = repo.get_contents("bma4c3a_output.sql",ref=branchstring).decoded_content.decode()
+    contents = repo.get_contents("bma4c3a_output.sql",ref="dev").decoded_content.decode()
     return contents
 
 def bma5c3a_output():
     repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
-    contents = repo.get_contents("bma5c3a_output.sql",ref=branchstring).decoded_content.decode()
+    contents = repo.get_contents("bma5c3a_output.sql",ref="dev").decoded_content.decode()
     return contents
 
 def zone4_output():
     repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
-    contents = repo.get_contents("bmaZ4_output.sql",ref=branchstring).decoded_content.decode()
+    contents = repo.get_contents("bmaZ4_output.sql",ref="dev").decoded_content.decode()
     return contents
