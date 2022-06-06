@@ -75,7 +75,7 @@ def bma5c3a_output():
     contents = repo.get_contents("bma5c3a_output.sql",ref="dev").decoded_content.decode()
     return contents
 
-def zone4_output():
+def bmaZ4_output():
     repo = g.get_repo("GF1PE/GF1-PE-MySQL_Scripts")
     contents = repo.get_contents("bmaZ4_output.sql",ref="dev").decoded_content.decode()
     return contents
