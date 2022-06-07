@@ -123,6 +123,7 @@ def output45():
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
+    
     #grab hourly data
     sql_bma4cta=stash_reader.bma4cta_output()
     sql_bma4cta=sql_bma4cta.format(start_time=start,end_time=end)
