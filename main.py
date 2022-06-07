@@ -10,7 +10,6 @@ from db import db_connector
 import requests
 import json
 import pandas as pd
-from stash_reader import bmaoutput
 import stash_reader
 from datetime import timedelta
 import helper_creds
@@ -60,24 +59,23 @@ def uph_calculation(df):
     string = [len(ACTA1)/28 ,len(NESTED1)/4, len(AC3A1)/4, len(ACTA2)/28 ,len(NESTED2)/4 , len(AC3A2)/4, len(ACTA3)/28, len(NESTED3)/4 , len(AC3A3)/4]
     string_format = [ round(elem,2) for elem in string ]
     return(string_format)
-   
-def output():
-    #grab hourly data
-    sql=bmaoutput()
-    df=db_connector(False,"MOS",sql=sql) 
-    df.fillna(0) # fills all sections with a 0 to be overwritten when pulled via db_connector, this avoids any null pointer errors
-    # print('zone 1 df ' , df)
-    output_string= uph_calculation(df)
-    # print('zone 1 output string ' ,output_string)
-    title='Hourly Summary'
 
+def output123():
     lookback=1 #1 hr
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
-    #grab hourly 
-    sql_mamac_53=f"""
+
+    #grab hourly bma123
+    sql_bma123=stash_reader.bma123_output()
+    sql_bma123=sql_bma123.format(start_time=start,end_time=end)
+    df_bma123=db_connector(False,"MOS",sql=sql_bma123)
+    df_bma123.fillna(0)
+    output_string= uph_calculation(df_bma123)
+
+    #grab hourly MMAMC 
+    sql_mmamc3=f"""
     SELECT count(distinct tp.thingid)/4 FROM thingpath tp
     WHERE tp.flowstepname = 'MBM-25000' AND tp.exitcompletioncode = 'PASS' AND tp.completed between '{start}' and '{end}'
     """
@@ -88,13 +86,13 @@ def output():
     # WHERE f.name in ('MBM-44000') AND tp.exitcompletioncode = 'PASS' AND tp.completed between '{start}' and '{end}'
     # """
 
-    df_sql_mamac_53=db_connector(False,"MOS",sql=sql_mamac_53)
+    df_sql_mmamc3=db_connector(False,"MOS",sql=sql_mmamc3)
     #df_sql_c3a_53=db_connector(False,"MOS",sql=sql_c3a_53)
-    df_sql_mamac_53.fillna(0)
+    df_sql_mmamc3.fillna(0)
     #df_sql_c3a_53.fillna(0)
-    # print(df_sql_mamac_53)
+    # print(df_sql_mmamc3)
     # print(df_sql_c3a_53)
-
+    title='Hourly Summary'
     payload={"title":title, 
         "summary":"summary",
         "sections":[
@@ -103,8 +101,8 @@ def output():
             <tr><td>BMA1</td><td> {output_string[0]}</td><td> {output_string[1]}</td><td> {output_string[2]}</td></tr>
             <tr><td>BMA2</td><td> {output_string[3]}</td><td> {output_string[4]}</td><td> {output_string[5]}</td></tr>
             <tr><td>BMA3</td><td> {output_string[6]}</td><td> {output_string[7]}</td><td> {output_string[8]}</td></tr>
-            <tr><td>MMAMC3</td><td> 0 </td><td> {df_sql_mamac_53['count(distinct tp.thingid)/4'][0]} </td><td> 0 </td></tr>
-            <tr><td><b>TOTAL</b></td><td>{round(output_string[0]+output_string[3]+output_string[6],2)}</td><td>{round(output_string[1]+output_string[4]+output_string[7]+df_sql_mamac_53['count(distinct tp.thingid)/4'][0],2)}</td><td>{round(output_string[2]+output_string[5]+output_string[8],2)}</td></tr>
+            <tr><td>MMAMC3</td><td> 0 </td><td> {df_sql_mmamc3['count(distinct tp.thingid)/4'][0]} </td><td> 0 </td></tr>
+            <tr><td><b>TOTAL</b></td><td>{round(output_string[0]+output_string[3]+output_string[6],2)}</td><td>{round(output_string[1]+output_string[4]+output_string[7]+df_sql_mmamc3['count(distinct tp.thingid)/4'][0],2)}</td><td>{round(output_string[2]+output_string[5]+output_string[8],2)}</td></tr>
             </table>""" }]}
     
     headers = {
@@ -118,8 +116,6 @@ def output():
     else:
          response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
     print(response.text.encode('utf8'))
-    
-   
 
 def output45():
     lookback=1 #1 hr
@@ -127,6 +123,7 @@ def output45():
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
+    
     #grab hourly data
     sql_bma4cta=stash_reader.bma4cta_output()
     sql_bma4cta=sql_bma4cta.format(start_time=start,end_time=end)
@@ -134,6 +131,7 @@ def output45():
     df_bma4cta.fillna(0)
     # print(df_bma4cta)
     bma4cta_o=df_bma4cta['count(distinct tp.thingid)/28'][0]
+    bma4cta_o=round(bma4cta_o,2)
 
     sql_bma5cta=stash_reader.bma5cta_output()
     sql_bma5cta=sql_bma5cta.format(start_time=start,end_time=end)
@@ -141,7 +139,8 @@ def output45():
     df_bma5cta.fillna(0)
     # print(df_bma5cta)
     bma5cta_o=df_bma5cta['count(distinct tp.thingid)/28'][0]
-    
+    bma5cta_o=round(bma5cta_o,2)
+
     sql_bma4mamc=stash_reader.bma4mamc_output()
     sql_bma4mamc=sql_bma4mamc.format(start_time=start,end_time=end)
     df_bma4mamc=db_connector(False,"MOS",sql=sql_bma4mamc)
@@ -192,7 +191,7 @@ def output45():
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
 
 def outputz4():
-    logging.info("made it to zone 4 output for the hour")
+    #logging.info("made it to zone 4 output for the hour")
 
     lookback=1 #1 hr
     now=datetime.utcnow() 
@@ -208,14 +207,14 @@ def outputz4():
     AND tp.completed between '{start}' and '{end}'
     group by f.name
     """
-    
-    df=db_connector(False,"MOS",sql=sql)
-    # print(df)
-    payload={"title":"connection to db_connector is made"}
-    df.fillna(0)
 
-    outout_MC1=df['UPH'][0]
-    outout_MC2=df['UPH'][1]
+    sql_bmaZ4=stash_reader.bmaZ4_output()
+    sql_bmaZ4=sql_bmaZ4.format(start_time=start,end_time=end)
+    df_bmaZ4=db_connector(False,"MOS",sql=sql_bmaZ4)
+    df_bmaZ4.fillna(0)
+
+    outout_MC1=df_bmaZ4['UPH'][0]
+    outout_MC2=df_bmaZ4['UPH'][1]
         
     title='Zone 4 Hourly Update'
     payload={"title":title, 
@@ -469,12 +468,6 @@ def outputz3():
     else:   
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
 
-    
-#output()
-#outputz3()
-#outputz4()
-#output45()
-
 def run_schedule():
     while 1:
         schedule.run_pending()
@@ -483,16 +476,23 @@ def run_schedule():
 if __name__ == '__main__':
     if debug==True:
         logging.info("serve_active")
-        output()
+        output123()
   
     elif debug==False:
         env=os.getenv('ENVVAR3')
 
         logging.info("Code is running...better go catch it!")
-        schedule.every().hour.at(":01").do(output)
-        schedule.every().hour.at(":02").do(output45)
-        schedule.every().hour.at(":03").do(outputz4)
-        schedule.every().hour.at(":04").do(outputz3)
+        logging.info("Environment: %s", env)
+
+        schedule.every().hour.at(":00").do(output123)
+        schedule.every().hour.at(":01").do(output45)
+        schedule.every().hour.at(":02").do(outputz4)
+        schedule.every().hour.at(":03").do(outputz3)
+
+        if env == "dev":
+            logging.info("Run all command executed")
+            schedule.run_all(delay_seconds=10)
+            logging.info("Run all command complete")
+
+        logging.info("Hourly run schedule initiated")
         run_schedule()
-        logging.info.info("serve_active")
-        
