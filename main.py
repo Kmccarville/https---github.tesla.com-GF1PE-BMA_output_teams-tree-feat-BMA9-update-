@@ -8,6 +8,7 @@ import logging
 import urllib3
 from db import db_connector
 import requests
+from requests.exceptions import Timeout
 import json
 import pandas as pd
 import stash_reader
@@ -17,6 +18,9 @@ import os
 
 # test url is for a testing separate teams channel to debug without disruption to live team channel
 testUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/f229c49c229e4563b218df3f751aa116/6b1271fb-dfad-4abd-b25a-f204b0dbab0b'
+
+testBADUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/f229c49c229e4563b218df3f751aa116/6b1271fb-dfad-4abd-b25a-f204b0dbab0'
+
 
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
@@ -114,13 +118,31 @@ def output123():
    
     #post to BMA123-PE --> Output Channel
     if env=="prod":
-        logging.info("BMA123 webhook start %s" % datetime.utcnow())
-        response = requests.post(helper_creds.get_teams_webhook_BMA123()['url'],headers=headers, data=json.dumps(payload))
-        logging.info("BMA123 webhook end %s" % datetime.utcnow())
-        #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
-        #logging.info("BMA123 MY3 webhook end %s" % datetime.utcnow())
+        try:
+            logging.info("BMA123 webhook start %s" % datetime.utcnow())
+            response = requests.post(helper_creds.get_teams_webhook_BMA123()['url'], timeout=10, headers=headers, data=json.dumps(payload))
+            logging.info("BMA123 webhook end %s" % datetime.utcnow())
+            #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
+            #logging.info("BMA123 MY3 webhook end %s" % datetime.utcnow())
+        except:
+            try:
+                logging.info("RETRY BMA123 webhook start %s" % datetime.utcnow())
+                response = requests.post(helper_creds.get_teams_webhook_BMA123()['url'], timeout=10, headers=headers, data=json.dumps(payload))
+                logging.info("RETRY BMA123 webhook end %s" % datetime.utcnow())
+            except:
+                logging.info("BMA123 Webhook failed")
+                pass
     else:
-         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
+        try:
+            response = requests.post(testBADUrl,timeout=10,headers=headers, data=json.dumps(payload))
+        except:
+            try:
+                logging.info("RETRY BMA123 webhook start %s" % datetime.utcnow())
+                response = requests.post(testUrl, timeout=10, headers=headers, data=json.dumps(payload))
+                logging.info("RETRY BMA123 webhook end %s" % datetime.utcnow())
+            except:
+                logging.info("BMA123 Webhook failed")
+                pass
     print(response.text.encode('utf8'))
 
 def output45():
