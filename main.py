@@ -227,7 +227,7 @@ def output45():
                 pass
     else:
         try:
-            response = requests.post(testUrl,timeout=10,headers=headers, data=json.dumps(payload))
+            response = requests.post(testUrl,timeout=0.05,headers=headers, data=json.dumps(payload))
         except Timeout:
             logging.info("BMA123 Webhook failed")
             pass
