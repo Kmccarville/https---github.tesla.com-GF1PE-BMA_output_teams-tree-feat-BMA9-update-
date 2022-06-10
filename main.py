@@ -227,7 +227,7 @@ def output45():
                 pass
     else:
         try:
-            response = requests.post(testUrl,timeout=0.05,headers=headers, data=json.dumps(payload))
+            response = requests.post(testUrl,timeout=10,headers=headers, data=json.dumps(payload))
         except Timeout:
             logging.info("BMA123 Webhook failed")
             pass
@@ -565,15 +565,10 @@ if __name__ == '__main__':
         logging.info("Code is running...better go catch it!")
         logging.info("Environment: %s", env)
 
-        #schedule.every().hour.at(":00").do(output123)
-        #schedule.every().hour.at(":01").do(output45)
-        #schedule.every().hour.at(":02").do(outputz4)
-        #schedule.every().hour.at(":03").do(outputz3)
-        
-        schedule.every().hour.at(":00").do(output45)
-        schedule.every().hour.at(":01").do(outputz4)
+        schedule.every().hour.at(":00").do(output123)
+        schedule.every().hour.at(":01").do(output45)
         schedule.every().hour.at(":02").do(outputz3)
-        schedule.every().hour.at(":03").do(output123)
+        schedule.every().hour.at(":03").do(outputz4)
 
         if env == "dev":
             logging.info("Run all command executed")
