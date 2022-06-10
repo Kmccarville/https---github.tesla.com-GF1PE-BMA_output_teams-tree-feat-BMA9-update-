@@ -117,8 +117,8 @@ def output123():
         logging.info("BMA123 webhook start %s" % datetime.utcnow())
         response = requests.post(helper_creds.get_teams_webhook_BMA123()['url'],headers=headers, data=json.dumps(payload))
         logging.info("BMA123 webhook end %s" % datetime.utcnow())
-        requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
-        logging.info("BMA123 MY3 webhook end %s" % datetime.utcnow())
+        #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
+        #logging.info("BMA123 MY3 webhook end %s" % datetime.utcnow())
     else:
          response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
     print(response.text.encode('utf8'))
@@ -201,8 +201,8 @@ def output45():
         logging.info("BMA45 webhook start %s" % datetime.utcnow())
         response = requests.post(helper_creds.get_teams_webhook_BMA45()['url'],headers=headers, data=json.dumps(payload))
         logging.info("BMA45 webhook end %s" % datetime.utcnow())
-        requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
-        logging.info("BMA45 MY3 webhook end %s" % datetime.utcnow())
+        #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
+        #logging.info("BMA45 MY3 webhook end %s" % datetime.utcnow())
     else: 
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
 
@@ -253,8 +253,8 @@ def outputz4():
         logging.info("Z4 webhook start %s" % datetime.utcnow())
         response = requests.post(helper_creds.get_teams_webhook_Z4()['url'],headers=headers, data=json.dumps(payload))
         logging.info("Z4 webhook end %s" % datetime.utcnow())
-        requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
-        logging.info("Z4 MY3 webhook end %s" % datetime.utcnow())
+        #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
+        #logging.info("Z4 MY3 webhook end %s" % datetime.utcnow())
     else:
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))   
 
@@ -491,8 +491,8 @@ def outputz3():
         logging.info("Z3 webhook start %s" % datetime.utcnow())
         requests.post(helper_creds.get_teams_webhook_Z3()['url'],headers=headers, data=json.dumps(payload))
         logging.info("Z3 webhook end %s" % datetime.utcnow())
-        requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
-        logging.info("Z3 MY3 webhook end %s" % datetime.utcnow())
+        #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
+        #logging.info("Z3 MY3 webhook end %s" % datetime.utcnow())
     
     else:   
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
