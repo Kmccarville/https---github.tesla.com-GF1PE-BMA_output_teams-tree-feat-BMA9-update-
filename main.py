@@ -23,7 +23,7 @@ logging.info("main_active")
 debug=masterdebug
 
 def uph_calculation(df):
-    
+    logging.info("uph_calculation start %s" % datetime.utcnow())
     ACTA1  =[]
     ACTA2 =[] 
     ACTA3 =[]
@@ -58,9 +58,11 @@ def uph_calculation(df):
         
     string = [len(ACTA1)/28 ,len(NESTED1)/4, len(AC3A1)/4, len(ACTA2)/28 ,len(NESTED2)/4 , len(AC3A2)/4, len(ACTA3)/28, len(NESTED3)/4 , len(AC3A3)/4]
     string_format = [ round(elem,2) for elem in string ]
+    logging.info("uph_calculation end %s" % datetime.utcnow())
     return(string_format)
 
 def output123():
+    logging.info("output123 start %s" % datetime.utcnow())
     lookback=1 #1 hr
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
@@ -85,8 +87,9 @@ def output123():
     # JOIN flowstep f ON tp.flowstepid = f.id
     # WHERE f.name in ('MBM-44000') AND tp.exitcompletioncode = 'PASS' AND tp.completed between '{start}' and '{end}'
     # """
-
+    logging.info("mmamc3 start %s" % datetime.utcnow())
     df_sql_mmamc3=db_connector(False,"MOS",sql=sql_mmamc3)
+    logging.info("mmamc3 end %s" % datetime.utcnow())
     #df_sql_c3a_53=db_connector(False,"MOS",sql=sql_c3a_53)
     df_sql_mmamc3.fillna(0)
     #df_sql_c3a_53.fillna(0)
@@ -111,13 +114,17 @@ def output123():
    
     #post to BMA123-PE --> Output Channel
     if env=="prod":
+        logging.info("BMA123 webhook start %s" % datetime.utcnow())
         response = requests.post(helper_creds.get_teams_webhook_BMA123()['url'],headers=headers, data=json.dumps(payload))
+        logging.info("BMA123 webhook end %s" % datetime.utcnow())
         requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
+        logging.info("BMA123 MY3 webhook end %s" % datetime.utcnow())
     else:
          response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
     print(response.text.encode('utf8'))
 
 def output45():
+    logging.info("output45 start %s" % datetime.utcnow())
     lookback=1 #1 hr
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
@@ -132,6 +139,7 @@ def output45():
     # print(df_bma4cta)
     bma4cta_o=df_bma4cta['count(distinct tp.thingid)/28'][0]
     bma4cta_o=round(bma4cta_o,2)
+    logging.info("bma4cta end %s" % datetime.utcnow())
 
     sql_bma5cta=stash_reader.bma5cta_output()
     sql_bma5cta=sql_bma5cta.format(start_time=start,end_time=end)
@@ -140,6 +148,7 @@ def output45():
     # print(df_bma5cta)
     bma5cta_o=df_bma5cta['count(distinct tp.thingid)/28'][0]
     bma5cta_o=round(bma5cta_o,2)
+    logging.info("bam5cta end %s" % datetime.utcnow())
 
     sql_bma4mamc=stash_reader.bma4mamc_output()
     sql_bma4mamc=sql_bma4mamc.format(start_time=start,end_time=end)
@@ -147,6 +156,7 @@ def output45():
     df_bma4mamc.fillna(0)
     # print( df_bma4mamc)
     bma4mamc_o=df_bma4mamc['count(distinct tp.thingid)/4'][0]
+    logging.info("bma4mamc end %s" % datetime.utcnow())
 
     sql_bma5mamc=stash_reader.bma5mamc_output()
     sql_bma5mamc=sql_bma5mamc.format(start_time=start,end_time=end)
@@ -154,6 +164,7 @@ def output45():
     df_bma5mamc.fillna(0)
     # print(df_bma5mamc)
     bma5mamc_o=df_bma5mamc['count(distinct tp.thingid)/4'][0]
+    logging.info("bma5mamc_o end %s" % datetime.utcnow())
 
     sql_bma4c3a=stash_reader.bma4c3a_output()
     sql_bma4c3a=sql_bma4c3a.format(start_time=start,end_time=end)
@@ -161,6 +172,7 @@ def output45():
     df_bma4c3a.fillna(0)
     # print(df_bma4c3a)
     bma4c3a_o=df_bma4c3a['count(distinct tp.thingid)/4'][0]
+    logging.info("bma4c3a_o end %s" % datetime.utcnow())
 
     sql_bma5c3a=stash_reader.bma5c3a_output()
     sql_bma5c3a=sql_bma5c3a.format(start_time=start,end_time=end)
@@ -168,6 +180,7 @@ def output45():
     df_bma5c3a.fillna(0)
     # print(df_bma5c3a)
     bma5c3a_o=df_bma5c3a['count(distinct tp.thingid)/4'][0]
+    logging.info("bma5c3a end %s" % datetime.utcnow())
 
 
     title='BMA45 Hourly Update'
@@ -185,13 +198,17 @@ def output45():
     }
     #post to BMA123-PE --> Output Channel
     if env=="prod":
+        logging.info("BMA45 webhook start %s" % datetime.utcnow())
         response = requests.post(helper_creds.get_teams_webhook_BMA45()['url'],headers=headers, data=json.dumps(payload))
+        logging.info("BMA45 webhook end %s" % datetime.utcnow())
         requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
+        logging.info("BMA45 MY3 webhook end %s" % datetime.utcnow())
     else: 
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
 
 def outputz4():
     #logging.info("made it to zone 4 output for the hour")
+    logging.info("Z4 start %s" % datetime.utcnow())
 
     lookback=1 #1 hr
     now=datetime.utcnow() 
@@ -212,6 +229,7 @@ def outputz4():
     sql_bmaZ4=sql_bmaZ4.format(start_time=start,end_time=end)
     df_bmaZ4=db_connector(False,"MOS",sql=sql_bmaZ4)
     df_bmaZ4.fillna(0)
+    logging.info("z4 query end %s" % datetime.utcnow())
 
     outout_MC1=df_bmaZ4['UPH'][0]
     outout_MC2=df_bmaZ4['UPH'][1]
@@ -232,12 +250,16 @@ def outputz4():
     }
     
     if env=="prod":
+        logging.info("Z4 webhook start %s" % datetime.utcnow())
         response = requests.post(helper_creds.get_teams_webhook_Z4()['url'],headers=headers, data=json.dumps(payload))
+        logging.info("Z4 webhook end %s" % datetime.utcnow())
         requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
+        logging.info("Z4 MY3 webhook end %s" % datetime.utcnow())
     else:
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))   
 
 def outputz3():
+    logging.info("Z3 start %s" % datetime.utcnow())
  
     lookback=1 #1 hr
     now=datetime.utcnow()
@@ -433,13 +455,17 @@ def outputz3():
             
         return start+header+data+end
     uph_df = query_uph(start,end)
+    logging.info("Z3 uph end %s" % datetime.utcnow())
     try:
         ing_df = query_tsm_state(start,end,INGRESS_PATHS,"Starved")
         po_df = query_tsm_state(start,end,PO_PATHS,"Starved",1)
     except:
         ing_df = pd.DataFrame({})
         po_df = pd.DataFrame({})
+       
+    logging.info("Z3 tsm end %s" % datetime.utcnow())
     wb_ct_df,wb_i_ct_df = query_bonder_ct(start,end)
+    logging.info("Z3 wb end %s" % datetime.utcnow())
 
     row = []
     all_dfs = [uph_df,ing_df,po_df,wb_ct_df,wb_i_ct_df]
@@ -462,8 +488,11 @@ def outputz3():
     }
     #post to BMA123-PE --> Output Channel
     if env=="prod":
+        logging.info("Z3 webhook start %s" % datetime.utcnow())
         requests.post(helper_creds.get_teams_webhook_Z3()['url'],headers=headers, data=json.dumps(payload))
+        logging.info("Z3 webhook end %s" % datetime.utcnow())
         requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
+        logging.info("Z3 MY3 webhook end %s" % datetime.utcnow())
     
     else:   
         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
