@@ -8,6 +8,7 @@ import logging
 import urllib3
 from db import db_connector
 import requests
+from requests.exceptions import Timeout
 import json
 import pandas as pd
 import stash_reader
@@ -114,14 +115,26 @@ def output123():
    
     #post to BMA123-PE --> Output Channel
     if env=="prod":
-        logging.info("BMA123 webhook start %s" % datetime.utcnow())
-        response = requests.post(helper_creds.get_teams_webhook_BMA123()['url'],headers=headers, data=json.dumps(payload))
-        logging.info("BMA123 webhook end %s" % datetime.utcnow())
-        #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
-        #logging.info("BMA123 MY3 webhook end %s" % datetime.utcnow())
+        try:
+            logging.info("BMA123 webhook start %s" % datetime.utcnow())
+            response = requests.post(helper_creds.get_teams_webhook_BMA123()['url'], timeout=10, headers=headers, data=json.dumps(payload))
+            logging.info("BMA123 webhook end %s" % datetime.utcnow())
+            #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
+            #logging.info("BMA123 MY3 webhook end %s" % datetime.utcnow())
+        except Timeout:
+            try:
+                logging.info("RETRY BMA123 webhook start %s" % datetime.utcnow())
+                response = requests.post(helper_creds.get_teams_webhook_BMA123()['url'], timeout=10, headers=headers, data=json.dumps(payload))
+                logging.info("RETRY BMA123 webhook end %s" % datetime.utcnow())
+            except Timeout:
+                logging.info("BMA123 Webhook failed")
+                pass
     else:
-         response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
-    print(response.text.encode('utf8'))
+        try:
+            response = requests.post(testUrl, timeout=10, headers=headers, data=json.dumps(payload))
+        except Timeout:
+            logging.info("BMA123 Webhook failed")
+            pass
 
 def output45():
     logging.info("output45 start %s" % datetime.utcnow())
@@ -198,13 +211,26 @@ def output45():
     }
     #post to BMA123-PE --> Output Channel
     if env=="prod":
-        logging.info("BMA45 webhook start %s" % datetime.utcnow())
-        response = requests.post(helper_creds.get_teams_webhook_BMA45()['url'],headers=headers, data=json.dumps(payload))
-        logging.info("BMA45 webhook end %s" % datetime.utcnow())
-        #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
-        #logging.info("BMA45 MY3 webhook end %s" % datetime.utcnow())
-    else: 
-        response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
+        try:
+            logging.info("BMA45 webhook start %s" % datetime.utcnow())
+            response = requests.post(helper_creds.get_teams_webhook_BMA45()['url'],timeout=10,headers=headers, data=json.dumps(payload))
+            logging.info("BMA45 webhook end %s" % datetime.utcnow())
+            #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
+            #logging.info("BMA45 MY3 webhook end %s" % datetime.utcnow())
+        except Timeout:
+            try:
+                logging.info("RETRY BMA45 webhook start %s" % datetime.utcnow())
+                response = requests.post(helper_creds.get_teams_webhook_BMA45()['url'],timeout=10,headers=headers, data=json.dumps(payload))
+                logging.info("RETRY BMA45 webhook end %s" % datetime.utcnow())
+            except Timeout:
+                logging.info("BMA45 Webhook failed")
+                pass
+    else:
+        try:
+            response = requests.post(testUrl,timeout=10,headers=headers, data=json.dumps(payload))
+        except Timeout:
+            logging.info("BMA123 Webhook failed")
+            pass
 
 def outputz4():
     #logging.info("made it to zone 4 output for the hour")
@@ -250,13 +276,25 @@ def outputz4():
     }
     
     if env=="prod":
-        logging.info("Z4 webhook start %s" % datetime.utcnow())
-        response = requests.post(helper_creds.get_teams_webhook_Z4()['url'],headers=headers, data=json.dumps(payload))
-        logging.info("Z4 webhook end %s" % datetime.utcnow())
-        #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
-        #logging.info("Z4 MY3 webhook end %s" % datetime.utcnow())
+        try:
+            logging.info("Z4 webhook start %s" % datetime.utcnow())
+            response = requests.post(helper_creds.get_teams_webhook_Z4()['url'],timeout=10,headers=headers, data=json.dumps(payload))
+            logging.info("Z4 webhook end %s" % datetime.utcnow())
+        except Timeout:
+            try:
+                logging.info("RETRY Z4 webhook start %s" % datetime.utcnow())
+                response = requests.post(helper_creds.get_teams_webhook_Z4()['url'],timeout=10,headers=headers, data=json.dumps(payload))
+                logging.info("RETRY Z4 webhook end %s" % datetime.utcnow())
+            except Timeout:
+                logging.info("Z4 Webhook failed")
+                pass
+
     else:
-        response = requests.post(testUrl,headers=headers, data=json.dumps(payload))   
+        try:
+            response = requests.post(testUrl,timeout=10,headers=headers, data=json.dumps(payload))
+        except Timeout:   
+            logging.info("Z4 Webhook failed")
+            pass
 
 def outputz3():
     logging.info("Z3 start %s" % datetime.utcnow())
@@ -488,14 +526,28 @@ def outputz3():
     }
     #post to BMA123-PE --> Output Channel
     if env=="prod":
-        logging.info("Z3 webhook start %s" % datetime.utcnow())
-        requests.post(helper_creds.get_teams_webhook_Z3()['url'],headers=headers, data=json.dumps(payload))
-        logging.info("Z3 webhook end %s" % datetime.utcnow())
-        #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
-        #logging.info("Z3 MY3 webhook end %s" % datetime.utcnow())
+        try:
+            logging.info("Z3 webhook start %s" % datetime.utcnow())
+            requests.post(helper_creds.get_teams_webhook_Z3()['url'],timeout=10,headers=headers, data=json.dumps(payload))
+            logging.info("Z3 webhook end %s" % datetime.utcnow())
+            #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
+            #logging.info("Z3 MY3 webhook end %s" % datetime.utcnow())
+        except Timeout:
+            try:
+                logging.info("RETRY Z3 webhook start %s" % datetime.utcnow())
+                requests.post(helper_creds.get_teams_webhook_Z3()['url'],timeout=10,headers=headers, data=json.dumps(payload))
+                logging.info("RETRY Z3 webhook end %s" % datetime.utcnow())
+            except Timeout:
+                logging.info("Z3 Webhook failed")
+                pass
     
-    else:   
-        response = requests.post(testUrl,headers=headers, data=json.dumps(payload))
+    else:
+        try:
+            response = requests.post(testUrl,timeout=10,headers=headers, data=json.dumps(payload))
+        except Timeout:
+            logging.info("Z3 Webhook failed")
+            pass
+
 
 def run_schedule():
     while 1:
@@ -515,8 +567,8 @@ if __name__ == '__main__':
 
         schedule.every().hour.at(":00").do(output123)
         schedule.every().hour.at(":01").do(output45)
-        schedule.every().hour.at(":02").do(outputz4)
-        schedule.every().hour.at(":03").do(outputz3)
+        schedule.every().hour.at(":02").do(outputz3)
+        schedule.every().hour.at(":03").do(outputz4)
 
         if env == "dev":
             logging.info("Run all command executed")
