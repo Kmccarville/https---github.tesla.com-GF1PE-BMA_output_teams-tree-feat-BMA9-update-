@@ -2,13 +2,9 @@ name: Docker Build
 
 on:
   push:
-    branches:
-      - '!master'
-      - '!dev'
-  pull_request:
-    branches:
-      - '!master'
-      - '!dev'
+    branches-ignore:
+      - 'master'
+      - 'dev'
 jobs:
 
   Build:
