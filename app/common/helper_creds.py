@@ -2,7 +2,7 @@ import json
 import os
 from test import debug as masterdebug
 
-debug=masterdebug
+debug=false
 
 if debug==True :
     is_deployed = False  # Means running on Kube  NOT on local machine

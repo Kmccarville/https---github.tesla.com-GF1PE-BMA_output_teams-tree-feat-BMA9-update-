@@ -10,7 +10,7 @@ from github import Github
 import helper_creds
 import urllib.parse
 
-debug=masterdebug
+debug=false
 logging.basicConfig(level=logging.INFO)
 
 
