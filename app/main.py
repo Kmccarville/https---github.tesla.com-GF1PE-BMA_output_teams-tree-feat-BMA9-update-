@@ -29,7 +29,6 @@ logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
 debug = False
 
-
 def run_schedule():
     while 1:
         schedule.run_pending()
