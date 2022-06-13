@@ -5,7 +5,7 @@ from test import debug as masterdebug
 import logging
 import os
 
-debug=false
+debug=False
 mattermostBotName = "Error Bot"
 mattermostIconUrl = "https://image.flaticon.com/icons/svg/196/196759.svg"
 

@@ -16,7 +16,7 @@ from test import debug as masterdebug
 import base64
 from email import encoders
 
-debug=false
+debug=False
 
 
 #A function to 3actually send the email
