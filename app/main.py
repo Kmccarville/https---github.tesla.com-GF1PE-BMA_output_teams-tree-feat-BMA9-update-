@@ -27,7 +27,7 @@ testUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-430
 
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
-debug=false
+debug = False
 
 
 def run_schedule():
