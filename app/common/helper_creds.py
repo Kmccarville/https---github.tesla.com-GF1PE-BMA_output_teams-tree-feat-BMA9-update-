@@ -1,6 +1,6 @@
 import json
 import os
-from test import debug as masterdebug
+# from test import debug as masterdebug
 
 debug=False
 
