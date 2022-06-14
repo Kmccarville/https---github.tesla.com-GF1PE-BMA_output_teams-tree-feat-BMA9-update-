@@ -44,7 +44,7 @@ if __name__ == '__main__':
         schedule.every().hour.at(":00").do(output123,env)
         schedule.every().hour.at(":01").do(output45,env)
         # schedule.every().hour.at(":02").do(outputz3)
-        # schedule.every().hour.at(":03").do(outputz4)
+        schedule.every().hour.at(":03").do(outputz4,env)
 
         if env == "dev":
             logging.info("Run all command executed")

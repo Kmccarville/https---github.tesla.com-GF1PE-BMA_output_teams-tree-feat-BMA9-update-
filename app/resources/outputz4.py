@@ -1,16 +1,16 @@
 from common.db import db_connector
-# from common.stash_reader import stash_reader
+from common.helper_functions import file_reader
 import common.helper_creds as helper_creds
+
+
 from datetime import datetime
 from datetime import timedelta
-
-import logging 
+import logging
 import requests
 from requests.exceptions import Timeout
 import json
 
-
-def outputz4():
+def outputz4(env):
     #logging.info("made it to zone 4 output for the hour")
     logging.info("Z4 start %s" % datetime.utcnow())
 
@@ -21,15 +21,7 @@ def outputz4():
     end=start+timedelta(hours=lookback)
 
     #grab hourly 
-    sql=f"""
-    SELECT left(f.name,3) as line,count(distinct tp.thingid)/4 as UPH FROM thingpath tp
-    JOIN flowstep f ON tp.flowstepid = f.id
-    WHERE f.name in ('MC1-30000','MC2-28000') AND tp.exitcompletioncode = 'PASS'
-    AND tp.completed between '{start}' and '{end}'
-    group by f.name
-    """
-
-    sql_bmaZ4=stash_reader.bmaZ4_output()
+    sql_bmaZ4=file_reader("resources/sql_queries/bmaZ4_output.sql")
     sql_bmaZ4=sql_bmaZ4.format(start_time=start,end_time=end)
     df_bmaZ4=db_connector(False,"MOS",sql=sql_bmaZ4)
     df_bmaZ4.fillna(0)
@@ -69,8 +61,8 @@ def outputz4():
 
     else:
         try:
-            response = requests.post(testUrl,timeout=10,headers=headers, data=json.dumps(payload))
+            response = requests.post(helper_creds.get_teams_webhook_DEV()['url'],timeout=10,headers=headers, data=json.dumps(payload))
         except Timeout:   
-            logging.info("Z4 Webhook failed")
+            logging.info("Z4 DEV Webhook failed")
             pass
 

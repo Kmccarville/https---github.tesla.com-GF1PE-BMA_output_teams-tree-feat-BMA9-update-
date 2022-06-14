@@ -9,7 +9,6 @@ import logging
 import requests
 from requests.exceptions import Timeout
 import json
-import os
 
 def uph_calculation(df):
     logging.info("uph_calculation start %s" % datetime.utcnow())
