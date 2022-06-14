@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: bmaoutput
-        image: artifactory.teslamotors.com:2194/battery-pack/bmaoutput:$IMG_TAG
+        image: artifactory.teslamotors.com:2194/battery-module/bmaoutput:$IMG_TAG
         ports:
         - containerPort: 80
         volumeMounts:
@@ -38,8 +38,8 @@ spec:
             cpu: 4
             memory: 4Gi
           requests:
-            cpu: 50m
-            memory: 250Mi
+            cpu: 100m
+            memory: 512Mi
         envFrom:
         - configMapRef:
             name: bmaoutput-env

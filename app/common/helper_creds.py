@@ -1,8 +1,8 @@
 import json
 import os
-from test import debug as masterdebug
+# from test import debug as masterdebug
 
-debug=masterdebug
+debug=False
 
 if debug==True :
     is_deployed = False  # Means running on Kube  NOT on local machine
@@ -89,3 +89,6 @@ def get_teams_webhook_Z4():
 
 def get_teams_webhook_MY3():
     return pw_json["teams_webhook_MY3_Leadership"]
+
+def get_teams_webhook_DEV():
+    return pw_json["teams_webhook_DEV_Updates"]

@@ -1,11 +1,10 @@
 import requests
 import json
 import sys, traceback
-from test import debug as masterdebug
 import logging
 import os
 
-debug=masterdebug
+debug=False
 mattermostBotName = "Error Bot"
 mattermostIconUrl = "https://image.flaticon.com/icons/svg/196/196759.svg"
 
@@ -27,7 +26,7 @@ def e_handler(e, trace=None, subject=None, handleType=0):
     </body>
     </html>
     '''
-    payload={"text": "Error Exception", "html":html, "recipients":"mfouad@tesla.com", "cc":"mfouad@tesla.com", "Bcc":"mfouad@tesla.com"}
+    payload={"text": "Error Exception", "html":html, "recipients":"mberlied@tesla.com", "cc":"mberlied@tesla.com", "Bcc":"mberlied@tesla.com"}
     subject = subject if subject is not None else "BMA Teams Poster Error Exception"
 
     if debug:
