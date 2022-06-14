@@ -14,14 +14,14 @@ import json
 import os
 # from test import debug as masterdebug
 
+env=os.getenv('ENVVAR3')
+
+testUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/f229c49c229e4563b218df3f751aa116/6b1271fb-dfad-4abd-b25a-f204b0dbab0b'
+
 def file_reader(FilePath):
     with open(FilePath,"r") as f:
         contents = f.read()
         return contents
-
-
-testUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/f229c49c229e4563b218df3f751aa116/6b1271fb-dfad-4abd-b25a-f204b0dbab0b'
-
 
 def uph_calculation(df):
     logging.info("uph_calculation start %s" % datetime.utcnow())
