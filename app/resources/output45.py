@@ -1,17 +1,18 @@
 from common.db import db_connector
-# from common.stash_reader import stash_reader
+from common.helper_functions import file_reader
 import common.helper_creds as helper_creds
+
+
 from datetime import datetime
 from datetime import timedelta
-
-import logging 
+import logging
 import requests
 from requests.exceptions import Timeout
 import json
+import os
 
 
-
-def output45():
+def output45(env):
     logging.info("output45 start %s" % datetime.utcnow())
     lookback=1 #1 hr
     now=datetime.utcnow()
@@ -20,7 +21,7 @@ def output45():
     end=start+timedelta(hours=lookback)
     
     #grab hourly data
-    sql_bma4cta=stash_reader.bma4cta_output()
+    sql_bma4cta=file_reader("resources/sql_queries/bma4cta_output.sql")
     sql_bma4cta=sql_bma4cta.format(start_time=start,end_time=end)
     df_bma4cta=db_connector(False,"MOS",sql=sql_bma4cta)
     df_bma4cta.fillna(0)
@@ -29,7 +30,7 @@ def output45():
     bma4cta_o=round(bma4cta_o,2)
     logging.info("bma4cta end %s" % datetime.utcnow())
 
-    sql_bma5cta=stash_reader.bma5cta_output()
+    sql_bma5cta=file_reader("resources/sql_queries/bma5cta_output.sql")
     sql_bma5cta=sql_bma5cta.format(start_time=start,end_time=end)
     df_bma5cta=db_connector(False,"MOS",sql=sql_bma5cta)
     df_bma5cta.fillna(0)
@@ -38,7 +39,7 @@ def output45():
     bma5cta_o=round(bma5cta_o,2)
     logging.info("bam5cta end %s" % datetime.utcnow())
 
-    sql_bma4mamc=stash_reader.bma4mamc_output()
+    sql_bma4mamc=file_reader("resources/sql_queries/bma4mamc_output.sql")
     sql_bma4mamc=sql_bma4mamc.format(start_time=start,end_time=end)
     df_bma4mamc=db_connector(False,"MOS",sql=sql_bma4mamc)
     df_bma4mamc.fillna(0)
@@ -46,7 +47,7 @@ def output45():
     bma4mamc_o=df_bma4mamc['count(distinct tp.thingid)/4'][0]
     logging.info("bma4mamc end %s" % datetime.utcnow())
 
-    sql_bma5mamc=stash_reader.bma5mamc_output()
+    sql_bma5mamc=file_reader("resources/sql_queries/bma5mamc_output.sql")
     sql_bma5mamc=sql_bma5mamc.format(start_time=start,end_time=end)
     df_bma5mamc=db_connector(False,"MOS",sql=sql_bma5mamc)
     df_bma5mamc.fillna(0)
@@ -54,7 +55,7 @@ def output45():
     bma5mamc_o=df_bma5mamc['count(distinct tp.thingid)/4'][0]
     logging.info("bma5mamc_o end %s" % datetime.utcnow())
 
-    sql_bma4c3a=stash_reader.bma4c3a_output()
+    sql_bma4c3a=file_reader("resources/sql_queries/bma4c3a_output.sql")
     sql_bma4c3a=sql_bma4c3a.format(start_time=start,end_time=end)
     df_bma4c3a=db_connector(False,"MOS",sql=sql_bma4c3a)
     df_bma4c3a.fillna(0)
@@ -62,7 +63,7 @@ def output45():
     bma4c3a_o=df_bma4c3a['count(distinct tp.thingid)/4'][0]
     logging.info("bma4c3a_o end %s" % datetime.utcnow())
 
-    sql_bma5c3a=stash_reader.bma5c3a_output()
+    sql_bma5c3a=file_reader("resources/sql_queries/bma5c3a_output.sql")
     sql_bma5c3a=sql_bma5c3a.format(start_time=start,end_time=end)
     df_bma5c3a=db_connector(False,"MOS",sql=sql_bma5c3a)
     df_bma5c3a.fillna(0)
@@ -102,8 +103,8 @@ def output45():
                 pass
     else:
         try:
-            response = requests.post(testUrl,timeout=10,headers=headers, data=json.dumps(payload))
+            response = requests.post(helper_creds.get_teams_webhook_DEV()['url'],timeout=10,headers=headers, data=json.dumps(payload))
         except Timeout:
-            logging.info("BMA123 Webhook failed")
+            logging.info("BMA123 Dev Webhook failed")
             pass
 

@@ -21,10 +21,6 @@ from resources.output45 import output45
 from resources.outputz3 import outputz3
 from resources.outputz4 import outputz4
 
-
-# test url is for a testing separate teams channel to debug without disruption to live team channel
-testUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/f229c49c229e4563b218df3f751aa116/6b1271fb-dfad-4abd-b25a-f204b0dbab0b'
-
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
 debug = False
@@ -45,8 +41,8 @@ if __name__ == '__main__':
         logging.info("Code is running...better go catch it!")
         logging.info("Environment: %s", env)
 
-        schedule.every().hour.at(":00").do(output123, env)
-        # schedule.every().hour.at(":01").do(output45)
+        schedule.every().hour.at(":00").do(output123,env)
+        schedule.every().hour.at(":01").do(output45,env)
         # schedule.every().hour.at(":02").do(outputz3)
         # schedule.every().hour.at(":03").do(outputz4)
 
