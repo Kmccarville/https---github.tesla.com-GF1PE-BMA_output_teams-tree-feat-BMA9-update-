@@ -5,7 +5,7 @@ import common.helper_creds as helper_creds
 
 from datetime import datetime
 from datetime import timedelta
-import logging 
+import logging
 import requests
 from requests.exceptions import Timeout
 import json
@@ -121,5 +121,5 @@ def output123(env):
             response = requests.post(helper_creds.get_teams_webhook_DEV()['url'], timeout=10, headers=headers, data=json.dumps(payload))
             logging.info("End BMA123 webhook end %s" % datetime.utcnow())
         except Timeout:
-            logging.info("BMA123 Webhook failed")
+            logging.info("BMA123 Dev Webhook failed")
             pass
