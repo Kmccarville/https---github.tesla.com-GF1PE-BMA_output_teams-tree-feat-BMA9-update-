@@ -44,7 +44,7 @@ node('build'){
                 namespace: 'gf1-pe'
             ]) {
                 sh """
-                    sed 's/\$IMG_TAG/${imageTag}/g' k8s/prod/demo_app.yaml | kubectl apply -f -
+                    sed 's/\$IMG_TAG/${imageTag}/g' k8s/prod/${applicationName}.yaml | kubectl apply -f -
                 """
             }
         }
@@ -58,7 +58,7 @@ node('build'){
                 namespace: 'gf1-pe'
             ]) {
                 sh """
-                    sed 's/\$IMG_TAG/${imageTag}/g' k8s/prod/demo_app.yaml | kubectl apply -f -
+                    sed 's/\$IMG_TAG/${imageTag}/g' k8s/prod/${applicationName}.yaml | kubectl apply -f -
                 """
             }
         }
