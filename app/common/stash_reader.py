@@ -1,5 +1,5 @@
 import requests
-from test import debug as masterdebug
+# from test import debug as masterdebug
 import os
 import logging
 from xml.etree import ElementTree

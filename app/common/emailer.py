@@ -12,7 +12,7 @@ from email.message import EmailMessage
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
-from test import debug as masterdebug
+# from test import debug as masterdebug
 import base64
 from email import encoders
 
