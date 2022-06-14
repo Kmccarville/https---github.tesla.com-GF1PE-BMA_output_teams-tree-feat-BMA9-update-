@@ -25,8 +25,8 @@ import matplotlib as mpl
 import re
 import sys
 
-import common.error_handler
-import common.helper_creds
+import common.error_handler as error_handler
+import common.helper_creds as helper_creds
 
 logging.basicConfig(level=logging.INFO)
 

@@ -1,6 +1,6 @@
 from common.db import db_connector
 # from common.stash_reader import stash_reader
-import common.helper_creds
+import common.helper_creds as helper_creds
 from datetime import datetime
 from datetime import timedelta
 

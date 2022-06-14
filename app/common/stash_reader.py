@@ -7,7 +7,7 @@ from io import BytesIO
 import pandas as pd
 from io import StringIO
 from github import Github
-import common.helper_creds
+import common.helper_creds as helper_creds
 import urllib.parse
 
 debug=False
