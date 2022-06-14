@@ -1,7 +1,6 @@
 import requests
 import json
 import sys, traceback
-# from test import debug as masterdebug
 import logging
 import os
 

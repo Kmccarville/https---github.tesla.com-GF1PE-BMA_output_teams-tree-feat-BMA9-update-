@@ -17,8 +17,6 @@ import base64
 import io
 import binascii
 from matplotlib import rcParams
-# from test import debug as masterdebug
-# import stash_reader
 import math
 import six
 import matplotlib as mpl

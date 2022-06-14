@@ -240,14 +240,13 @@ def outputz3(env):
     headers = {
     'Content-Type': 'application/json'
     }
+
     #post to Z3 Teams Channel --> Output Channel
     if env=="prod":
         try:
             logging.info("Z3 webhook start %s" % datetime.utcnow())
             requests.post(helper_creds.get_teams_webhook_Z3()['url'],timeout=10,headers=headers, data=json.dumps(payload))
             logging.info("Z3 webhook end %s" % datetime.utcnow())
-            #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
-            #logging.info("Z3 MY3 webhook end %s" % datetime.utcnow())
         except Timeout:
             try:
                 logging.info("RETRY Z3 webhook start %s" % datetime.utcnow())

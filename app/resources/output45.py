@@ -20,58 +20,57 @@ def output45(env):
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
     
-    #grab hourly data
+    #Grab BMA4-CTA hourly data
     sql_bma4cta=file_reader("resources/sql_queries/bma4cta_output.sql")
     sql_bma4cta=sql_bma4cta.format(start_time=start,end_time=end)
     df_bma4cta=db_connector(False,"MOS",sql=sql_bma4cta)
     df_bma4cta.fillna(0)
-    # print(df_bma4cta)
     bma4cta_o=df_bma4cta['count(distinct tp.thingid)/28'][0]
     bma4cta_o=round(bma4cta_o,2)
     logging.info("bma4cta end %s" % datetime.utcnow())
 
+    #Grab BMA5-CTA hourly data
     sql_bma5cta=file_reader("resources/sql_queries/bma5cta_output.sql")
     sql_bma5cta=sql_bma5cta.format(start_time=start,end_time=end)
     df_bma5cta=db_connector(False,"MOS",sql=sql_bma5cta)
     df_bma5cta.fillna(0)
-    # print(df_bma5cta)
     bma5cta_o=df_bma5cta['count(distinct tp.thingid)/28'][0]
     bma5cta_o=round(bma5cta_o,2)
     logging.info("bam5cta end %s" % datetime.utcnow())
 
+    #Grab BMA4-MAMC hourly data
     sql_bma4mamc=file_reader("resources/sql_queries/bma4mamc_output.sql")
     sql_bma4mamc=sql_bma4mamc.format(start_time=start,end_time=end)
     df_bma4mamc=db_connector(False,"MOS",sql=sql_bma4mamc)
     df_bma4mamc.fillna(0)
-    # print( df_bma4mamc)
     bma4mamc_o=df_bma4mamc['count(distinct tp.thingid)/4'][0]
     logging.info("bma4mamc end %s" % datetime.utcnow())
 
+    #Grab BMA5-MAMC hourly data
     sql_bma5mamc=file_reader("resources/sql_queries/bma5mamc_output.sql")
     sql_bma5mamc=sql_bma5mamc.format(start_time=start,end_time=end)
     df_bma5mamc=db_connector(False,"MOS",sql=sql_bma5mamc)
     df_bma5mamc.fillna(0)
-    # print(df_bma5mamc)
     bma5mamc_o=df_bma5mamc['count(distinct tp.thingid)/4'][0]
     logging.info("bma5mamc_o end %s" % datetime.utcnow())
 
+    #Grab BMA4-C3A hourly data
     sql_bma4c3a=file_reader("resources/sql_queries/bma4c3a_output.sql")
     sql_bma4c3a=sql_bma4c3a.format(start_time=start,end_time=end)
     df_bma4c3a=db_connector(False,"MOS",sql=sql_bma4c3a)
     df_bma4c3a.fillna(0)
-    # print(df_bma4c3a)
     bma4c3a_o=df_bma4c3a['count(distinct tp.thingid)/4'][0]
     logging.info("bma4c3a_o end %s" % datetime.utcnow())
 
+    #Grab BMA5-C3A hourly data
     sql_bma5c3a=file_reader("resources/sql_queries/bma5c3a_output.sql")
     sql_bma5c3a=sql_bma5c3a.format(start_time=start,end_time=end)
     df_bma5c3a=db_connector(False,"MOS",sql=sql_bma5c3a)
     df_bma5c3a.fillna(0)
-    # print(df_bma5c3a)
     bma5c3a_o=df_bma5c3a['count(distinct tp.thingid)/4'][0]
     logging.info("bma5c3a end %s" % datetime.utcnow())
 
-
+    # Setup teams output table
     title='BMA45 Hourly Update'
     payload={"title":title, 
         "summary":"summary",
@@ -85,14 +84,13 @@ def output45(env):
     headers = {
     'Content-Type': 'application/json'
     }
-    #post to BMA123-PE --> Output Channel
+
+    #post to BMA45-PE --> Output Channel
     if env=="prod":
         try:
             logging.info("BMA45 webhook start %s" % datetime.utcnow())
             response = requests.post(helper_creds.get_teams_webhook_BMA45()['url'],timeout=10,headers=headers, data=json.dumps(payload))
             logging.info("BMA45 webhook end %s" % datetime.utcnow())
-            #requests.post(helper_creds.get_teams_webhook_MY3()['url'],headers=headers, data=json.dumps(payload))
-            #logging.info("BMA45 MY3 webhook end %s" % datetime.utcnow())
         except Timeout:
             try:
                 logging.info("RETRY BMA45 webhook start %s" % datetime.utcnow())

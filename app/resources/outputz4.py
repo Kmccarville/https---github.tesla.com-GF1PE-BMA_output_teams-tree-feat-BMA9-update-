@@ -11,7 +11,6 @@ from requests.exceptions import Timeout
 import json
 
 def outputz4(env):
-    #logging.info("made it to zone 4 output for the hour")
     logging.info("Z4 start %s" % datetime.utcnow())
 
     lookback=1 #1 hr
@@ -20,7 +19,7 @@ def outputz4(env):
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
 
-    #grab hourly 
+    #grab Zone4 hourly 
     sql_bmaZ4=file_reader("resources/sql_queries/bmaZ4_output.sql")
     sql_bmaZ4=sql_bmaZ4.format(start_time=start,end_time=end)
     df_bmaZ4=db_connector(False,"MOS",sql=sql_bmaZ4)
@@ -29,7 +28,8 @@ def outputz4(env):
 
     outout_MC1=df_bmaZ4['UPH'][0]
     outout_MC2=df_bmaZ4['UPH'][1]
-        
+
+    # Setup teams output table
     title='Zone 4 Hourly Update'
     payload={"title":title, 
         "summary":"summary",
@@ -40,11 +40,12 @@ def outputz4(env):
             <tr><td>MC2</td><td>{outout_MC2}</td></tr>
             <tr><td><b>TOTAL</b></td><td>{outout_MC1+outout_MC2}</td></tr>
             </table>"""}]}
-    #post to BMA123-PE --> Output Channel
+
+    #post to Zone4 --> Output Channel
     headers = {
     'Content-Type': 'application/json'
     }
-    
+
     if env=="prod":
         try:
             logging.info("Z4 webhook start %s" % datetime.utcnow())
@@ -58,11 +59,9 @@ def outputz4(env):
             except Timeout:
                 logging.info("Z4 Webhook failed")
                 pass
-
     else:
         try:
             response = requests.post(helper_creds.get_teams_webhook_DEV()['url'],timeout=10,headers=headers, data=json.dumps(payload))
         except Timeout:   
             logging.info("Z4 DEV Webhook failed")
             pass
-
