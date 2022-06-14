@@ -1,5 +1,5 @@
 from common.db import db_connector
-# from common.helper_functions import file_reader
+from common.helper_functions import file_reader
 import common.helper_creds as helper_creds
 
 
@@ -9,19 +9,7 @@ import logging
 import requests
 from requests.exceptions import Timeout
 import json
-
-import json
 import os
-# from test import debug as masterdebug
-
-env=os.getenv('ENVVAR3')
-
-testUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/f229c49c229e4563b218df3f751aa116/6b1271fb-dfad-4abd-b25a-f204b0dbab0b'
-
-def file_reader(FilePath):
-    with open(FilePath,"r") as f:
-        contents = f.read()
-        return contents
 
 def uph_calculation(df):
     logging.info("uph_calculation start %s" % datetime.utcnow())
@@ -62,7 +50,7 @@ def uph_calculation(df):
     logging.info("uph_calculation end %s" % datetime.utcnow())
     return(string_format)
 
-def output123():
+def output123(env):
     logging.info("output123 start %s" % datetime.utcnow())
     lookback=1 #1 hr
     now=datetime.utcnow()
@@ -130,9 +118,8 @@ def output123():
     else:
         try:
             logging.info("Start BMA123 webhook end %s" % datetime.utcnow())
-            response = requests.post(testUrl, timeout=10, headers=headers, data=json.dumps(payload))
+            response = requests.post(helper_creds.get_teams_webhook_DEV()['url'], timeout=10, headers=headers, data=json.dumps(payload))
             logging.info("End BMA123 webhook end %s" % datetime.utcnow())
-
         except Timeout:
             logging.info("BMA123 Webhook failed")
             pass
