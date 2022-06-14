@@ -129,7 +129,10 @@ def output123():
                 pass
     else:
         try:
+            logging.info("Start BMA123 webhook end %s" % datetime.utcnow())
             response = requests.post(testUrl, timeout=10, headers=headers, data=json.dumps(payload))
+            logging.info("End BMA123 webhook end %s" % datetime.utcnow())
+
         except Timeout:
             logging.info("BMA123 Webhook failed")
             pass
