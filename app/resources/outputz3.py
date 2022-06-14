@@ -259,8 +259,8 @@ def outputz3(env):
     
     else:
         try:
-            response = requests.post(testUrl,timeout=10,headers=headers, data=json.dumps(payload))
+            response = requests.post(helper_creds.get_teams_webhook_DEV()['url'],timeout=10,headers=headers, data=json.dumps(payload))
         except Timeout:
-            logging.info("Z3 Webhook failed")
+            logging.info("Z3 DEV Webhook failed")
             pass
 
