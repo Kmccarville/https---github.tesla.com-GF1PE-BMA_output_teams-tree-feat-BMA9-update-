@@ -26,7 +26,7 @@ node('build'){
     stage('CheckoutSCM'){
         println "inside node\n"
         //checkout scm
-        git poll: true, branch: 'master', credentialsId: 'github-gf1pe-token', url: 'https://github.tesla.com/GF1PE/demo-app-k8s.git'
+        git poll: true, branch: env.BRANCH_NAME, credentialsId: 'github-gf1pe-token', url: 'https://github.tesla.com/GF1PE/BMA_output_teams.git'
         println "after github poll\n"
     }
     stage('Build Docker'){
