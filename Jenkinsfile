@@ -16,7 +16,7 @@ def getImageTag(){
 def applicationName = "bmaoutput" //replace with your application name
 def dockerRegistry = "artifactory.teslamotors.com:2194" //gf1pe-docker-local artifactory repo
 def dockerShop = "battery-module" //replace with your shop name | nested folder under gf1pe-docker-local
-def branchName = getBranchName
+def branchName = getBranchName()
 
 properties([
   pipelineTriggers([githubPush()]) //github webhook trigger
