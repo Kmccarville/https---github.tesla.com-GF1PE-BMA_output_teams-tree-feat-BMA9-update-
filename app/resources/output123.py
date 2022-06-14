@@ -79,7 +79,7 @@ def output123():
 
     #grab hourly MMAMC 
     sql_mmamc3=file_reader("resources/sql_queries/mmamc3_output.sql")
-    sql_mmamc3=sql_bma123.format(start_time=start,end_time=end)
+    sql_mmamc3=sql_mmamc3.format(start_time=start,end_time=end)
 
     # sql_c3a_53=f"""
     # SELECT count(distinct tp.thingid)/4 FROM thingpath tp
