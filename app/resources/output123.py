@@ -71,14 +71,14 @@ def output123():
     end=start+timedelta(hours=lookback)
 
     #grab hourly bma123
-    sql_bma123=file_reader("./sql_queries/bma123_output.sql")
+    sql_bma123=file_reader("resources/sql_queries/bma123_output.sql")
     sql_bma123=sql_bma123.format(start_time=start,end_time=end)
     df_bma123=db_connector(False,"MOS",sql=sql_bma123)
     df_bma123.fillna(0)
     output_string= uph_calculation(df_bma123)
 
     #grab hourly MMAMC 
-    sql_mmamc3=file_reader("sql_queries/mmamc3_output.sql")
+    sql_mmamc3=file_reader("resources/sql_queries/mmamc3_output.sql")
 
     # sql_c3a_53=f"""
     # SELECT count(distinct tp.thingid)/4 FROM thingpath tp
