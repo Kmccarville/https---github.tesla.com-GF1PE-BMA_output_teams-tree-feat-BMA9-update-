@@ -1,13 +1,17 @@
 from common.db import db_connector
 from common.stash_reader import stash_reader
 from common.helper_creds import helper_creds
+from common.helper_functions import file_reader
+
 from datetime import datetime
 from datetime import timedelta
-
 import logging 
 import requests
 from requests.exceptions import Timeout
 import json
+
+
+testUrl = 'https://teslamotorsinc.webhook.office.com/webhookb2/8f75c3a4-3dde-4308-be4f-157c85688084@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/f229c49c229e4563b218df3f751aa116/6b1271fb-dfad-4abd-b25a-f204b0dbab0b'
 
 
 def uph_calculation(df):
@@ -58,17 +62,14 @@ def output123():
     end=start+timedelta(hours=lookback)
 
     #grab hourly bma123
-    sql_bma123=stash_reader.bma123_output()
+    sql_bma123=file_reader("sql_queries/bma123_output.sql")
     sql_bma123=sql_bma123.format(start_time=start,end_time=end)
     df_bma123=db_connector(False,"MOS",sql=sql_bma123)
     df_bma123.fillna(0)
     output_string= uph_calculation(df_bma123)
 
     #grab hourly MMAMC 
-    sql_mmamc3=f"""
-    SELECT count(distinct tp.thingid)/4 FROM thingpath tp
-    WHERE tp.flowstepname = 'MBM-25000' AND tp.exitcompletioncode = 'PASS' AND tp.completed between '{start}' and '{end}'
-    """
+    sql_mmamc3=file_reader("sql_queries/mmamc3_output.sql")
 
     # sql_c3a_53=f"""
     # SELECT count(distinct tp.thingid)/4 FROM thingpath tp
