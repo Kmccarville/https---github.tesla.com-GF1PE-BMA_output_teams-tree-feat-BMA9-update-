@@ -1,17 +1,18 @@
 from common.db import db_connector
-# from common.stash_reader import stash_reader
+from common.helper_functions import file_reader
 import common.helper_creds as helper_creds
+
+
 from datetime import datetime
 from datetime import timedelta
-
-import logging 
+import logging
 import requests
 from requests.exceptions import Timeout
+import pandas as pd
 import json
 
 
-
-def outputz3():
+def outputz3(env):
     logging.info("Z3 start %s" % datetime.utcnow())
  
     lookback=1 #1 hr
@@ -239,7 +240,7 @@ def outputz3():
     headers = {
     'Content-Type': 'application/json'
     }
-    #post to BMA123-PE --> Output Channel
+    #post to Z3 Teams Channel --> Output Channel
     if env=="prod":
         try:
             logging.info("Z3 webhook start %s" % datetime.utcnow())
