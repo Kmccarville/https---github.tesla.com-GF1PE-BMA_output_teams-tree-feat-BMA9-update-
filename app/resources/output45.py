@@ -25,8 +25,15 @@ def output45(env):
     sql_bma4cta=sql_bma4cta.format(start_time=start,end_time=end)
     df_bma4cta=db_connector(False,"MOS",sql=sql_bma4cta)
     df_bma4cta.fillna(0)
-    bma4cta_o=df_bma4cta['count(distinct tp.thingid)/28'][0]
-    bma4cta_o=round(bma4cta_o,2)
+    BMA4_SUM=df_bma4cta['UPH'].sum()
+    BMA4_1=df_bma4cta.loc[0]['UPH']
+    BMA4_2=df_bma4cta.loc[1]['UPH']
+    BMA4_3=df_bma4cta.loc[2]['UPH']
+    BMA4_4=df_bma4cta.loc[3]['UPH']
+    BMA4_5=df_bma4cta.loc[4]['UPH']
+    BMA4_6=df_bma4cta.loc[5]['UPH']
+    BMA4_7=df_bma4cta.loc[6]['UPH']
+    BMA4_8=df_bma4cta.loc[7]['UPH']
     logging.info("bma4cta end %s" % datetime.utcnow())
 
     #Grab BMA5-CTA hourly data
@@ -34,8 +41,14 @@ def output45(env):
     sql_bma5cta=sql_bma5cta.format(start_time=start,end_time=end)
     df_bma5cta=db_connector(False,"MOS",sql=sql_bma5cta)
     df_bma5cta.fillna(0)
-    bma5cta_o=df_bma5cta['count(distinct tp.thingid)/28'][0]
-    bma5cta_o=round(bma5cta_o,2)
+    BMA5_SUM=df_bma5cta['UPH'].sum()
+    BMA5_2=df_bma5cta.loc[0]['UPH']
+    BMA5_3=df_bma5cta.loc[1]['UPH']
+    BMA5_4=df_bma5cta.loc[2]['UPH']
+    BMA5_5=df_bma5cta.loc[3]['UPH']
+    BMA5_6=df_bma5cta.loc[4]['UPH']
+    BMA5_7=df_bma5cta.loc[5]['UPH']
+    BMA5_8=df_bma5cta.loc[6]['UPH']
     logging.info("bam5cta end %s" % datetime.utcnow())
 
     #Grab BMA4-MAMC hourly data
@@ -76,10 +89,77 @@ def output45(env):
         "summary":"summary",
         "sections":[
             {'text':f"""<table>
-            <tr><th>BMA</th><th>CTA UPH</th><th>MAMC UPH</th><th>C3A UPH</th></tr>
-            <tr><td>BMA4</td><td>{bma4cta_o}</td><td>{bma4mamc_o}</td><td>{bma4c3a_o}</td></tr>
-            <tr><td>BMA5</td><td>{bma5cta_o}</td><td>{bma5mamc_o}</td><td>{bma5c3a_o}</td></tr>
-            <tr><td><b>TOTAL</b></td><td>{bma4cta_o+bma5cta_o}</td><td>{bma4mamc_o+bma5mamc_o}</td><td>{bma4c3a_o+bma5c3a_o}</td></tr>
+            <table>
+                <tr>
+                    <th>Zone</th>
+                    <th>BMA4</th>
+                    <th>BMA5</th>
+                    <th>Total</th>
+                </tr>
+                <tr>
+                    <td>CTA</td>
+                    <td>{BMA4_SUM}</td>
+                    <td>{BMA5_SUM}</td>
+                    <td>{BMA4_SUM+BMA5_SUM}</td>
+                </tr>
+                <tr>
+                    <td>MAMC</td>
+                    <td>{bma4mamc_o}</td>
+                    <td>{bma5mamc_o}</td>
+                    <td>{bma4mamc_o+bma5mamc_o}</td>
+                </tr>
+                <tr>
+                    <td>C3A</td>
+                    <td>{bma4c3a_o}</td>
+                    <td>{bma5c3a_o}</td>
+                    <td>{bma4c3a_o+bma5c3a_o}</td>
+                </tr>
+                <tr bgcolor="#FFFFFF" height=10px></tr>
+                <tr>
+                    <td><strong>CTA_Lane</strong></td>
+                    <td><strong>BMA4</strong></td>
+                    <td><strong>BMA5</strong></td>
+                </tr>
+                <tr>
+                    <td>Lane 1</td>
+                    <td>{BMA4_1}</td>
+                    <td>N/A</td>
+                </tr>
+                <tr>
+                    <td>Lane 2</td>
+                    <td>{BMA4_2}</td>
+                    <td>{BMA5_2}</td>
+                </tr>
+                <tr>
+                    <td>Lane 3</td>
+                    <td>{BMA4_3}</td>
+                    <td>{BMA5_3}</td>
+                </tr>
+                <tr>
+                    <td>Lane 4</td>
+                    <td>{BMA4_4}</td>
+                    <td>{BMA5_4}</td>
+                </tr>
+                <tr>
+                    <td>Lane 5</td>
+                    <td>{BMA4_5}</td>
+                    <td>{BMA5_5}</td>
+                </tr>
+                <tr>
+                    <td>Lane 6</td>
+                    <td>{BMA4_6}</td>
+                    <td>{BMA5_6}</td>
+                </tr>
+                <tr>
+                    <td>Lane 7</td>
+                    <td>{BMA4_7}</td>
+                    <td>{BMA5_7}</td>
+                </tr>
+                <tr>
+                    <td>Lane 8</td>
+                    <td>{BMA4_8}</td>
+                    <td>{BMA5_8}</td>
+                </tr>
             </table>"""}]}
     headers = {
     'Content-Type': 'application/json'
