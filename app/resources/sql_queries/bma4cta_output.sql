@@ -1,5 +1,5 @@
 SELECT
-a.name,
+a.name as LINE,
 round(COUNT(distinct tp.thingid)/28, 2) as UPH
 FROM thingpath tp
 JOIN actor a on tp.modifiedby = a.id

@@ -25,15 +25,34 @@ def output45(env):
     sql_bma4cta=sql_bma4cta.format(start_time=start,end_time=end)
     df_bma4cta=db_connector(False,"MOS",sql=sql_bma4cta)
     df_bma4cta.fillna(0)
-    BMA4_SUM=df_bma4cta['UPH'].sum()
-    BMA4_1=df_bma4cta.loc[0]['UPH']
-    BMA4_2=df_bma4cta.loc[1]['UPH']
-    BMA4_3=df_bma4cta.loc[2]['UPH']
-    BMA4_4=df_bma4cta.loc[3]['UPH']
-    BMA4_5=df_bma4cta.loc[4]['UPH']
-    BMA4_6=df_bma4cta.loc[5]['UPH']
-    BMA4_7=df_bma4cta.loc[6]['UPH']
-    BMA4_8=df_bma4cta.loc[7]['UPH']
+    if len(df_bma4cta):
+        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-01'")
+        BMA4_1 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-02'")
+        BMA4_2 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-03'")
+        BMA4_3 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-04'")
+        BMA4_4 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-05'")
+        BMA4_5 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-06'")
+        BMA4_6 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-07'")
+        BMA4_7 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-08'")
+        BMA4_8 = sub_df.iloc[0][1] if len(sub_df) else 0
+        BMA4_SUM=round(df_bma4cta['UPH'].sum(), 2)
+    else:
+        BMA4_1 = 0
+        BMA4_2 = 0
+        BMA4_3 = 0
+        BMA4_4 = 0
+        BMA4_5 = 0
+        BMA4_6 = 0
+        BMA4_7 = 0
+        BMA4_8 = 0
+        BMA4_SUM = 0
     logging.info("bma4cta end %s" % datetime.utcnow())
 
     #Grab BMA5-CTA hourly data
@@ -41,14 +60,34 @@ def output45(env):
     sql_bma5cta=sql_bma5cta.format(start_time=start,end_time=end)
     df_bma5cta=db_connector(False,"MOS",sql=sql_bma5cta)
     df_bma5cta.fillna(0)
-    BMA5_SUM=df_bma5cta['UPH'].sum()
-    BMA5_2=df_bma5cta.loc[0]['UPH']
-    BMA5_3=df_bma5cta.loc[1]['UPH']
-    BMA5_4=df_bma5cta.loc[2]['UPH']
-    BMA5_5=df_bma5cta.loc[3]['UPH']
-    BMA5_6=df_bma5cta.loc[4]['UPH']
-    BMA5_7=df_bma5cta.loc[5]['UPH']
-    BMA5_8=df_bma5cta.loc[6]['UPH']
+    if len(df_bma5cta):
+        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-01'")
+        BMA5_1 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-02'")
+        BMA5_2 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-03'")
+        BMA5_3 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-04'")
+        BMA5_4 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-05'")
+        BMA5_5 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-06'")
+        BMA5_6 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-07'")
+        BMA5_7 = sub_df.iloc[0][1] if len(sub_df) else 0
+        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-08'")
+        BMA5_8 = sub_df.iloc[0][1] if len(sub_df) else 0
+        BMA5_SUM=round(df_bma4cta['UPH'].sum(), 2)
+    else:
+        BMA5_1 = 0
+        BMA5_2 = 0
+        BMA5_3 = 0
+        BMA5_4 = 0
+        BMA5_5 = 0
+        BMA5_6 = 0
+        BMA5_7 = 0
+        BMA5_8 = 0
+        BMA5_SUM = 0
     logging.info("bam5cta end %s" % datetime.utcnow())
 
     #Grab BMA4-MAMC hourly data
