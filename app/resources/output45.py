@@ -26,21 +26,21 @@ def output45(env):
     df_bma4cta=db_connector(False,"MOS",sql=sql_bma4cta)
     df_bma4cta.fillna(0)
     if len(df_bma4cta):
-        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-01'")
+        sub_df = df_bma4cta.query("LINE=='3BM4-20000-01'")
         BMA4_1 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-02'")
+        sub_df = df_bma4cta.query("LINE=='3BM4-20000-02'")
         BMA4_2 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-03'")
+        sub_df = df_bma4cta.query("LINE=='3BM4-20000-03'")
         BMA4_3 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-04'")
+        sub_df = df_bma4cta.query("LINE=='3BM4-20000-04'")
         BMA4_4 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-05'")
+        sub_df = df_bma4cta.query("LINE=='3BM4-20000-05'")
         BMA4_5 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-06'")
+        sub_df = df_bma4cta.query("LINE=='3BM4-20000-06'")
         BMA4_6 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-07'")
+        sub_df = df_bma4cta.query("LINE=='3BM4-20000-07'")
         BMA4_7 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma4cta.query(f"LINE=='3BM4-20000-08'")
+        sub_df = df_bma4cta.query("LINE=='3BM4-20000-08'")
         BMA4_8 = sub_df.iloc[0][1] if len(sub_df) else 0
         BMA4_SUM=round(df_bma4cta['UPH'].sum(), 2)
     else:
@@ -61,21 +61,19 @@ def output45(env):
     df_bma5cta=db_connector(False,"MOS",sql=sql_bma5cta)
     df_bma5cta.fillna(0)
     if len(df_bma5cta):
-        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-01'")
-        BMA5_1 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-02'")
+        sub_df = df_bma5cta.query("LINE=='3BM5-20000-02'")
         BMA5_2 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-03'")
+        sub_df = df_bma5cta.query("LINE=='3BM5-20000-03'")
         BMA5_3 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-04'")
+        sub_df = df_bma5cta.query("LINE=='3BM5-20000-04'")
         BMA5_4 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-05'")
+        sub_df = df_bma5cta.query("LINE=='3BM5-20000-05'")
         BMA5_5 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-06'")
+        sub_df = df_bma5cta.query("LINE=='3BM5-20000-06'")
         BMA5_6 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-07'")
+        sub_df = df_bma5cta.query("LINE=='3BM5-20000-07'")
         BMA5_7 = sub_df.iloc[0][1] if len(sub_df) else 0
-        sub_df = df_bma5cta.query(f"LINE=='3BM5-20000-08'")
+        sub_df = df_bma5cta.query("LINE=='3BM5-20000-08'")
         BMA5_8 = sub_df.iloc[0][1] if len(sub_df) else 0
         BMA5_SUM=round(df_bma4cta['UPH'].sum(), 2)
     else:
