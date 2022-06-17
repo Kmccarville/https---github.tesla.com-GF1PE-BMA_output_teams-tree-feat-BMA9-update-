@@ -12,9 +12,18 @@ import json
 
 def uph_calculation(df):
     logging.info("uph_calculation start %s" % datetime.utcnow())
-    ACTA1  =[]
-    ACTA2 =[] 
-    ACTA3 =[]
+    ACTA1_1 =[]
+    ACTA1_2 =[]
+    ACTA1_3 =[]
+    ACTA1_4 =[]
+    ACTA2_1 =[] 
+    ACTA2_2 =[] 
+    ACTA2_3 =[] 
+    ACTA2_4 =[] 
+    ACTA3_1 =[]
+    ACTA3_2 =[]
+    ACTA3_3 =[]
+    ACTA3_4 =[]
     NESTED1 =[]
     NESTED2 =[]
     NESTED3 = []
@@ -24,12 +33,30 @@ def uph_calculation(df):
     string = []
     if len(df.index)>0:
         for index, row in df.iterrows():  
-            if row['CreatedBy']  =='ignition-gf1-bm-tag7-prod':
-                ACTA1.append(f"{row['Thingname']}")
-            elif row['CreatedBy']  =='ignition-gf1-bm-tag8-prod':
-                ACTA2.append(f"{row['Thingname']}")
-            elif row['CreatedBy']  =='ignition-gf1-bm-tag9-prod':
-                ACTA3.append(f"{row['Thingname']}")
+            if row['ActorModifiedby']  =='3BM1-20000-01':
+                ACTA1_1.append(f"{row['Thingname']}")
+            elif row['ActorModifiedby']  =='3BM1-20000-02':
+                ACTA1_2.append(f"{row['Thingname']}")
+            elif row['ActorModifiedby']  =='3BM1-20000-03':
+                ACTA1_3.append(f"{row['Thingname']}")
+            elif row['ActorModifiedby']  =='3BM1-20000-04':
+                ACTA1_4.append(f"{row['Thingname']}")
+            elif row['ActorModifiedby']  =='3BM2-20000-01':
+                ACTA2_1.append(f"{row['Thingname']}")    
+            elif row['ActorModifiedby']  =='3BM2-20000-02':
+                ACTA2_2.append(f"{row['Thingname']}")
+            elif row['ActorModifiedby']  =='3BM2-20000-03':
+                ACTA2_3.append(f"{row['Thingname']}")
+            elif row['ActorModifiedby']  =='3BM2-20000-04':
+                ACTA2_4.append(f"{row['Thingname']}")
+            elif row['ActorModifiedby']  =='3BM3-20000-01':
+                ACTA3_1.append(f"{row['Thingname']}")
+            elif row['ActorModifiedby']  =='3BM3-20000-02':
+                ACTA3_2.append(f"{row['Thingname']}")
+            elif row['ActorModifiedby']  =='3BM3-20000-03':
+                ACTA3_3.append(f"{row['Thingname']}")
+            elif row['ActorModifiedby']  =='3BM3-20000-04':
+                ACTA3_4.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM1-29500-01':
                 NESTED1.append(f"{row['Thingname']}") 
             elif row['ActorModifiedby']  =='3BM2-29500-01':
@@ -43,7 +70,7 @@ def uph_calculation(df):
             elif row['ActorModifiedby']  =='3BM3-40001-01':
                 AC3A3.append(f"{row['Thingname']}")
 
-    string = [len(ACTA1)/28 ,len(NESTED1)/4, len(AC3A1)/4, len(ACTA2)/28 ,len(NESTED2)/4 , len(AC3A2)/4, len(ACTA3)/28, len(NESTED3)/4 , len(AC3A3)/4]
+    string = [len(ACTA1_1)/28, len(ACTA1_2)/28, len(ACTA1_3)/28, len(ACTA1_4)/28, len(NESTED1)/4, len(AC3A1)/4, len(ACTA2_1)/28, len(ACTA2_2)/28, len(ACTA2_3)/28, len(ACTA2_4)/28, len(NESTED2)/4 , len(AC3A2)/4, len(ACTA3_1)/28, len(ACTA3_2)/28, len(ACTA3_3)/28, len(ACTA3_4)/28, len(NESTED3)/4 , len(AC3A3)/4]
     string_format = [ round(elem,2) for elem in string ]
     logging.info("uph_calculation end %s" % datetime.utcnow())
     return(string_format)
@@ -75,15 +102,69 @@ def output123(env):
     # Setup teams output table
     title='Hourly Summary'
     payload={"title":title, 
-        "summary":"summary",
+            "summary":"summary",
         "sections":[
             {'text':f"""<table>
-            <tr><th>BMA</th><th>CTA UPH</th><th>MAMC UPH</th><th>C3A UPH</th></tr>
-            <tr><td>BMA1</td><td> {output_string[0]}</td><td> {output_string[1]}</td><td> {output_string[2]}</td></tr>
-            <tr><td>BMA2</td><td> {output_string[3]}</td><td> {output_string[4]}</td><td> {output_string[5]}</td></tr>
-            <tr><td>BMA3</td><td> {output_string[6]}</td><td> {output_string[7]}</td><td> {output_string[8]}</td></tr>
-            <tr><td>MMAMC3</td><td> 0 </td><td> {df_sql_mmamc3['count(distinct tp.thingid)/4'][0]} </td><td> 0 </td></tr>
-            <tr><td><b>TOTAL</b></td><td>{round(output_string[0]+output_string[3]+output_string[6],2)}</td><td>{round(output_string[1]+output_string[4]+output_string[7]+df_sql_mmamc3['count(distinct tp.thingid)/4'][0],2)}</td><td>{round(output_string[2]+output_string[5]+output_string[8],2)}</td></tr>
+            <table>
+                <tr>
+                    <th>Zone</th>
+                    <th>BMA1</th>
+                    <th>BMA2</th>
+                    <th>BMA3</th>
+                    <th>Total</th>
+                </tr>
+                <tr>
+                    <td>CTA</td>
+                    <td>{round(output_string[0]+output_string[1]+output_string[2]+output_string[3], 2)}</td>
+                    <td>{round(output_string[6]+output_string[7]+output_string[8]+output_string[9], 2)}</td>
+                    <td>{round(output_string[12]+output_string[13]+output_string[14]+output_string[15], 2)}</td>
+                    <td>{round(output_string[0]+output_string[1]+output_string[2]+output_string[3]+output_string[6]+output_string[7]+output_string[8]+output_string[9]+output_string[12]+output_string[13]+output_string[14]+output_string[15], 2)}</td>
+                </tr>
+                <tr>
+                    <td>MAMC</td>
+                    <td>{output_string[4]}</td>
+                    <td>{output_string[10]}</td>
+                    <td>{output_string[16]}</td>
+                    <td>{output_string[4]+output_string[10]+output_string[16]}</td>
+                </tr>
+                <tr>
+                    <td>C3A</td>
+                    <td>{output_string[5]}</td>
+                    <td>{output_string[11]}</td>
+                    <td>{output_string[17]}</td>
+                    <td>{output_string[5]+output_string[11]+output_string[17]}</td>
+                </tr>
+                <tr bgcolor="#FFFFFF" height=10px></tr>
+                <tr>
+                    <td><strong>CTA_Lane</strong></td>
+                    <td><strong>BMA1</strong></td>
+                    <td><strong>BMA2</strong></td>
+                    <td><strong>BMA3</strong></td>
+                </tr>
+                <tr>
+                    <td>Lane 1</td>
+                    <td>{output_string[0]}</td>
+                    <td>{output_string[6]}</td>
+                    <td>{output_string[12]}</td>
+                </tr>
+                <tr>
+                    <td>Lane 2</td>
+                    <td>{output_string[1]}</td>
+                    <td>{output_string[7]}</td>
+                    <td>{output_string[13]}</td>
+                </tr>
+                <tr>
+                    <td>Lane 3</td>
+                    <td>{output_string[2]}</td>
+                    <td>{output_string[8]}</td>
+                    <td>{output_string[14]}</td>
+                </tr>
+                <tr>
+                    <td>Lane 4</td>
+                    <td>{output_string[3]}</td>
+                    <td>{output_string[9]}</td>
+                    <td>{output_string[15]}</td>
+                </tr>        
             </table>""" }]}
     headers = {
     'Content-Type': 'application/json'
