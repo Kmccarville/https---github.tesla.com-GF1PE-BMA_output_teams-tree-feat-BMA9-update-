@@ -75,7 +75,7 @@ def output45(env):
         BMA5_7 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma5cta.query("LINE=='3BM5-20000-08'")
         BMA5_8 = sub_df.iloc[0][1] if len(sub_df) else 0
-        BMA5_SUM=round(df_bma4cta['UPH'].sum(), 2)
+        BMA5_SUM=round(df_bma5cta['UPH'].sum(), 2)
     else:
         BMA5_1 = 0
         BMA5_2 = 0
