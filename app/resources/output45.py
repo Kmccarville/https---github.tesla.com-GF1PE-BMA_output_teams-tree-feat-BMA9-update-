@@ -160,7 +160,7 @@ def output45(env):
                 <tr>
                     <td>Lane 1</td>
                     <td>{BMA4_1}</td>
-                    <td>N/A</td>
+                    <td>---</td>
                 </tr>
                 <tr>
                     <td>Lane 2</td>
