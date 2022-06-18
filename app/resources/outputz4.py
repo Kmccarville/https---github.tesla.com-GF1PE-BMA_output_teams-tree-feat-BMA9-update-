@@ -42,15 +42,15 @@ def outputz4(env):
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC1</strong></td>
-                <td <td style="text-align:center">{'{:.2f}'.format(MC1_UPH)}</td>
+                <td <td style="text-align:left">{MC1_UPH}</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC2</strong></td>
-                <td style="text-align:center">{'{:.2f}'.format(MC2_UPH)}</td>
+                <td style="text-align:left">{MC2_UPH}</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>TOTAL</strong></td>
-                <td style="text-align:center">{'{:.2f}'.format(MIC_TOTAL)}</td>
+                <td style="text-align:left">{MIC_TOTAL}</td>
             </tr>
             </table>"""}]}
 
