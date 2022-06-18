@@ -27,9 +27,9 @@ def uph_calculation(df):
     NESTED1 =[]
     NESTED2 =[]
     NESTED3 = []
-    AC3A1 =[]
-    AC3A2 =[]
-    AC3A3 = []
+    C3A1 =[]
+    C3A2 =[]
+    C3A3 = []
     string = []
     if len(df.index)>0:
         for index, row in df.iterrows():  
@@ -64,11 +64,11 @@ def uph_calculation(df):
             elif row['ActorModifiedby']  =='3BM3-29500-01':
                 NESTED3.append(f"{row['Thingname']}") 
             elif row['ActorModifiedby']  =='3BM1-40001-01':
-                AC3A1.append(f"{row['Thingname']}")  
+                C3A1.append(f"{row['Thingname']}")  
             elif row['ActorModifiedby']  =='3BM2-40001-01':
-                AC3A2.append(f"{row['Thingname']}")  
+                C3A2.append(f"{row['Thingname']}")  
             elif row['ActorModifiedby']  =='3BM3-40001-01':
-                AC3A3.append(f"{row['Thingname']}")
+                C3A3.append(f"{row['Thingname']}")
 
     string = [
               len(CTA1_1)/28, 
@@ -76,19 +76,19 @@ def uph_calculation(df):
               len(CTA1_3)/28, 
               len(CTA1_4)/28, 
               len(NESTED1)/4, 
-              len(AC3A1)/4, 
+              len(C3A1)/4, 
               len(CTA2_1)/28, 
               len(CTA2_2)/28, 
               len(CTA2_3)/28, 
               len(CTA2_4)/28, 
               len(NESTED2)/4 , 
-              len(AC3A2)/4, 
+              len(C3A2)/4, 
               len(CTA3_1)/28, 
               len(CTA3_2)/28, 
               len(CTA3_3)/28, 
               len(CTA3_4)/28, 
               len(NESTED3)/4 , 
-              len(AC3A3)/4]
+              len(C3A3)/4]
     string_format = [ round(elem,2) for elem in string ]
     logging.info("uph_calculation end %s" % datetime.utcnow())
     return(string_format)
