@@ -37,8 +37,8 @@ def outputz4(env):
         "sections":[
             {'text':f"""<table>
             <tr>
-                <th style="text-align:right>LINE</th>
-                <th style="text-align:center>UPH</th>
+                <th style="text-align:right">LINE</th>
+                <th style="text-align:center">UPH</th>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC1</strong></td>
