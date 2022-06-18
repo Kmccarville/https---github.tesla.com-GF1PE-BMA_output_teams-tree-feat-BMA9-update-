@@ -153,7 +153,7 @@ def output123(env):
             {'text':f"""<table>
             <table>
                 <tr>
-                    <th> </th>
+                    <th>Zone</th>
                     <th>BMA1</th>
                     <th>BMA2</th>
                     <th>BMA3</th>
@@ -169,7 +169,7 @@ def output123(env):
                     <td style="text-align:center">{'{:.2f}'.format(CTA_TOTAL)}</td>
                 </tr>
                 <tr>
-                   <td style="text-align:right><strong>MAMC</strong></td>
+                    <td style="text-align:right><strong>MAMC</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC1)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC2)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC3)}</td>
