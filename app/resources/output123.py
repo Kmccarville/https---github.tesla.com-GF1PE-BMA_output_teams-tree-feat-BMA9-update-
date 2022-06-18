@@ -146,7 +146,7 @@ def output123(env):
     C3A_TOTAL = C3A1+C3A2+C3A3
 
     # Setup teams output table
-    title='Hourly Summary'
+    title='BMA123 Hourly Update'
     payload={"title":title, 
             "summary":"summary",
         "sections":[
@@ -187,30 +187,30 @@ def output123(env):
                 <tr bgcolor="#FFFFFF" height=10px></tr>
                 <tr>
                     <td style="text-align:center"><strong>CTA</strong></td>
-                    <td><strong>BMA1</strong></td>
-                    <td><strong>BMA2</strong></td>
-                    <td><strong>BMA3</strong></td>
+                    <td><strong>CTA1</strong></td>
+                    <td><strong>CTA2</strong></td>
+                    <td><strong>CTA3</strong></td>
                 </tr>
                 <tr>
-                    <td style="text-align:right"><strong>Lane 1</strong></td>
+                    <td style="text-align:right"><strong>LANE 1</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA1_1)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA2_1)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA3_1)}</td>
                 </tr>
                 <tr>
-                    <td style="text-align:right"><strong>Lane 2</strong></td>
+                    <td style="text-align:right"><strong>LANE 2</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA1_2)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA2_2)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA3_2)}</td>
                 </tr>
                 <tr>
-                    <td style="text-align:right"><strong>Lane 3</strong></td>
+                    <td style="text-align:right"><strong>LANE 3</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA1_3)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA2_3)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA3_3)}</td>
                 </tr>
                 <tr>
-                    <td style="text-align:right"><strong>Lane 4</strong></td>
+                    <td style="text-align:right"><strong>LANE 4</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA1_4)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA2_4)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA3_4)}</td>
