@@ -117,6 +117,7 @@ def output123(env):
     logging.info("mmamc3 end %s" % datetime.utcnow())
     df_sql_mmamc3.fillna(0)
 
+    #Set outputs for table
     CTA1_1 = round(output_string[0],2)
     CTA1_2 = round(output_string[1],2)
     CTA1_3 = round(output_string[2],2)
@@ -154,11 +155,11 @@ def output123(env):
             <table>
                 <tr>
                     <th>    </th>
-                    <th>BMA1</th>
-                    <th>BMA2</th>
-                    <th>BMA3</th>
-                    <th>MMAMC</th>
-                    <th>Total</th>
+                    <th style="text-align:center">BMA1</th>
+                    <th style="text-align:center">BMA2</th>
+                    <th style="text-align:center">BMA3</th>
+                    <th style="text-align:center">MMAMC</th>
+                    <th style="text-align:center">TOTAL</th>
                 </tr>
                 <tr>
                     <td style="text-align:right"><strong>CTA</strong></td>
@@ -187,9 +188,9 @@ def output123(env):
                 <tr bgcolor="#FFFFFF" height=10px></tr>
                 <tr>
                     <td>    </td>
-                    <td><strong>CTA1</strong></td>
-                    <td><strong>CTA2</strong></td>
-                    <td><strong>CTA3</strong></td>
+                    <td style="text-align:center"><strong>CTA1</strong></td>
+                    <td style="text-align:center"><strong>CTA2</strong></td>
+                    <td style="text-align:center"><strong>CTA3</strong></td>
                 </tr>
                 <tr>
                     <td style="text-align:right"><strong>LANE 1</strong></td>
