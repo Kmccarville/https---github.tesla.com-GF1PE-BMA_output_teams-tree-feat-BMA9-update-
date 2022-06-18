@@ -186,7 +186,7 @@ def output123(env):
                 </tr>
                 <tr bgcolor="#FFFFFF" height=10px></tr>
                 <tr>
-                    <td style="text-align:center"><strong>CTA</strong></td>
+                    <td>    </td>
                     <td><strong>CTA1</strong></td>
                     <td><strong>CTA2</strong></td>
                     <td><strong>CTA3</strong></td>
