@@ -111,6 +111,7 @@ def output123(env):
                     <th>BMA1</th>
                     <th>BMA2</th>
                     <th>BMA3</th>
+                    <th>MMAMC3</th.
                     <th>Total</th>
                 </tr>
                 <tr>
@@ -118,6 +119,7 @@ def output123(env):
                     <td>{round(output_string[0]+output_string[1]+output_string[2]+output_string[3], 2)}</td>
                     <td>{round(output_string[6]+output_string[7]+output_string[8]+output_string[9], 2)}</td>
                     <td>{round(output_string[12]+output_string[13]+output_string[14]+output_string[15], 2)}</td>
+                    <td>---</td>
                     <td>{round(output_string[0]+output_string[1]+output_string[2]+output_string[3]+output_string[6]+output_string[7]+output_string[8]+output_string[9]+output_string[12]+output_string[13]+output_string[14]+output_string[15], 2)}</td>
                 </tr>
                 <tr>
@@ -125,6 +127,7 @@ def output123(env):
                     <td>{output_string[4]}</td>
                     <td>{output_string[10]}</td>
                     <td>{output_string[16]}</td>
+                    <td>{df_sql_mmamc3['count(distinct tp.thingid)/4'][0]}</td>
                     <td>{output_string[4]+output_string[10]+output_string[16]}</td>
                 </tr>
                 <tr>
@@ -132,6 +135,7 @@ def output123(env):
                     <td>{output_string[5]}</td>
                     <td>{output_string[11]}</td>
                     <td>{output_string[17]}</td>
+                    <td>---</td>
                     <td>{output_string[5]+output_string[11]+output_string[17]}</td>
                 </tr>
                 <tr bgcolor="#FFFFFF" height=10px></tr>
