@@ -173,6 +173,7 @@ def outputz3(env):
         if len(df):
             sub_df = df.query(f"LINE=='{line}'")
             val = sub_df.iloc[0][1] if len(sub_df) else 0
+            val = '{:.2f}'.format(val)
         elif not list(df.columns):
             val = -99
         else:
