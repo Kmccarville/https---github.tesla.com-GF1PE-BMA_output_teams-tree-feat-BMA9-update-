@@ -146,7 +146,7 @@ def output123(env):
     C3A3 = output_string[17]
     C3A_TOTAL = C3A1+C3A2+C3A3
 
-    if MANUAL_MAMC > 0:
+    if MANUAL_MAMC >= 0:
         mmamc_header = '<th style="text-align:center">TEST</th>'
         mmamc_row1 = '<td style="text-align:center">----</td>'
         mmamc_row2 = f'<td style="text-align:center">{"{:.2f}".format(MANUAL_MAMC)}</td>'
@@ -156,6 +156,7 @@ def output123(env):
         mmamc_row1 = ""
         mmamc_row2 = ""
         mmamc_row3 = ""
+
     # Setup teams output table
     title='BMA123 Hourly Update'
     payload={"title":title, 
