@@ -132,7 +132,7 @@ def output123(env):
     CTA3_4 = round(output_string[15],2)
     CTA1 = round(CTA1_1+CTA1_2+CTA1_3+CTA1_4,2)
     CTA2 = round(CTA2_1+CTA2_2+CTA2_3+CTA2_4,2)
-    CTA3 = round(CTA2_1+CTA2_2+CTA2_3+CTA2_4,2)
+    CTA3 = round(CTA3_1+CTA3_2+CTA3_3+CTA3_4,2)
     CTA_TOTAL = round(CTA1+CTA2+CTA3,2)
 
     MAMC1 = output_string[4]
