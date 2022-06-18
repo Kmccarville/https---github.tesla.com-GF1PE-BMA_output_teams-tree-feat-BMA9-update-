@@ -153,7 +153,7 @@ def output123(env):
             {'text':f"""<table>
             <table>
                 <tr>
-                    <th>Zone</th>
+                    <th> </th>
                     <th>BMA1</th>
                     <th>BMA2</th>
                     <th>BMA3</th>
@@ -161,28 +161,28 @@ def output123(env):
                     <th>Total</th>
                 </tr>
                 <tr>
-                    <td>CTA</td>
-                    <td style="text-align:center">{CTA1}</td>
-                    <td style="text-align:center">{CTA2}</td>
-                    <td style="text-align:center">{CTA3}</td>
+                    <td style="text-align:right><strong>CTA</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA1)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA2)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA3)}</td>
                     <td style="text-align:center">----</td>
-                    <td style="text-align:center">{CTA_TOTAL}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA_TOTAL)}</td>
                 </tr>
                 <tr>
-                    <td>MAMC</td>
-                    <td>{'{:.2f}'.format(MAMC1)}</td>
-                    <td>{'{:.2f}'.format(MAMC2)}</td>
-                    <td>{'{:.2f}'.format(MAMC3)}</td>
-                    <td>{'{:.2f}'.format(MANUAL_MAMC)}</td>
-                    <td>{MAMC_TOTAL}</td>
+                   <td style="text-align:right><strong>MAMC</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(MAMC1)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(MAMC2)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(MAMC3)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(MANUAL_MAMC)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(MAMC_TOTAL)}</td>
                 </tr>
                 <tr>
-                    <td>C3A</td>
-                    <td>{C3A1}</td>
-                    <td>{C3A2}</td>
-                    <td>{C3A3}</td>
-                    <td>----</td>
-                    <td>{C3A_TOTAL}</td>
+                    <td style="text-align:right><strong>C3A</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(C3A1)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(C3A2)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(C3A3)}</td>
+                    <td style="text-align:center">----</td>
+                    <td style="text-align:center">{'{:.2f}'.format(C3A_TOTAL)}</td>
                 </tr>
                 <tr bgcolor="#FFFFFF" height=10px></tr>
                 <tr>
@@ -193,27 +193,27 @@ def output123(env):
                 </tr>
                 <tr>
                     <td>Lane 1</td>
-                    <td>{CTA1_1}</td>
-                    <td>{CTA2_1}</td>
-                    <td>{CTA3_1}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA1_1)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA2_1)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA3_1)}</td>
                 </tr>
                 <tr>
                     <td>Lane 2</td>
-                    <td>{CTA1_2}</td>
-                    <td>{CTA2_2}</td>
-                    <td>{CTA3_2}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA1_2)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA2_2)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA3_2)}</td>
                 </tr>
                 <tr>
                     <td>Lane 3</td>
-                    <td>{CTA1_3}</td>
-                    <td>{CTA2_3}</td>
-                    <td>{CTA3_3}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA1_3)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA2_3)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA3_3)}</td>
                 </tr>
                 <tr>
                     <td>Lane 4</td>
-                    <td>{CTA1_4}</td>
-                    <td>{CTA2_4}</td>
-                    <td>{CTA3_4}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA1_4)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA2_4)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA3_4)}</td>
                 </tr>        
             </table>""" }]}
     headers = {
