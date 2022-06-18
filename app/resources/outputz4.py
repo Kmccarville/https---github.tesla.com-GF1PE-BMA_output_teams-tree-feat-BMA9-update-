@@ -36,10 +36,22 @@ def outputz4(env):
         "summary":"summary",
         "sections":[
             {'text':f"""<table>
-            <tr><th>   </th><th>UPH</th></tr>
-            <tr><td style="text-align:right"><strong>MC1</strong></td><td <td style="text-align:center">{'{:.2f}'.format(MC1_UPH)}</td></tr>
-            <tr><td style="text-align:right"><strong>MC2</strong></td><td <td style="text-align:center">{'{:.2f}'.format(MC2_UPH)}</td></tr>
-            <tr><td <td style="text-align:right">><strong>TOTAL</strong></td><td <td style="text-align:center">{'{:.2f}'.format(MIC_TOTAL)}</td></tr>
+            <tr>
+                <th style="text-align:right>LINE</th>
+                <th style="text-align:center>UPH</th>
+            </tr>
+            <tr>
+                <td style="text-align:right"><strong>MC1</strong></td>
+                <td <td style="text-align:center">{'{:.2f}'.format(MC1_UPH)}</td>
+            </tr>
+            <tr>
+                <td style="text-align:right"><strong>MC2</strong></td>
+                <td style="text-align:center">{'{:.2f}'.format(MC2_UPH)}</td>
+            </tr>
+            <tr>
+                <td style="text-align:right"><strong>TOTAL</strong></td>
+                <td style="text-align:center">{'{:.2f}'.format(MIC_TOTAL)}</td>
+            </tr>
             </table>"""}]}
 
     #post to Zone4 --> Output Channel
