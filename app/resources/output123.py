@@ -119,7 +119,7 @@ def output123(env):
                     <td>{round(output_string[0]+output_string[1]+output_string[2]+output_string[3], 2)}</td>
                     <td>{round(output_string[6]+output_string[7]+output_string[8]+output_string[9], 2)}</td>
                     <td>{round(output_string[12]+output_string[13]+output_string[14]+output_string[15], 2)}</td>
-                    <td>---</td>
+                    <td>----</td>
                     <td>{round(output_string[0]+output_string[1]+output_string[2]+output_string[3]+output_string[6]+output_string[7]+output_string[8]+output_string[9]+output_string[12]+output_string[13]+output_string[14]+output_string[15], 2)}</td>
                 </tr>
                 <tr>
