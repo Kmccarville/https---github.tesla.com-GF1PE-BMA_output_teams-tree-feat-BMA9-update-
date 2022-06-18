@@ -129,7 +129,7 @@ def output45(env):
 
     C3A4 = bma4c3a_o
     C3A5 = bma5c3a_o
-    C3A_TOTAL = C3A4+C3AA5
+    C3A_TOTAL = C3A4+C3A5
 
     # Setup teams output table
     title='BMA45 Hourly Update'
