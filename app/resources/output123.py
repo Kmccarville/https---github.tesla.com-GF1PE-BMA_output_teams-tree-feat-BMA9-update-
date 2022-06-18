@@ -70,7 +70,25 @@ def uph_calculation(df):
             elif row['ActorModifiedby']  =='3BM3-40001-01':
                 AC3A3.append(f"{row['Thingname']}")
 
-    string = [len(ACTA1_1)/28, len(ACTA1_2)/28, len(ACTA1_3)/28, len(ACTA1_4)/28, len(NESTED1)/4, len(AC3A1)/4, len(ACTA2_1)/28, len(ACTA2_2)/28, len(ACTA2_3)/28, len(ACTA2_4)/28, len(NESTED2)/4 , len(AC3A2)/4, len(ACTA3_1)/28, len(ACTA3_2)/28, len(ACTA3_3)/28, len(ACTA3_4)/28, len(NESTED3)/4 , len(AC3A3)/4]
+    string = [
+              len(ACTA1_1)/28, 
+              len(ACTA1_2)/28, 
+              len(ACTA1_3)/28, 
+              len(ACTA1_4)/28, 
+              len(NESTED1)/4, 
+              len(AC3A1)/4, 
+              len(ACTA2_1)/28, 
+              len(ACTA2_2)/28, 
+              len(ACTA2_3)/28, 
+              len(ACTA2_4)/28, 
+              len(NESTED2)/4 , 
+              len(AC3A2)/4, 
+              len(ACTA3_1)/28, 
+              len(ACTA3_2)/28, 
+              len(ACTA3_3)/28, 
+              len(ACTA3_4)/28, 
+              len(NESTED3)/4 , 
+              len(AC3A3)/4]
     string_format = [ round(elem,2) for elem in string ]
     logging.info("uph_calculation end %s" % datetime.utcnow())
     return(string_format)
@@ -99,6 +117,34 @@ def output123(env):
     logging.info("mmamc3 end %s" % datetime.utcnow())
     df_sql_mmamc3.fillna(0)
 
+    CTA1_1 = '{:.2f}'.format(round(output_string[0],2))
+    CTA1_2 = '{:.2f}'.format(round(output_string[1],2))
+    CTA1_3 = '{:.2f}'.format(round(output_string[2],2))
+    CTA1_4 = '{:.2f}'.format(round(output_string[3],2))
+    CTA2_1 = '{:.2f}'.format(round(output_string[6],2))
+    CTA2_2 = '{:.2f}'.format(round(output_string[7],2))
+    CTA2_3 = '{:.2f}'.format(round(output_string[8],2))
+    CTA2_4 = '{:.2f}'.format(round(output_string[9],2))
+    CTA3_1 = '{:.2f}'.format(round(output_string[12],2))
+    CTA3_2 = '{:.2f}'.format(round(output_string[13],2))
+    CTA3_3 = '{:.2f}'.format(round(output_string[14],2))
+    CTA3_4 = '{:.2f}'.format(round(output_string[15],2))
+    CTA1 = '{:.2f}'.format(round(CTA1_1+CTA1_2+CTA1_3+CTA1_4,2))
+    CTA2 = '{:.2f}'.format(round(CTA2_1+CTA2_2+CTA2_3+CTA2_4,2))
+    CTA3 = '{:.2f}'.format(round(CTA2_1+CTA2_2+CTA2_3+CTA2_4,2))
+    CTA_TOTAL = '{:.2f}'.format(round(CTA1+CTA2+CTA3,2))
+
+    MAMC1 = '{:.2f}'.format(output_string[4])
+    MAMC2 = '{:.2f}'.format(output_string[10])
+    MAMC3 = '{:.2f}'.format(output_string[16])
+    MANUAL_MAMC = '{:.2f}'.format(df_sql_mmamc3['count(distinct tp.thingid)/4'][0])
+    MAMC_TOTAL = '{:.2f}'.format(MAMC1+MAMC2+MAMC3+MMAMC)
+
+    C3A1 = '{:.2f}'.format(output_string[5])
+    C3A2 = '{:.2f}'.format(output_string[11])
+    C3A3 = '{:.2f}'.format(output_string[17])
+    C3A_TOTAL = '{:.2f}'.format(C3A1+C3A2+C3A3)
+
     # Setup teams output table
     title='Hourly Summary'
     payload={"title":title, 
@@ -116,27 +162,27 @@ def output123(env):
                 </tr>
                 <tr>
                     <td>CTA</td>
-                    <td>{round(output_string[0]+output_string[1]+output_string[2]+output_string[3], 2)}</td>
-                    <td>{round(output_string[6]+output_string[7]+output_string[8]+output_string[9], 2)}</td>
-                    <td>{round(output_string[12]+output_string[13]+output_string[14]+output_string[15], 2)}</td>
-                    <td>----</td>
-                    <td>{round(output_string[0]+output_string[1]+output_string[2]+output_string[3]+output_string[6]+output_string[7]+output_string[8]+output_string[9]+output_string[12]+output_string[13]+output_string[14]+output_string[15], 2)}</td>
+                    <td style="text-align:center">{CTA1}</td>
+                    <td style="text-align:center">{CTA2}</td>
+                    <td style="text-align:center">{CTA3}</td>
+                    <td style="text-align:center">----</td>
+                    <td style="text-align:center">{CTA_TOTAL}</td>
                 </tr>
                 <tr>
                     <td>MAMC</td>
-                    <td>{output_string[4]}</td>
-                    <td>{output_string[10]}</td>
-                    <td>{output_string[16]}</td>
-                    <td>{df_sql_mmamc3['count(distinct tp.thingid)/4'][0]}</td>
-                    <td>{output_string[4]+output_string[10]+output_string[16]}</td>
+                    <td>{MAMC1}</td>
+                    <td>{MAMC2}</td>
+                    <td>{MAMC3}</td>
+                    <td>{MANUAL_MAMC}</td>
+                    <td>{MAMC_TOTAL}</td>
                 </tr>
                 <tr>
                     <td>C3A</td>
-                    <td>{output_string[5]}</td>
-                    <td>{output_string[11]}</td>
-                    <td>{output_string[17]}</td>
+                    <td>{C3A1}</td>
+                    <td>{C3A2}</td>
+                    <td>{C3A3}</td>
                     <td>----</td>
-                    <td>{output_string[5]+output_string[11]+output_string[17]}</td>
+                    <td>{C3A_TOTAL}</td>
                 </tr>
                 <tr bgcolor="#FFFFFF" height=10px></tr>
                 <tr>
@@ -147,27 +193,27 @@ def output123(env):
                 </tr>
                 <tr>
                     <td>Lane 1</td>
-                    <td>{output_string[0]}</td>
-                    <td>{output_string[6]}</td>
-                    <td>{output_string[12]}</td>
+                    <td>{CTA1_1}</td>
+                    <td>{CTA2_1}</td>
+                    <td>{CTA3_1}</td>
                 </tr>
                 <tr>
                     <td>Lane 2</td>
-                    <td>{output_string[1]}</td>
-                    <td>{output_string[7]}</td>
-                    <td>{output_string[13]}</td>
+                    <td>{CTA1_2}</td>
+                    <td>{CTA2_2}</td>
+                    <td>{CTA3_2}</td>
                 </tr>
                 <tr>
                     <td>Lane 3</td>
-                    <td>{output_string[2]}</td>
-                    <td>{output_string[8]}</td>
-                    <td>{output_string[14]}</td>
+                    <td>{CTA1_3}</td>
+                    <td>{CTA2_3}</td>
+                    <td>{CTA3_3}</td>
                 </tr>
                 <tr>
                     <td>Lane 4</td>
-                    <td>{output_string[3]}</td>
-                    <td>{output_string[9]}</td>
-                    <td>{output_string[15]}</td>
+                    <td>{CTA1_4}</td>
+                    <td>{CTA2_4}</td>
+                    <td>{CTA3_4}</td>
                 </tr>        
             </table>""" }]}
     headers = {
