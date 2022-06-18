@@ -117,33 +117,33 @@ def output123(env):
     logging.info("mmamc3 end %s" % datetime.utcnow())
     df_sql_mmamc3.fillna(0)
 
-    CTA1_1 = '{:.2f}'.format(round(output_string[0],2))
-    CTA1_2 = '{:.2f}'.format(round(output_string[1],2))
-    CTA1_3 = '{:.2f}'.format(round(output_string[2],2))
-    CTA1_4 = '{:.2f}'.format(round(output_string[3],2))
-    CTA2_1 = '{:.2f}'.format(round(output_string[6],2))
-    CTA2_2 = '{:.2f}'.format(round(output_string[7],2))
-    CTA2_3 = '{:.2f}'.format(round(output_string[8],2))
-    CTA2_4 = '{:.2f}'.format(round(output_string[9],2))
-    CTA3_1 = '{:.2f}'.format(round(output_string[12],2))
-    CTA3_2 = '{:.2f}'.format(round(output_string[13],2))
-    CTA3_3 = '{:.2f}'.format(round(output_string[14],2))
-    CTA3_4 = '{:.2f}'.format(round(output_string[15],2))
-    CTA1 = '{:.2f}'.format(round(CTA1_1+CTA1_2+CTA1_3+CTA1_4,2))
-    CTA2 = '{:.2f}'.format(round(CTA2_1+CTA2_2+CTA2_3+CTA2_4,2))
-    CTA3 = '{:.2f}'.format(round(CTA2_1+CTA2_2+CTA2_3+CTA2_4,2))
-    CTA_TOTAL = '{:.2f}'.format(round(CTA1+CTA2+CTA3,2))
+    CTA1_1 = round(output_string[0],2)
+    CTA1_2 = round(output_string[1],2)
+    CTA1_3 = round(output_string[2],2)
+    CTA1_4 = round(output_string[3],2)
+    CTA2_1 = round(output_string[6],2)
+    CTA2_2 = round(output_string[7],2)
+    CTA2_3 = round(output_string[8],2)
+    CTA2_4 = round(output_string[9],2)
+    CTA3_1 = round(output_string[12],2)
+    CTA3_2 = round(output_string[13],2)
+    CTA3_3 = round(output_string[14],2)
+    CTA3_4 = round(output_string[15],2)
+    CTA1 = round(CTA1_1+CTA1_2+CTA1_3+CTA1_4,2)
+    CTA2 = round(CTA2_1+CTA2_2+CTA2_3+CTA2_4,2)
+    CTA3 = round(CTA2_1+CTA2_2+CTA2_3+CTA2_4,2)
+    CTA_TOTAL = round(CTA1+CTA2+CTA3,2)
 
-    MAMC1 = '{:.2f}'.format(output_string[4])
-    MAMC2 = '{:.2f}'.format(output_string[10])
-    MAMC3 = '{:.2f}'.format(output_string[16])
-    MANUAL_MAMC = '{:.2f}'.format(df_sql_mmamc3['count(distinct tp.thingid)/4'][0])
-    MAMC_TOTAL = '{:.2f}'.format(MAMC1+MAMC2+MAMC3+MMAMC)
+    MAMC1 = output_string[4]
+    MAMC2 = output_string[10]
+    MAMC3 = output_string[16]
+    MANUAL_MAMC = df_sql_mmamc3['count(distinct tp.thingid)/4'][0]
+    MAMC_TOTAL = MAMC1+MAMC2+MAMC3+MMAMC
 
-    C3A1 = '{:.2f}'.format(output_string[5])
-    C3A2 = '{:.2f}'.format(output_string[11])
-    C3A3 = '{:.2f}'.format(output_string[17])
-    C3A_TOTAL = '{:.2f}'.format(C3A1+C3A2+C3A3)
+    C3A1 = output_string[5]
+    C3A2 = output_string[11]
+    C3A3 = output_string[17]
+    C3A_TOTAL = C3A1+C3A2+C3A3
 
     # Setup teams output table
     title='Hourly Summary'
@@ -170,10 +170,10 @@ def output123(env):
                 </tr>
                 <tr>
                     <td>MAMC</td>
-                    <td>{MAMC1}</td>
-                    <td>{MAMC2}</td>
-                    <td>{MAMC3}</td>
-                    <td>{MANUAL_MAMC}</td>
+                    <td>{'{:.2f}'.format(MAMC1)}</td>
+                    <td>{'{:.2f}'.format(MAMC2)}</td>
+                    <td>{'{:.2f}'.format(MAMC3)}</td>
+                    <td>{'{:.2f}'.format(MANUAL_MAMC)}</td>
                     <td>{MAMC_TOTAL}</td>
                 </tr>
                 <tr>
