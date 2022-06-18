@@ -111,7 +111,7 @@ def output123(env):
                     <th>BMA1</th>
                     <th>BMA2</th>
                     <th>BMA3</th>
-                    <th>MMAMC3</th.
+                    <th>MMAMC</th>
                     <th>Total</th>
                 </tr>
                 <tr>
@@ -135,7 +135,7 @@ def output123(env):
                     <td>{output_string[5]}</td>
                     <td>{output_string[11]}</td>
                     <td>{output_string[17]}</td>
-                    <td>---</td>
+                    <td>----</td>
                     <td>{output_string[5]+output_string[11]+output_string[17]}</td>
                 </tr>
                 <tr bgcolor="#FFFFFF" height=10px></tr>
