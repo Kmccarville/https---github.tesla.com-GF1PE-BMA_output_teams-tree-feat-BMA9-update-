@@ -145,19 +145,19 @@ def output45(env):
                     <th style="text-align:center">TOTAL</th>
                 </tr>
                 <tr>
-                    <td>CTA</td>
+                    <td style="text-align:right"><strong>CTA</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA4_SUM)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA5_SUM)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA_TOTAL)}</td>
                 </tr>
                 <tr>
-                    <td>MAMC</td>
+                    <td style="text-align:right"><strong>MAMC</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC4)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC5)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC_TOTAL)}</td>
                 </tr>
                 <tr>
-                    <td>C3A</td>
+                    <td style="text-align:right"><strong>C3A</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(C3A4)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(C3A5)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(C3A_TOTAL)}</td>
@@ -170,43 +170,43 @@ def output45(env):
                 </tr>
                 <tr>
                    <td style="text-align:right"><strong>LANE 1</strong></td>
-                    <td>{'{:.2f}'.format(CTA4_1)}</td>
-                    <td>----</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_1)}</td>
+                    <td style="text-align:center">----</td>
                 </tr>
                 <tr>
                     <td style="text-align:right"><strong>LANE 2</strong></td>
-                    <td>{'{:.2f}'.format(CTA4_2)}</td>
-                    <td>{'{:.2f}'.format(CTA5_2)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_2)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_2)}</td>
                 </tr>
                 <tr>
                     <td style="text-align:right"><strong>LANE 3</strong></td>
-                    <td>{'{:.2f}'.format(CTA4_3)}</td>
-                    <td>{'{:.2f}'.format(CTA5_3)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_3)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_3)}</td>
                 </tr>
                 <tr>
                     <td style="text-align:right"><strong>LANE 4</strong></td>
-                    <td>{'{:.2f}'.format(CTA4_4)}</td>
-                    <td>{'{:.2f}'.format(CTA5_4)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_4)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_4)}</td>
                 </tr>
                 <tr>
                    <td style="text-align:right"><strong>LANE 5</strong></td>
-                    <td>{'{:.2f}'.format(CTA4_5)}</td>
-                    <td>{'{:.2f}'.format(CTA5_5)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_5)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_5)}</td>
                 </tr>
                 <tr>
                     <td style="text-align:right"><strong>LANE 6</strong></td>
-                    <td>{'{:.2f}'.format(CTA4_6)}</td>
-                    <td>{'{:.2f}'.format(CTA5_6)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_6)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_6)}</td>
                 </tr>
                 <tr>
                    <td style="text-align:right"><strong>LANE 7</strong></td>
-                    <td>{'{:.2f}'.format(CTA4_7)}</td>
-                    <td>{'{:.2f}'.format(CTA5_7)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_7)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_7)}</td>
                 </tr>
                 <tr>
                     <td style="text-align:right"><strong>LANE 8</strong></td>
-                    <td>{'{:.2f}'.format(CTA4_8)}</td>
-                    <td>{'{:.2f}'.format(CTA5_8)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_8)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_8)}</td>
                 </tr>
             </table>"""}]}
     headers = {
