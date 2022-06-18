@@ -138,7 +138,7 @@ def output123(env):
     MAMC2 = output_string[10]
     MAMC3 = output_string[16]
     MANUAL_MAMC = df_sql_mmamc3['count(distinct tp.thingid)/4'][0]
-    MAMC_TOTAL = MAMC1+MAMC2+MAMC3+MMAMC
+    MAMC_TOTAL = MAMC1+MAMC2+MAMC3+MANUAL_MAMC
 
     C3A1 = output_string[5]
     C3A2 = output_string[11]
