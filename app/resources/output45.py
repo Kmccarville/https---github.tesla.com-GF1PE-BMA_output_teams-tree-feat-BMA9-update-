@@ -137,7 +137,7 @@ def output45(env):
                     <td>CTA</td>
                     <td>{BMA4_SUM}</td>
                     <td>{BMA5_SUM}</td>
-                    <td>{BMA4_SUM+BMA5_SUM}</td>
+                    <td>{round(BMA4_SUM+BMA5_SUM,2)}</td>
                 </tr>
                 <tr>
                     <td>MAMC</td>
