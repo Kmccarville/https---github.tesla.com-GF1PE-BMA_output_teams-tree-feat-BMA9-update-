@@ -153,7 +153,7 @@ def output123(env):
             {'text':f"""<table>
             <table>
                 <tr>
-                    <th>Zone</th>
+                    <th style="text-align:center">Zone</th>
                     <th>BMA1</th>
                     <th>BMA2</th>
                     <th>BMA3</th>
@@ -161,7 +161,7 @@ def output123(env):
                     <th>Total</th>
                 </tr>
                 <tr>
-                    <td style="text-align:right><strong>CTA</strong></td>
+                    <td style="text-align:right"><strong>CTA</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA1)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA2)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA3)}</td>
@@ -169,7 +169,7 @@ def output123(env):
                     <td style="text-align:center">{'{:.2f}'.format(CTA_TOTAL)}</td>
                 </tr>
                 <tr>
-                    <td style="text-align:right><strong>MAMC</strong></td>
+                    <td style="text-align:right"><strong>MAMC</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC1)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC2)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC3)}</td>
@@ -177,7 +177,7 @@ def output123(env):
                     <td style="text-align:center">{'{:.2f}'.format(MAMC_TOTAL)}</td>
                 </tr>
                 <tr>
-                    <td style="text-align:right><strong>C3A</strong></td>
+                    <td style="text-align:right"><strong>C3A</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(C3A1)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(C3A2)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(C3A3)}</td>
