@@ -12,18 +12,18 @@ import json
 
 def uph_calculation(df):
     logging.info("uph_calculation start %s" % datetime.utcnow())
-    ACTA1_1 =[]
-    ACTA1_2 =[]
-    ACTA1_3 =[]
-    ACTA1_4 =[]
-    ACTA2_1 =[] 
-    ACTA2_2 =[] 
-    ACTA2_3 =[] 
-    ACTA2_4 =[] 
-    ACTA3_1 =[]
-    ACTA3_2 =[]
-    ACTA3_3 =[]
-    ACTA3_4 =[]
+    CTA1_1 =[]
+    CTA1_2 =[]
+    CTA1_3 =[]
+    CTA1_4 =[]
+    CTA2_1 =[] 
+    CTA2_2 =[] 
+    CTA2_3 =[] 
+    CTA2_4 =[] 
+    CTA3_1 =[]
+    CTA3_2 =[]
+    CTA3_3 =[]
+    CTA3_4 =[]
     NESTED1 =[]
     NESTED2 =[]
     NESTED3 = []
@@ -34,29 +34,29 @@ def uph_calculation(df):
     if len(df.index)>0:
         for index, row in df.iterrows():  
             if row['ActorModifiedby']  =='3BM1-20000-01':
-                ACTA1_1.append(f"{row['Thingname']}")
+                CTA1_1.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM1-20000-02':
-                ACTA1_2.append(f"{row['Thingname']}")
+                CTA1_2.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM1-20000-03':
-                ACTA1_3.append(f"{row['Thingname']}")
+                CTA1_3.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM1-20000-04':
-                ACTA1_4.append(f"{row['Thingname']}")
+                CTA1_4.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM2-20000-01':
-                ACTA2_1.append(f"{row['Thingname']}")    
+                CTA2_1.append(f"{row['Thingname']}")    
             elif row['ActorModifiedby']  =='3BM2-20000-02':
-                ACTA2_2.append(f"{row['Thingname']}")
+                CTA2_2.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM2-20000-03':
-                ACTA2_3.append(f"{row['Thingname']}")
+                CTA2_3.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM2-20000-04':
-                ACTA2_4.append(f"{row['Thingname']}")
+                CTA2_4.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM3-20000-01':
-                ACTA3_1.append(f"{row['Thingname']}")
+                CTA3_1.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM3-20000-02':
-                ACTA3_2.append(f"{row['Thingname']}")
+                CTA3_2.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM3-20000-03':
-                ACTA3_3.append(f"{row['Thingname']}")
+                CTA3_3.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM3-20000-04':
-                ACTA3_4.append(f"{row['Thingname']}")
+                CTA3_4.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM1-29500-01':
                 NESTED1.append(f"{row['Thingname']}") 
             elif row['ActorModifiedby']  =='3BM2-29500-01':
@@ -71,22 +71,22 @@ def uph_calculation(df):
                 AC3A3.append(f"{row['Thingname']}")
 
     string = [
-              len(ACTA1_1)/28, 
-              len(ACTA1_2)/28, 
-              len(ACTA1_3)/28, 
-              len(ACTA1_4)/28, 
+              len(CTA1_1)/28, 
+              len(CTA1_2)/28, 
+              len(CTA1_3)/28, 
+              len(CTA1_4)/28, 
               len(NESTED1)/4, 
               len(AC3A1)/4, 
-              len(ACTA2_1)/28, 
-              len(ACTA2_2)/28, 
-              len(ACTA2_3)/28, 
-              len(ACTA2_4)/28, 
+              len(CTA2_1)/28, 
+              len(CTA2_2)/28, 
+              len(CTA2_3)/28, 
+              len(CTA2_4)/28, 
               len(NESTED2)/4 , 
               len(AC3A2)/4, 
-              len(ACTA3_1)/28, 
-              len(ACTA3_2)/28, 
-              len(ACTA3_3)/28, 
-              len(ACTA3_4)/28, 
+              len(CTA3_1)/28, 
+              len(CTA3_2)/28, 
+              len(CTA3_3)/28, 
+              len(CTA3_4)/28, 
               len(NESTED3)/4 , 
               len(AC3A3)/4]
     string_format = [ round(elem,2) for elem in string ]
