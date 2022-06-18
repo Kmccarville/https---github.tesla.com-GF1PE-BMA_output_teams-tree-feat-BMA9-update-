@@ -146,8 +146,8 @@ def output123(env):
     C3A3 = output_string[17]
     C3A_TOTAL = C3A1+C3A2+C3A3
 
-    if MANUAL_MAMC >= 0:
-        mmamc_header = '<th style="text-align:center">TEST</th>'
+    if MANUAL_MAMC > 0:
+        mmamc_header = '<th style="text-align:center">MMAMC</th>'
         mmamc_row1 = '<td style="text-align:center">----</td>'
         mmamc_row2 = f'<td style="text-align:center">{"{:.2f}".format(MANUAL_MAMC)}</td>'
         mmamc_row3 = '<td style="text-align:center">----</td>'
