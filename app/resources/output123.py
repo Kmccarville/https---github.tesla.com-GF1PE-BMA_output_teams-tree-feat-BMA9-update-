@@ -146,6 +146,16 @@ def output123(env):
     C3A3 = output_string[17]
     C3A_TOTAL = C3A1+C3A2+C3A3
 
+    if MANUAL_MAMC > 0:
+        mmamc_header = '<th style="text-align:center">TEST</th>'
+        mmamc_row1 = '<td style="text-align:center">----</td>'
+        mmamc_row2 = f'<td style="text-align:center">{"{:.2f}".format(MANUAL_MAMC)}</td>'
+        mmamc_row3 = '<td style="text-align:center">----</td>'
+    else:
+        mmamc_header = ""
+        mmamc_row1 = ""
+        mmamc_row2 = ""
+        mmamc_row3 = ""
     # Setup teams output table
     title='BMA123 Hourly Update'
     payload={"title":title, 
@@ -158,7 +168,7 @@ def output123(env):
                     <th style="text-align:center">BMA1</th>
                     <th style="text-align:center">BMA2</th>
                     <th style="text-align:center">BMA3</th>
-                    <th style="text-align:center">MMAMC</th>
+                    {mmamc_header}
                     <th style="text-align:center">TOTAL</th>
                 </tr>
                 <tr>
@@ -166,7 +176,7 @@ def output123(env):
                     <td style="text-align:center">{'{:.2f}'.format(CTA1)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA2)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA3)}</td>
-                    <td style="text-align:center">----</td>
+                    {mmamc_row1}
                     <td style="text-align:center">{'{:.2f}'.format(CTA_TOTAL)}</td>
                 </tr>
                 <tr>
@@ -174,7 +184,7 @@ def output123(env):
                     <td style="text-align:center">{'{:.2f}'.format(MAMC1)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC2)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC3)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(MANUAL_MAMC)}</td>
+                    {mmamc_row2}
                     <td style="text-align:center">{'{:.2f}'.format(MAMC_TOTAL)}</td>
                 </tr>
                 <tr>
@@ -182,7 +192,7 @@ def output123(env):
                     <td style="text-align:center">{'{:.2f}'.format(C3A1)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(C3A2)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(C3A3)}</td>
-                    <td style="text-align:center">----</td>
+                    {mmamc_row3}
                     <td style="text-align:center">{'{:.2f}'.format(C3A_TOTAL)}</td>
                 </tr>
                 <tr bgcolor="#FFFFFF" height=10px></tr>
