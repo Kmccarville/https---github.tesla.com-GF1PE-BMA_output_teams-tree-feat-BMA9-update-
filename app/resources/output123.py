@@ -153,7 +153,7 @@ def output123(env):
             {'text':f"""<table>
             <table>
                 <tr>
-                    <th style="text-align:center">Zone</th>
+                    <th style="text-align:center">    </th>
                     <th>BMA1</th>
                     <th>BMA2</th>
                     <th>BMA3</th>
