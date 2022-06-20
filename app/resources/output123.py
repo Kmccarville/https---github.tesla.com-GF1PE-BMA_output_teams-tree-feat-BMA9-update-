@@ -12,51 +12,51 @@ import json
 
 def uph_calculation(df):
     logging.info("uph_calculation start %s" % datetime.utcnow())
-    ACTA1_1 =[]
-    ACTA1_2 =[]
-    ACTA1_3 =[]
-    ACTA1_4 =[]
-    ACTA2_1 =[] 
-    ACTA2_2 =[] 
-    ACTA2_3 =[] 
-    ACTA2_4 =[] 
-    ACTA3_1 =[]
-    ACTA3_2 =[]
-    ACTA3_3 =[]
-    ACTA3_4 =[]
+    CTA1_1 =[]
+    CTA1_2 =[]
+    CTA1_3 =[]
+    CTA1_4 =[]
+    CTA2_1 =[] 
+    CTA2_2 =[] 
+    CTA2_3 =[] 
+    CTA2_4 =[] 
+    CTA3_1 =[]
+    CTA3_2 =[]
+    CTA3_3 =[]
+    CTA3_4 =[]
     NESTED1 =[]
     NESTED2 =[]
     NESTED3 = []
-    AC3A1 =[]
-    AC3A2 =[]
-    AC3A3 = []
+    C3A1 =[]
+    C3A2 =[]
+    C3A3 = []
     string = []
     if len(df.index)>0:
         for index, row in df.iterrows():  
             if row['ActorModifiedby']  =='3BM1-20000-01':
-                ACTA1_1.append(f"{row['Thingname']}")
+                CTA1_1.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM1-20000-02':
-                ACTA1_2.append(f"{row['Thingname']}")
+                CTA1_2.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM1-20000-03':
-                ACTA1_3.append(f"{row['Thingname']}")
+                CTA1_3.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM1-20000-04':
-                ACTA1_4.append(f"{row['Thingname']}")
+                CTA1_4.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM2-20000-01':
-                ACTA2_1.append(f"{row['Thingname']}")    
+                CTA2_1.append(f"{row['Thingname']}")    
             elif row['ActorModifiedby']  =='3BM2-20000-02':
-                ACTA2_2.append(f"{row['Thingname']}")
+                CTA2_2.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM2-20000-03':
-                ACTA2_3.append(f"{row['Thingname']}")
+                CTA2_3.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM2-20000-04':
-                ACTA2_4.append(f"{row['Thingname']}")
+                CTA2_4.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM3-20000-01':
-                ACTA3_1.append(f"{row['Thingname']}")
+                CTA3_1.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM3-20000-02':
-                ACTA3_2.append(f"{row['Thingname']}")
+                CTA3_2.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM3-20000-03':
-                ACTA3_3.append(f"{row['Thingname']}")
+                CTA3_3.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM3-20000-04':
-                ACTA3_4.append(f"{row['Thingname']}")
+                CTA3_4.append(f"{row['Thingname']}")
             elif row['ActorModifiedby']  =='3BM1-29500-01':
                 NESTED1.append(f"{row['Thingname']}") 
             elif row['ActorModifiedby']  =='3BM2-29500-01':
@@ -64,13 +64,31 @@ def uph_calculation(df):
             elif row['ActorModifiedby']  =='3BM3-29500-01':
                 NESTED3.append(f"{row['Thingname']}") 
             elif row['ActorModifiedby']  =='3BM1-40001-01':
-                AC3A1.append(f"{row['Thingname']}")  
+                C3A1.append(f"{row['Thingname']}")  
             elif row['ActorModifiedby']  =='3BM2-40001-01':
-                AC3A2.append(f"{row['Thingname']}")  
+                C3A2.append(f"{row['Thingname']}")  
             elif row['ActorModifiedby']  =='3BM3-40001-01':
-                AC3A3.append(f"{row['Thingname']}")
+                C3A3.append(f"{row['Thingname']}")
 
-    string = [len(ACTA1_1)/28, len(ACTA1_2)/28, len(ACTA1_3)/28, len(ACTA1_4)/28, len(NESTED1)/4, len(AC3A1)/4, len(ACTA2_1)/28, len(ACTA2_2)/28, len(ACTA2_3)/28, len(ACTA2_4)/28, len(NESTED2)/4 , len(AC3A2)/4, len(ACTA3_1)/28, len(ACTA3_2)/28, len(ACTA3_3)/28, len(ACTA3_4)/28, len(NESTED3)/4 , len(AC3A3)/4]
+    string = [
+              len(CTA1_1)/28, 
+              len(CTA1_2)/28, 
+              len(CTA1_3)/28, 
+              len(CTA1_4)/28, 
+              len(NESTED1)/4, 
+              len(C3A1)/4, 
+              len(CTA2_1)/28, 
+              len(CTA2_2)/28, 
+              len(CTA2_3)/28, 
+              len(CTA2_4)/28, 
+              len(NESTED2)/4 , 
+              len(C3A2)/4, 
+              len(CTA3_1)/28, 
+              len(CTA3_2)/28, 
+              len(CTA3_3)/28, 
+              len(CTA3_4)/28, 
+              len(NESTED3)/4 , 
+              len(C3A3)/4]
     string_format = [ round(elem,2) for elem in string ]
     logging.info("uph_calculation end %s" % datetime.utcnow())
     return(string_format)
@@ -99,71 +117,115 @@ def output123(env):
     logging.info("mmamc3 end %s" % datetime.utcnow())
     df_sql_mmamc3.fillna(0)
 
+    #Set outputs for table
+    CTA1_1 = round(output_string[0],2)
+    CTA1_2 = round(output_string[1],2)
+    CTA1_3 = round(output_string[2],2)
+    CTA1_4 = round(output_string[3],2)
+    CTA2_1 = round(output_string[6],2)
+    CTA2_2 = round(output_string[7],2)
+    CTA2_3 = round(output_string[8],2)
+    CTA2_4 = round(output_string[9],2)
+    CTA3_1 = round(output_string[12],2)
+    CTA3_2 = round(output_string[13],2)
+    CTA3_3 = round(output_string[14],2)
+    CTA3_4 = round(output_string[15],2)
+    CTA1 = round(CTA1_1+CTA1_2+CTA1_3+CTA1_4,2)
+    CTA2 = round(CTA2_1+CTA2_2+CTA2_3+CTA2_4,2)
+    CTA3 = round(CTA3_1+CTA3_2+CTA3_3+CTA3_4,2)
+    CTA_TOTAL = round(CTA1+CTA2+CTA3,2)
+
+    MAMC1 = output_string[4]
+    MAMC2 = output_string[10]
+    MAMC3 = output_string[16]
+    MANUAL_MAMC = df_sql_mmamc3['count(distinct tp.thingid)/4'][0]
+    MAMC_TOTAL = MAMC1+MAMC2+MAMC3+MANUAL_MAMC
+
+    C3A1 = output_string[5]
+    C3A2 = output_string[11]
+    C3A3 = output_string[17]
+    C3A_TOTAL = C3A1+C3A2+C3A3
+
+    if MANUAL_MAMC > 0:
+        mmamc_header = '<th style="text-align:center">MMAMC</th>'
+        mmamc_row1 = '<td style="text-align:center">----</td>'
+        mmamc_row2 = f'<td style="text-align:center">{"{:.2f}".format(MANUAL_MAMC)}</td>'
+        mmamc_row3 = '<td style="text-align:center">----</td>'
+    else:
+        mmamc_header = ""
+        mmamc_row1 = ""
+        mmamc_row2 = ""
+        mmamc_row3 = ""
+
     # Setup teams output table
-    title='Hourly Summary'
+    title='BMA123 Hourly Update'
     payload={"title":title, 
             "summary":"summary",
         "sections":[
             {'text':f"""<table>
             <table>
                 <tr>
-                    <th>Zone</th>
-                    <th>BMA1</th>
-                    <th>BMA2</th>
-                    <th>BMA3</th>
-                    <th>Total</th>
+                    <th>    </th>
+                    <th style="text-align:center">BMA1</th>
+                    <th style="text-align:center">BMA2</th>
+                    <th style="text-align:center">BMA3</th>
+                    {mmamc_header}
+                    <th style="text-align:center">TOTAL</th>
                 </tr>
                 <tr>
-                    <td>CTA</td>
-                    <td>{round(output_string[0]+output_string[1]+output_string[2]+output_string[3], 2)}</td>
-                    <td>{round(output_string[6]+output_string[7]+output_string[8]+output_string[9], 2)}</td>
-                    <td>{round(output_string[12]+output_string[13]+output_string[14]+output_string[15], 2)}</td>
-                    <td>{round(output_string[0]+output_string[1]+output_string[2]+output_string[3]+output_string[6]+output_string[7]+output_string[8]+output_string[9]+output_string[12]+output_string[13]+output_string[14]+output_string[15], 2)}</td>
+                    <td style="text-align:right"><strong>CTA</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA1)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA2)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA3)}</td>
+                    {mmamc_row1}
+                    <td style="text-align:center">{'{:.2f}'.format(CTA_TOTAL)}</td>
                 </tr>
                 <tr>
-                    <td>MAMC</td>
-                    <td>{output_string[4]}</td>
-                    <td>{output_string[10]}</td>
-                    <td>{output_string[16]}</td>
-                    <td>{output_string[4]+output_string[10]+output_string[16]}</td>
+                    <td style="text-align:right"><strong>MAMC</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(MAMC1)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(MAMC2)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(MAMC3)}</td>
+                    {mmamc_row2}
+                    <td style="text-align:center">{'{:.2f}'.format(MAMC_TOTAL)}</td>
                 </tr>
                 <tr>
-                    <td>C3A</td>
-                    <td>{output_string[5]}</td>
-                    <td>{output_string[11]}</td>
-                    <td>{output_string[17]}</td>
-                    <td>{output_string[5]+output_string[11]+output_string[17]}</td>
+                    <td style="text-align:right"><strong>C3A</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(C3A1)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(C3A2)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(C3A3)}</td>
+                    {mmamc_row3}
+                    <td style="text-align:center">{'{:.2f}'.format(C3A_TOTAL)}</td>
                 </tr>
                 <tr bgcolor="#FFFFFF" height=10px></tr>
                 <tr>
-                    <td><strong>CTA_Lane</strong></td>
-                    <td><strong>BMA1</strong></td>
-                    <td><strong>BMA2</strong></td>
-                    <td><strong>BMA3</strong></td>
+                    <td>    </td>
+                    <td style="text-align:center"><strong>CTA1</strong></td>
+                    <td style="text-align:center"><strong>CTA2</strong></td>
+                    <td style="text-align:center"><strong>CTA3</strong></td>
                 </tr>
                 <tr>
-                    <td>Lane 1</td>
-                    <td>{output_string[0]}</td>
-                    <td>{output_string[6]}</td>
-                    <td>{output_string[12]}</td>
+                    <td style="text-align:right"><strong>LANE 1</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA1_1)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA2_1)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA3_1)}</td>
                 </tr>
                 <tr>
-                    <td>Lane 2</td>
-                    <td>{output_string[1]}</td>
-                    <td>{output_string[7]}</td>
-                    <td>{output_string[13]}</td>
+                    <td style="text-align:right"><strong>LANE 2</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA1_2)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA2_2)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA3_2)}</td>
                 </tr>
                 <tr>
-                    <td>Lane 3</td>
-                    <td>{output_string[2]}</td>
-                    <td>{output_string[8]}</td>
-                    <td>{output_string[14]}</td>
+                    <td style="text-align:right"><strong>LANE 3</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA1_3)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA2_3)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA3_3)}</td>
                 </tr>
                 <tr>
-                    <td>Lane 4</td>
-                    <td>{output_string[3]}</td>
-                    <td>{output_string[9]}</td>
-                    <td>{output_string[15]}</td>
+                    <td style="text-align:right"><strong>LANE 4</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA1_4)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA2_4)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA3_4)}</td>
                 </tr>        
             </table>""" }]}
     headers = {

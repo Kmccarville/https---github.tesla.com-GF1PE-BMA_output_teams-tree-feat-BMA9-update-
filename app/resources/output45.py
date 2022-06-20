@@ -27,32 +27,32 @@ def output45(env):
     df_bma4cta.fillna(0)
     if len(df_bma4cta):
         sub_df = df_bma4cta.query("LINE=='3BM4-20000-01'")
-        BMA4_1 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA4_1 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma4cta.query("LINE=='3BM4-20000-02'")
-        BMA4_2 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA4_2 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma4cta.query("LINE=='3BM4-20000-03'")
-        BMA4_3 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA4_3 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma4cta.query("LINE=='3BM4-20000-04'")
-        BMA4_4 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA4_4 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma4cta.query("LINE=='3BM4-20000-05'")
-        BMA4_5 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA4_5 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma4cta.query("LINE=='3BM4-20000-06'")
-        BMA4_6 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA4_6 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma4cta.query("LINE=='3BM4-20000-07'")
-        BMA4_7 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA4_7 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma4cta.query("LINE=='3BM4-20000-08'")
-        BMA4_8 = sub_df.iloc[0][1] if len(sub_df) else 0
-        BMA4_SUM=round(df_bma4cta['UPH'].sum(), 2)
+        CTA4_8 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA4_SUM=round(df_bma4cta['UPH'].sum(), 2)
     else:
-        BMA4_1 = 0
-        BMA4_2 = 0
-        BMA4_3 = 0
-        BMA4_4 = 0
-        BMA4_5 = 0
-        BMA4_6 = 0
-        BMA4_7 = 0
-        BMA4_8 = 0
-        BMA4_SUM = 0
+        CTA4_1 = 0
+        CTA4_2 = 0
+        CTA4_3 = 0
+        CTA4_4 = 0
+        CTA4_5 = 0
+        CTA4_6 = 0
+        CTA4_7 = 0
+        CTA4_8 = 0
+        CTA4_SUM = 0
     logging.info("bma4cta end %s" % datetime.utcnow())
 
     #Grab BMA5-CTA hourly data
@@ -62,30 +62,30 @@ def output45(env):
     df_bma5cta.fillna(0)
     if len(df_bma5cta):
         sub_df = df_bma5cta.query("LINE=='3BM5-20000-02'")
-        BMA5_2 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA5_2 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma5cta.query("LINE=='3BM5-20000-03'")
-        BMA5_3 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA5_3 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma5cta.query("LINE=='3BM5-20000-04'")
-        BMA5_4 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA5_4 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma5cta.query("LINE=='3BM5-20000-05'")
-        BMA5_5 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA5_5 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma5cta.query("LINE=='3BM5-20000-06'")
-        BMA5_6 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA5_6 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma5cta.query("LINE=='3BM5-20000-07'")
-        BMA5_7 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA5_7 = sub_df.iloc[0][1] if len(sub_df) else 0
         sub_df = df_bma5cta.query("LINE=='3BM5-20000-08'")
-        BMA5_8 = sub_df.iloc[0][1] if len(sub_df) else 0
-        BMA5_SUM=round(df_bma5cta['UPH'].sum(), 2)
+        CTA5_8 = sub_df.iloc[0][1] if len(sub_df) else 0
+        CTA5_SUM=round(df_bma5cta['UPH'].sum(), 2)
     else:
-        BMA5_1 = 0
-        BMA5_2 = 0
-        BMA5_3 = 0
-        BMA5_4 = 0
-        BMA5_5 = 0
-        BMA5_6 = 0
-        BMA5_7 = 0
-        BMA5_8 = 0
-        BMA5_SUM = 0
+        CTA5_1 = 0
+        CTA5_2 = 0
+        CTA5_3 = 0
+        CTA5_4 = 0
+        CTA5_5 = 0
+        CTA5_6 = 0
+        CTA5_7 = 0
+        CTA5_8 = 0
+        CTA5_SUM = 0
     logging.info("bam5cta end %s" % datetime.utcnow())
 
     #Grab BMA4-MAMC hourly data
@@ -120,6 +120,17 @@ def output45(env):
     bma5c3a_o=df_bma5c3a['count(distinct tp.thingid)/4'][0]
     logging.info("bma5c3a end %s" % datetime.utcnow())
 
+    #Set outputs
+    CTA_TOTAL= round(CTA4_SUM+CTA5_SUM,2)
+
+    MAMC4 = bma4mamc_o
+    MAMC5 = bma5mamc_o
+    MAMC_TOTAL= MAMC4+MAMC5
+
+    C3A4 = bma4c3a_o
+    C3A5 = bma5c3a_o
+    C3A_TOTAL = C3A4+C3A5
+
     # Setup teams output table
     title='BMA45 Hourly Update'
     payload={"title":title, 
@@ -128,74 +139,74 @@ def output45(env):
             {'text':f"""<table>
             <table>
                 <tr>
-                    <th>Zone</th>
-                    <th>BMA4</th>
-                    <th>BMA5</th>
-                    <th>Total</th>
+                    <th>    </th>
+                    <th style="text-align:center">BMA4</th>
+                    <th style="text-align:center">BMA5</th>
+                    <th style="text-align:center">TOTAL</th>
                 </tr>
                 <tr>
-                    <td>CTA</td>
-                    <td>{BMA4_SUM}</td>
-                    <td>{BMA5_SUM}</td>
-                    <td>{BMA4_SUM+BMA5_SUM}</td>
+                    <td style="text-align:right"><strong>CTA</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_SUM)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_SUM)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA_TOTAL)}</td>
                 </tr>
                 <tr>
-                    <td>MAMC</td>
-                    <td>{bma4mamc_o}</td>
-                    <td>{bma5mamc_o}</td>
-                    <td>{bma4mamc_o+bma5mamc_o}</td>
+                    <td style="text-align:right"><strong>MAMC</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(MAMC4)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(MAMC5)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(MAMC_TOTAL)}</td>
                 </tr>
                 <tr>
-                    <td>C3A</td>
-                    <td>{bma4c3a_o}</td>
-                    <td>{bma5c3a_o}</td>
-                    <td>{bma4c3a_o+bma5c3a_o}</td>
+                    <td style="text-align:right"><strong>C3A</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(C3A4)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(C3A5)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(C3A_TOTAL)}</td>
                 </tr>
                 <tr bgcolor="#FFFFFF" height=10px></tr>
                 <tr>
-                    <td><strong>CTA_Lane</strong></td>
-                    <td><strong>BMA4</strong></td>
-                    <td><strong>BMA5</strong></td>
+                    <td>    </td>
+                    <td style="text-align:center"><strong>CTA4</strong></td>
+                    <td style="text-align:center"><strong>CTA5</strong></td>
                 </tr>
                 <tr>
-                    <td>Lane 1</td>
-                    <td>{BMA4_1}</td>
-                    <td>N/A</td>
+                   <td style="text-align:right"><strong>LANE 1</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_1)}</td>
+                    <td style="text-align:center">----</td>
                 </tr>
                 <tr>
-                    <td>Lane 2</td>
-                    <td>{BMA4_2}</td>
-                    <td>{BMA5_2}</td>
+                    <td style="text-align:right"><strong>LANE 2</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_2)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_2)}</td>
                 </tr>
                 <tr>
-                    <td>Lane 3</td>
-                    <td>{BMA4_3}</td>
-                    <td>{BMA5_3}</td>
+                    <td style="text-align:right"><strong>LANE 3</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_3)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_3)}</td>
                 </tr>
                 <tr>
-                    <td>Lane 4</td>
-                    <td>{BMA4_4}</td>
-                    <td>{BMA5_4}</td>
+                    <td style="text-align:right"><strong>LANE 4</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_4)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_4)}</td>
                 </tr>
                 <tr>
-                    <td>Lane 5</td>
-                    <td>{BMA4_5}</td>
-                    <td>{BMA5_5}</td>
+                   <td style="text-align:right"><strong>LANE 5</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_5)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_5)}</td>
                 </tr>
                 <tr>
-                    <td>Lane 6</td>
-                    <td>{BMA4_6}</td>
-                    <td>{BMA5_6}</td>
+                    <td style="text-align:right"><strong>LANE 6</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_6)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_6)}</td>
                 </tr>
                 <tr>
-                    <td>Lane 7</td>
-                    <td>{BMA4_7}</td>
-                    <td>{BMA5_7}</td>
+                   <td style="text-align:right"><strong>LANE 7</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_7)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_7)}</td>
                 </tr>
                 <tr>
-                    <td>Lane 8</td>
-                    <td>{BMA4_8}</td>
-                    <td>{BMA5_8}</td>
+                    <td style="text-align:right"><strong>LANE 8</strong></td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA4_8)}</td>
+                    <td style="text-align:center">{'{:.2f}'.format(CTA5_8)}</td>
                 </tr>
             </table>"""}]}
     headers = {

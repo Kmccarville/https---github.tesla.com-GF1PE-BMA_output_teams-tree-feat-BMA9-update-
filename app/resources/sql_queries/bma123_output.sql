@@ -14,9 +14,9 @@ SELECT
     t9.name AS CreatedBy,
     mid(t9.name, 17, 5)AS tag_number,
     (CASE
-        WHEN t9.name = 'ignition-gf1-bm-tag7-prod' THEN 'ACTA1'
-        WHEN t9.name = 'ignition-gf1-bm-tag8-prod' THEN 'ACTA2'
-        WHEN t9.name = 'ignition-gf1-bm-tag9-prod' THEN 'ACTA3'
+        WHEN t9.name = 'ignition-gf1-bm-tag7-prod' THEN 'CTA1'
+        WHEN t9.name = 'ignition-gf1-bm-tag8-prod' THEN 'CTA2'
+        WHEN t9.name = 'ignition-gf1-bm-tag9-prod' THEN 'CTA3'
         ELSE NULL
     END) AS Created_By,
     t1.name AS Startedby,

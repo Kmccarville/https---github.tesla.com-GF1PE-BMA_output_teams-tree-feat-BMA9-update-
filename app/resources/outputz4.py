@@ -26,8 +26,9 @@ def outputz4(env):
     df_bmaZ4.fillna(0)
     logging.info("z4 query end %s" % datetime.utcnow())
 
-    outout_MC1=df_bmaZ4['UPH'][0]
-    outout_MC2=df_bmaZ4['UPH'][1]
+    MC1_UPH=df_bmaZ4['UPH'][0]
+    MC2_UPH=df_bmaZ4['UPH'][1]
+    MIC_TOTAL = MC1_UPH+MC2_UPH
 
     # Setup teams output table
     title='Zone 4 Hourly Update'
@@ -35,10 +36,22 @@ def outputz4(env):
         "summary":"summary",
         "sections":[
             {'text':f"""<table>
-            <tr><th>LINE</th><th>UPH</th></tr>
-            <tr><td>MC1</td><td>{outout_MC1}</td></tr>
-            <tr><td>MC2</td><td>{outout_MC2}</td></tr>
-            <tr><td><b>TOTAL</b></td><td>{outout_MC1+outout_MC2}</td></tr>
+            <tr>
+                <th style="text-align:right">LINE</th>
+                <th style="text-align:center">UPH</th>
+            </tr>
+            <tr>
+                <td style="text-align:right"><strong>MC1</strong></td>
+                <td <td style="text-align:left">{MC1_UPH}</td>
+            </tr>
+            <tr>
+                <td style="text-align:right"><strong>MC2</strong></td>
+                <td style="text-align:left">{MC2_UPH}</td>
+            </tr>
+            <tr>
+                <td style="text-align:right"><strong>TOTAL</strong></td>
+                <td style="text-align:left">{MIC_TOTAL}</td>
+            </tr>
             </table>"""}]}
 
     #post to Zone4 --> Output Channel
