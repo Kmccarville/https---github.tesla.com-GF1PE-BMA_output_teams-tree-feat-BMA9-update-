@@ -100,5 +100,18 @@ def db_connector(write,db,**kwargs): #db=MOS,PLC,Pallet,prodengdb kwargs=**sql,*
             print (e)
             error_handler.e_handler(e)
             con_db.close()
+
+    if db=="ICT" and "sql" in kwargs and write==False:
+        ict_creds = helper_creds.get_ict_db()
+        sql=kwargs['sql']
+        try:
+            engine=create_engine(f"mysql+pymysql://{ict_creds['user']}:{ict_creds['password']}@{ict_creds['host']}:{ict_creds['port']}/{ict_creds['db']}")
+            con_db=engine.connect()
+            df=pd.read_sql(sql,con=con_db)
+            con_db.close()
+        except Exception as e:
+            print (e)
+            error_handler.e_handler(e)
+            con_db.close()           
             
     return df
