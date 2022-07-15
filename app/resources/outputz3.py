@@ -22,13 +22,6 @@ def outputz3(env):
     end=start+timedelta(hours=lookback)
     #define global variables
     LINE_LIST = ['3BM1','3BM2','3BM3','3BM4','3BM5']
-    WB_CT_DICT = {
-                    '3BM1' : {'E3S':33,'E1':31,'E3L':37},
-                    '3BM2' : {'E3S':33,'E1':31,'E3L':37},
-                    '3BM3' : {'E3S':33,'E1':31,'E3L':37},
-                    '3BM4' : {'E3S':32,'E1':0 ,'E3L':38},
-                    '3BM5' : {'E3S':34,'E1':0 ,'E3L':0 }               
-                    }
     INGRESS_PATHS = [
                     '[3BM01_50000_00]01/_OEE_Reporting/TSMs/InputStation',
                     '[3BM02_50000_00]02/_OEE_Reporting/TSMs/InputStation',
