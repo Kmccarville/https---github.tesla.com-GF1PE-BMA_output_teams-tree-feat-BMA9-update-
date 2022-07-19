@@ -22,13 +22,6 @@ def outputz3(env):
     end=start+timedelta(hours=lookback)
     #define global variables
     LINE_LIST = ['3BM1','3BM2','3BM3','3BM4','3BM5']
-    WB_CT_DICT = {
-                    '3BM1' : {'E3S':33,'E1':31,'E3L':37},
-                    '3BM2' : {'E3S':33,'E1':31,'E3L':37},
-                    '3BM3' : {'E3S':33,'E1':31,'E3L':37},
-                    '3BM4' : {'E3S':32,'E1':0 ,'E3L':38},
-                    '3BM5' : {'E3S':34,'E1':0 ,'E3L':0 }               
-                    }
     INGRESS_PATHS = [
                     '[3BM01_50000_00]01/_OEE_Reporting/TSMs/InputStation',
                     '[3BM02_50000_00]02/_OEE_Reporting/TSMs/InputStation',
@@ -43,7 +36,26 @@ def outputz3(env):
                 '[3BM02_50000_00]02/_OEE_Reporting/TSMs/Packout1_Packout',
                 '[3BM03_50000_00]03/_OEE_Reporting/TSMs/Packout1_Packout',
                 '[3BM04_57000_01]_OEE_Reporting/TSMs/Main',
-                '[3BM5-57000-00]PackoutLoad/TSM/LatchFaultReporting']
+                '[3BM04_50000]3BM05_57000/_OEE_Reporting/Packout_MTR']
+    
+    #bonder ideal ct
+    def query_ideal_ct_data():
+        query = """
+                SELECT PRODUCTION_LINE AS LINE,UUT_MODEL,IDEAL_CYCLE_TIME/60 AS CT FROM m3_teep.ideal_cycle_times
+                WHERE MACHINE_TYPE='BONDER'
+                AND REVISION=(SELECT MAX(REVISION) FROM m3_teep.ideal_cycle_times WHERE MACHINE_TYPE='BONDER')
+                """
+        ct_df = db_connector(False,"ICT",sql=query)
+        return ct_df
+    
+    def get_ideal_ct(ideal_ct_df,line,model):
+        ct_query = ideal_ct_df.query(f"LINE=='{line}' and UUT_MODEL=='{model}'",engine='python')
+        if len(ct_query):
+            ct_ideal = ct_query.iloc[0]['CT']
+        else:
+            ct_ideal = 0
+        return ct_ideal
+    
     #pull starved states
     def query_tsm_state(start, end, paths, s_or_b, reason=0):
         
@@ -128,6 +140,7 @@ def outputz3(env):
         
         ct_df = pd.DataFrame({'LINE' : [], 'CT' : []})
         i_ct_df = pd.DataFrame({'LINE' : [], 'I_CT' : []})
+        ideal_ct_df = query_ideal_ct_data()
         row = []
         for line in LINE_LIST:
             sub_df = df.query(f"LINE=='{line}'")
@@ -136,7 +149,7 @@ def outputz3(env):
             count_x_ict = 0
             for row in sub_df.itertuples(False,'Tuples'):
                 mod_count += row.MOD_COUNT
-                ideal_ct = WB_CT_DICT[line][row.MODEL]
+                ideal_ct = get_ideal_ct(ideal_ct_df,line,row.MODEL)
                 count_x_ct += row.MOD_COUNT*row.CT
                 count_x_ict += row.MOD_COUNT*ideal_ct
             if mod_count:

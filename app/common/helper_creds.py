@@ -92,3 +92,6 @@ def get_teams_webhook_MY3():
 
 def get_teams_webhook_DEV():
     return pw_json["teams_webhook_DEV_Updates"]
+
+def get_ict_db():
+    return pw_json['interconnect_ro']
