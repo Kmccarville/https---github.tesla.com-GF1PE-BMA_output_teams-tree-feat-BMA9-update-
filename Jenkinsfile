@@ -41,7 +41,7 @@ node('build'){
         println "Deploying to Development\n"
             withKubeConfig([
                 credentialsId: 'us-sjc37-eng-factory-config',
-                namespace: 'gf1-pe'
+                namespace: 'gf1pe-bm'
             ]) {
                 sh """
                     sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/${applicationName}.yaml | kubectl apply -f -
@@ -54,8 +54,8 @@ node('build'){
         println "Deploying image_tag=${imageTag} \n"
 
             withKubeConfig([
-                credentialsId: 'us-sjc37-eng-factory-config',
-                namespace: 'gf1-pe'
+                credentialsId: 'us-sjc37-prd-factory-config',
+                namespace: 'gf1pe-bm'
             ]) {
                 sh """
                     sed 's/\$IMG_TAG/${imageTag}/g' k8s/${branchName}/${applicationName}.yaml | kubectl apply -f -

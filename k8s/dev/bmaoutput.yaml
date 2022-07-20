@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: bmaoutput-env
-  namespace: gf1-pe
+  name: bmaoutput-dev-env
+  namespace: gf1pe-bm
 data:
   ENVVAR1: bmaoutput@tesla.com
   ENVVAR2: dev-k8s
@@ -13,20 +13,20 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bmaoutput
-  namespace: gf1-pe
+  name: bmaoutput-dev
+  namespace: gf1pe-bm
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: bmaoutput
+      app: bmaoutput-dev
   template:
     metadata:
       labels:
-        app: bmaoutput
+        app: bmaoutput-dev
     spec:
       containers:
-      - name: bmaoutput
+      - name: bmaoutput-dev
         image: artifactory.teslamotors.com:2194/battery-module/bmaoutput:$IMG_TAG
         ports:
         - containerPort: 80
@@ -42,21 +42,21 @@ spec:
             memory: 512Mi
         envFrom:
         - configMapRef:
-            name: bmaoutput-env
+            name: bmaoutput-dev-env
       volumes:
       - name: creds-vol
         secret:
-          secretName: gf1pe-creds-bma
+          secretName: gf1pe-bm-creds
       imagePullSecrets:
       - name: gf1pe-docker-registry-creds
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: bmaoutput
-  namespace: gf1-pe
+  name: bmaoutput-dev
+  namespace: gf1pe-bm
   labels:
-    app: bmaoutput
+    app: bmaoutput-dev
 spec:
   ports:
   - name: web
@@ -64,4 +64,4 @@ spec:
     targetPort: 80
     protocol: TCP
   selector:
-    app: bmaoutput
+    app: bmaoutput-dev
