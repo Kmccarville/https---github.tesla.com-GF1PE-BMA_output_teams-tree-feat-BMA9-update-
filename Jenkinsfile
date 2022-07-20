@@ -40,7 +40,7 @@ node('build'){
         if (branchName ==~ /dev/) {
         println "Deploying to Development\n"
             withKubeConfig([
-                credentialsId: 'us-sjc37-prd-factory-config',
+                credentialsId: 'us-sjc37-eng-factory-config',
                 namespace: 'gf1pe-bm'
             ]) {
                 sh """
