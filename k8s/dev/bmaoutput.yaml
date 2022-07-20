@@ -19,11 +19,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: bmaoutput
+      app: bmaoutput-dev
   template:
     metadata:
       labels:
-        app: bmaoutput
+        app: bmaoutput-dev
     spec:
       containers:
       - name: bmaoutput
@@ -56,7 +56,7 @@ metadata:
   name: bmaoutput
   namespace: gf1pe-bm
   labels:
-    app: bmaoutput
+    app: bmaoutput-dev
 spec:
   ports:
   - name: web
@@ -64,4 +64,4 @@ spec:
     targetPort: 80
     protocol: TCP
   selector:
-    app: bmaoutput
+    app: bmaoutput-dev
