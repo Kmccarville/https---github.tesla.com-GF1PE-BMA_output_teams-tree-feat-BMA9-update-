@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: bmaoutput-env
-  namespace: gf1-pe
+  namespace: gf1pe-bm
 data:
   ENVVAR1: bmaoutput@tesla.com
   ENVVAR2: dev-k8s
@@ -14,7 +14,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bmaoutput
-  namespace: gf1-pe
+  namespace: gf1pe-bm
 spec:
   replicas: 1
   selector:
@@ -46,7 +46,7 @@ spec:
       volumes:
       - name: creds-vol
         secret:
-          secretName: gf1pe-creds-bma
+          secretName: gf1pe-bm-creds
       imagePullSecrets:
       - name: gf1pe-docker-registry-creds
 ---
@@ -54,7 +54,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: bmaoutput
-  namespace: gf1-pe
+  namespace: gf1pe-bm
   labels:
     app: bmaoutput
 spec:
