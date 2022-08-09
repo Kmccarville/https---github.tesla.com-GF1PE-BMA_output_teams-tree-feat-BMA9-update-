@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: $k8sAppName-env
+  namespace: $k8sNamespace
+data:
+  ENVVAR1: $k8sAppNameg@tesla.com
+  ENVVAR2: prod-k8s
+  ENVVAR3: prod
+  SECRET: /app/secrets/credentials
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $k8sAppName
+  namespace: $k8sNamespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: $k8sAppName
+  template:
+    metadata:
+      labels:
+        app: $k8sAppName
+    spec:
+      containers:
+      - name: $k8sAppName
+        image: artifactory.teslamotors.com:2194/$dockerShop/$dockerAppName:$IMG_TAG
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: creds-vol
+          mountPath: /app/secrets
+        resources:
+          limits:
+            cpu: 2
+            memory: 2Gi
+          requests:
+            cpu: 200m
+            memory: 512Mi
+        envFrom:
+        - configMapRef:
+            name: $k8sAppName-env
+      volumes:
+      - name: creds-vol
+        secret:
+          secretName: $k8sSecretName
+      imagePullSecrets:
+      - name: gf1pe-docker-registry-creds
