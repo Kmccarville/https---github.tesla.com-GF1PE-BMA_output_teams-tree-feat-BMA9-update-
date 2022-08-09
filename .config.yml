@@ -1,0 +1,9 @@
+# global variables
+applicationName: bmaoutput
+dockerShop: battery-module
+# k8s config variables
+k8sSecretName: gf1pe-bm-creds
+k8sClusterDev: us-sjc37-eng-factory
+k8sNamespaceDev: gf1pe-bm
+k8sClusterProd: us-sjc37-prd-factory
+k8sNamespaceProd: gf1pe-bm
