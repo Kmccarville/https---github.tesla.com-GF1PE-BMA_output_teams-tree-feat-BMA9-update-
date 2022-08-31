@@ -15,7 +15,6 @@ metadata:
   name: $k8sAppName
   namespace: $k8sNamespace
 spec:
-  progressDeadlineSeconds: 100
   replicas: 1
   selector:
     matchLabels:
