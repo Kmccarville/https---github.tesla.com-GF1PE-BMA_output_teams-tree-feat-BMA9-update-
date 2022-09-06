@@ -1,4 +1,4 @@
-FROM artifactory.teslamotors.com:2149/python:3.7.6-buster
+FROM artifactory.teslamotors.com:2153/atm-baseimages/python:3.7-xray
 COPY ./app /app
 WORKDIR /app
 RUN pip install --upgrade pip
