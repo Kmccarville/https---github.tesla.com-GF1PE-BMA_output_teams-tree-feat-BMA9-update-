@@ -19,10 +19,10 @@ def outputz3(env):
     lookback=1 #1 hr
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
-    start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
-    start_pst = start.astimezone(pytz.timezone('US/Pacific'))
+    start_time=now_sub1hr.replace(minute=00,second=00,microsecond=00)
+    start_pst = start_time.astimezone(pytz.timezone('US/Pacific'))
     start_pst_str = start_pst.strftime("%Y-%m-%d %H:%M:%S")
-    end=start+timedelta(hours=lookback)
+    end_time=start_time+timedelta(hours=lookback)
     #define global variables
     LINE_LIST = ['3BM1','3BM2','3BM3','3BM4','3BM5']
     INGRESS_PATHS = [
@@ -241,9 +241,9 @@ def outputz3(env):
         num_rows = new_df.to_sql('hourly_output',db,'m3_teep_v3',if_exists='append',index=False)
         logging.info("Inserted %s rows" % num_rows)
 
-    def get_shift_report_html(db):
+    def get_shift_report_html(db,start_time):
         COLUMN_NAMES = ['OUTPUT','STARVED_WIP (MIN)', 'STARVED_MTR (MIN)']
-        start_of_shift = start - timedelta(hours=11)
+        start_of_shift = start_time - timedelta(hours=11)
         query = f"""
                 SELECT 
                 LINE,
@@ -282,17 +282,17 @@ def outputz3(env):
 
         return start+header+data+end
 
-    uph_df = query_uph(start,end)
+    uph_df = query_uph(start_time,end_time)
     logging.info("Z3 uph end %s" % datetime.utcnow())
     try:
-        ing_df = query_tsm_state(start,end,INGRESS_PATHS,"Starved")
-        po_df = query_tsm_state(start,end,PO_PATHS,"Starved",1)
+        ing_df = query_tsm_state(start_time,end_time,INGRESS_PATHS,"Starved")
+        po_df = query_tsm_state(start_time,end_time,PO_PATHS,"Starved",1)
     except:
         ing_df = pd.DataFrame({})
         po_df = pd.DataFrame({})
        
     logging.info("Z3 tsm end %s" % datetime.utcnow())
-    wb_ct_df,wb_i_ct_df = query_bonder_ct(start,end)
+    wb_ct_df,wb_i_ct_df = query_bonder_ct(start_time,end_time)
     logging.info("Z3 wb end %s" % datetime.utcnow())
 
     row = []
@@ -337,7 +337,7 @@ def outputz3(env):
             insert_hourly_output(prod_con,main_df)
             # if start_pst.hour in [5,17]:
             if 1+1==2:
-                shift_html = get_shift_report_html(prod_con)
+                shift_html = get_shift_report_html(prod_con,start_time)
                 title='Zone 3 End of Shift'
                 shift_payload=    {
                             "title":title, 
