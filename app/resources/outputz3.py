@@ -12,6 +12,7 @@ import pandas as pd
 import json
 import pytz
 
+warnings.filterwarnings("ignore")
 
 def outputz3(env):
     logging.info("Z3 start %s" % datetime.utcnow())
@@ -258,7 +259,7 @@ def outputz3(env):
         df = pd.read_sql(query,db)
         start = """<table>"""
         header = "<tr>"
-        for col in []:
+        for col in COLUMN_NAMES:
             header += f"<th>{col}</th>"       
         header += "</tr>"
         
@@ -337,7 +338,7 @@ def outputz3(env):
             insert_hourly_output(prod_con,main_df)
             # if start_pst.hour in [5,17]:
             if 1+1==2:
-                shift_html = get_shift_report_html(prod_con,start_time)
+                shift_html = get_shift_report_html(prod_con,start_pst)
                 title='Zone 3 End of Shift'
                 shift_payload=    {
                             "title":title, 
