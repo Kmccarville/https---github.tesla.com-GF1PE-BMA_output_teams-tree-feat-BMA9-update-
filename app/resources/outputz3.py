@@ -221,6 +221,13 @@ def outputz3(env):
         end = f"<tr><td><b>TOTAL</b></td><td>{total_output}</td></tr>  </table>"
             
         return start+header+data+end
+
+    def insert_hourly_output(db,main_df):
+        new_df = main_df[['LINE','UPH','STARVED_WIP','STARVED_MTR']]
+        new_df.rename({'UPH':'OUTPUT', 'STARVED_WIP':'STARVED_WIP_MIN','STARVED_MTR':'STARVED_MTR_MIN'},inplace=True)
+        num_rows = new_df.to_sql('hourly_output',db,'m3_teep_v3',if_exists='append',index=False)
+        logging.info("Inserted %s rows" % num_rows)
+
     uph_df = query_uph(start,end)
     logging.info("Z3 uph end %s" % datetime.utcnow())
     try:
@@ -272,6 +279,9 @@ def outputz3(env):
     else:
         try:
             response = requests.post(helper_creds.get_teams_webhook_DEV()['url'],timeout=10,headers=headers, data=json.dumps(payload))
+            prod_con = helper_creds.get_sql_conn('interconnect_eng')
+            insert_hourly_output(prod_con,main_df)
+            prod_con.close()
         except Timeout:
             logging.info("Z3 DEV Webhook failed")
             pass
