@@ -20,6 +20,8 @@ def outputz3(env):
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
+    start_pst = start.astimezone(pytz.timezone('US/Pacific'))
+    start_pst_str = start_pst.strftime("%Y-%m-%d %H:%M:%S")
     end=start+timedelta(hours=lookback)
     #define global variables
     LINE_LIST = ['3BM1','3BM2','3BM3','3BM4','3BM5']
@@ -192,8 +194,17 @@ def outputz3(env):
         else:
             val = 0
         return val
+
+    def get_summary_val(df,line,column_name):
+        if len(df):
+            sub_df = df.query(f"LINE=='{line}'")
+            val = sub_df.iloc[0][column_name] if len(sub_df) else 0
+        else:
+            val = 0
+        return val
+
     #generate html payload from dataframes
-    def make_html_payload(main_df, total_output):
+    def make_html_payload(main_df, total_output,column_names):
         start = """<table>"""
 
         header = "<tr>"
@@ -224,13 +235,52 @@ def outputz3(env):
         return start+header+data+end
 
     def insert_hourly_output(db,main_df):
-        start_pst = start.astimezone(pytz.timezone('US/Pacific'))
-        start_pst_str = start_pst.strftime("%Y-%m-%d %H:%M:%S")
         new_df = main_df[['LINE','UPH','STARVED_WIP','STARVED_MTR']]
         new_df.rename({'UPH':'OUTPUT', 'STARVED_WIP':'STARVED_WIP_MIN','STARVED_MTR':'STARVED_MTR_MIN'},axis=1,inplace=True)
-        new_df['START_TIME'] = start_pst_str
+        new_df.loc[:,'START_TIME'] = start_pst_str
         num_rows = new_df.to_sql('hourly_output',db,'m3_teep_v3',if_exists='append',index=False)
         logging.info("Inserted %s rows" % num_rows)
+
+    def get_shift_report_html(db):
+        COLUMN_NAMES = ['OUTPUT','STARVED_WIP (MIN)', 'STARVED_MTR (MIN)']
+        start_of_shift = start - timedelta(hours=11)
+        query = f"""
+                SELECT 
+                LINE,
+                SUM(OUTPUT) as TTL_OUTPUT,
+                SUM(STARVED_WIP_MIN) AS TTL_STARVED_WIP,
+                SUM(STARVED_MTR_MIN) AS TTL_STARVED_MTR
+                FROM m3_teep_v3.hourly_output
+                WHERE 
+                START_TIME BETWEEN ('{start_of_shift}' - interval 11 hour) AND '{start_of_shift}'
+                GROUP BY 1        
+                """
+        df = pd.read_sql(query,db)
+        start = """<table>"""
+        header = "<tr>"
+        for col in []:
+            header += f"<th>{col}</th>"       
+        header += "</tr>"
+        
+        data = ""
+        total_output = 0
+        for line in LINE_LIST:
+            uph = get_summary_val(df,line,'TTL_OUTPUT')
+            wip = int(get_summary_val(df,line,'TTL_STARVED_WIP'))
+            mtr = int(get_summary_val(df,line,'TTL_STARVED_MTR'))
+            data += f"""
+            <tr>
+            <td style="text-align:center">{line}</td>
+            <td style="text-align:center">{uph}</td>
+            <td style="text-align:center">{wip}</td>
+            <td style="text-align:center">{mtr}</td>
+            </tr>
+            """
+            total_output += uph
+            
+        end = f"<tr><td><b>TOTAL</b></td><td>{total_output}</td></tr>  </table>"
+
+        return start+header+data+end
 
     uph_df = query_uph(start,end)
     logging.info("Z3 uph end %s" % datetime.utcnow())
@@ -256,7 +306,7 @@ def outputz3(env):
     total_output = 0
     for row in main_df.itertuples(False,'Tuples'):
         total_output += row.UPH
-    html_payload = make_html_payload(main_df,total_output)
+    html_payload = make_html_payload(main_df,total_output,column_names)
     title='Zone 3 Hourly Update'
     payload={"title":title, 
             "summary":"summary",
@@ -285,6 +335,16 @@ def outputz3(env):
             response = requests.post(helper_creds.get_teams_webhook_DEV()['url'],timeout=10,headers=headers, data=json.dumps(payload))
             prod_con = helper_creds.get_sql_conn('interconnect_eng')
             insert_hourly_output(prod_con,main_df)
+            # if start_pst.hour in [5,17]:
+            if 1+1==2:
+                shift_html = get_shift_report_html(prod_con)
+                title='Zone 3 End of Shift'
+                shift_payload=    {
+                            "title":title, 
+                            "summary":"summary",
+                            "sections":[{'text':shift_html}]
+                            }
+                response = requests.post(helper_creds.get_teams_webhook_DEV()['url'],timeout=10,headers=headers, data=json.dumps(shift_payload))
             prod_con.close()
         except Timeout:
             logging.info("Z3 DEV Webhook failed")
