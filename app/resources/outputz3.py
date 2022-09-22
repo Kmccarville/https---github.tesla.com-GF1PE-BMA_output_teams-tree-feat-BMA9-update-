@@ -233,6 +233,7 @@ def outputz3(env):
         new_df.loc[:,'START_TIME'] = start_pst_str
         new_df.to_sql('hourly_output',db,'m3_teep_v3',if_exists='append',index=False)
 
+
     def get_summary_val(df,line,column_name):
         if len(df):
             sub_df = df.query(f"LINE=='{line}'")
@@ -242,9 +243,8 @@ def outputz3(env):
             val = 0
         return val
 
-    def get_shift_report_html(db,start_time):
+    def get_shift_report_html(db,start_str):
         COLUMN_NAMES = ['LINE','OUTPUT','STARVED_WIP (MIN)', 'STARVED_MTR (MIN)']
-        start_of_shift = start_time - timedelta(hours=11)
         query = f"""
                 SELECT 
                 LINE,
@@ -253,7 +253,7 @@ def outputz3(env):
                 SUM(STARVED_MTR_MIN) AS TTL_STARVED_MTR
                 FROM m3_teep_v3.hourly_output
                 WHERE 
-                START_TIME BETWEEN ('{start_of_shift}' - interval 11 hour) AND '{start_of_shift}'
+                START_TIME BETWEEN ('{start_str}' - interval 11 hour) AND '{start_str}'
                 GROUP BY 1        
                 """
         df = pd.read_sql(query,db)
@@ -336,11 +336,14 @@ def outputz3(env):
     else:
         try:
             response = requests.post(helper_creds.get_teams_webhook_DEV()['url'],timeout=10,headers=headers, data=json.dumps(payload))
+        except Timeout:
+            logging.info("Z3 DEV Webhook failed")
+        finally:
             prod_con = helper_creds.get_sql_conn('interconnect_eng')
             insert_hourly_output(prod_con,main_df)
             # if start_pst.hour in [5,17]:
             if 1+1==2:
-                shift_html = get_shift_report_html(prod_con,start_pst)
+                shift_html = get_shift_report_html(prod_con,start_pst_str)
                 title='Zone 3 End of Shift'
                 shift_payload=    {
                             "title":title, 
@@ -349,7 +352,5 @@ def outputz3(env):
                             }
                 response = requests.post(helper_creds.get_teams_webhook_DEV()['url'],timeout=10,headers=headers, data=json.dumps(shift_payload))
             prod_con.close()
-        except Timeout:
-            logging.info("Z3 DEV Webhook failed")
-            pass
+            
 
