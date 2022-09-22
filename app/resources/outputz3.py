@@ -196,15 +196,6 @@ def outputz3(env):
         else:
             val = 0
         return val
-
-    def get_summary_val(df,line,column_name):
-        if len(df):
-            sub_df = df.query(f"LINE=='{line}'")
-            val = sub_df.iloc[0][column_name] if len(sub_df) else 0
-        else:
-            val = 0
-        return val
-
     #generate html payload from dataframes
     def make_html_payload(main_df, total_output,column_names):
         start = """<table>"""
@@ -240,11 +231,19 @@ def outputz3(env):
         new_df = main_df[['LINE','UPH','STARVED_WIP','STARVED_MTR']]
         new_df.rename({'UPH':'OUTPUT', 'STARVED_WIP':'STARVED_WIP_MIN','STARVED_MTR':'STARVED_MTR_MIN'},axis=1,inplace=True)
         new_df.loc[:,'START_TIME'] = start_pst_str
-        num_rows = new_df.to_sql('hourly_output',db,'m3_teep_v3',if_exists='append',index=False)
-        logging.info("Inserted %s rows" % num_rows)
+        new_df.to_sql('hourly_output',db,'m3_teep_v3',if_exists='append',index=False)
+
+    def get_summary_val(df,line,column_name):
+        if len(df):
+            sub_df = df.query(f"LINE=='{line}'")
+            logging.info(sub_df.head())
+            val = sub_df.iloc[0][column_name] if len(sub_df) else 0
+        else:
+            val = 0
+        return val
 
     def get_shift_report_html(db,start_time):
-        COLUMN_NAMES = ['OUTPUT','STARVED_WIP (MIN)', 'STARVED_MTR (MIN)']
+        COLUMN_NAMES = ['LINE','OUTPUT','STARVED_WIP (MIN)', 'STARVED_MTR (MIN)']
         start_of_shift = start_time - timedelta(hours=11)
         query = f"""
                 SELECT 
@@ -263,9 +262,11 @@ def outputz3(env):
         for col in COLUMN_NAMES:
             header += f"<th>{col}</th>"       
         header += "</tr>"
-        
+
         data = ""
         total_output = 0
+        logging.info(query)
+        logging.info(df.head())
         for line in LINE_LIST:
             uph = get_summary_val(df,line,'TTL_OUTPUT')
             wip = int(get_summary_val(df,line,'TTL_STARVED_WIP'))
