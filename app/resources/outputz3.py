@@ -10,6 +10,7 @@ import requests
 from requests.exceptions import Timeout
 import pandas as pd
 import json
+import pytz
 
 
 def outputz3(env):
@@ -223,8 +224,11 @@ def outputz3(env):
         return start+header+data+end
 
     def insert_hourly_output(db,main_df):
+        start_pst = start.astimezone(pytz.timezone('US/Pacific'))
+        start_pst_str = start_pst.strftime("%Y-%m-%d %H:%M:%S")
         new_df = main_df[['LINE','UPH','STARVED_WIP','STARVED_MTR']]
         new_df.rename({'UPH':'OUTPUT', 'STARVED_WIP':'STARVED_WIP_MIN','STARVED_MTR':'STARVED_MTR_MIN'},inplace=True)
+        new_df['START_TIME'] = start_pst_str
         num_rows = new_df.to_sql('hourly_output',db,'m3_teep_v3',if_exists='append',index=False)
         logging.info("Inserted %s rows" % num_rows)
 
