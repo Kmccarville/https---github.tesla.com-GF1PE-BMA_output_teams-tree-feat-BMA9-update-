@@ -282,6 +282,8 @@ def outputz3(env):
     start_time=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     start_pst = start_time.astimezone(pytz.timezone('US/Pacific'))
     start_pst_str = start_pst.strftime("%Y-%m-%d %H:%M:%S")
+    logging.info(start_pst_str)
+    logging.info(start_pst.hour)
     end_time=start_time+timedelta(hours=lookback)
 
     #define global variables
