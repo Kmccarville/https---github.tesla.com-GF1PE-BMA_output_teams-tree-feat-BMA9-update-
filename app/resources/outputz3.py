@@ -1,12 +1,9 @@
 from common.db import db_connector
-from common.helper_functions import file_reader
-import common.helper_creds as helper_creds
+import common.helper_functions as helper_functions
 
 from datetime import datetime
 from datetime import timedelta
 import logging
-import requests
-from requests.exceptions import Timeout
 import pandas as pd
 import json
 import pytz
@@ -256,23 +253,6 @@ def get_shift_report_html(db_mos,db_plc,shift_end, ingress_paths, po_paths, line
     end = f"<tr><td><b>TOTAL</b></td><td>{total_output}</td></tr>  </table>"
     return start+header+data+end
 
-def send_to_teams(webhook_key, title, html,retry=0):
-    webhook_json = helper_creds.get_pw_json(webhook_key)
-    webhook = webhook_json['url']
-    payload=    {
-                "title":title, 
-                "summary":"summary",
-                "sections":[{'text':html}]
-                }
-    headers = {
-    'Content-Type': 'application/json'
-    }
-    try:
-        requests.post(webhook,timeout=10,headers=headers, data=json.dumps(payload))
-    except Timeout:
-        if retry==1:
-            requests.post(webhook,timeout=10,headers=headers, data=json.dumps(payload))
-
 def outputz3(env):
     
     #begin by defining timestamps
@@ -306,9 +286,9 @@ def outputz3(env):
 
     #establish db connections
 
-    mos_con = helper_creds.get_sql_conn('mos_rpt2')
-    plc_con = helper_creds.get_sql_conn('plc_db')
-    ict_con = helper_creds.get_sql_conn('interconnect_ro')
+    mos_con = helper_functions.get_sql_conn('mos_rpt2')
+    plc_con = helper_functions.get_sql_conn('plc_db')
+    ict_con = helper_functions.get_sql_conn('interconnect_ro')
 
     #get the uph of the hour
     uph_df = query_uph(mos_con,start_time,end_time)
@@ -341,10 +321,10 @@ def outputz3(env):
 
     #post to Z3 Teams Channel --> Output Channel
     if env=="prod":
-        send_to_teams('teams_webhook_Zone3_Updates', 'Zone 3 Hourly Update', hour_html,retry=1)
+        helper_functions.send_to_teams('teams_webhook_Zone3_Updates', 'Zone 3 Hourly Update', hour_html,retry=1)
         #run the end of shift 
         if end_pst.hour in [6,18]:
             shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
-            send_to_teams('teams_webhook_Zone3_Updates', 'Zone 3 End of Shift', shift_html)
+            helper_functions.send_to_teams('teams_webhook_Zone3_Updates', 'Zone 3 End of Shift', shift_html)
     else:
-        send_to_teams('teams_webhook_DEV_Updates','Zone 3 Hourly Update', hour_html)
+        helper_functions.send_to_teams('teams_webhook_DEV_Updates','Zone 3 Hourly Update', hour_html)
