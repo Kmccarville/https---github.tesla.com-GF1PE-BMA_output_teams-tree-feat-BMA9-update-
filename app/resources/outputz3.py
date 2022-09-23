@@ -93,7 +93,7 @@ def query_tsm_state(db,start, end, paths, s_or_b, reason=0):
     return df
 
 #pull bonder actual and ideal cycle times
-def query_bonder_ct(db,start,end, ideal_ct_df):
+def query_bonder_ct(db,start,end, ideal_ct_df, line_list):
     
     ct_query = f"""
     SELECT
@@ -118,7 +118,7 @@ def query_bonder_ct(db,start,end, ideal_ct_df):
     ct_df = pd.DataFrame({'LINE' : [], 'CT' : []})
     i_ct_df = pd.DataFrame({'LINE' : [], 'I_CT' : []})
     row = []
-    for line in LINE_LIST:
+    for line in line_list:
         sub_df = df.query(f"LINE=='{line}'")
         mod_count = 0
         count_x_ct = 0
@@ -224,7 +224,7 @@ def query_shift_output(db,shift_start,shift_end):
     df_sum = df.groupby(['LINE'])['OUTPUT'].sum().reset_index()
     return df_sum
 
-def get_shift_report_html(db_mos,db_plc,shift_end, ingress_paths, po_paths):
+def get_shift_report_html(db_mos,db_plc,shift_end, ingress_paths, po_paths, line_list):
     shift_start = shift_end - timedelta(hours=12)
     logging.info(shift_start,shift_end)
     COLUMN_NAMES = ['LINE','OUTPUT','STARVED_WIP (MIN)', 'STARVED_MTR (MIN)']
@@ -239,7 +239,7 @@ def get_shift_report_html(db_mos,db_plc,shift_end, ingress_paths, po_paths):
 
     data = ""
     total_output = 0
-    for line in LINE_LIST:
+    for line in line_list:
         uph = get_val(df_shift,line)
         wip = int(get_val(ing_df,line))
         mtr = int(get_val(po_df,line))
@@ -318,7 +318,7 @@ def outputz3(env):
         po_df = pd.DataFrame({})
     
     ideal_ct_df = query_ideal_ct_data(ict_con)
-    wb_ct_df,wb_i_ct_df = query_bonder_ct(mos_con,start_time,end_time,ideal_ct_df)
+    wb_ct_df,wb_i_ct_df = query_bonder_ct(mos_con,start_time,end_time,ideal_ct_df,LINE_LIST)
     row = []
     all_dfs = [uph_df,ing_df,po_df,wb_ct_df,wb_i_ct_df]
     column_names = ['LINE','UPH','STARVED_WIP','STARVED_MTR','WB_ACTUAL_CT','WB_IDEAL_CT']
@@ -342,7 +342,7 @@ def outputz3(env):
 
     # if start_pst.hour in [5,17]:
     if 1+1==2:
-        shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS)
+        shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
         send_to_teams('teams_webhook_DEV_Updates', 'Zone 3 End of Shift', shift_html)
 
     mos_con.close()
