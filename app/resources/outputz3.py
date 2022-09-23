@@ -15,13 +15,13 @@ import warnings
 warnings.filterwarnings("ignore")
 
 #bonder ideal ct
-def query_ideal_ct_data():
+def query_ideal_ct_data(db):
     query = """
             SELECT PRODUCTION_LINE AS LINE,UUT_MODEL,IDEAL_CYCLE_TIME/60 AS CT FROM m3_teep.ideal_cycle_times
             WHERE MACHINE_TYPE='BONDER'
             AND REVISION=(SELECT MAX(REVISION) FROM m3_teep.ideal_cycle_times WHERE MACHINE_TYPE='BONDER')
             """
-    ct_df = db_connector(False,"ICT",sql=query)
+    ct_df = pd.read_sql(query,db)
     return ct_df
 
 def get_ideal_ct(ideal_ct_df,line,model):
@@ -33,7 +33,7 @@ def get_ideal_ct(ideal_ct_df,line,model):
     return ct_ideal
 
 #pull starved states
-def query_tsm_state(start, end, paths, s_or_b, reason=0):
+def query_tsm_state(db,start, end, paths, s_or_b, reason=0):
     
     start_pad = start-timedelta(hours=12)
     reason_str = f"AND reason={reason}" if reason else ""
@@ -89,11 +89,11 @@ def query_tsm_state(start, end, paths, s_or_b, reason=0):
         GROUP BY 1;
     """
     
-    df= db_connector(False,"PLC",sql=tsm_query)
+    df= pd.read_sql(tsm_query,db)
     return df
 
 #pull bonder actual and ideal cycle times
-def query_bonder_ct(start,end):
+def query_bonder_ct(db,start,end):
     
     ct_query = f"""
     SELECT
@@ -113,7 +113,7 @@ def query_bonder_ct(start,end):
     AND tp.completed BETWEEN '{start}' and '{end}'
     GROUP BY 1,2
     """
-    df= db_connector(False,"MOS",sql=ct_query)
+    df = pd.read_sql(ct_query,db)
     
     ct_df = pd.DataFrame({'LINE' : [], 'CT' : []})
     i_ct_df = pd.DataFrame({'LINE' : [], 'I_CT' : []})
@@ -142,7 +142,7 @@ def query_bonder_ct(start,end):
     
     return ct_df,i_ct_df
 #pull uph
-def query_uph(start,end):
+def query_uph(db,start,end):
     uph_query=f"""
     SELECT 
     left(a.name,4) as LINE,
@@ -155,7 +155,7 @@ def query_uph(start,end):
     group by 1
     """
     
-    df=db_connector(False,"MOS",sql=uph_query)
+    df = pd.read_sql(uph_query,db)
     
     return df
 
@@ -201,7 +201,7 @@ def make_html_payload(main_df, total_output,column_names):
         
     return start+header+data+end
 
-def query_shift_output(shift_start,shift_end):
+def query_shift_output(db,shift_start,shift_end):
     df = pd.DataFrame({})
     while shift_start < shift_end:
         shift_start_next = shift_start + timedelta(minutes=60)
@@ -219,7 +219,7 @@ def query_shift_output(shift_start,shift_end):
         """
         
         shift_start += timedelta(minutes=60)
-        df_sub=db_connector(False,"MOS",sql=uph_query)
+        df_sub = pd.read_sql(uph_query,db)
         df = pd.concat([df,df_sub],axis=0)
 
     df_sum = df.groupby(['LINE'])['OUTPUT'].sum().reset_index()
@@ -230,8 +230,8 @@ def get_shift_report_html(db_mos,db_plc,shift_end, ingress_paths, po_paths):
     logging.info(shift_start,shift_end)
     COLUMN_NAMES = ['LINE','OUTPUT','STARVED_WIP (MIN)', 'STARVED_MTR (MIN)']
     df_shift = query_shift_output(db_mos,shift_start,shift_end)
-    ing_df = query_tsm_state(shift_start,shift_end,ingress_paths,"Starved")
-    po_df = query_tsm_state(shift_start,shift_end,po_paths,"Starved",1)
+    ing_df = query_tsm_state(db_plc,shift_start,shift_end,ingress_paths,"Starved")
+    po_df = query_tsm_state(db_plc,shift_start,shift_end,po_paths,"Starved",1)
     start = """<table>"""
     header = "<tr>"
     for col in COLUMN_NAMES:
@@ -243,7 +243,7 @@ def get_shift_report_html(db_mos,db_plc,shift_end, ingress_paths, po_paths):
     for line in LINE_LIST:
         uph = get_val(df_shift,line)
         wip = int(get_val(ing_df,line))
-        mtr = int(get_val(ing_df,line))
+        mtr = int(get_val(po_df,line))
         data += f"""
         <tr>
         <td style="text-align:center">{line}</td>
@@ -318,7 +318,7 @@ def outputz3(env):
         ing_df = pd.DataFrame({})
         po_df = pd.DataFrame({})
        
-    wb_ct_df,wb_i_ct_df = query_bonder_ct(mos_con,ict_con,start_time,end_time)
+    wb_ct_df,wb_i_ct_df = query_bonder_ct(mos_con,start_time,end_time)
     row = []
     all_dfs = [uph_df,ing_df,po_df,wb_ct_df,wb_i_ct_df]
     column_names = ['LINE','UPH','STARVED_WIP','STARVED_MTR','WB_ACTUAL_CT','WB_IDEAL_CT']
