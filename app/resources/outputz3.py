@@ -259,7 +259,6 @@ def get_shift_report_html(db_mos,db_plc,shift_end, ingress_paths, po_paths, line
 def send_to_teams(webhook_key, title, html,retry=0):
     webhook_json = helper_creds.get_pw_json(webhook_key)
     webhook = webhook_json['url']
-    title='Zone 3 End of Shift'
     payload=    {
                 "title":title, 
                 "summary":"summary",
