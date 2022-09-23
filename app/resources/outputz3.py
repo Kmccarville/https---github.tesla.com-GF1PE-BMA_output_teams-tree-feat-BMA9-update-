@@ -93,7 +93,7 @@ def query_tsm_state(db,start, end, paths, s_or_b, reason=0):
     return df
 
 #pull bonder actual and ideal cycle times
-def query_bonder_ct(db,start,end):
+def query_bonder_ct(db,start,end, ideal_ct_df):
     
     ct_query = f"""
     SELECT
@@ -117,7 +117,6 @@ def query_bonder_ct(db,start,end):
     
     ct_df = pd.DataFrame({'LINE' : [], 'CT' : []})
     i_ct_df = pd.DataFrame({'LINE' : [], 'I_CT' : []})
-    ideal_ct_df = query_ideal_ct_data()
     row = []
     for line in LINE_LIST:
         sub_df = df.query(f"LINE=='{line}'")
@@ -317,8 +316,9 @@ def outputz3(env):
     except:
         ing_df = pd.DataFrame({})
         po_df = pd.DataFrame({})
-       
-    wb_ct_df,wb_i_ct_df = query_bonder_ct(mos_con,start_time,end_time)
+    
+    ideal_ct_df = query_ideal_ct_data(ict_con)
+    wb_ct_df,wb_i_ct_df = query_bonder_ct(mos_con,start_time,end_time,ideal_ct_df)
     row = []
     all_dfs = [uph_df,ing_df,po_df,wb_ct_df,wb_i_ct_df]
     column_names = ['LINE','UPH','STARVED_WIP','STARVED_MTR','WB_ACTUAL_CT','WB_IDEAL_CT']
