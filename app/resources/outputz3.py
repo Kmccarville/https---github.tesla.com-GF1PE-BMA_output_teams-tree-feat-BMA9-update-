@@ -256,7 +256,7 @@ def get_shift_report_html(db_mos,db_plc,shift_end, ingress_paths, po_paths, line
     end = f"<tr><td><b>TOTAL</b></td><td>{total_output}</td></tr>  </table>"
     return start+header+data+end
 
-def send_to_teams(webhook_key, title, html):
+def send_to_teams(webhook_key, title, html,retry=0):
     webhook_json = helper_creds.get_pw_json(webhook_key)
     webhook = webhook_json['url']
     title='Zone 3 End of Shift'
@@ -268,8 +268,11 @@ def send_to_teams(webhook_key, title, html):
     headers = {
     'Content-Type': 'application/json'
     }
-    response = requests.post(webhook,timeout=10,headers=headers, data=json.dumps(payload))
-    logging.info(response)
+    try:
+        requests.post(webhook,timeout=10,headers=headers, data=json.dumps(payload))
+    except Timeout:
+        if retry==1:
+            requests.post(webhook,timeout=10,headers=headers, data=json.dumps(payload))
 
 def outputz3(env):
     
@@ -280,11 +283,9 @@ def outputz3(env):
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
     start_time=now_sub1hr.replace(minute=00,second=00,microsecond=00)
-    start_pst = start_time.astimezone(pytz.timezone('US/Pacific'))
-    start_pst_str = start_pst.strftime("%Y-%m-%d %H:%M:%S")
-    logging.info(start_pst_str)
-    logging.info(start_pst.hour)
+
     end_time=start_time+timedelta(hours=lookback)
+    end_pst = end_time.astimezone(pytz.timezone('US/Pacific'))
 
     #define global variables
     LINE_LIST = ['3BM1','3BM2','3BM3','3BM4','3BM5']
@@ -333,19 +334,7 @@ def outputz3(env):
     for row in main_df.itertuples(False,'Tuples'):
         total_output += row.UPH
 
-    html_payload = make_html_payload(main_df,total_output,column_names)
-    title='Zone 3 Hourly Update'
-    payload={"title":title, 
-            "summary":"summary",
-            "sections":[{'text':html_payload}]}
-    headers = {
-    'Content-Type': 'application/json'
-    }
-
-    # if start_pst.hour in [5,17]:
-    if 1+1==2:
-        shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
-        send_to_teams('teams_webhook_DEV_Updates', 'Zone 3 End of Shift', shift_html)
+    hour_html = make_html_payload(main_df,total_output,column_names)
 
     mos_con.close()
     plc_con.close()
@@ -353,20 +342,10 @@ def outputz3(env):
 
     #post to Z3 Teams Channel --> Output Channel
     if env=="prod":
-        try:
-            logging.info("Z3 webhook start %s" % datetime.utcnow())
-            requests.post(helper_creds.get_teams_webhook_Z3()['url'],timeout=10,headers=headers, data=json.dumps(payload))
-            logging.info("Z3 webhook end %s" % datetime.utcnow())
-        except Timeout:
-            try:
-                logging.info("RETRY Z3 webhook start %s" % datetime.utcnow())
-                requests.post(helper_creds.get_teams_webhook_Z3()['url'],timeout=10,headers=headers, data=json.dumps(payload))
-                logging.info("RETRY Z3 webhook end %s" % datetime.utcnow())
-            except Timeout:
-                logging.info("Z3 Webhook failed")
-    
+        send_to_teams('teams_webhook_Zone3_Updates', 'Zone 3 Hourly Update', hour_html,retry=1)
+        #run the end of shift 
+        if end_pst.hour in [6,18]:
+            shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
+            send_to_teams('teams_webhook_Zone3_Updates', 'Zone 3 End of Shift', shift_html)
     else:
-        try:
-            response = requests.post(helper_creds.get_teams_webhook_DEV()['url'],timeout=10,headers=headers, data=json.dumps(payload))
-        except Timeout:
-            logging.info("Z3 DEV Webhook failed")
+        send_to_teams('teams_webhook_DEV_Updates','Zone 3 Hourly Update', hour_html)
