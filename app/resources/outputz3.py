@@ -314,11 +314,6 @@ def outputz3(env):
         total_output += row.UPH
 
     hour_html = make_html_payload(main_df,total_output,column_names)
-
-    mos_con.close()
-    plc_con.close()
-    ict_con.close()
-
     #post to Z3 Teams Channel --> Output Channel
     if env=="prod":
         helper_functions.send_to_teams('teams_webhook_Zone3_Updates', 'Zone 3 Hourly Update', hour_html,retry=1)
@@ -328,3 +323,7 @@ def outputz3(env):
             helper_functions.send_to_teams('teams_webhook_Zone3_Updates', 'Zone 3 End of Shift', shift_html)
     else:
         helper_functions.send_to_teams('teams_webhook_DEV_Updates','Zone 3 Hourly Update', hour_html)
+    
+    mos_con.close()
+    plc_con.close()
+    ict_con.close()
