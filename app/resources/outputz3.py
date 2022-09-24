@@ -323,6 +323,9 @@ def outputz3(env):
             helper_functions.send_to_teams('teams_webhook_Zone3_Updates', 'Zone 3 End of Shift', shift_html)
     else:
         helper_functions.send_to_teams('teams_webhook_DEV_Updates','Zone 3 Hourly Update', hour_html)
+        if end_pst.hour in [6,18]:
+            shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
+            helper_functions.send_to_teams('teams_webhook_DEV_Updates', 'Zone 3 End of Shift', shift_html)
     
     mos_con.close()
     plc_con.close()
