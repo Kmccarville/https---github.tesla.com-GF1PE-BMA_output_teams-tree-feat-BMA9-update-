@@ -1,16 +1,64 @@
 from common.db import db_connector
-from common.helper_functions import file_reader
-import common.helper_creds as helper_creds
-
-
+import common.helper_functions as helper_functions
 from datetime import datetime
 from datetime import timedelta
 import logging
-import requests
-from requests.exceptions import Timeout
-import json
-import os
 
+def get_starved_table(start_time,end_time):
+    ST10_PATHS = ['[3BM4_30000_Ingress]Project/MDL10/Gripper/Sequences/SeqGripper','[_3BM5_31000_CouplerStripInstall]Project/MDL01/TSM/StateControl']
+    ST20_PATHS = ['[3BM4_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence','[_3BM5_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence']
+    ST30_WALK_PATHS = ['[3BM4_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl','[_3BM5_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl']
+    ST30_FIXTURE_PATHS = ['[3BM4_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL10/StateControl','[_3BM5_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL10/StateControl']
+    
+    mos_con = helper_functions.get_sql_conn('mos_rpt2')
+
+    st10_df = helper_functions.query_tsm_state(mos_con,start_time, end_time, ST10_PATHS, 'Starved')
+    st20_df = helper_functions.query_tsm_state(mos_con,start_time, end_time, ST20_PATHS, 'Starved')
+    st30_walk_df = helper_functions.query_tsm_state(mos_con,start_time, end_time, ST30_WALK_PATHS, 'Starved')
+    st30_fixture_df = helper_functions.query_tsm_state(mos_con,start_time, end_time, ST30_FIXTURE_PATHS, 'Starved')
+
+    st10_bma4_percent = round(helper_functions.get_val(st10_df,'3BM4')/3600,1)
+    st10_bma5_percent = round(helper_functions.get_val(st10_df,'3BM5')/3600,1)
+    st20_bma4_percent = round(helper_functions.get_val(st20_df,'3BM4')/3600,1)
+    st20_bma5_percent = round(helper_functions.get_val(st20_df,'3BM5')/3600,1)
+    st30_walk_bma4_percent = round(helper_functions.get_val(st30_walk_df,'3BM4')/3600,1)
+    st30_walk_bma5_percent = round(helper_functions.get_val(st30_walk_df,'3BM5')/3600,1)
+    st30_fix_bma4_percent = round(helper_functions.get_val(st30_fixture_df,'3BM4')/3600,1)
+    st30_fix_bma5_percent = round(helper_functions.get_val(st30_fixture_df,'3BM5')/3600,1)
+
+    html=f"""
+        <table>
+        <caption>
+            STARVATION%
+        </caption>
+        <tr>
+            <td>    </td>
+            <td style="text-align:center"><strong>BMA4</strong></td>
+            <td style="text-align:center"><strong>BMA5</strong></td>
+        </tr>
+        <tr>
+            <td>STA10</td>
+            <td style="text-align:center">{st10_bma4_percent}%%</td>
+            <td style="text-align:center">{st10_bma5_percent}%%</td>
+        </tr>
+        <tr>
+            <td>STA20</td>
+            <td style="text-align:center">{st20_bma4_percent}%%</td>
+            <td style="text-align:center">{st20_bma5_percent}%%</td>
+        </tr>
+        <tr>
+            <td>STA30-Walk</td>
+            <td style="text-align:center">{st30_walk_bma4_percent}%%</td>
+            <td style="text-align:center">{st30_walk_bma5_percent}%%</td>
+        </tr>
+        <tr>
+            <td>STA30-Fixture</td>
+            <td style="text-align:center">{st30_fix_bma4_percent}%%</td>
+            <td style="text-align:center">{st30_fix_bma5_percent}%%</td>
+        </tr>
+        </table>
+        """
+    return html
 
 def output45(env):
     logging.info("output45 start %s" % datetime.utcnow())
@@ -21,7 +69,7 @@ def output45(env):
     end=start+timedelta(hours=lookback)
     
     #Grab BMA4-CTA hourly data
-    sql_bma4cta=file_reader("resources/sql_queries/bma4cta_output.sql")
+    sql_bma4cta=helper_functions.file_reader("resources/sql_queries/bma4cta_output.sql")
     sql_bma4cta=sql_bma4cta.format(start_time=start,end_time=end)
     df_bma4cta=db_connector(False,"MOS",sql=sql_bma4cta)
     df_bma4cta.fillna(0)
@@ -56,7 +104,7 @@ def output45(env):
     logging.info("bma4cta end %s" % datetime.utcnow())
 
     #Grab BMA5-CTA hourly data
-    sql_bma5cta=file_reader("resources/sql_queries/bma5cta_output.sql")
+    sql_bma5cta=helper_functions.file_reader("resources/sql_queries/bma5cta_output.sql")
     sql_bma5cta=sql_bma5cta.format(start_time=start,end_time=end)
     df_bma5cta=db_connector(False,"MOS",sql=sql_bma5cta)
     df_bma5cta.fillna(0)
@@ -77,7 +125,6 @@ def output45(env):
         CTA5_8 = sub_df.iloc[0][1] if len(sub_df) else 0
         CTA5_SUM=round(df_bma5cta['UPH'].sum(), 2)
     else:
-        CTA5_1 = 0
         CTA5_2 = 0
         CTA5_3 = 0
         CTA5_4 = 0
@@ -89,7 +136,7 @@ def output45(env):
     logging.info("bam5cta end %s" % datetime.utcnow())
 
     #Grab BMA4-MAMC hourly data
-    sql_bma4mamc=file_reader("resources/sql_queries/bma4mamc_output.sql")
+    sql_bma4mamc= helper_functions.helper_functions.file_reader("resources/sql_queries/bma4mamc_output.sql")
     sql_bma4mamc=sql_bma4mamc.format(start_time=start,end_time=end)
     df_bma4mamc=db_connector(False,"MOS",sql=sql_bma4mamc)
     df_bma4mamc.fillna(0)
@@ -97,7 +144,7 @@ def output45(env):
     logging.info("bma4mamc end %s" % datetime.utcnow())
 
     #Grab BMA5-MAMC hourly data
-    sql_bma5mamc=file_reader("resources/sql_queries/bma5mamc_output.sql")
+    sql_bma5mamc=helper_functions.file_reader("resources/sql_queries/bma5mamc_output.sql")
     sql_bma5mamc=sql_bma5mamc.format(start_time=start,end_time=end)
     df_bma5mamc=db_connector(False,"MOS",sql=sql_bma5mamc)
     df_bma5mamc.fillna(0)
@@ -105,7 +152,7 @@ def output45(env):
     logging.info("bma5mamc_o end %s" % datetime.utcnow())
 
     #Grab BMA4-C3A hourly data
-    sql_bma4c3a=file_reader("resources/sql_queries/bma4c3a_output.sql")
+    sql_bma4c3a=helper_functions.file_reader("resources/sql_queries/bma4c3a_output.sql")
     sql_bma4c3a=sql_bma4c3a.format(start_time=start,end_time=end)
     df_bma4c3a=db_connector(False,"MOS",sql=sql_bma4c3a)
     df_bma4c3a.fillna(0)
@@ -113,7 +160,7 @@ def output45(env):
     logging.info("bma4c3a_o end %s" % datetime.utcnow())
 
     #Grab BMA5-C3A hourly data
-    sql_bma5c3a=file_reader("resources/sql_queries/bma5c3a_output.sql")
+    sql_bma5c3a=helper_functions.file_reader("resources/sql_queries/bma5c3a_output.sql")
     sql_bma5c3a=sql_bma5c3a.format(start_time=start,end_time=end)
     df_bma5c3a=db_connector(False,"MOS",sql=sql_bma5c3a)
     df_bma5c3a.fillna(0)
@@ -131,12 +178,7 @@ def output45(env):
     C3A5 = bma5c3a_o
     C3A_TOTAL = C3A4+C3A5
 
-    # Setup teams output table
-    title='BMA45 Hourly Update'
-    payload={"title":title, 
-        "summary":"summary",
-        "sections":[
-            {'text':f"""<table>
+    uph_html = f"""
             <table>
                 <tr>
                     <th>    </th>
@@ -208,29 +250,15 @@ def output45(env):
                     <td style="text-align:center">{'{:.2f}'.format(CTA4_8)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA5_8)}</td>
                 </tr>
-            </table>"""}]}
-    headers = {
-    'Content-Type': 'application/json'
-    }
+            </table>
+            """
+
+    tsm_html = get_starved_table(start,end)
+    html_payload = uph_html + tsm_html
 
     #post to BMA45-PE --> Output Channel
     if env=="prod":
-        try:
-            logging.info("BMA45 webhook start %s" % datetime.utcnow())
-            response = requests.post(helper_creds.get_teams_webhook_BMA45()['url'],timeout=10,headers=headers, data=json.dumps(payload))
-            logging.info("BMA45 webhook end %s" % datetime.utcnow())
-        except Timeout:
-            try:
-                logging.info("RETRY BMA45 webhook start %s" % datetime.utcnow())
-                response = requests.post(helper_creds.get_teams_webhook_BMA45()['url'],timeout=10,headers=headers, data=json.dumps(payload))
-                logging.info("RETRY BMA45 webhook end %s" % datetime.utcnow())
-            except Timeout:
-                logging.info("BMA45 Webhook failed")
-                pass
+        helper_functions.send_to_teams('teams_webhook_BMA45_Updates', 'BMA45 Hourly Update', html_payload,retry=1)
     else:
-        try:
-            response = requests.post(helper_creds.get_teams_webhook_DEV()['url'],timeout=10,headers=headers, data=json.dumps(payload))
-        except Timeout:
-            logging.info("BMA123 Dev Webhook failed")
-            pass
+        helper_functions.send_to_teams('teams_webhook_DEV_Updates','BMA45 Hourly Update', html_payload)
 
