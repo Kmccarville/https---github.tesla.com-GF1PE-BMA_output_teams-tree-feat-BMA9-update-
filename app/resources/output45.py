@@ -27,36 +27,37 @@ def get_starved_table(start_time,end_time):
     st30_fix_bma5_percent = round(helper_functions.get_val(st30_fixture_df,'3BM5')/3600,1)
 
     html=f"""
-        <table>
-        <caption>
-            STARVATION%
-        </caption>
+        <tr bgcolor="#FFFFFF" height=10px></tr>
+        <tr>
+            <td>    </td>
+            <td style="text-align:center"><b>STARVATION %</b></td>
+            <td> </td>
+        </tr>
         <tr>
             <td>    </td>
             <td style="text-align:center"><strong>BMA4</strong></td>
             <td style="text-align:center"><strong>BMA5</strong></td>
         </tr>
         <tr>
-            <td>STA10</td>
-            <td style="text-align:center">{st10_bma4_percent}%%</td>
-            <td style="text-align:center">{st10_bma5_percent}%%</td>
+            <td style="text-align:left"><b>STA10</b></td>
+            <td style="text-align:center">{st10_bma4_percent}%</td>
+            <td style="text-align:center">{st10_bma5_percent}%</td>
         </tr>
         <tr>
-            <td>STA20</td>
-            <td style="text-align:center">{st20_bma4_percent}%%</td>
-            <td style="text-align:center">{st20_bma5_percent}%%</td>
+            <td style="text-align:left"><b>STA20</b></td>
+            <td style="text-align:center">{st20_bma4_percent}%</td>
+            <td style="text-align:center">{st20_bma5_percent}%</td>
         </tr>
         <tr>
-            <td>STA30-Walk</td>
-            <td style="text-align:center">{st30_walk_bma4_percent}%%</td>
-            <td style="text-align:center">{st30_walk_bma5_percent}%%</td>
+            <td style="text-align:left"><b>STA30-Walk</b></td>
+            <td style="text-align:center">{st30_walk_bma4_percent}%</td>
+            <td style="text-align:center">{st30_walk_bma5_percent}%</td>
         </tr>
         <tr>
-            <td>STA30-Fixture</td>
-            <td style="text-align:center">{st30_fix_bma4_percent}%%</td>
-            <td style="text-align:center">{st30_fix_bma5_percent}%%</td>
+            <td style="text-align:left"><b>STA30-Fix</b></td>
+            <td style="text-align:center">{st30_fix_bma4_percent}%</td>
+            <td style="text-align:center">{st30_fix_bma5_percent}%</td>
         </tr>
-        </table>
         """
     return html
 
@@ -179,7 +180,6 @@ def output45(env):
     C3A_TOTAL = C3A4+C3A5
 
     uph_html = f"""
-            <table>
                 <tr>
                     <th>    </th>
                     <th style="text-align:center">BMA4</th>
@@ -187,19 +187,19 @@ def output45(env):
                     <th style="text-align:center">TOTAL</th>
                 </tr>
                 <tr>
-                    <td style="text-align:right"><strong>CTA</strong></td>
+                    <td style="text-align:left"><strong>CTA</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA4_SUM)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA5_SUM)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA_TOTAL)}</td>
                 </tr>
                 <tr>
-                    <td style="text-align:right"><strong>MAMC</strong></td>
+                    <td style="text-align:left"><strong>MAMC</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC4)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC5)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(MAMC_TOTAL)}</td>
                 </tr>
                 <tr>
-                    <td style="text-align:right"><strong>C3A</strong></td>
+                    <td style="text-align:left"><strong>C3A</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(C3A4)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(C3A5)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(C3A_TOTAL)}</td>
@@ -211,50 +211,49 @@ def output45(env):
                     <td style="text-align:center"><strong>CTA5</strong></td>
                 </tr>
                 <tr>
-                   <td style="text-align:right"><strong>LANE 1</strong></td>
+                   <td style="text-align:left"><strong>LANE 1</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA4_1)}</td>
                     <td style="text-align:center">----</td>
                 </tr>
                 <tr>
-                    <td style="text-align:right"><strong>LANE 2</strong></td>
+                    <td style="text-align:left"><strong>LANE 2</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA4_2)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA5_2)}</td>
                 </tr>
                 <tr>
-                    <td style="text-align:right"><strong>LANE 3</strong></td>
+                    <td style="text-align:left"><strong>LANE 3</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA4_3)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA5_3)}</td>
                 </tr>
                 <tr>
-                    <td style="text-align:right"><strong>LANE 4</strong></td>
+                    <td style="text-align:left"><strong>LANE 4</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA4_4)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA5_4)}</td>
                 </tr>
                 <tr>
-                   <td style="text-align:right"><strong>LANE 5</strong></td>
+                   <td style="text-align:left"><strong>LANE 5</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA4_5)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA5_5)}</td>
                 </tr>
                 <tr>
-                    <td style="text-align:right"><strong>LANE 6</strong></td>
+                    <td style="text-align:left"><strong>LANE 6</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA4_6)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA5_6)}</td>
                 </tr>
                 <tr>
-                   <td style="text-align:right"><strong>LANE 7</strong></td>
+                   <td style="text-align:left"><strong>LANE 7</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA4_7)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA5_7)}</td>
                 </tr>
                 <tr>
-                    <td style="text-align:right"><strong>LANE 8</strong></td>
+                    <td style="text-align:left"><strong>LANE 8</strong></td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA4_8)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(CTA5_8)}</td>
                 </tr>
-            </table>
             """
 
     tsm_html = get_starved_table(start,end)
-    html_payload = uph_html + tsm_html
+    html_payload = '<table>' + uph_html + tsm_html + '</table>'
 
     #post to BMA45-PE --> Output Channel
     if env=="prod":
