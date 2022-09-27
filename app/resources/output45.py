@@ -5,6 +5,7 @@ from datetime import timedelta
 import logging
 
 def get_starved_table(start_time,end_time):
+    #define source tagpaths for each equipment type
     ST10_PATHS = ['[3BM4_30000_Ingress]Project/MDL10/Gripper/Sequences/SeqGripper','[_3BM5_31000_CouplerStripInstall]Project/MDL01/TSM/StateControl']
     ST20_PATHS = ['[3BM4_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence','[_3BM5_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence']
     ST30_WALK_PATHS = ['[3BM4_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl','[_3BM5_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl']
@@ -12,26 +13,26 @@ def get_starved_table(start_time,end_time):
     
     plc_con = helper_functions.get_sql_conn('plc_db')
 
+    #get starveddata for each tagpath set
     st10_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST10_PATHS, 'Starved')
     st20_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST20_PATHS, 'Starved')
     st30_walk_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST30_WALK_PATHS, 'Starved')
     st30_fixture_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST30_FIXTURE_PATHS, 'Starved')
 
-    st10_bma4_percent = round(helper_functions.get_val(st10_df,'3BM4')/3600,1)
-    st10_bma5_percent = round(helper_functions.get_val(st10_df,'3BM5')/3600,1)
-    st20_bma4_percent = round(helper_functions.get_val(st20_df,'3BM4')/3600,1)
-    st20_bma5_percent = round(helper_functions.get_val(st20_df,'3BM5')/3600,1)
-    st30_walk_bma4_percent = round(helper_functions.get_val(st30_walk_df,'3BM4')/3600,1)
-    st30_walk_bma5_percent = round(helper_functions.get_val(st30_walk_df,'3BM5')/3600,1)
-    st30_fix_bma4_percent = round(helper_functions.get_val(st30_fixture_df,'3BM4')/3600,1)
-    st30_fix_bma5_percent = round(helper_functions.get_val(st30_fixture_df,'3BM5')/3600,1)
+    #get starve percentage (divide by 3600s and multiply by 100%)
+    st10_bma4_percent = round(helper_functions.get_val(st10_df,'3BM4')/3600*100,1)
+    st10_bma5_percent = round(helper_functions.get_val(st10_df,'3BM5')/3600*100,1)
+    st20_bma4_percent = round(helper_functions.get_val(st20_df,'3BM4')/3600*100,1)
+    st20_bma5_percent = round(helper_functions.get_val(st20_df,'3BM5')/3600*100,1)
+    st30_walk_bma4_percent = round(helper_functions.get_val(st30_walk_df,'3BM4')/3600*100,1)
+    st30_walk_bma5_percent = round(helper_functions.get_val(st30_walk_df,'3BM5')/3600*100,1)
+    st30_fix_bma4_percent = round(helper_functions.get_val(st30_fixture_df,'3BM4')/3600*100,1)
+    st30_fix_bma5_percent = round(helper_functions.get_val(st30_fixture_df,'3BM5')/3600*100,1)
 
     html=f"""
         <tr bgcolor="#FFFFFF" height=10px></tr>
         <tr>
-            <td>    </td>
-            <td style="text-align:center"><b>STARVATION %</b></td>
-            <td> </td>
+            <td colspan="3" style="text-align:center"><b>STARVATION %</b></td>
         </tr>
         <tr>
             <td>    </td>
