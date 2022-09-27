@@ -136,7 +136,7 @@ def output45(env):
     logging.info("bam5cta end %s" % datetime.utcnow())
 
     #Grab BMA4-MAMC hourly data
-    sql_bma4mamc= helper_functions.helper_functions.file_reader("resources/sql_queries/bma4mamc_output.sql")
+    sql_bma4mamc= helper_functions.file_reader("resources/sql_queries/bma4mamc_output.sql")
     sql_bma4mamc=sql_bma4mamc.format(start_time=start,end_time=end)
     df_bma4mamc=db_connector(False,"MOS",sql=sql_bma4mamc)
     df_bma4mamc.fillna(0)
