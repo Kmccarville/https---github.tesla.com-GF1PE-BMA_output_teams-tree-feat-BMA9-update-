@@ -4,9 +4,9 @@ from datetime import datetime
 from datetime import timedelta
 import logging
 
-def get_starved_table(start_time,end_time):
+def get_mamc_starved_table(start_time,end_time):
     #define source tagpaths for each equipment type
-    ST10_PATHS = ['[3BM4_30000_Ingress]Project/MDL10/Gripper/Sequences/SeqGripper','[_3BM5_31000_CouplerStripInstall]Project/MDL01/TSM/StateControl']
+    ST10_PATHS = ['[3BM4_30000_Ingress]Project/MDL10/Gripper/Sequences/SeqGripper','[_3BM5_30000_Ingress]Project/MDL10/Gripper/Sequences/SeqGripper']
     ST20_PATHS = ['[3BM4_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence','[_3BM5_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence']
     ST30_WALK_PATHS = ['[3BM4_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl','[_3BM5_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl']
     ST30_FIXTURE_PATHS = ['[3BM4_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL10/StateControl','[_3BM5_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL10/StateControl']
@@ -40,22 +40,22 @@ def get_starved_table(start_time,end_time):
             <td style="text-align:center"><strong>MAMC5</strong></td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>STA10-Bando</b></td>
+            <td style="text-align:left"><b>ST10-Bando</b></td>
             <td style="text-align:center">{st10_bma4_percent}%</td>
             <td style="text-align:center">{st10_bma5_percent}%</td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>STA20-Frax1</b></td>
+            <td style="text-align:left"><b>ST20-Frax1</b></td>
             <td style="text-align:center">{st20_bma4_percent}%</td>
             <td style="text-align:center">{st20_bma5_percent}%</td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>STA30-Bando</b></td>
+            <td style="text-align:left"><b>ST30-Bando</b></td>
             <td style="text-align:center">{st30_walk_bma4_percent}%</td>
             <td style="text-align:center">{st30_walk_bma5_percent}%</td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>STA30-Fixture</b></td>
+            <td style="text-align:left"><b>ST30-Fixture</b></td>
             <td style="text-align:center">{st30_fix_bma4_percent}%</td>
             <td style="text-align:center">{st30_fix_bma5_percent}%</td>
         </tr>
@@ -253,7 +253,7 @@ def output45(env):
                 </tr>
             """
 
-    tsm_html = get_starved_table(start,end)
+    tsm_html = get_mamc_starved_table(start,end)
     html_payload = '<table>' + uph_html + tsm_html + '</table>'
 
     #post to BMA45-PE --> Output Channel
