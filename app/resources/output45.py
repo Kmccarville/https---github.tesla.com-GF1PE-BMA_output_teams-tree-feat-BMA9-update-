@@ -36,26 +36,26 @@ def get_starved_table(start_time,end_time):
         </tr>
         <tr>
             <td>    </td>
-            <td style="text-align:center"><strong>BMA4</strong></td>
-            <td style="text-align:center"><strong>BMA5</strong></td>
+            <td style="text-align:center"><strong>MAMC4</strong></td>
+            <td style="text-align:center"><strong>MAMC5</strong></td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>STA10</b></td>
+            <td style="text-align:left"><b>STA10-Bando</b></td>
             <td style="text-align:center">{st10_bma4_percent}%</td>
             <td style="text-align:center">{st10_bma5_percent}%</td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>STA20</b></td>
+            <td style="text-align:left"><b>STA20-Frax1</b></td>
             <td style="text-align:center">{st20_bma4_percent}%</td>
             <td style="text-align:center">{st20_bma5_percent}%</td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>STA30-Walk</b></td>
+            <td style="text-align:left"><b>STA30-Bando</b></td>
             <td style="text-align:center">{st30_walk_bma4_percent}%</td>
             <td style="text-align:center">{st30_walk_bma5_percent}%</td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>STA30-Fix</b></td>
+            <td style="text-align:left"><b>STA30-Fixture</b></td>
             <td style="text-align:center">{st30_fix_bma4_percent}%</td>
             <td style="text-align:center">{st30_fix_bma5_percent}%</td>
         </tr>
