@@ -111,10 +111,7 @@ def query_tsm_state(db,start, end, paths, s_or_b, reason=0):
         FROM
                 (
                 SELECT 
-                CASE
-                WHEN left(e.source_tagpath,6) = '[3BM5-' THEN '3BM5'
-                ELSE REPLACE(right(left(e.source_tagpath,6),5),'0','')
-                END AS LINE,
+                left(e.name,4) as LINE,
                 esh.start_time as start_date_time,
                 CASE 
                 WHEN esh.end_time is NULL THEN '{end}'

@@ -10,12 +10,12 @@ def get_starved_table(start_time,end_time):
     ST30_WALK_PATHS = ['[3BM4_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl','[_3BM5_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl']
     ST30_FIXTURE_PATHS = ['[3BM4_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL10/StateControl','[_3BM5_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL10/StateControl']
     
-    mos_con = helper_functions.get_sql_conn('mos_rpt2')
+    plc_con = helper_functions.get_sql_conn('plc_db')
 
-    st10_df = helper_functions.query_tsm_state(mos_con,start_time, end_time, ST10_PATHS, 'Starved')
-    st20_df = helper_functions.query_tsm_state(mos_con,start_time, end_time, ST20_PATHS, 'Starved')
-    st30_walk_df = helper_functions.query_tsm_state(mos_con,start_time, end_time, ST30_WALK_PATHS, 'Starved')
-    st30_fixture_df = helper_functions.query_tsm_state(mos_con,start_time, end_time, ST30_FIXTURE_PATHS, 'Starved')
+    st10_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST10_PATHS, 'Starved')
+    st20_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST20_PATHS, 'Starved')
+    st30_walk_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST30_WALK_PATHS, 'Starved')
+    st30_fixture_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST30_FIXTURE_PATHS, 'Starved')
 
     st10_bma4_percent = round(helper_functions.get_val(st10_df,'3BM4')/3600,1)
     st10_bma5_percent = round(helper_functions.get_val(st10_df,'3BM5')/3600,1)
