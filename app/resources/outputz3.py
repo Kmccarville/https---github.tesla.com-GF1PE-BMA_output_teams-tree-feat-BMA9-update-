@@ -1,12 +1,11 @@
-from common.db import db_connector
 import common.helper_functions as helper_functions
 
 from datetime import datetime
 from datetime import timedelta
 import logging
 import pandas as pd
-import json
 import pytz
+import pymsteams
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -314,15 +313,31 @@ def outputz3(env):
         total_output += row.UPH
 
     hour_html = make_html_payload(main_df,total_output,column_names)
+
+    webhook_key = 'teams_webhook_Zone3_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
+    webhook_json = helper_functions.get_pw_json(webhook_key)
+    webhook = webhook_json['url']
+    
+    #making the hourly teams message
+    hourly_msg = pymsteams.connectorcard(webhook)
+    hourly_msg.title('Zone 3 Hourly Update')
+    hourly_msg.summary('summary')
+    hourly_msg.addSection(hourly_card)
+    #make a card with the hourly data
+    hourly_card = pymsteams.cardsection()
+    hourly_card.text(hour_html)
+    hourly_msg.addSection(hourly_card)
+    #add a link to the confluence page
+    hourly_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Hourly+Update")
+    hourly_msg.send()
+
     #post to Z3 Teams Channel --> Output Channel
     if env=="prod":
-        helper_functions.send_to_teams('teams_webhook_Zone3_Updates', 'Zone 3 Hourly Update', hour_html,retry=1)
         #run the end of shift 
         if end_pst.hour in [6,18]:
             shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
             helper_functions.send_to_teams('teams_webhook_Zone3_Updates', 'Zone 3 End of Shift', shift_html)
     else:
-        helper_functions.send_to_teams('teams_webhook_DEV_Updates','Zone 3 Hourly Update', hour_html)
         if end_pst.hour in [6,18]:
             shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
             helper_functions.send_to_teams('teams_webhook_DEV_Updates', 'Zone 3 End of Shift', shift_html)
