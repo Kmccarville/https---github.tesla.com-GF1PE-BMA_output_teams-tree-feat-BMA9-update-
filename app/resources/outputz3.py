@@ -322,7 +322,6 @@ def outputz3(env):
     hourly_msg = pymsteams.connectorcard(webhook)
     hourly_msg.title('Zone 3 Hourly Update')
     hourly_msg.summary('summary')
-    hourly_msg.addSection(hourly_card)
     #make a card with the hourly data
     hourly_card = pymsteams.cardsection()
     hourly_card.text(hour_html)
