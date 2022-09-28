@@ -69,8 +69,8 @@ def get_cta_output(db,start,end):
             tp.flowstepname as FLOWSTEP,
             right(a.name,1) as LINE,
             count(distinct tp.thingid) as OUTPUT
-            FROM thingpath tp
-            JOIN actor a on tp.modifiedby = a.id
+            FROM sparq.thingpath tp
+            JOIN sparq.actor a on tp.modifiedby = a.id
             WHERE
             tp.flowstepname in ('3BM4-25000','3BM5-25000')
             AND tp.exitcompletioncode = 'PASS'
@@ -85,7 +85,7 @@ def get_c3a_mamc_output(db,start,end):
             SELECT 
             tp.flowstepname as FLOWSTEP,
             count(distinct tp.thingid) as OUTPUT
-            FROM thingpath tp
+            FROM sparq.thingpath tp
             WHERE
             tp.flowstepname in ('3BM4-34000','3BM5-34000','3BM4-45000','3BM5-45000')
             AND tp.exitcompletioncode = 'PASS'
@@ -105,6 +105,8 @@ def output45(env):
 
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     df_cta = get_cta_output(mos_con,start,end)
+    df_c3a_mamc = get_c3a_mamc_output(mos_con,start,end)
+    mos_con.close()
 
     if len(df_cta):
         df_cta4 = df_cta.query("FLOWSTEP=='3BM4-25000'")
@@ -150,7 +152,6 @@ def output45(env):
         cta5_total = 0
         cta_total = 0
 
-    df_c3a_mamc = get_c3a_mamc_output(mos_con,start,end)
     bma4mamc_o = round(helper_functions.get_val(df_c3a_mamc,'3BM4-34000','FLOWSTEP','OUTPUT')/4,2)
     bma5mamc_o = round(helper_functions.get_val(df_c3a_mamc,'3BM5-34000','FLOWSTEP','OUTPUT')/4,2)
     mamc_total = bma4mamc_o+bma5mamc_o

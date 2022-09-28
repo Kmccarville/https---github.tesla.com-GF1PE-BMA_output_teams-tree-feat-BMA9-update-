@@ -50,12 +50,10 @@ def send_to_teams(webhook_key, title, html,retry=0):
             requests.post(webhook,timeout=10,headers=headers, data=json.dumps(payload))
 
 #parse dataframes for line-based value
-def get_val(df,line):
+def get_val(df,query_val,query_col,return_col):
     if len(df):
-        sub_df = df.query(f"LINE=='{line}'")
-        val = sub_df.iloc[0][1] if len(sub_df) else 0
-    elif not list(df.columns):
-        val = -99
+        sub_df = df.query(f"{query_col}=='{query_val}'")
+        val = sub_df.iloc[0][return_col] if len(sub_df) else 0
     else:
         val = 0
     return val
