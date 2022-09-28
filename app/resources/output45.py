@@ -4,6 +4,7 @@ from datetime import datetime
 from datetime import timedelta
 import logging
 import pandas as pd
+import pymsteams
 
 def get_mamc_starved_table(start_time,end_time):
     #define source tagpaths for each equipment type
@@ -118,7 +119,7 @@ def output45(env):
         cta4_6 = round(helper_functions.get_val(df_cta4,6,'LINE','OUTPUT')/28,2)
         cta4_7 = round(helper_functions.get_val(df_cta4,7,'LINE','OUTPUT')/28,2)
         cta4_8 = round(helper_functions.get_val(df_cta4,8,'LINE','OUTPUT')/28,2)
-        cta4_total = df_cta4['OUTPUT'].sum() if len(df_cta4) else 0
+        cta4_total = round(df_cta4['OUTPUT'].sum()/28,2) if len(df_cta4) else 0
 
         df_cta5 = df_cta.query("FLOWSTEP=='3BM5-25000'")
         cta5_1 = round(helper_functions.get_val(df_cta5,1,'LINE','OUTPUT')/28,2)
@@ -129,7 +130,7 @@ def output45(env):
         cta5_6 = round(helper_functions.get_val(df_cta5,6,'LINE','OUTPUT')/28,2)
         cta5_7 = round(helper_functions.get_val(df_cta5,7,'LINE','OUTPUT')/28,2)
         cta5_8 = round(helper_functions.get_val(df_cta5,8,'LINE','OUTPUT')/28,2)
-        cta5_total = df_cta5['OUTPUT'].sum() if len(df_cta5) else 0
+        cta5_total = round(df_cta5['OUTPUT'].sum()/28,2) if len(df_cta5) else 0
         cta_total= round(cta4_total+cta5_total,2)
     else:
         cta4_1 = 0
@@ -235,9 +236,16 @@ def output45(env):
     tsm_html = get_mamc_starved_table(start,end)
     html_payload = '<table>' + uph_html + tsm_html + '</table>'
 
-    #post to BMA45-PE --> Output Channel
-    if env=="prod":
-        helper_functions.send_to_teams('teams_webhook_BMA45_Updates', 'BMA45 Hourly Update', html_payload,retry=1)
-    else:
-        helper_functions.send_to_teams('teams_webhook_DEV_Updates','BMA45 Hourly Update', html_payload)
-
+    webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
+    webhook_json = helper_functions.get_pw_json(webhook_key)
+    webhook = webhook_json['url']
+    
+    #making the hourly teams message
+    hourly_msg = pymsteams.connectorcard(webhook)
+    hourly_msg.title('BMA45 Hourly Update')
+    hourly_msg.summary('summary')
+    #make a card with the hourly data
+    hourly_card = pymsteams.cardsection()
+    hourly_card.text(html_payload)
+    hourly_msg.addSection(hourly_card)
+    hourly_msg.send()
