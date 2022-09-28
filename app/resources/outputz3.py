@@ -222,7 +222,6 @@ def query_shift_output(db,shift_start,shift_end):
 
 def get_shift_report_html(db_mos,db_plc,shift_end, ingress_paths, po_paths, line_list):
     shift_start = shift_end - timedelta(hours=12)
-    logging.info(shift_start,shift_end)
     COLUMN_NAMES = ['LINE','OUTPUT','STARVED_WIP (MIN)', 'STARVED_MTR (MIN)']
     df_shift = query_shift_output(db_mos,shift_start,shift_end)
     ing_df = query_tsm_state(db_plc,shift_start,shift_end,ingress_paths,"Starved")
@@ -332,8 +331,7 @@ def outputz3(env):
     hourly_msg.send()
 
     #run the end of shift 
-    # if end_pst.hour in [6,18]: 
-    if 1+1 ==2:
+    if end_pst.hour in [6,18]:
         total_output,shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
         #making the eos teams message
         eos_msg = pymsteams.connectorcard(webhook)
@@ -341,7 +339,7 @@ def outputz3(env):
         eos_msg.summary('summary')
         #make a card just with the tottal output
         eos_total = pymsteams.cardsection()
-        eos_total.addFact("Total: ",total_output)
+        eos_total.addFact("Total Mods: ",total_output*4)
         eos_msg.addSection(eos_total)
         #make a card with the hourly data
         eos_card = pymsteams.cardsection()
