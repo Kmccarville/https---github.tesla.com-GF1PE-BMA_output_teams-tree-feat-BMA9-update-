@@ -250,7 +250,8 @@ def get_shift_report_html(db_mos,db_plc,shift_end, ingress_paths, po_paths, line
         total_output += uph
         
     end = f"<tr><td><b>TOTAL</b></td><td>{total_output}</td></tr>  </table>"
-    return start+header+data+end
+    html = start+header+data+end
+    return total_output,html
 
 def outputz3(env):
     
@@ -330,16 +331,23 @@ def outputz3(env):
     hourly_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Hourly+Update")
     hourly_msg.send()
 
-    #post to Z3 Teams Channel --> Output Channel
-    if env=="prod":
-        #run the end of shift 
-        if end_pst.hour in [6,18]:
-            shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
-            helper_functions.send_to_teams('teams_webhook_Zone3_Updates', 'Zone 3 End of Shift', shift_html)
-    else:
-        if end_pst.hour in [6,18]:
-            shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
-            helper_functions.send_to_teams('teams_webhook_DEV_Updates', 'Zone 3 End of Shift', shift_html)
+    #run the end of shift 
+    # if end_pst.hour in [6,18]: 
+    if 1+1 ==2:
+        total_output,shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
+        #making the eos teams message
+        eos_msg = pymsteams.connectorcard(webhook)
+        eos_msg.title('Zone 3 End Of Shift Report')
+        eos_msg.summary('summary')
+        #make a card just with the tottal output
+        eos_total = pymsteams.cardsection()
+        eos_total.addFact("Total: ",total_output)
+        eos_msg.addSection(eos_total)
+        #make a card with the hourly data
+        eos_card = pymsteams.cardsection()
+        eos_card.text(shift_html)
+        eos_msg.addSection(eos_card)
+        eos_msg.send()
     
     mos_con.close()
     plc_con.close()
