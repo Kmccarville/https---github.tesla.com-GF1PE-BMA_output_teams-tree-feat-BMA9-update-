@@ -32,12 +32,9 @@ def get_mamc_starved_table(start_time,end_time):
     st30_fix_bma5_percent = round(helper_functions.get_val(st30_fixture_df,'3BM5','LINE','Duration')/3600*100,1)
 
     html=f"""
-        <tr bgcolor="#FFFFFF" height=10px></tr>
+        <table>
         <tr>
-            <td colspan="3" style="text-align:center"><b>STARVATION %</b></td>
-        </tr>
-        <tr>
-            <td>    </td>
+            <td>Starved %</td>
             <td style="text-align:center"><strong>MAMC4</strong></td>
             <td style="text-align:center"><strong>MAMC5</strong></td>
         </tr>
@@ -46,6 +43,7 @@ def get_mamc_starved_table(start_time,end_time):
             <td style="text-align:center">{st10_bma4_percent}%</td>
             <td style="text-align:center">{st10_bma5_percent}%</td>
         </tr>
+        </table>
         """
         # <tr>
         #     <td style="text-align:left"><b>ST20-Frax1</b></td>
@@ -161,32 +159,37 @@ def output45(env):
     bma5c3a_o = round(helper_functions.get_val(df_c3a_mamc,'3BM5-45000','FLOWSTEP','OUTPUT')/4,2)
     c3a_total = bma4c3a_o + bma5c3a_o
 
-    uph_html = f"""
-                <tr>
-                    <th>    </th>
-                    <th style="text-align:center">BMA4</th>
-                    <th style="text-align:center">BMA5</th>
-                    <th style="text-align:center">TOTAL</th>
-                </tr>
-                <tr>
-                    <td style="text-align:left"><strong>CTA</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_total)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_total)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta_total)}</td>
-                </tr>
-                <tr>
-                    <td style="text-align:left"><strong>MAMC</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(bma4mamc_o)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(bma5mamc_o)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(mamc_total)}</td>
-                </tr>
-                <tr>
-                    <td style="text-align:left"><strong>C3A</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(bma4c3a_o)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(bma5c3a_o)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(c3a_total)}</td>
-                </tr>
-                <tr bgcolor="#FFFFFF" height=10px></tr>
+    summary_html = f"""
+            <table>
+            <tr>
+                <th>    </th>
+                <th style="text-align:center">BMA4</th>
+                <th style="text-align:center">BMA5</th>
+                <th style="text-align:center">TOTAL</th>
+            </tr>
+            <tr>
+                <td style="text-align:left"><strong>CTA</strong></td>
+                <td style="text-align:center">{'{:.2f}'.format(cta4_total)}</td>
+                <td style="text-align:center">{'{:.2f}'.format(cta5_total)}</td>
+                <td style="text-align:center">{'{:.2f}'.format(cta_total)}</td>
+            </tr>
+            <tr>
+                <td style="text-align:left"><strong>MAMC</strong></td>
+                <td style="text-align:center">{'{:.2f}'.format(bma4mamc_o)}</td>
+                <td style="text-align:center">{'{:.2f}'.format(bma5mamc_o)}</td>
+                <td style="text-align:center">{'{:.2f}'.format(mamc_total)}</td>
+            </tr>
+            <tr>
+                <td style="text-align:left"><strong>C3A</strong></td>
+                <td style="text-align:center">{'{:.2f}'.format(bma4c3a_o)}</td>
+                <td style="text-align:center">{'{:.2f}'.format(bma5c3a_o)}</td>
+                <td style="text-align:center">{'{:.2f}'.format(c3a_total)}</td>
+            </tr>
+            </table>
+        """
+
+    cta_html = f"""
+                <table>
                 <tr>
                     <td>    </td>
                     <td style="text-align:center"><strong>CTA4</strong></td>
@@ -232,10 +235,10 @@ def output45(env):
                     <td style="text-align:center">{'{:.2f}'.format(cta4_8)}</td>
                     <td style="text-align:center">{'{:.2f}'.format(cta5_8)}</td>
                 </tr>
+                </table>
             """
 
     tsm_html = get_mamc_starved_table(start,end)
-    html_payload = '<table>' + uph_html + tsm_html + '</table>'
 
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
@@ -246,7 +249,16 @@ def output45(env):
     hourly_msg.title('BMA45 Hourly Update')
     hourly_msg.summary('summary')
     #make a card with the hourly data
-    hourly_card = pymsteams.cardsection()
-    hourly_card.text(html_payload)
-    hourly_msg.addSection(hourly_card)
+    summary_card = pymsteams.cardsection()
+    summary_card.text(summary_html)
+
+    cta_card = pymsteams.cardsection()
+    cta_card.text(cta_html)
+
+    tsm_card = pymsteams.cardsection()
+    tsm_card.text(tsm_html)
+
+    hourly_msg.addSection(summary_card)
+    hourly_msg.addSection(cta_card)
+    hourly_msg.addSection(tsm_card)
     hourly_msg.send()
