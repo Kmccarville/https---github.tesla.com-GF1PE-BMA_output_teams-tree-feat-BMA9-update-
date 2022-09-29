@@ -31,8 +31,7 @@ def get_mamc_starved_table(start_time,end_time):
     st30_fix_bma4_percent = round(helper_functions.get_val(st30_fixture_df,'3BM4','LINE','Duration')/3600*100,1)
     st30_fix_bma5_percent = round(helper_functions.get_val(st30_fixture_df,'3BM5','LINE','Duration')/3600*100,1)
 
-    html=f"""
-        <table>
+    html=f"""<table>
         <tr>
             <td>Starved %</td>
             <td style="text-align:center"><strong>MAMC4</strong></td>
@@ -159,8 +158,7 @@ def output45(env):
     bma5c3a_o = round(helper_functions.get_val(df_c3a_mamc,'3BM5-45000','FLOWSTEP','OUTPUT')/4,2)
     c3a_total = bma4c3a_o + bma5c3a_o
 
-    summary_html = f"""
-            <table>
+    summary_html = f"""<table>
             <tr>
                 <th>    </th>
                 <th style="text-align:center">BMA4</th>
@@ -188,8 +186,7 @@ def output45(env):
             </table>
         """
 
-    cta_html = f"""
-                <table>
+    cta_html = f"""<table>
                 <tr>
                     <td>    </td>
                     <td style="text-align:center"><strong>CTA4</strong></td>
