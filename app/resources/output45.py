@@ -46,22 +46,23 @@ def get_mamc_starved_table(start_time,end_time):
             <td style="text-align:center">{st10_bma4_percent}%</td>
             <td style="text-align:center">{st10_bma5_percent}%</td>
         </tr>
-        <tr>
-            <td style="text-align:left"><b>ST20-Frax1</b></td>
-            <td style="text-align:center">{st20_bma4_percent}%</td>
-            <td style="text-align:center">{st20_bma5_percent}%</td>
-        </tr>
-        <tr>
-            <td style="text-align:left"><b>ST30-Bando</b></td>
-            <td style="text-align:center">{st30_walk_bma4_percent}%</td>
-            <td style="text-align:center">{st30_walk_bma5_percent}%</td>
-        </tr>
-        <tr>
-            <td style="text-align:left"><b>ST30-Fixture</b></td>
-            <td style="text-align:center">{st30_fix_bma4_percent}%</td>
-            <td style="text-align:center">{st30_fix_bma5_percent}%</td>
-        </tr>
         """
+        # <tr>
+        #     <td style="text-align:left"><b>ST20-Frax1</b></td>
+        #     <td style="text-align:center">{st20_bma4_percent}%</td>
+        #     <td style="text-align:center">{st20_bma5_percent}%</td>
+        # </tr>
+        # <tr>
+        #     <td style="text-align:left"><b>ST30-Bando</b></td>
+        #     <td style="text-align:center">{st30_walk_bma4_percent}%</td>
+        #     <td style="text-align:center">{st30_walk_bma5_percent}%</td>
+        # </tr>
+        # <tr>
+        #     <td style="text-align:left"><b>ST30-Fixture</b></td>
+        #     <td style="text-align:center">{st30_fix_bma4_percent}%</td>
+        #     <td style="text-align:center">{st30_fix_bma5_percent}%</td>
+        # </tr>
+
     return html
 
 def get_cta_output(db,start,end):
