@@ -189,48 +189,36 @@ def output45(env):
     cta_html = f"""<table>
                 <tr>
                     <td>    </td>
-                    <td style="text-align:center"><strong>CTA4</strong></td>
-                    <td style="text-align:center"><strong>CTA5</strong></td>
+                    <td style="text-align:center"><strong>L1</strong></td>
+                    <td style="text-align:center"><strong>L2</strong></td>
+                    <td style="text-align:center"><strong>L3</strong></td>
+                    <td style="text-align:center"><strong>L4</strong></td>
+                    <td style="text-align:center"><strong>L5</strong></td>
+                    <td style="text-align:center"><strong>L6</strong></td>
+                    <td style="text-align:center"><strong>L7</strong></td>
+                    <td style="text-align:center"><strong>L8</strong></td>
                 </tr>
                 <tr>
-                   <td style="text-align:left"><strong>LANE 1</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_1)}</td>
-                    <td style="text-align:center">----</td>
+                   <td style="text-align:left"><strong>CTA4</strong></td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta4_1)}</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta4_2)}</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta4_3)}</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta4_4)}</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta4_5)}</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta4_6)}</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta4_7)}</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta4_8)}</td>
                 </tr>
                 <tr>
-                    <td style="text-align:left"><strong>LANE 2</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_2)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_2)}</td>
-                </tr>
-                <tr>
-                    <td style="text-align:left"><strong>LANE 3</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_3)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_3)}</td>
-                </tr>
-                <tr>
-                    <td style="text-align:left"><strong>LANE 4</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_4)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_4)}</td>
-                </tr>
-                <tr>
-                   <td style="text-align:left"><strong>LANE 5</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_5)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_5)}</td>
-                </tr>
-                <tr>
-                    <td style="text-align:left"><strong>LANE 6</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_6)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_6)}</td>
-                </tr>
-                <tr>
-                   <td style="text-align:left"><strong>LANE 7</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_7)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_7)}</td>
-                </tr>
-                <tr>
-                    <td style="text-align:left"><strong>LANE 8</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_8)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_8)}</td>
+                   <td style="text-align:left"><strong>CTA5</strong></td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta5_2)}</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta5_3)}</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta5_4)}</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta5_5)}</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta5_6)}</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta5_7)}</td>
+                    <td style="text-align:center">{'{:.1f}'.format(cta5_8)}</td>
                 </tr>
                 </table>
             """
