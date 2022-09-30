@@ -208,7 +208,7 @@ def output45(env):
                    <td style="text-align:left"><strong>CTA4</strong></td>
                 """
     for val in cta4_vals:
-        color_str = "color:red" if val < CTA_LANE_GOAL else ""
+        color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
         cta4_html += f"""
                     <td style="text-align:center;{color_str}">{'{:.1f}'.format(val)}</td>
                     """
@@ -221,7 +221,7 @@ def output45(env):
                 """
 
     for val in cta5_vals:
-        color_str = "color:red" if val < CTA_LANE_GOAL else ""
+        color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
         cta5_html += f"""
                     <td style="text-align:center;{color_str}">{'{:.1f}'.format(val)}</td>
                     """
