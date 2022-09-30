@@ -1,9 +1,4 @@
 import json
-import os
-import sqlalchemy
-from urllib.parse import quote
-# from test import debug as masterdebug
-
 debug=False
 
 if debug==True :
@@ -100,18 +95,3 @@ def get_ict_db():
 
 def get_pw_json(key):
     return pw_json[key]
-
-def get_sql_conn(key, schema=None):
-
-    cred = get_pw_json(key)
-    # Pull database credentials
-    user = cred['user']
-    password = quote(cred['password'])
-    hostname = cred['host']
-    port = cred['port']
-
-    schema_str = f"/{schema}" if schema else ""
-    # Define database connection
-    engine = sqlalchemy.create_engine(f'mysql+pymysql://{user}:{password}@{hostname}:{port}{schema_str}')
-    # Return connection to engine
-    return engine.connect()
