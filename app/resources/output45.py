@@ -38,7 +38,7 @@ def get_mamc_starved_table(start_time,end_time):
             <td style="text-align:center"><strong>MAMC5</strong></td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>ST10-Bando</b></td>
+            <td style="text-align:left"><b>ST10-Bandoliers</b></td>
             <td style="text-align:center">{st10_bma4_percent}%</td>
             <td style="text-align:center">{st10_bma5_percent}%</td>
         </tr>
