@@ -186,7 +186,7 @@ def output45(env):
             </table>
         """
 
-    cta_html = f"""<table>
+    cta_html_header = """<table>
                 <tr>
                     <td>    </td>
                     <td style="text-align:center"><strong>L1</strong></td>
@@ -197,31 +197,37 @@ def output45(env):
                     <td style="text-align:center"><strong>L6</strong></td>
                     <td style="text-align:center"><strong>L7</strong></td>
                     <td style="text-align:center"><strong>L8</strong></td>
-                </tr>
+                </tr>    
+    """
+    CTA_LANE_GOAL = 3.5
+    cta4_vals = [cta4_1,cta4_2,cta4_3,cta4_4,cta4_5,cta4_6,cta4_7,cta4_8]
+    cta5_vals = [cta5_2,cta5_3,cta5_4,cta5_5,cta5_6,cta5_7,cta5_8]
+
+    cta4_html = """
                 <tr>
                    <td style="text-align:left"><strong>CTA4</strong></td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta4_1)}</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta4_2)}</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta4_3)}</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta4_4)}</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta4_5)}</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta4_6)}</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta4_7)}</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta4_8)}</td>
-                </tr>
+                """
+    for val in cta4_vals:
+        color_str = "color:red" if val < CTA_LANE_GOAL else ""
+        cta4_html += f"""
+                    <td style="text-align:center;{color_str}">{'{:.1f}'.format(val)}</td>
+                    """
+    cta4_html += "</tr>"
+
+    cta5_html = """
                 <tr>
-                   <td style="text-align:left"><strong>CTA5</strong></td>
-                    <td style="text-align:center">---</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta5_2)}</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta5_3)}</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta5_4)}</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta5_5)}</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta5_6)}</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta5_7)}</td>
-                    <td style="text-align:center">{'{:.1f}'.format(cta5_8)}</td>
-                </tr>
-                </table>
-            """
+                <td style="text-align:left"><strong>CTA5</strong></td>
+                <td style="text-align:center">---</td>
+                """
+
+    for val in cta5_vals:
+        color_str = "color:red" if val < CTA_LANE_GOAL else ""
+        cta5_html += f"""
+                    <td style="text-align:center;{color_str}">{'{:.1f}'.format(val)}</td>
+                    """
+    cta5_html += "</tr>"
+    
+    cta_html = cta_html_header + cta4_html + cta5_html + '</table>'
 
     tsm_html = get_mamc_starved_table(start,end)
 
