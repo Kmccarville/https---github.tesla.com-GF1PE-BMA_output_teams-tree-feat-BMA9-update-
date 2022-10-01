@@ -29,6 +29,9 @@ def output123(env,eos=False):
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
 
+    print(str(start))
+    print(str(end))
+
     #define globals
     NORMAL_DIVISOR = 4
     CTA_DIVISOR = 28
@@ -44,14 +47,13 @@ def output123(env,eos=False):
     #get output for flowsteps
     if lookback>1:
         df_output = pd.DataFrame({})
-        mmamc_output = pd.DataFrame({})
+        mmamc_output = 0
         while start < end:
             start_next = start + timedelta(minutes=60)
             df_output_sub = helper_functions.get_flowstep_outputs(mos_con,start,start_next,flowsteps)
-            df_mmmamc_sub = get_mmamc_output(mos_con,start,start_next)
-            start += timedelta(minutes=60)
+            mmamc_output += get_mmamc_output(mos_con,start,start_next)
             df_output = pd.concat([df_output,df_output_sub],axis=0)
-            mmamc_output = pd.concat([mmamc_output,df_mmmamc_sub],axis=0)
+            start += timedelta(minutes=60)
     else:
         df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
         mmamc_output = get_mmamc_output(mos_con,start,end)
