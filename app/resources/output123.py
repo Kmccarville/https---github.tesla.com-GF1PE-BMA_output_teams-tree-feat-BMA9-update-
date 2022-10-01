@@ -9,7 +9,7 @@ import pymsteams
 def get_mmamc_output(db,start,end):
     query = f"""
             SELECT count(distinct tp.thingid) as OUTPUT
-            FROM thingpath tp
+            FROM sparq.thingpath tp
             WHERE
                 tp.flowstepname = 'MBM-25000'
                 AND tp.exitcompletioncode = 'PASS'
