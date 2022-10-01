@@ -114,35 +114,35 @@ def output123(env):
                         </tr>
                 """
     #create cta123 output rows
-    cta_l1_html = f"""<tr>
+    cta1_html = f"""<tr>
                         <td style="text-align:center"><strong>CTA1</strong></td>
                         <td style="text-align:center">{cta_l1_outputs[0]}</td>
-                        <td style="text-align:center">{cta_l1_outputs[1]}</td>
-                        <td style="text-align:center">{cta_l1_outputs[2]}</td>
-                        <td style="text-align:center">{cta_l1_outputs[3]}</td>
+                        <td style="text-align:center">{cta_l2_outputs[0]}</td>
+                        <td style="text-align:center">{cta_l3_outputs[0]}</td>
+                        <td style="text-align:center">{cta_l4_outputs[0]}</td>
                         </tr>
                 """
     #create cta123 output rows
-    cta_l2_html = f"""<tr>
+    cta2_html = f"""<tr>
                         <td style="text-align:center"><strong>CTA2</strong></td>
-                        <td style="text-align:center">{cta_l2_outputs[0]}</td>
+                        <td style="text-align:center">{cta_l1_outputs[1]}</td>
                         <td style="text-align:center">{cta_l2_outputs[1]}</td>
-                        <td style="text-align:center">{cta_l2_outputs[2]}</td>
-                        <td style="text-align:center">{cta_l2_outputs[3]}</td>
+                        <td style="text-align:center">{cta_l3_outputs[1]}</td>
+                        <td style="text-align:center">{cta_l4_outputs[1]}</td>
                         </tr
                 """
     #create cta123 output rows
-    cta_l3_html = f"""<tr>
+    cta3_html = f"""<tr>
                         <td style="text-align:center"><strong>CTA3</strong></td>
-                        <td style="text-align:center">{cta_l3_outputs[0]}</td>
-                        <td style="text-align:center">{cta_l3_outputs[1]}</td>
+                        <td style="text-align:center">{cta_l1_outputs[2]}</td>
+                        <td style="text-align:center">{cta_l2_outputs[2]}</td>
                         <td style="text-align:center">{cta_l3_outputs[2]}</td>
-                        <td style="text-align:center">{cta_l3_outputs[3]}</td>
+                        <td style="text-align:center">{cta_l4_outputs[2]}</td>
                         </tr>
                 """
 
     #create full bma html with the above htmls
-    cta_html = '<table>' + cta_header_html + cta_l1_html + cta_l2_html + cta_l3_html + '</table>'
+    cta_html = '<table>' + cta_header_html + cta1_html + cta2_html + cta3_html + '</table>'
 
     #get webhook based on environment
     webhook_key = 'teams_webhook_BMA123_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
