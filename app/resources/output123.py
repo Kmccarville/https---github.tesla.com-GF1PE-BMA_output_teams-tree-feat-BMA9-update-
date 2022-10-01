@@ -143,12 +143,12 @@ def output123(env):
                     <td style="text-align:center;{color_str}">{val}</td>
                     """
 
-        color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
+        color_str = "color:red;" if cta2_outputs[i] < CTA_LANE_GOAL else "font-weight:bold;"
         cta2_html += f"""
                     <td style="text-align:center;{color_str}">{cta2_outputs[i]}</td>
                     """
 
-        color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
+        color_str = "color:red;" if cta3_outputs[i] < CTA_LANE_GOAL else "font-weight:bold;"
         cta3_html += f"""
                     <td style="text-align:center;{color_str}">{cta3_outputs[i]}</td>
                     """

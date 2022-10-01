@@ -195,34 +195,18 @@ def make_html_payload(main_df, total_output,column_names):
         
     return start+header+data+end
 
-def query_shift_output(db,shift_start,shift_end):
-    df = pd.DataFrame({})
-    while shift_start < shift_end:
-        shift_start_next = shift_start + timedelta(minutes=60)
-    
-        uph_query=f"""
-        SELECT 
-        left(a.name,4) as LINE,
-        count(distinct tp.thingid)/4 as OUTPUT 
-        FROM sparq.thingpath tp
-        JOIN sparq.actor a on a.id = tp.modifiedby
-        WHERE tp.flowstepname = ('3BM-57000') AND tp.exitcompletioncode = 'PASS'
-        AND tp.completed between  '{shift_start}' and '{shift_start_next}'
-        and left(a.name,3) =  '3BM'
-        group by 1
-        """
-        
-        shift_start += timedelta(minutes=60)
-        df_sub = pd.read_sql(uph_query,db)
-        df = pd.concat([df,df_sub],axis=0)
-
-    df_sum = df.groupby(['LINE'])['OUTPUT'].sum().reset_index()
-    return df_sum
-
 def get_shift_report_html(db_mos,db_plc,shift_end, ingress_paths, po_paths, line_list):
     shift_start = shift_end - timedelta(hours=12)
     COLUMN_NAMES = ['LINE','OUTPUT','STARVED_WIP (MIN)', 'STARVED_MTR (MIN)']
-    df_shift = query_shift_output(db_mos,shift_start,shift_end)
+
+    df_shift = pd.DataFrame({})
+    while shift_start < shift_end:
+        shift_start_next = shift_start + timedelta(minutes=60)
+        df_sub = helper_functions.get_flowstep_outputs(db_mos,shift_start,shift_start_next,['3BM-57000'])
+        shift_start += timedelta(minutes=60)
+        df_shift = pd.concat([df_shift,df_sub],axis=0)
+
+    df_shift = df_shift.groupby(['LINE'])['OUTPUT'].sum().reset_index()
     ing_df = query_tsm_state(db_plc,shift_start,shift_end,ingress_paths,"Starved")
     po_df = query_tsm_state(db_plc,shift_start,shift_end,po_paths,"Starved",1)
     start = """<table>"""
@@ -318,6 +302,7 @@ def outputz3(env):
     hourly_msg = pymsteams.connectorcard(webhook)
     hourly_msg.title('Zone 3 Hourly Update')
     hourly_msg.summary('summary')
+    hourly_msg.color('#3970e4')
     #make a card with the hourly data
     hourly_card = pymsteams.cardsection()
     hourly_card.text(hour_html)
@@ -327,7 +312,8 @@ def outputz3(env):
     hourly_msg.send()
 
     #run the end of shift 
-    if helper_functions.is_it_eos():
+    # if helper_functions.is_it_eos():
+    if True:
         total_output,shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
         #making the eos teams message
         eos_msg = pymsteams.connectorcard(webhook)
