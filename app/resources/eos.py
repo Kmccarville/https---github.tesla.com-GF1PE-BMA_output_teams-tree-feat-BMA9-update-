@@ -1,5 +1,5 @@
 from common import helper_functions
-from output123 import get_mmamc_output
+from resources.output123 import get_mmamc_output
 
 import pandas as pd
 import pymsteams
