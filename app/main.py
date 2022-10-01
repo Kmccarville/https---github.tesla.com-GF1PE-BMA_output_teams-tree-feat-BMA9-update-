@@ -38,7 +38,7 @@ if __name__ == '__main__':
         schedule.every().hour.at(":00").do(eos.main,env)
 
         if env == "dev":
-            outputz3()
+            outputz3.main()
             logging.info("Run all command executed")
             schedule.run_all(delay_seconds=10)
             logging.info("Run all command complete")
