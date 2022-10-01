@@ -1,6 +1,5 @@
 from common import helper_functions
-from resources.output123 import get_mmamc_output
-from resources.output123 import output123
+from resources import output123
 
 import pandas as pd
 import pymsteams
@@ -12,7 +11,7 @@ def main(env):
     # if helper_functions.is_it_eos():
     if True:
         logging.info('Force Eval True for EOS')
-        output123(env,eos=True)
+        output123.main(env,eos=True)
         eos_report(env)
 
 def eos_report(env):
@@ -49,7 +48,7 @@ def eos_report(env):
         while shift_start < shift_end:
             shift_start_next = shift_start + timedelta(minutes=60)
             df_output_sub = helper_functions.get_flowstep_outputs(mos_con,shift_start,shift_start_next,all_flows_list)
-            manual_mamc_ouputs.append(get_mmamc_output(mos_con,shift_start,shift_start_next))
+            manual_mamc_ouputs.append(output123.get_mmamc_output(mos_con,shift_start,shift_start_next))
             shift_start += timedelta(minutes=60)
             df_output = pd.concat([df_output,df_output_sub],axis=0)
         mos_con.close()
