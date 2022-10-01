@@ -312,7 +312,7 @@ def main(env):
     hourly_msg.send()
 
     #run the end of shift 
-    if True:
+    if helper_functions.is_it_eos():
         total_output,shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
         #making the eos teams message
         eos_msg = pymsteams.connectorcard(webhook)
@@ -320,7 +320,7 @@ def main(env):
         eos_msg.summary('summary')
         #make a card just with the tottal output
         eos_total = pymsteams.cardsection()
-        eos_total.addFact("Total Mods: ",total_output*4)
+        eos_total.addFact("Total Mods: ",f"{total_output*4:.0f}")
         eos_msg.addSection(eos_total)
         #make a card with the hourly data
         eos_card = pymsteams.cardsection()
