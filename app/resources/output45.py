@@ -102,133 +102,114 @@ def output45(env):
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
 
+    #define globals
+    CTA_DIVISOR = 28
+    CTA_FLOWSTEP_END = '25000'
+    MAMC_FLOWSTEP_END= '29500'
+    C3A_FLOWSTEP_END = '45000'
+    LINES = ['3BM4','3BM5']
+
+    flowsteps = []
+    for line in LINES:
+        flowsteps.append(f"{line}-{CTA_FLOWSTEP_END}")
+        flowsteps.append(f"{line}-{MAMC_FLOWSTEP_END}")
+        flowsteps.append(f"{line}-{C3A_FLOWSTEP_END}")
+
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
-    df_cta = get_cta_output(mos_con,start,end)
-    df_c3a_mamc = get_c3a_mamc_output(mos_con,start,end)
+    df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
     mos_con.close()
 
-    if len(df_cta):
-        df_cta4 = df_cta.query("FLOWSTEP=='3BM4-25000'")
-        cta4_1 = round(helper_functions.get_val(df_cta4,1,'LINE','OUTPUT')/28,2)
-        cta4_2 = round(helper_functions.get_val(df_cta4,2,'LINE','OUTPUT')/28,2)
-        cta4_3 = round(helper_functions.get_val(df_cta4,3,'LINE','OUTPUT')/28,2)
-        cta4_4 = round(helper_functions.get_val(df_cta4,4,'LINE','OUTPUT')/28,2)
-        cta4_5 = round(helper_functions.get_val(df_cta4,5,'LINE','OUTPUT')/28,2)
-        cta4_6 = round(helper_functions.get_val(df_cta4,6,'LINE','OUTPUT')/28,2)
-        cta4_7 = round(helper_functions.get_val(df_cta4,7,'LINE','OUTPUT')/28,2)
-        cta4_8 = round(helper_functions.get_val(df_cta4,8,'LINE','OUTPUT')/28,2)
-        cta4_total = round(df_cta4['OUTPUT'].sum()/28,2) if len(df_cta4) else 0
+    cta_outputs = []
+    mamc_outputs = []
+    c3a_outputs = []
+    cta4_outputs = []
+    cta5_outputs = []
+    for line in LINES:
+        cta_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{CTA_FLOWSTEP_END}",divisor=CTA_DIVISOR))
+        mamc_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{MAMC_FLOWSTEP_END}"))
+        c3a_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{C3A_FLOWSTEP_END}"))
 
-        df_cta5 = df_cta.query("FLOWSTEP=='3BM5-25000'")
-        cta5_1 = round(helper_functions.get_val(df_cta5,1,'LINE','OUTPUT')/28,2)
-        cta5_2 = round(helper_functions.get_val(df_cta5,2,'LINE','OUTPUT')/28,2)
-        cta5_3 = round(helper_functions.get_val(df_cta5,3,'LINE','OUTPUT')/28,2)
-        cta5_4 = round(helper_functions.get_val(df_cta5,4,'LINE','OUTPUT')/28,2)
-        cta5_5 = round(helper_functions.get_val(df_cta5,5,'LINE','OUTPUT')/28,2)
-        cta5_6 = round(helper_functions.get_val(df_cta5,6,'LINE','OUTPUT')/28,2)
-        cta5_7 = round(helper_functions.get_val(df_cta5,7,'LINE','OUTPUT')/28,2)
-        cta5_8 = round(helper_functions.get_val(df_cta5,8,'LINE','OUTPUT')/28,2)
-        cta5_total = round(df_cta5['OUTPUT'].sum()/28,2) if len(df_cta5) else 0
-        cta_total= round(cta4_total+cta5_total,2)
-    else:
-        cta4_1 = 0
-        cta4_2 = 0
-        cta4_3 = 0
-        cta4_4 = 0
-        cta4_5 = 0
-        cta4_6 = 0
-        cta4_7 = 0
-        cta4_8 = 0
-        cta5_1 = 0
-        cta5_2 = 0
-        cta5_3 = 0
-        cta5_4 = 0
-        cta5_5 = 0
-        cta5_6 = 0
-        cta5_7 = 0
-        cta5_8 = 0
-        cta4_total = 0
-        cta5_total = 0
-        cta_total = 0
+    for lane in range(1,9):
+        lane_num = str(lane).zfill(2)
+        cta4_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{CTA_FLOWSTEP_END}",actor=f"3BM4-{CTA_FLOWSTEP_END}-{lane_num}",divisor=CTA_DIVISOR))
+        cta5_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{CTA_FLOWSTEP_END}",actor=f"3BM5-{CTA_FLOWSTEP_END}-{lane_num}",divisor=CTA_DIVISOR))
 
-    bma4mamc_o = round(helper_functions.get_val(df_c3a_mamc,'3BM4-34000','FLOWSTEP','OUTPUT')/4,2)
-    bma5mamc_o = round(helper_functions.get_val(df_c3a_mamc,'3BM5-34000','FLOWSTEP','OUTPUT')/4,2)
-    mamc_total = bma4mamc_o+bma5mamc_o
-    bma4c3a_o = round(helper_functions.get_val(df_c3a_mamc,'3BM4-45000','FLOWSTEP','OUTPUT')/4,2)
-    bma5c3a_o = round(helper_functions.get_val(df_c3a_mamc,'3BM5-45000','FLOWSTEP','OUTPUT')/4,2)
-    c3a_total = bma4c3a_o + bma5c3a_o
-
-    summary_html = f"""<table>
-            <tr>
-                <th>    </th>
-                <th style="text-align:center">BMA4</th>
-                <th style="text-align:center">BMA5</th>
-                <th style="text-align:center">TOTAL</th>
+    #create bma header
+    bma_header_html = """<tr>
+            <th style="text-align:center"></th>
+            <th style="text-align:center">BMA4</th>
+            <th style="text-align:center">BMA5</th>
+            <th style="text-align:center">TOTAL</th>
             </tr>
-            <tr>
-                <td style="text-align:left"><strong>CTA</strong></td>
-                <td style="text-align:center">{'{:.2f}'.format(cta4_total)}</td>
-                <td style="text-align:center">{'{:.2f}'.format(cta5_total)}</td>
-                <td style="text-align:center">{'{:.2f}'.format(cta_total)}</td>
-            </tr>
-            <tr>
-                <td style="text-align:left"><strong>MAMC</strong></td>
-                <td style="text-align:center">{'{:.2f}'.format(bma4mamc_o)}</td>
-                <td style="text-align:center">{'{:.2f}'.format(bma5mamc_o)}</td>
-                <td style="text-align:center">{'{:.2f}'.format(mamc_total)}</td>
-            </tr>
-            <tr>
-                <td style="text-align:left"><strong>C3A</strong></td>
-                <td style="text-align:center">{'{:.2f}'.format(bma4c3a_o)}</td>
-                <td style="text-align:center">{'{:.2f}'.format(bma5c3a_o)}</td>
-                <td style="text-align:center">{'{:.2f}'.format(c3a_total)}</td>
-            </tr>
-            </table>
-        """
-
-    cta_html_header = """<table>
-                <tr>
-                    <td>    </td>
-                    <td style="text-align:center"><strong>L1</strong></td>
-                    <td style="text-align:center"><strong>L2</strong></td>
-                    <td style="text-align:center"><strong>L3</strong></td>
-                    <td style="text-align:center"><strong>L4</strong></td>
-                    <td style="text-align:center"><strong>L5</strong></td>
-                    <td style="text-align:center"><strong>L6</strong></td>
-                    <td style="text-align:center"><strong>L7</strong></td>
-                    <td style="text-align:center"><strong>L8</strong></td>
-                </tr>    
     """
+    #create cta output row
+    cta_output_html = f"""<tr>
+            <td style="text-align:center"><strong>CTA</strong></td>
+            <td style="text-align:center">{cta_outputs[0]}</td>
+            <td style="text-align:center">{cta_outputs[1]}</td>
+            <td style="text-align:center"><strong>{sum(cta_outputs)}</strong></td>
+            </tr>
+    """
+    #create mamc output row
+    mamc_output_html = f"""<tr>
+            <td style="text-align:center"><strong>MAMC</strong></td>
+            <td style="text-align:center">{mamc_outputs[0]}</td>
+            <td style="text-align:center">{mamc_outputs[1]}</td>
+            <td style="text-align:center"><strong>{sum(mamc_outputs)}</strong></td>
+            </tr>
+    """
+    #create c3a output row
+    c3a_output_html = f"""<tr>
+            <td style="text-align:center"><strong>C3A</strong></td>
+            <td style="text-align:center">{c3a_outputs[0]}</td>
+            <td style="text-align:center">{c3a_outputs[1]}</td>
+            <td style="text-align:center"><strong>{sum(c3a_outputs)}</strong></td>
+            </tr>
+    """
+    #create full bma html with the above htmls
+    bma_html = '<table>' + bma_header_html + cta_output_html + mamc_output_html + c3a_output_html + '</table>'
+
+    #create cta header
+    cta_header_html = """<tr>
+                        <th style="text-align:center"></th>
+                        <th style="text-align:center">L1</th>
+                        <th style="text-align:center">L2</th>
+                        <th style="text-align:center">L3</th>
+                        <th style="text-align:center">L4</th>
+                        <th style="text-align:center">L5</th>
+                        <th style="text-align:center">L6</th>
+                        <th style="text-align:center">L7</th>
+                        <th style="text-align:center">L8</th>
+                        </tr>
+                    """
     CTA_LANE_GOAL = 3.5
-    cta4_vals = [cta4_1,cta4_2,cta4_3,cta4_4,cta4_5,cta4_6,cta4_7,cta4_8]
-    cta5_vals = [cta5_2,cta5_3,cta5_4,cta5_5,cta5_6,cta5_7,cta5_8]
 
     cta4_html = """
                 <tr>
                    <td style="text-align:left"><strong>CTA4</strong></td>
                 """
-    for val in cta4_vals:
+    cta5_html = """
+            <tr>
+            <td style="text-align:left"><strong>CTA5</strong></td>
+            <td style="text-align:center">---</td>
+            """
+    for i,val in enumerate(cta4_outputs):
+        #cta4
         color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
         cta4_html += f"""
                     <td style="text-align:center;{color_str}">{'{:.1f}'.format(val)}</td>
                     """
+        #cta5 - ignore first index
+        if i > 0:
+            color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
+            cta5_html += f"""
+                        <td style="text-align:center;{color_str}">{'{:.1f}'.format(val)}</td>
+                        """
+
     cta4_html += "</tr>"
-
-    cta5_html = """
-                <tr>
-                <td style="text-align:left"><strong>CTA5</strong></td>
-                <td style="text-align:center">---</td>
-                """
-
-    for val in cta5_vals:
-        color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
-        cta5_html += f"""
-                    <td style="text-align:center;{color_str}">{'{:.1f}'.format(val)}</td>
-                    """
     cta5_html += "</tr>"
     
-    cta_html = cta_html_header + cta4_html + cta5_html + '</table>'
-
+    cta_html = '<table>' + cta_header_html + cta4_html + cta5_html + '</table>'
     tsm_html = get_mamc_starved_table(start,end)
 
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
@@ -239,9 +220,10 @@ def output45(env):
     hourly_msg = pymsteams.connectorcard(webhook)
     hourly_msg.title('BMA45 Hourly Update')
     hourly_msg.summary('summary')
+    hourly_msg.color('#3970e4')
     #make a card with the hourly data
     summary_card = pymsteams.cardsection()
-    summary_card.text(summary_html)
+    summary_card.text(bma_html)
 
     cta_card = pymsteams.cardsection()
     cta_card.text(cta_html)

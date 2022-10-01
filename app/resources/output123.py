@@ -47,18 +47,20 @@ def output123(env):
     cta_outputs = []
     mamc_outputs = []
     c3a_outputs = []
-    cta_l1_outputs = []
-    cta_l2_outputs = []
-    cta_l3_outputs = []
-    cta_l4_outputs = []
+    cta1_outputs = []
+    cta2_outputs = []
+    cta3_outputs = []
     for line in LINES:
         cta_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP,divisor=CTA_DIVISOR))
         mamc_outputs.append(helper_functions.get_output_val(df_output,line,MAMC_FLOWSTEP))
         c3a_outputs.append(helper_functions.get_output_val(df_output,line,C3A_FLOWSTEP))
-        cta_l1_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP,actor=f'{line}-20000-01',divisor=CTA_DIVISOR))
-        cta_l2_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP,actor=f'{line}-20000-02',divisor=CTA_DIVISOR))
-        cta_l3_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP,actor=f'{line}-20000-03',divisor=CTA_DIVISOR))
-        cta_l4_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP,actor=f'{line}-20000-04',divisor=CTA_DIVISOR))
+
+    for lane in range(1,5):
+        lane_num = str(lane).zfill(2)
+        cta1_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP,actor=f"3BM1-20000-{lane_num}",divisor=CTA_DIVISOR))
+        cta2_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP,actor=f"3BM2-20000-{lane_num}",divisor=CTA_DIVISOR))
+        cta3_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP,actor=f"3BM3-20000-{lane_num}",divisor=CTA_DIVISOR))
+
     #create bma header
     bma_header_html = """<tr>
             <th style="text-align:center"></th>
@@ -107,39 +109,53 @@ def output123(env):
     #create cta header
     cta_header_html = """<tr>
                         <th style="text-align:center"></th>
+                        <th style="text-align:center">Lane1</th>
+                        <th style="text-align:center">Lane2</th>
+                        <th style="text-align:center">Lane3</th>
+                        <th style="text-align:center">Lane4</th>
+                        </tr>
+                """
+    #create cta header
+    cta_header_html = """<tr>
+                        <th style="text-align:center"></th>
                         <th style="text-align:center">L1</th>
                         <th style="text-align:center">L2</th>
                         <th style="text-align:center">L3</th>
                         <th style="text-align:center">L4</th>
                         </tr>
+                    """
+    CTA_LANE_GOAL = 0 #don't know goal for cta123
+    cta1_html = """
+                <tr>
+                <td style="text-align:left"><strong>CTA1</strong></td>
                 """
-    #create cta123 output rows
-    cta1_html = f"""<tr>
-                        <td style="text-align:center"><strong>CTA1</strong></td>
-                        <td style="text-align:center">{cta_l1_outputs[0]}</td>
-                        <td style="text-align:center">{cta_l2_outputs[0]}</td>
-                        <td style="text-align:center">{cta_l3_outputs[0]}</td>
-                        <td style="text-align:center">{cta_l4_outputs[0]}</td>
-                        </tr>
+    cta2_html = """
+                <tr>
+                <td style="text-align:left"><strong>CTA2</strong></td>
                 """
-    #create cta123 output rows
-    cta2_html = f"""<tr>
-                        <td style="text-align:center"><strong>CTA2</strong></td>
-                        <td style="text-align:center">{cta_l1_outputs[1]}</td>
-                        <td style="text-align:center">{cta_l2_outputs[1]}</td>
-                        <td style="text-align:center">{cta_l3_outputs[1]}</td>
-                        <td style="text-align:center">{cta_l4_outputs[1]}</td>
-                        </tr
+    cta3_html = """
+                <tr>
+                <td style="text-align:left"><strong>CTA3</strong></td>
                 """
-    #create cta123 output rows
-    cta3_html = f"""<tr>
-                        <td style="text-align:center"><strong>CTA3</strong></td>
-                        <td style="text-align:center">{cta_l1_outputs[2]}</td>
-                        <td style="text-align:center">{cta_l2_outputs[2]}</td>
-                        <td style="text-align:center">{cta_l3_outputs[2]}</td>
-                        <td style="text-align:center">{cta_l4_outputs[2]}</td>
-                        </tr>
-                """
+    for i,val in enumerate(cta1_outputs):
+        color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
+        cta1_html += f"""
+                    <td style="text-align:center;{color_str}">{val}</td>
+                    """
+
+        color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
+        cta2_html += f"""
+                    <td style="text-align:center;{color_str}">{cta2_outputs[i]}</td>
+                    """
+
+        color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
+        cta3_html += f"""
+                    <td style="text-align:center;{color_str}">{cta3_outputs[i]}</td>
+                    """
+
+    cta1_html += "</tr>"
+    cta2_html += "</tr>"
+    cta3_html += "</tr>"
 
     #create full bma html with the above htmls
     cta_html = '<table>' + cta_header_html + cta1_html + cta2_html + cta3_html + '</table>'
@@ -150,18 +166,18 @@ def output123(env):
     webhook = webhook_json['url']
 
     #start end of shift message
-    eos_msg = pymsteams.connectorcard(webhook)
-    eos_msg.title('BMA123 Hourly Update')
-    eos_msg.summary('summary')
-    eos_msg.color('#3970e4')
+    hourly_msg = pymsteams.connectorcard(webhook)
+    hourly_msg.title('BMA123 Hourly Update')
+    hourly_msg.summary('summary')
+    hourly_msg.color('#3970e4')
     
     #create cards for each major html
     bma_card = pymsteams.cardsection()
     bma_card.text(bma_html)
-    eos_msg.addSection(bma_card)
+    hourly_msg.addSection(bma_card)
 
     cta_card = pymsteams.cardsection()
     cta_card.text(cta_html)
-    eos_msg.addSection(cta_card)
+    hourly_msg.addSection(cta_card)
     #SEND IT
-    eos_msg.send()
+    hourly_msg.send()
