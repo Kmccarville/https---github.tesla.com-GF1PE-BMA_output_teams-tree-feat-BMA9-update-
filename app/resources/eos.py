@@ -8,8 +8,7 @@ from datetime import timedelta
 import logging
 
 def main(env):
-    # if helper_functions.is_it_eos():
-    if True:
+    if helper_functions.is_it_eos():
         logging.info('Force Eval True for EOS')
         output123.main(env,eos=True)
         eos_report(env)
