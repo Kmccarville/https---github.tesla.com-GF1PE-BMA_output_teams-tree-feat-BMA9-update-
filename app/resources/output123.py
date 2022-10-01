@@ -7,7 +7,7 @@ import pandas as pd
 import pymsteams
 
 def get_mmamc_output(db,start,end):
-    query = """
+    query = f"""
             SELECT count(distinct tp.thingid) as OUTPUT
             FROM thingpath tp
             WHERE
@@ -41,7 +41,7 @@ def output123(env):
     mos_con = helper_functions.get_sql_conn('mosrpt1')
     #get output for flowsteps
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
-    mmamc_output = get_mmamc_output(df_output,start,end)
+    mmamc_output = get_mmamc_output(mos_con,start,end)
     mos_con.close()
 
     cta_outputs = []
