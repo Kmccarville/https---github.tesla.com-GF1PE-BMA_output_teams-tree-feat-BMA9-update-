@@ -9,7 +9,7 @@ from resources.output123 import output123
 from resources.output45 import output45
 from resources.outputz3 import outputz3
 from resources.outputz4 import outputz4
-from resources.eos import eos_report
+from resources.eos import eval_eos
 
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
@@ -35,7 +35,7 @@ if __name__ == '__main__':
         schedule.every().hour.at(":00").do(output45,env)
         schedule.every().hour.at(":00").do(outputz3,env)
         schedule.every().hour.at(":00").do(outputz4,env)
-        schedule.every().hour.at(":00").do(eos_report,env)
+        schedule.every().hour.at(":00").do(eval_eos,env)
 
         if env == "dev":
             logging.info("Run all command executed")

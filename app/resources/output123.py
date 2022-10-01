@@ -20,7 +20,6 @@ def get_mmamc_output(db,start,end):
     return output
 
 def output123(env,eos=False):
-    eos=True
     #define start and end time for the hour
     lookback=12 if eos else 1
     now=datetime.utcnow()
@@ -28,9 +27,6 @@ def output123(env,eos=False):
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
-
-    print(str(start))
-    print(str(end))
 
     #define globals
     NORMAL_DIVISOR = 4
@@ -183,9 +179,11 @@ def output123(env,eos=False):
 
     #start end of shift message
     hourly_msg = pymsteams.connectorcard(webhook)
-    hourly_msg.title('BMA123 Hourly Update')
+    title = 'BMA123 EOS Report' if eos else 'BMA123 Hourly Update'
+    hourly_msg.title(title)
     hourly_msg.summary('summary')
-    hourly_msg.color('#3970e4')
+    color = '#cc0000' if eos else '#3970e4'
+    hourly_msg.color(color)
     
     #create cards for each major html
     bma_card = pymsteams.cardsection()
