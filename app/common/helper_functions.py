@@ -59,7 +59,7 @@ def get_output_val(df,line,flowstep,actor=None,):
     else:
         df_sub = df.query(f"LINE=='{line}' and FLOWSTEP=='{flowstep}'")
     if len(df_sub):
-        return df_sub['OUTPUT'].sum(),
+        return df_sub['OUTPUT'].sum()
     else:
         return 0
 
