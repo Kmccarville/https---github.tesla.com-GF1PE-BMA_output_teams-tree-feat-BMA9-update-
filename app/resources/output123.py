@@ -124,7 +124,7 @@ def output123(env):
                         <th style="text-align:center">Lane4</th>
                         </tr>
                     """
-    CTA_LANE_GOAL = 0 #don't know goal for cta123
+    CTA_LANE_GOAL = 1.4
     cta1_html = """
                 <tr>
                 <td style="text-align:left"><strong>CTA1</strong></td>

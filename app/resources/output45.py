@@ -105,7 +105,7 @@ def output45(env):
     #define globals
     CTA_DIVISOR = 28
     CTA_FLOWSTEP_END = '25000'
-    MAMC_FLOWSTEP_END= '29500'
+    MAMC_FLOWSTEP_END= '34000'
     C3A_FLOWSTEP_END = '45000'
     LINES = ['3BM4','3BM5']
 
@@ -131,8 +131,8 @@ def output45(env):
 
     for lane in range(1,9):
         lane_num = str(lane).zfill(2)
-        cta4_outputs.append(helper_functions.get_output_val(df_output,line,f"3BM4-{CTA_FLOWSTEP_END}",actor=f"3BM4-{CTA_FLOWSTEP_END}-{lane_num}",divisor=CTA_DIVISOR))
-        cta5_outputs.append(helper_functions.get_output_val(df_output,line,f"3BM5-{CTA_FLOWSTEP_END}",actor=f"3BM5-{CTA_FLOWSTEP_END}-{lane_num}",divisor=CTA_DIVISOR))
+        cta4_outputs.append(helper_functions.get_output_val(df_output,'3BM4',f"3BM4-{CTA_FLOWSTEP_END}",actor=f"3BM4-20000-{lane_num}",divisor=CTA_DIVISOR))
+        cta5_outputs.append(helper_functions.get_output_val(df_output,'3BM5',f"3BM5-{CTA_FLOWSTEP_END}",actor=f"3BM5-20000-{lane_num}",divisor=CTA_DIVISOR))
 
     #create bma header
     bma_header_html = """<tr>
@@ -201,7 +201,7 @@ def output45(env):
                     """
         #cta5 - ignore first index
         if i > 0:
-            color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
+            color_str = "color:red;" if cta5_outputs[i] < CTA_LANE_GOAL else "font-weight:bold;"
             cta5_html += f"""
                         <td style="text-align:center;{color_str}">{cta5_outputs[i]}</td>
                         """
