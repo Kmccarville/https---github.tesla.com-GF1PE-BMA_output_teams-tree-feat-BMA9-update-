@@ -102,7 +102,7 @@ def output45(env):
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
 
-    mos_con = helper_functions.get_sql_conn('mos_rpt2')
+    mos_con = helper_functions.get_sql_conn('mosrpt1')
     df_cta = get_cta_output(mos_con,start,end)
     df_c3a_mamc = get_c3a_mamc_output(mos_con,start,end)
     mos_con.close()

@@ -1,14 +1,15 @@
 import time
 import schedule
 import logging 
-import requests
-from requests.exceptions import Timeout
 import os
+
+from common import helper_functions
 
 from resources.output123 import output123
 from resources.output45 import output45
 from resources.outputz3 import outputz3
 from resources.outputz4 import outputz4
+from resources.eos import eos_report
 
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
@@ -34,6 +35,7 @@ if __name__ == '__main__':
         schedule.every().hour.at(":00").do(output45,env)
         schedule.every().hour.at(":00").do(outputz3,env)
         schedule.every().hour.at(":00").do(outputz4,env)
+        schedule.every().hour.at(":00").do(eos_report,env)
 
         if env == "dev":
             logging.info("Run all command executed")

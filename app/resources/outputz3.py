@@ -149,7 +149,6 @@ def query_uph(db,start,end):
     and left(a.name,3) =  '3BM'
     group by 1
     """
-    
     df = pd.read_sql(uph_query,db)
     
     return df
@@ -258,12 +257,9 @@ def outputz3(env):
     now=datetime.utcnow()
     logging.info("Z3 start %s" % now)
     lookback=1 #1 hr
-    now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
     start_time=now_sub1hr.replace(minute=00,second=00,microsecond=00)
-
     end_time=start_time+timedelta(hours=lookback)
-    end_pst = end_time.astimezone(pytz.timezone('US/Pacific'))
 
     #define global variables
     LINE_LIST = ['3BM1','3BM2','3BM3','3BM4','3BM5']
@@ -285,7 +281,7 @@ def outputz3(env):
 
     #establish db connections
 
-    mos_con = helper_functions.get_sql_conn('mos_rpt2')
+    mos_con = helper_functions.get_sql_conn('mosrpt1')
     plc_con = helper_functions.get_sql_conn('plc_db')
     ict_con = helper_functions.get_sql_conn('interconnect_ro')
 
@@ -331,7 +327,7 @@ def outputz3(env):
     hourly_msg.send()
 
     #run the end of shift 
-    if end_pst.hour in [6,18]:
+    if helper_functions.is_it_eos():
         total_output,shift_html = get_shift_report_html(mos_con,plc_con,end_time,INGRESS_PATHS, PO_PATHS,LINE_LIST)
         #making the eos teams message
         eos_msg = pymsteams.connectorcard(webhook)
