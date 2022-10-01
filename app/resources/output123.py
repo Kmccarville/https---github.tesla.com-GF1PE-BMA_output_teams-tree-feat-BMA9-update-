@@ -19,9 +19,10 @@ def get_mmamc_output(db,start,end):
     output = round(df.iloc[0]['OUTPUT']/4,1) if len(df) else 0 
     return output
 
-def output123(env):
+def output123(env,eos=False):
+    eos=True
     #define start and end time for the hour
-    lookback=1 #1 hr
+    lookback=12 if eos else 1
     now=datetime.utcnow()
     logging.info("Output123 start %s" % datetime.utcnow())
     now_sub1hr=now+timedelta(hours=-lookback)
@@ -41,8 +42,20 @@ def output123(env):
     #create mos connection
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     #get output for flowsteps
-    df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
-    mmamc_output = get_mmamc_output(mos_con,start,end)
+    if lookback>1:
+        df_output = pd.DataFrame({})
+        mmamc_output = pd.DataFrame({})
+        while start < end:
+            start_next = start + timedelta(minutes=60)
+            df_output_sub = helper_functions.get_flowstep_outputs(mos_con,start,start_next,flowsteps)
+            df_mmmamc_sub = get_mmamc_output(mos_con,start,start_next)
+            start += timedelta(minutes=60)
+            df_output = pd.concat([df_output,df_output_sub],axis=0)
+            mmamc_output = pd.concat([mmamc_output,df_mmmamc_sub],axis=0)
+    else:
+        df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
+        mmamc_output = get_mmamc_output(mos_con,start,end)
+
     mos_con.close()
 
     cta_outputs = []
@@ -139,17 +152,17 @@ def output123(env):
                 <td style="text-align:left"><strong>CTA3</strong></td>
                 """
     for i,val in enumerate(cta1_outputs):
-        color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
+        color_str = "color:red;" if val/CTA_DIVISOR < CTA_LANE_GOAL else "font-weight:bold;"
         cta1_html += f"""
                     <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.1f}</td>
                     """
 
-        color_str = "color:red;" if cta2_outputs[i] < CTA_LANE_GOAL else "font-weight:bold;"
+        color_str = "color:red;" if cta2_outputs[i]/CTA_DIVISOR < CTA_LANE_GOAL else "font-weight:bold;"
         cta2_html += f"""
                     <td style="text-align:center;{color_str}">{cta2_outputs[i]/CTA_DIVISOR:.1f}</td>
                     """
 
-        color_str = "color:red;" if cta3_outputs[i] < CTA_LANE_GOAL else "font-weight:bold;"
+        color_str = "color:red;" if cta3_outputs[i]/CTA_DIVISOR < CTA_LANE_GOAL else "font-weight:bold;"
         cta3_html += f"""
                     <td style="text-align:center;{color_str}">{cta3_outputs[i]/CTA_DIVISOR:.1f}</td>
                     """

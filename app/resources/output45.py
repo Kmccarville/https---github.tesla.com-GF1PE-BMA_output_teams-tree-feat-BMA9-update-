@@ -196,13 +196,13 @@ def output45(env):
             """
     for i,val in enumerate(cta4_outputs):
         #cta4
-        color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
+        color_str = "color:red;" if val/CTA_DIVISOR < CTA_LANE_GOAL else "font-weight:bold;"
         cta4_html += f"""
                     <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.1f}</td>
                     """
         #cta5 - ignore first index
         if i > 0:
-            color_str = "color:red;" if cta5_outputs[i] < CTA_LANE_GOAL else "font-weight:bold;"
+            color_str = "color:red;" if cta5_outputs[i]/CTA_DIVISOR < CTA_LANE_GOAL else "font-weight:bold;"
             cta5_html += f"""
                         <td style="text-align:center;{color_str}">{cta5_outputs[i]/CTA_DIVISOR:.1f}</td>
                         """
