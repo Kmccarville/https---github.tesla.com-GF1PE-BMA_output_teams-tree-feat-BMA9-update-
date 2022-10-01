@@ -94,7 +94,7 @@ def get_c3a_mamc_output(db,start,end):
     df = pd.read_sql(query,db)
     return df
 
-def output45(env):
+def main(env):
     logging.info("output45 start %s" % datetime.utcnow())
     lookback=1 #1 hr
     now=datetime.utcnow()

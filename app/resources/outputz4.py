@@ -10,7 +10,7 @@ import requests
 from requests.exceptions import Timeout
 import json
 
-def outputz4(env):
+def main(env):
     logging.info("Z4 start %s" % datetime.utcnow())
 
     lookback=1 #1 hr

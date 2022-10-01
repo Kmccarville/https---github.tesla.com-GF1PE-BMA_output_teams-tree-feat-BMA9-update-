@@ -1,6 +1,6 @@
 from common import helper_functions
 from resources.output123 import get_mmamc_output
-from resources import output123
+from resources.output123 import output123
 
 import pandas as pd
 import pymsteams
@@ -8,7 +8,7 @@ from datetime import datetime
 from datetime import timedelta
 import logging
 
-def eval_eos(env):
+def main(env):
     # if helper_functions.is_it_eos():
     if True:
         logging.info('Force Eval True for EOS')

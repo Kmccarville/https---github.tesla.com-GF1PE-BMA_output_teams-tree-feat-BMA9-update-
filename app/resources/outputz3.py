@@ -235,7 +235,7 @@ def get_shift_report_html(db_mos,db_plc,shift_end, ingress_paths, po_paths, line
     html = start+header+data+end
     return total_output,html
 
-def outputz3(env):
+def main(env):
     
     #begin by defining timestamps
     now=datetime.utcnow()

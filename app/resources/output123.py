@@ -19,7 +19,7 @@ def get_mmamc_output(db,start,end):
     output = round(df.iloc[0]['OUTPUT']/4,1) if len(df) else 0 
     return output
 
-def output123(env,eos=False):
+def main(env,eos=False):
     #define start and end time for the hour
     lookback=12 if eos else 1
     now=datetime.utcnow()
@@ -27,6 +27,9 @@ def output123(env,eos=False):
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
+
+    logging.info(str(start))
+    logging.info(str(end))
 
     #define globals
     NORMAL_DIVISOR = 4
