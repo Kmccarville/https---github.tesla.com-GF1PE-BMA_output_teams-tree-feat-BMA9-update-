@@ -281,7 +281,7 @@ def outputz3(env):
 
     #establish db connections
 
-    mos_con = helper_functions.get_sql_conn('mosrpt1')
+    mos_con = helper_functions.get_sql_conn('mos_rpt2')
     plc_con = helper_functions.get_sql_conn('plc_db')
     ict_con = helper_functions.get_sql_conn('interconnect_ro')
 

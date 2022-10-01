@@ -53,8 +53,11 @@ def get_val(df,query_val,query_col,return_col):
     return val
 
 #small helper function to get output by line/flowstep and divides to get carset value
-def get_output_val(df,line,flowstep,divisor=4):
-    df_sub = df.query(f"LINE=='{line}' and FLOWSTEP=='{flowstep}'")
+def get_output_val(df,line,flowstep,actor=None,divisor=4):
+    if actor:
+        df_sub = df.query(f"LINE=='{line}' and ACTOR=='{actor}' and FLOWSTEP=='{flowstep}'")
+    else:
+        df_sub = df.query(f"LINE=='{line}' and FLOWSTEP=='{flowstep}'")
     if len(df_sub):
         return round(df_sub['OUTPUT'].sum()/divisor,1)
     else:
@@ -70,6 +73,7 @@ def get_flowstep_outputs(db,start,end,flowsteps):
     #note 3BM-40001 has NO_INSPECT exit code
     query = f"""
                 SELECT 
+                a.name as ACTOR, 
                 left(a.name,IF(left(tp.flowstepname,2) = 'MC', 3, 4)) as LINE,
                 tp.flowstepname as FLOWSTEP,
                 COUNT(DISTINCT tp.thingid) as OUTPUT
@@ -81,7 +85,7 @@ def get_flowstep_outputs(db,start,end,flowsteps):
                 AND
                 tp.completed between '{start}' and '{end}'
                 AND tp.exitcompletioncode = IF(tp.flowstepname='3BM-40001','NO_INSPECT','PASS')
-                GROUP BY 1,2
+                GROUP BY 1,2,3
                 """
     df = pd.read_sql(query,db)
     return df

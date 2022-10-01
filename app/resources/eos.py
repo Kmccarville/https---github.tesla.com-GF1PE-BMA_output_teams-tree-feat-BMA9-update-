@@ -30,7 +30,7 @@ def eos_report(env):
         shift_start=shift_end+timedelta(hours=-lookback)
 
         #create mos connection
-        mos_con = helper_functions.get_sql_conn('mosrpt1')
+        mos_con = helper_functions.get_sql_conn('mos_rpt2')
 
         #make flowstep list
         all_flows_list = list(DF_FLOWSTEP['CTA']) + list(DF_FLOWSTEP['MAMC']) + list(DF_FLOWSTEP['C3A']) + list(DF_FLOWSTEP['ZONE3']) + list(DF_FLOWSTEP['ZONE4'])
