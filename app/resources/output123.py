@@ -57,9 +57,9 @@ def output123(env):
 
     for lane in range(1,5):
         lane_num = str(lane).zfill(2)
-        cta1_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP,actor=f"3BM1-20000-{lane_num}",divisor=CTA_DIVISOR))
-        cta2_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP,actor=f"3BM2-20000-{lane_num}",divisor=CTA_DIVISOR))
-        cta3_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP,actor=f"3BM3-20000-{lane_num}",divisor=CTA_DIVISOR))
+        cta1_outputs.append(helper_functions.get_output_val(df_output,'3BM1',CTA_FLOWSTEP,actor=f"3BM1-20000-{lane_num}",divisor=CTA_DIVISOR))
+        cta2_outputs.append(helper_functions.get_output_val(df_output,'3BM2',CTA_FLOWSTEP,actor=f"3BM2-20000-{lane_num}",divisor=CTA_DIVISOR))
+        cta3_outputs.append(helper_functions.get_output_val(df_output,'3BM3',CTA_FLOWSTEP,actor=f"3BM3-20000-{lane_num}",divisor=CTA_DIVISOR))
 
     #create bma header
     bma_header_html = """<tr>
@@ -79,7 +79,7 @@ def output123(env):
             <td style="text-align:center">{cta_outputs[1]}</td>
             <td style="text-align:center">{cta_outputs[2]}</td>
             <td style="text-align:center">----</td>
-            <td style="text-align:center"><strong>{sum(cta_outputs)}</strong></td>
+            <td style="text-align:center"><strong>{round(sum(cta_outputs),1)}</strong></td>
             </tr>
     """
     #create mamc output row
@@ -89,7 +89,7 @@ def output123(env):
             <td style="text-align:center">{mamc_outputs[1]}</td>
             <td style="text-align:center">{mamc_outputs[2]}</td>
             <td style="text-align:center">{mmamc_output}</td>
-            <td style="text-align:center"><strong>{sum(mamc_outputs)+mmamc_output}</strong></td>
+            <td style="text-align:center"><strong>{round(sum(mamc_outputs)+mmamc_output,1)}</strong></td>
             </tr>
     """
     #create c3a output row
@@ -99,7 +99,7 @@ def output123(env):
             <td style="text-align:center">{c3a_outputs[1]}</td>
             <td style="text-align:center">{c3a_outputs[2]}</td>
             <td style="text-align:center">----</td>
-            <td style="text-align:center"><strong>{sum(c3a_outputs)}</strong></td>
+            <td style="text-align:center"><strong>{round(sum(c3a_outputs,1))}</strong></td>
             </tr>
     """
 
@@ -118,10 +118,10 @@ def output123(env):
     #create cta header
     cta_header_html = """<tr>
                         <th style="text-align:center"></th>
-                        <th style="text-align:center">L1</th>
-                        <th style="text-align:center">L2</th>
-                        <th style="text-align:center">L3</th>
-                        <th style="text-align:center">L4</th>
+                        <th style="text-align:center">Lane1</th>
+                        <th style="text-align:center">Lane2</th>
+                        <th style="text-align:center">Lane3</th>
+                        <th style="text-align:center">Lane4</th>
                         </tr>
                     """
     CTA_LANE_GOAL = 0 #don't know goal for cta123

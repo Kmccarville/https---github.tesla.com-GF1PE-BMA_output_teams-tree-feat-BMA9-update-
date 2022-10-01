@@ -131,8 +131,8 @@ def output45(env):
 
     for lane in range(1,9):
         lane_num = str(lane).zfill(2)
-        cta4_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{CTA_FLOWSTEP_END}",actor=f"3BM4-{CTA_FLOWSTEP_END}-{lane_num}",divisor=CTA_DIVISOR))
-        cta5_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{CTA_FLOWSTEP_END}",actor=f"3BM5-{CTA_FLOWSTEP_END}-{lane_num}",divisor=CTA_DIVISOR))
+        cta4_outputs.append(helper_functions.get_output_val(df_output,line,f"3BM4-{CTA_FLOWSTEP_END}",actor=f"3BM4-{CTA_FLOWSTEP_END}-{lane_num}",divisor=CTA_DIVISOR))
+        cta5_outputs.append(helper_functions.get_output_val(df_output,line,f"3BM5-{CTA_FLOWSTEP_END}",actor=f"3BM5-{CTA_FLOWSTEP_END}-{lane_num}",divisor=CTA_DIVISOR))
 
     #create bma header
     bma_header_html = """<tr>
@@ -147,7 +147,7 @@ def output45(env):
             <td style="text-align:center"><strong>CTA</strong></td>
             <td style="text-align:center">{cta_outputs[0]}</td>
             <td style="text-align:center">{cta_outputs[1]}</td>
-            <td style="text-align:center"><strong>{sum(cta_outputs)}</strong></td>
+            <td style="text-align:center"><strong>{round(sum(cta_outputs),1)}</strong></td>
             </tr>
     """
     #create mamc output row
@@ -155,7 +155,7 @@ def output45(env):
             <td style="text-align:center"><strong>MAMC</strong></td>
             <td style="text-align:center">{mamc_outputs[0]}</td>
             <td style="text-align:center">{mamc_outputs[1]}</td>
-            <td style="text-align:center"><strong>{sum(mamc_outputs)}</strong></td>
+            <td style="text-align:center"><strong>{round(sum(mamc_outputs),1)}</strong></td>
             </tr>
     """
     #create c3a output row
@@ -163,7 +163,7 @@ def output45(env):
             <td style="text-align:center"><strong>C3A</strong></td>
             <td style="text-align:center">{c3a_outputs[0]}</td>
             <td style="text-align:center">{c3a_outputs[1]}</td>
-            <td style="text-align:center"><strong>{sum(c3a_outputs)}</strong></td>
+            <td style="text-align:center"><strong>{round(sum(c3a_outputs),1)}</strong></td>
             </tr>
     """
     #create full bma html with the above htmls
@@ -172,14 +172,14 @@ def output45(env):
     #create cta header
     cta_header_html = """<tr>
                         <th style="text-align:center"></th>
-                        <th style="text-align:center">L1</th>
-                        <th style="text-align:center">L2</th>
-                        <th style="text-align:center">L3</th>
-                        <th style="text-align:center">L4</th>
-                        <th style="text-align:center">L5</th>
-                        <th style="text-align:center">L6</th>
-                        <th style="text-align:center">L7</th>
-                        <th style="text-align:center">L8</th>
+                        <th style="text-align:center">Ln1</th>
+                        <th style="text-align:center">Ln2</th>
+                        <th style="text-align:center">Ln3</th>
+                        <th style="text-align:center">Ln4</th>
+                        <th style="text-align:center">Ln5</th>
+                        <th style="text-align:center">Ln6</th>
+                        <th style="text-align:center">Ln7</th>
+                        <th style="text-align:center">Ln8</th>
                         </tr>
                     """
     CTA_LANE_GOAL = 3.5
@@ -197,13 +197,13 @@ def output45(env):
         #cta4
         color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
         cta4_html += f"""
-                    <td style="text-align:center;{color_str}">{'{:.1f}'.format(val)}</td>
+                    <td style="text-align:center;{color_str}">{val}</td>
                     """
         #cta5 - ignore first index
         if i > 0:
             color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
             cta5_html += f"""
-                        <td style="text-align:center;{color_str}">{'{:.1f}'.format(val)}</td>
+                        <td style="text-align:center;{color_str}">{cta5_outputs[i]}</td>
                         """
 
     cta4_html += "</tr>"
