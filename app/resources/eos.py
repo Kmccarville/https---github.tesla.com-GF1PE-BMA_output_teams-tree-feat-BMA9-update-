@@ -12,6 +12,7 @@ def eos_report(env):
     # if helper_functions.is_it_eos():
     if True:
         #define globals
+        NORMAL_DIVISOR = 4
         CTA_DIVISOR = 28
         #define all flowsteps to be used
         DF_FLOWSTEP = pd.DataFrame({
@@ -59,7 +60,7 @@ def eos_report(env):
             c3a_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['C3A']
             z3_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['ZONE3']
                 
-            cta_outputs.append(helper_functions.get_output_val(df_output,line,cta_flowstep,divisor=CTA_DIVISOR))
+            cta_outputs.append(helper_functions.get_output_val(df_output,line,cta_flowstep))
             mamc_outputs.append(helper_functions.get_output_val(df_output,line,mamc_flowstep))
             c3a_outputs.append(helper_functions.get_output_val(df_output,line,c3a_flowstep))
             z3_outputs.append(helper_functions.get_output_val(df_output,line,z3_flowstep))
@@ -86,37 +87,37 @@ def eos_report(env):
         #create cta output row
         cta_html = f"""<tr>
                 <td style="text-align:center"><strong>CTA</strong></td>
-                <td style="text-align:center">{cta_outputs[0]}</td>
-                <td style="text-align:center">{cta_outputs[1]}</td>
-                <td style="text-align:center">{cta_outputs[2]}</td>
-                <td style="text-align:center">{cta_outputs[3]}</td>
-                <td style="text-align:center">{cta_outputs[4]}</td>
+                <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.1f}</td>
+                <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.1f}</td>
+                <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.1f}</td>
+                <td style="text-align:center">{cta_outputs[3]/CTA_DIVISOR:.1f}</td>
+                <td style="text-align:center">{cta_outputs[4]/CTA_DIVISOR:.1f}</td>
                 <td style="text-align:center">----</td>
-                <td style="text-align:center"><strong>{sum(cta_outputs)}</strong></td>
+                <td style="text-align:center"><strong>{sum(cta_outputs)/CTA_DIVISOR:.1f}</strong></td>
                 </tr>
         """
         #create mamc output row
         mamc_html = f"""<tr>
                 <td style="text-align:center"><strong>MAMC</strong></td>
-                <td style="text-align:center">{mamc_outputs[0]}</td>
-                <td style="text-align:center">{mamc_outputs[1]}</td>
-                <td style="text-align:center">{mamc_outputs[2]}</td>
-                <td style="text-align:center">{mamc_outputs[3]}</td>
-                <td style="text-align:center">{mamc_outputs[4]}</td>
-                <td style="text-align:center">{sum(manual_mamc_ouputs)}</td>
-                <td style="text-align:center"><strong>{sum(mamc_outputs)+sum(manual_mamc_ouputs)}</strong></td>
+                <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{mamc_outputs[3]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{mamc_outputs[4]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{sum(manual_mamc_ouputs)/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center"><strong>{(sum(mamc_outputs)+sum(manual_mamc_ouputs))/NORMAL_DIVISOR:.1f}</strong></td>
                 </tr>
         """
         #create c3a output row
         c3a_html = f"""<tr>
                 <td style="text-align:center"><strong>C3A</strong></td>
-                <td style="text-align:center">{c3a_outputs[0]}</td>
-                <td style="text-align:center">{c3a_outputs[1]}</td>
-                <td style="text-align:center">{c3a_outputs[2]}</td>
-                <td style="text-align:center">{c3a_outputs[3]}</td>
-                <td style="text-align:center">{c3a_outputs[4]}</td>
+                <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{c3a_outputs[3]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{c3a_outputs[4]/NORMAL_DIVISOR:.1f}</td>
                 <td style="text-align:center">----</td>
-                <td style="text-align:center"><strong>{sum(c3a_outputs)}</strong></td>
+                <td style="text-align:center"><strong>{sum(c3a_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
                 </tr>
         """
 
@@ -136,12 +137,12 @@ def eos_report(env):
                 </tr>
                 <tr>
                 <td style="text-align:center"><strong>ZONE3</strong></td>
-                <td style="text-align:center">{z3_outputs[0]}</td>
-                <td style="text-align:center">{z3_outputs[1]}</td>
-                <td style="text-align:center">{z3_outputs[2]}</td>
-                <td style="text-align:center">{z3_outputs[3]}</td>
-                <td style="text-align:center">{z3_outputs[4]}</td>
-                <td style="text-align:center"><strong>{sum(z3_outputs)}</strong></td>
+                <td style="text-align:center">{z3_outputs[0]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{z3_outputs[1]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{z3_outputs[2]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{z3_outputs[3]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{z3_outputs[4]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center"><strong>{sum(z3_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
                 </tr>
                 </table>
         """
@@ -156,9 +157,9 @@ def eos_report(env):
                 </tr>
                 <tr>
                 <td style="text-align:center"><strong>ZONE4</strong></td>
-                <td style="text-align:center">{z4_outputs[0]}</td>
-                <td style="text-align:center">{z4_outputs[1]}</td>
-                <td style="text-align:center"><strong>{sum(z4_outputs)}</strong></td>
+                <td style="text-align:center">{z4_outputs[0]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center">{z4_outputs[1]/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center"><strong>{sum(z4_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
                 </tr>
                 </table>
         """

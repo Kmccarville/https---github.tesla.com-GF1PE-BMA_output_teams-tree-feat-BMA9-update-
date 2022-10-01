@@ -103,6 +103,7 @@ def output45(env):
     end=start+timedelta(hours=lookback)
 
     #define globals
+    NORMAL_DIVISOR = 4
     CTA_DIVISOR = 28
     CTA_FLOWSTEP_END = '25000'
     MAMC_FLOWSTEP_END= '34000'
@@ -125,14 +126,14 @@ def output45(env):
     cta4_outputs = []
     cta5_outputs = []
     for line in LINES:
-        cta_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{CTA_FLOWSTEP_END}",divisor=CTA_DIVISOR))
+        cta_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{CTA_FLOWSTEP_END}"))
         mamc_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{MAMC_FLOWSTEP_END}"))
         c3a_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{C3A_FLOWSTEP_END}"))
 
     for lane in range(1,9):
         lane_num = str(lane).zfill(2)
-        cta4_outputs.append(helper_functions.get_output_val(df_output,'3BM4',f"3BM4-{CTA_FLOWSTEP_END}",actor=f"3BM4-20000-{lane_num}",divisor=CTA_DIVISOR))
-        cta5_outputs.append(helper_functions.get_output_val(df_output,'3BM5',f"3BM5-{CTA_FLOWSTEP_END}",actor=f"3BM5-20000-{lane_num}",divisor=CTA_DIVISOR))
+        cta4_outputs.append(helper_functions.get_output_val(df_output,'3BM4',f"3BM4-{CTA_FLOWSTEP_END}",actor=f"3BM4-20000-{lane_num}"))
+        cta5_outputs.append(helper_functions.get_output_val(df_output,'3BM5',f"3BM5-{CTA_FLOWSTEP_END}",actor=f"3BM5-20000-{lane_num}"))
 
     #create bma header
     bma_header_html = """<tr>
@@ -145,25 +146,25 @@ def output45(env):
     #create cta output row
     cta_output_html = f"""<tr>
             <td style="text-align:center"><strong>CTA</strong></td>
-            <td style="text-align:center">{cta_outputs[0]}</td>
-            <td style="text-align:center">{cta_outputs[1]}</td>
-            <td style="text-align:center"><strong>{round(sum(cta_outputs),1)}</strong></td>
+            <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.1f}</td>
+            <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{sum(cta_outputs)/CTA_DIVISOR:.1f}</strong></td>
             </tr>
     """
     #create mamc output row
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
-            <td style="text-align:center">{mamc_outputs[0]}</td>
-            <td style="text-align:center">{mamc_outputs[1]}</td>
-            <td style="text-align:center"><strong>{round(sum(mamc_outputs),1)}</strong></td>
+            <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{sum(mamc_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
     """
     #create c3a output row
     c3a_output_html = f"""<tr>
             <td style="text-align:center"><strong>C3A</strong></td>
-            <td style="text-align:center">{c3a_outputs[0]}</td>
-            <td style="text-align:center">{c3a_outputs[1]}</td>
-            <td style="text-align:center"><strong>{round(sum(c3a_outputs),1)}</strong></td>
+            <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{sum(c3a_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
     """
     #create full bma html with the above htmls
@@ -197,13 +198,13 @@ def output45(env):
         #cta4
         color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
         cta4_html += f"""
-                    <td style="text-align:center;{color_str}">{val}</td>
+                    <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.1f}</td>
                     """
         #cta5 - ignore first index
         if i > 0:
             color_str = "color:red;" if cta5_outputs[i] < CTA_LANE_GOAL else "font-weight:bold;"
             cta5_html += f"""
-                        <td style="text-align:center;{color_str}">{cta5_outputs[i]}</td>
+                        <td style="text-align:center;{color_str}">{cta5_outputs[i]/CTA_DIVISOR:.1f}</td>
                         """
 
     cta4_html += "</tr>"

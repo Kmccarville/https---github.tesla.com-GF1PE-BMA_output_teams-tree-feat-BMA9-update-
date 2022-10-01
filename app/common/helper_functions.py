@@ -53,13 +53,13 @@ def get_val(df,query_val,query_col,return_col):
     return val
 
 #small helper function to get output by line/flowstep and divides to get carset value
-def get_output_val(df,line,flowstep,actor=None,divisor=4):
+def get_output_val(df,line,flowstep,actor=None,):
     if actor:
         df_sub = df.query(f"LINE=='{line}' and ACTOR=='{actor}' and FLOWSTEP=='{flowstep}'")
     else:
         df_sub = df.query(f"LINE=='{line}' and FLOWSTEP=='{flowstep}'")
     if len(df_sub):
-        return round(df_sub['OUTPUT'].sum()/divisor,1)
+        return df_sub['OUTPUT'].sum(),
     else:
         return 0
 

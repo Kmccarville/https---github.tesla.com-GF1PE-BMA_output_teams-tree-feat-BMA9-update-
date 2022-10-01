@@ -29,6 +29,7 @@ def output123(env):
     end=start+timedelta(hours=lookback)
 
     #define globals
+    NORMAL_DIVISOR = 4
     CTA_DIVISOR = 28
     CTA_FLOWSTEP = '3BM-20000'
     MAMC_FLOWSTEP= '3BM-29500'
@@ -51,15 +52,15 @@ def output123(env):
     cta2_outputs = []
     cta3_outputs = []
     for line in LINES:
-        cta_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP,divisor=CTA_DIVISOR))
+        cta_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP))
         mamc_outputs.append(helper_functions.get_output_val(df_output,line,MAMC_FLOWSTEP))
         c3a_outputs.append(helper_functions.get_output_val(df_output,line,C3A_FLOWSTEP))
 
     for lane in range(1,5):
         lane_num = str(lane).zfill(2)
-        cta1_outputs.append(helper_functions.get_output_val(df_output,'3BM1',CTA_FLOWSTEP,actor=f"3BM1-20000-{lane_num}",divisor=CTA_DIVISOR))
-        cta2_outputs.append(helper_functions.get_output_val(df_output,'3BM2',CTA_FLOWSTEP,actor=f"3BM2-20000-{lane_num}",divisor=CTA_DIVISOR))
-        cta3_outputs.append(helper_functions.get_output_val(df_output,'3BM3',CTA_FLOWSTEP,actor=f"3BM3-20000-{lane_num}",divisor=CTA_DIVISOR))
+        cta1_outputs.append(helper_functions.get_output_val(df_output,'3BM1',CTA_FLOWSTEP,actor=f"3BM1-20000-{lane_num}"))
+        cta2_outputs.append(helper_functions.get_output_val(df_output,'3BM2',CTA_FLOWSTEP,actor=f"3BM2-20000-{lane_num}"))
+        cta3_outputs.append(helper_functions.get_output_val(df_output,'3BM3',CTA_FLOWSTEP,actor=f"3BM3-20000-{lane_num}"))
 
     #create bma header
     bma_header_html = """<tr>
@@ -75,31 +76,31 @@ def output123(env):
     #create cta output row
     cta_output_html = f"""<tr>
             <td style="text-align:center"><strong>CTA</strong></td>
-            <td style="text-align:center">{cta_outputs[0]}</td>
-            <td style="text-align:center">{cta_outputs[1]}</td>
-            <td style="text-align:center">{cta_outputs[2]}</td>
+            <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.1f}</td>
+            <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.1f}</td>
+            <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">----</td>
-            <td style="text-align:center"><strong>{round(sum(cta_outputs),1)}</strong></td>
+            <td style="text-align:center"><strong>{sum(cta_outputs)/CTA_DIVISOR:.1f}</strong></td>
             </tr>
     """
     #create mamc output row
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
-            <td style="text-align:center">{mamc_outputs[0]}</td>
-            <td style="text-align:center">{mamc_outputs[1]}</td>
-            <td style="text-align:center">{mamc_outputs[2]}</td>
-            <td style="text-align:center">{mmamc_output}</td>
-            <td style="text-align:center"><strong>{round(sum(mamc_outputs)+mmamc_output,1)}</strong></td>
+            <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{(sum(mamc_outputs)+mmamc_output)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
     """
     #create c3a output row
     c3a_output_html = f"""<tr>
             <td style="text-align:center"><strong>C3A</strong></td>
-            <td style="text-align:center">{c3a_outputs[0]}</td>
-            <td style="text-align:center">{c3a_outputs[1]}</td>
-            <td style="text-align:center">{c3a_outputs[2]}</td>
+            <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">----</td>
-            <td style="text-align:center"><strong>{round(sum(c3a_outputs,1))}</strong></td>
+            <td style="text-align:center"><strong>{sum(c3a_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
     """
 
@@ -140,17 +141,17 @@ def output123(env):
     for i,val in enumerate(cta1_outputs):
         color_str = "color:red;" if val < CTA_LANE_GOAL else "font-weight:bold;"
         cta1_html += f"""
-                    <td style="text-align:center;{color_str}">{val}</td>
+                    <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.1f}</td>
                     """
 
         color_str = "color:red;" if cta2_outputs[i] < CTA_LANE_GOAL else "font-weight:bold;"
         cta2_html += f"""
-                    <td style="text-align:center;{color_str}">{cta2_outputs[i]}</td>
+                    <td style="text-align:center;{color_str}">{cta2_outputs[i]/CTA_DIVISOR:.1f}</td>
                     """
 
         color_str = "color:red;" if cta3_outputs[i] < CTA_LANE_GOAL else "font-weight:bold;"
         cta3_html += f"""
-                    <td style="text-align:center;{color_str}">{cta3_outputs[i]}</td>
+                    <td style="text-align:center;{color_str}">{cta3_outputs[i]/CTA_DIVISOR:.1f}</td>
                     """
 
     cta1_html += "</tr>"
