@@ -154,8 +154,9 @@ def main(env,eos=False):
         output_val = helper_functions.get_output_val(df_output,line,PO_FLOWSTEP)/4
         total_output += output_val
         output_value_html += f"""<td style="text-align:center">{output_val:.1f}</td>"""
-        starved_wip_html += f"""<td style="text-align:center">{helper_functions.get_val(ing_df,line,'LINE','Duration')/3600*100:.1f}%</td>"""
-        starved_mtr_html += f"""<td style="text-align:center">{helper_functions.get_val(po_df,line,'LINE','Duration')/3600*100:.1f}%</td>"""
+        ingress_divisor = 3 if line=='3BM4' else 1
+        starved_wip_html += f"""<td style="text-align:center">{helper_functions.get_val(ing_df,line,'LINE','Duration')/ingress_divisor/3600*100:.0f}%</td>"""
+        starved_mtr_html += f"""<td style="text-align:center">{helper_functions.get_val(po_df,line,'LINE','Duration')/3600*100:.0f}%</td>"""
 
         actual_ct = helper_functions.get_val(wb_ct_df,line,'LINE','CT')
         ideal_ct = helper_functions.get_val(wb_i_ct_df,line,'LINE','I_CT')
@@ -164,17 +165,18 @@ def main(env,eos=False):
         wb_ct_html += f"""<td style="text-align:center;{color_str}">{actual_ct}</td>"""
         wb_i_ct_html += f"""<td style="text-align:center;{color_str}">{ideal_ct}</td>"""
 
+    output_header_html = header_html + """<th style="text-align:center">TOTAL</th></tr>"""
     header_html += "</tr>"
-    output_value_html += "</tr>"
+    output_value_html += f"""<td style="text-align:center"><b>{total_output:.1f}</b></td></tr>"""
     starved_wip_html += "</tr>"
     starved_mtr_html += "</tr>"
     wb_ct_html += "</tr>"
     wb_i_ct_html += "</tr>"
 
 
-    output_html = "<table>" + header_html + output_value_html + "</table>"
-    starved_html = "<table>" + header_html + starved_wip_html + starved_mtr_html + "</table>"
-    wb_html = "<table>" + header_html + wb_ct_html + wb_i_ct_html + "</table>"
+    output_html = "<table>" + "<caption>Carset Ouptut</caption>" + output_header_html + output_value_html + "</table>"
+    starved_html = "<table>" + "<caption>Starvation %</caption>" + header_html + starved_wip_html + starved_mtr_html + "</table>"
+    wb_html = "<table>" + "<caption>Bonder Cycle Time Performance</caption>" +  header_html + wb_ct_html + wb_i_ct_html + "</table>"
 
     webhook_key = 'teams_webhook_Zone3_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
@@ -190,17 +192,14 @@ def main(env,eos=False):
     teams_msg.color(msg_color)
     #make a card with output data
     output_card = pymsteams.cardsection()
-    output_card.addFact("TOTAL ", f"{total_output:.1f}") 
     output_card.text(output_html)
     teams_msg.addSection(output_card)
     #make a card with starvation data
     starved_card = pymsteams.cardsection()
-    starved_card.text("Starved %")
     starved_card.text(starved_html)
     teams_msg.addSection(starved_card)
     #make a card with starvation data
     wb_card = pymsteams.cardsection()
-    wb_card.text("Bonder Cycle Time Performance")
     wb_card.text(wb_html)
     teams_msg.addSection(wb_card)
     #add a link to the confluence page

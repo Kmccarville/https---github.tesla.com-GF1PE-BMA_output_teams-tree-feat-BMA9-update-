@@ -62,6 +62,34 @@ def get_mamc_starved_table(start_time,end_time):
 
     return html
 
+def get_blocked_table(start_time,end_time):
+    #define source tagpaths for each equipment type
+    ST50_PATHS = ['[TSL053_CTR050]Project/PLC_10/MDL10/EmSeq/CycleStateHistory/fbHistoryEM','[TSL063_CTR050]Project/PLC_10/MDL10/EmSeq/CycleStateHistory/fbHistoryEM']
+    plc_con = helper_functions.get_sql_conn('plc_db')
+
+    #get blocked data for each tagpath set
+    st50_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST10_PATHS, 'Blocked',3100001)
+    #get blocked percentage (divide by 3600s and multiply by 100%)
+    st50_bma4_percent = round(helper_functions.get_val(st50_df,'3BM4','LINE','Duration')/3600*100,1)
+    st50_bma5_percent = round(helper_functions.get_val(st50_df,'3BM5','LINE','Duration')/3600*100,1)
+
+    html=f"""<table>
+        <tr>
+            <td>Starved %</td>
+            <td style="text-align:center"><strong>MAMC4</strong></td>
+            <td style="text-align:center"><strong>MAMC5</strong></td>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b>ST50-Gantry</b></td>
+            <td style="text-align:center">{st50_bma4_percent}%</td>
+            <td style="text-align:center">{st50_bma5_percent}%</td>
+        </tr>
+        </table>
+        """
+
+    return html
+
+
 def main(env,eos=False):
     logging.info("output45 start %s" % datetime.utcnow())
     lookback=12 if eos else 1
@@ -182,8 +210,10 @@ def main(env,eos=False):
     cta5_html += "</tr>"
     
     cta_html = '<table>' + cta_header_html + cta4_html + cta5_html + '</table>'
-    tsm_html = get_mamc_starved_table(start,end)
-
+    tsm_starved_html = get_mamc_starved_table(start,end)
+    tsm_blocked_html = get_blocked_table(start,end)
+    tsm_html = tsm_starved_html + tsm_blocked_html
+    
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
