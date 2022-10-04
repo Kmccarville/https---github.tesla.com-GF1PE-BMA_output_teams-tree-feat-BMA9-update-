@@ -1,5 +1,8 @@
 from common import helper_functions
 from resources import output123
+from resources import output45
+from resources import outputz3
+from resources import outputz4
 
 import pandas as pd
 import pymsteams
@@ -11,6 +14,9 @@ def main(env):
     if helper_functions.is_it_eos():
         logging.info('Force Eval True for EOS')
         output123.main(env,eos=True)
+        output45.main(env,eos=True)
+        outputz3.main(env,eos=True)
+        outputz4.main(env,eos=True)
         eos_report(env)
 
 def eos_report(env):
@@ -44,12 +50,9 @@ def eos_report(env):
         #loop through each hour over the 12 hour shift
         df_output = pd.DataFrame({})
         manual_mamc_ouputs = []
-        while shift_start < shift_end:
-            shift_start_next = shift_start + timedelta(minutes=60)
-            df_output_sub = helper_functions.get_flowstep_outputs(mos_con,shift_start,shift_start_next,all_flows_list)
-            manual_mamc_ouputs.append(output123.get_mmamc_output(mos_con,shift_start,shift_start_next))
-            shift_start += timedelta(minutes=60)
-            df_output = pd.concat([df_output,df_output_sub],axis=0)
+        df_output = helper_functions.get_flowstep_outputs(mos_con,shift_start,shift_end,all_flows_list)
+        manual_mamc_ouputs = output123.get_mmamc_output(mos_con,shift_start,shift_end))
+        shift_start += timedelta(minutes=60)
         mos_con.close()
 
         #create lists for each zone output

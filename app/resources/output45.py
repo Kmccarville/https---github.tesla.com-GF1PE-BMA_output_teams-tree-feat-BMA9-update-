@@ -24,12 +24,12 @@ def get_mamc_starved_table(start_time,end_time):
     #get starve percentage (divide by 3600s and multiply by 100%)
     st10_bma4_percent = round(helper_functions.get_val(st10_df,'3BM4','LINE','Duration')/3600*100,1)
     st10_bma5_percent = round(helper_functions.get_val(st10_df,'3BM5','LINE','Duration')/3600*100,1)
-    st20_bma4_percent = round(helper_functions.get_val(st20_df,'3BM4','LINE','Duration')/3600*100,1)
-    st20_bma5_percent = round(helper_functions.get_val(st20_df,'3BM5','LINE','Duration')/3600*100,1)
-    st30_walk_bma4_percent = round(helper_functions.get_val(st30_walk_df,'3BM4','LINE','Duration')/3600*100,1)
-    st30_walk_bma5_percent = round(helper_functions.get_val(st30_walk_df,'3BM5','LINE','Duration')/3600*100,1)
-    st30_fix_bma4_percent = round(helper_functions.get_val(st30_fixture_df,'3BM4','LINE','Duration')/3600*100,1)
-    st30_fix_bma5_percent = round(helper_functions.get_val(st30_fixture_df,'3BM5','LINE','Duration')/3600*100,1)
+    # st20_bma4_percent = round(helper_functions.get_val(st20_df,'3BM4','LINE','Duration')/3600*100,1)
+    # st20_bma5_percent = round(helper_functions.get_val(st20_df,'3BM5','LINE','Duration')/3600*100,1)
+    # st30_walk_bma4_percent = round(helper_functions.get_val(st30_walk_df,'3BM4','LINE','Duration')/3600*100,1)
+    # st30_walk_bma5_percent = round(helper_functions.get_val(st30_walk_df,'3BM5','LINE','Duration')/3600*100,1)
+    # st30_fix_bma4_percent = round(helper_functions.get_val(st30_fixture_df,'3BM4','LINE','Duration')/3600*100,1)
+    # st30_fix_bma5_percent = round(helper_functions.get_val(st30_fixture_df,'3BM5','LINE','Duration')/3600*100,1)
 
     html=f"""<table>
         <tr>
@@ -62,41 +62,9 @@ def get_mamc_starved_table(start_time,end_time):
 
     return html
 
-def get_cta_output(db,start,end):
-    query = f"""
-            SELECT 
-            tp.flowstepname as FLOWSTEP,
-            right(a.name,1) as LINE,
-            count(distinct tp.thingid) as OUTPUT
-            FROM sparq.thingpath tp
-            JOIN sparq.actor a on tp.modifiedby = a.id
-            WHERE
-            tp.flowstepname in ('3BM4-25000','3BM5-25000')
-            AND tp.exitcompletioncode = 'PASS'
-            AND tp.completed BETWEEN '{start}' AND '{end}'
-            GROUP BY 1,2
-            """
-    df = pd.read_sql(query,db)
-    return df
-
-def get_c3a_mamc_output(db,start,end):
-    query = f"""
-            SELECT 
-            tp.flowstepname as FLOWSTEP,
-            count(distinct tp.thingid) as OUTPUT
-            FROM sparq.thingpath tp
-            WHERE
-            tp.flowstepname in ('3BM4-34000','3BM5-34000','3BM4-45000','3BM5-45000')
-            AND tp.exitcompletioncode = 'PASS'
-            AND tp.completed BETWEEN '{start}' AND '{end}'
-            GROUP BY 1
-            """
-    df = pd.read_sql(query,db)
-    return df
-
-def main(env):
+def main(env,eos=False):
     logging.info("output45 start %s" % datetime.utcnow())
-    lookback=1 #1 hr
+    lookback=12 if eos else 1
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
@@ -183,7 +151,6 @@ def main(env):
                         <th style="text-align:center">Ln8</th>
                         </tr>
                     """
-    CTA_LANE_GOAL = 3.5
 
     cta4_html = """
                 <tr>
@@ -194,15 +161,19 @@ def main(env):
             <td style="text-align:left"><strong>CTA5</strong></td>
             <td style="text-align:center">---</td>
             """
+
+    CTA_LANE_GOAL = 3.5
+    eos_multiplier = 12 if eos else 1
+    goal = CTA_LANE_GOAL * eos_multiplier
     for i,val in enumerate(cta4_outputs):
         #cta4
-        color_str = "color:red;" if val/CTA_DIVISOR < CTA_LANE_GOAL else "font-weight:bold;"
+        color_str = "color:red;" if val/CTA_DIVISOR < goal else "font-weight:bold;"
         cta4_html += f"""
                     <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.1f}</td>
                     """
         #cta5 - ignore first index
         if i > 0:
-            color_str = "color:red;" if cta5_outputs[i]/CTA_DIVISOR < CTA_LANE_GOAL else "font-weight:bold;"
+            color_str = "color:red;" if cta5_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
             cta5_html += f"""
                         <td style="text-align:center;{color_str}">{cta5_outputs[i]/CTA_DIVISOR:.1f}</td>
                         """
@@ -218,10 +189,14 @@ def main(env):
     webhook = webhook_json['url']
     
     #making the hourly teams message
-    hourly_msg = pymsteams.connectorcard(webhook)
-    hourly_msg.title('BMA45 Hourly Update')
-    hourly_msg.summary('summary')
-    hourly_msg.color('#3970e4')
+    teams_msg = pymsteams.connectorcard(webhook)
+    title = 'BMA45 EOS Report' if eos else 'BMA45 Hourly Update'
+    teams_msg.title(title)
+    teams_msg.summary('summary')
+    K8S_BLUE = '#3970e4'
+    TESLA_RED = '#cc0000'
+    msg_color = TESLA_RED if eos else K8S_BLUE
+    teams_msg.color(msg_color)
     #make a card with the hourly data
     summary_card = pymsteams.cardsection()
     summary_card.text(bma_html)
@@ -232,7 +207,7 @@ def main(env):
     tsm_card = pymsteams.cardsection()
     tsm_card.text(tsm_html)
 
-    hourly_msg.addSection(summary_card)
-    hourly_msg.addSection(cta_card)
-    hourly_msg.addSection(tsm_card)
-    hourly_msg.send()
+    teams_msg.addSection(summary_card)
+    teams_msg.addSection(cta_card)
+    teams_msg.addSection(tsm_card)
+    teams_msg.send()

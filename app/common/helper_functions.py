@@ -53,7 +53,7 @@ def get_val(df,query_val,query_col,return_col):
     return val
 
 #small helper function to get output by line/flowstep and divides to get carset value
-def get_output_val(df,line,flowstep,actor=None,):
+def get_output_val(df,line,flowstep,actor=None):
     if actor:
         df_sub = df.query(f"LINE=='{line}' and ACTOR=='{actor}' and FLOWSTEP=='{flowstep}'")
     else:
@@ -69,31 +69,56 @@ def get_flowstep_outputs(db,start,end,flowsteps):
     for flow in flowsteps:
         flowstep_str += f"'{flow}',"
     flowstep_str = flowstep_str[:-1]
-    #get output and group by line and flowstep
-    #note 3BM-40001 has NO_INSPECT exit code
-    query = f"""
-                SELECT 
-                a.name as ACTOR, 
-                left(a.name,IF(left(tp.flowstepname,2) = 'MC', 3, 4)) as LINE,
-                tp.flowstepname as FLOWSTEP,
-                COUNT(DISTINCT tp.thingid) as OUTPUT
-                FROM
-                sparq.thingpath tp 
-                JOIN sparq.actor a on a.id = tp.modifiedby
-                WHERE 
-                tp.flowstepname IN ({flowstep_str})
-                AND
-                tp.completed between '{start}' and '{end}'
-                AND tp.exitcompletioncode = IF(tp.flowstepname='3BM-40001','NO_INSPECT','PASS')
-                GROUP BY 1,2,3
-                """
-    df = pd.read_sql(query,db)
+    #if the time between start and end is more than 1 hour, loop through
+    delta = (end-start).seconds/3600
+    if delta > 1: 
+        df = pd.DataFrame({})
+        while start < end:
+            start_next = start + timedelta(minutes=60)
+            query = f"""
+                    SELECT 
+                    a.name as ACTOR, 
+                    left(a.name,IF(left(tp.flowstepname,2) = 'MC', 3, 4)) as LINE,
+                    tp.flowstepname as FLOWSTEP,
+                    COUNT(DISTINCT tp.thingid) as OUTPUT
+                    FROM
+                    sparq.thingpath tp 
+                    JOIN sparq.actor a on a.id = tp.modifiedby
+                    WHERE 
+                    tp.flowstepname IN ({flowstep_str})
+                    AND
+                    tp.completed between '{start}' and '{start_next}'
+                    AND tp.exitcompletioncode = IF(tp.flowstepname='3BM-40001','NO_INSPECT','PASS')
+                    GROUP BY 1,2,3
+                    """
+            df_sub = pd.read_sql(query,db)
+            df = pd.concat([df,df_sub],axis=0)
+            start += timedelta(minutes=60)
+
+    else:
+        query = f"""
+                    SELECT 
+                    a.name as ACTOR, 
+                    left(a.name,IF(left(tp.flowstepname,2) = 'MC', 3, 4)) as LINE,
+                    tp.flowstepname as FLOWSTEP,
+                    COUNT(DISTINCT tp.thingid) as OUTPUT
+                    FROM
+                    sparq.thingpath tp 
+                    JOIN sparq.actor a on a.id = tp.modifiedby
+                    WHERE 
+                    tp.flowstepname IN ({flowstep_str})
+                    AND
+                    tp.completed between '{start}' and '{end}'
+                    AND tp.exitcompletioncode = IF(tp.flowstepname='3BM-40001','NO_INSPECT','PASS')
+                    GROUP BY 1,2,3
+                    """
+        df = pd.read_sql(query,db)
+        
     return df
 
 #pull starved/blocked states
 def query_tsm_state(db,start, end, paths, s_or_b, reason=0):
-    
-    start_pad = start-timedelta(hours=12)
+    start_pad = start-timedelta(hours=84) #go 7 days back to cover long states
     reason_str = f"AND reason={reason}" if reason else ""
     s_b_str = f"AND esd.description = '{s_or_b}'"
 

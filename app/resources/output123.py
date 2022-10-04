@@ -7,15 +7,34 @@ import pandas as pd
 import pymsteams
 
 def get_mmamc_output(db,start,end):
-    query = f"""
-            SELECT count(distinct tp.thingid) as OUTPUT
-            FROM sparq.thingpath tp
-            WHERE
-                tp.flowstepname = 'MBM-25000'
-                AND tp.exitcompletioncode = 'PASS'
-                AND tp.completed BETWEEN '{start}' AND '{end}'    
-            """
-    df = pd.read_sql(query,db)
+    delta = (end-start).seconds/3600
+    if delta > 1: 
+        df = pd.DataFrame({})
+        while start < end:
+            start_next = start + timedelta(minutes=60)
+            query = f"""
+                SELECT count(distinct tp.thingid) as OUTPUT
+                FROM sparq.thingpath tp
+                WHERE
+                    tp.flowstepname = 'MBM-25000'
+                    AND tp.exitcompletioncode = 'PASS'
+                    AND tp.completed BETWEEN '{start}' AND '{start_next}'    
+                """
+            df_sub = pd.read_sql(query,db)
+            df = pd.concat([df,df_sub],axis=0)
+            start += timedelta(minutes=60)
+
+    else:
+        query = f"""
+                SELECT count(distinct tp.thingid) as OUTPUT
+                FROM sparq.thingpath tp
+                WHERE
+                    tp.flowstepname = 'MBM-25000'
+                    AND tp.exitcompletioncode = 'PASS'
+                    AND tp.completed BETWEEN '{start}' AND '{end}'    
+                """
+        df = pd.read_sql(query,db)
+
     output = round(df.iloc[0]['OUTPUT']/4,1) if len(df) else 0 
     return output
 
@@ -44,18 +63,8 @@ def main(env,eos=False):
     #create mos connection
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     #get output for flowsteps
-    if lookback>1:
-        df_output = pd.DataFrame({})
-        mmamc_output = 0
-        while start < end:
-            start_next = start + timedelta(minutes=60)
-            df_output_sub = helper_functions.get_flowstep_outputs(mos_con,start,start_next,flowsteps)
-            mmamc_output += get_mmamc_output(mos_con,start,start_next)
-            df_output = pd.concat([df_output,df_output_sub],axis=0)
-            start += timedelta(minutes=60)
-    else:
-        df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
-        mmamc_output = get_mmamc_output(mos_con,start,end)
+    mmamc_output = get_mmamc_output(mos_con,start,end)
+    df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)    
 
     mos_con.close()
 
@@ -139,7 +148,7 @@ def main(env,eos=False):
                         <th style="text-align:center">Lane4</th>
                         </tr>
                     """
-    CTA_LANE_GOAL = 1.4
+
     cta1_html = """
                 <tr>
                 <td style="text-align:left"><strong>CTA1</strong></td>
@@ -152,18 +161,22 @@ def main(env,eos=False):
                 <tr>
                 <td style="text-align:left"><strong>CTA3</strong></td>
                 """
+
+    CTA_LANE_GOAL = 1.4
+    eos_multiplier = 12 if eos else 1
+    goal = CTA_LANE_GOAL * eos_multiplier
     for i,val in enumerate(cta1_outputs):
-        color_str = "color:red;" if val/CTA_DIVISOR < CTA_LANE_GOAL else "font-weight:bold;"
+        color_str = "color:red;" if val/CTA_DIVISOR < goal else "font-weight:bold;"
         cta1_html += f"""
                     <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.1f}</td>
                     """
 
-        color_str = "color:red;" if cta2_outputs[i]/CTA_DIVISOR < CTA_LANE_GOAL else "font-weight:bold;"
+        color_str = "color:red;" if cta2_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
         cta2_html += f"""
                     <td style="text-align:center;{color_str}">{cta2_outputs[i]/CTA_DIVISOR:.1f}</td>
                     """
 
-        color_str = "color:red;" if cta3_outputs[i]/CTA_DIVISOR < CTA_LANE_GOAL else "font-weight:bold;"
+        color_str = "color:red;" if cta3_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
         cta3_html += f"""
                     <td style="text-align:center;{color_str}">{cta3_outputs[i]/CTA_DIVISOR:.1f}</td>
                     """
@@ -181,20 +194,22 @@ def main(env,eos=False):
     webhook = webhook_json['url']
 
     #start end of shift message
-    hourly_msg = pymsteams.connectorcard(webhook)
+    teams_msg = pymsteams.connectorcard(webhook)
     title = 'BMA123 EOS Report' if eos else 'BMA123 Hourly Update'
-    hourly_msg.title(title)
-    hourly_msg.summary('summary')
-    color = '#cc0000' if eos else '#3970e4'
-    hourly_msg.color(color)
+    teams_msg.title(title)
+    teams_msg.summary('summary')
+    K8S_BLUE = '#3970e4'
+    TESLA_RED = '#cc0000'
+    msg_color = TESLA_RED if eos else K8S_BLUE
+    teams_msg.color(msg_color)
     
     #create cards for each major html
     bma_card = pymsteams.cardsection()
     bma_card.text(bma_html)
-    hourly_msg.addSection(bma_card)
+    teams_msg.addSection(bma_card)
 
     cta_card = pymsteams.cardsection()
     cta_card.text(cta_html)
-    hourly_msg.addSection(cta_card)
+    teams_msg.addSection(cta_card)
     #SEND IT
-    hourly_msg.send()
+    teams_msg.send()
