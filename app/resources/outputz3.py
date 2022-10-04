@@ -20,7 +20,6 @@ def query_ideal_ct_data(db):
     ct_df = pd.read_sql(query,db)
     return ct_df
     
-
 #pull bonder actual and ideal cycle times
 def query_bonder_ct(db,start,end, ideal_ct_df, line_list):
 
@@ -115,10 +114,10 @@ def main(env,eos=False):
     ict_con = helper_functions.get_sql_conn('interconnect_ro')
 
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
+    ideal_ct_df = query_ideal_ct_data(ict_con)
     if not eos:
         wb_ct_df,wb_i_ct_df = query_bonder_ct(mos_con,start,end,ideal_ct_df,LINES)
 
-    ideal_ct_df = query_ideal_ct_data(ict_con)
     ing_df = helper_functions.query_tsm_state(plc_con,start, end, INGRESS_PATHS, 'Starved')
     po_df = helper_functions.query_tsm_state(plc_con,start, end, PO_PATHS, 'Starved',1)    
     mos_con.close()
