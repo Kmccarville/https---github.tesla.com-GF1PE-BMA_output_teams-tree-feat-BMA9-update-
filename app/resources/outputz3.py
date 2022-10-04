@@ -124,29 +124,26 @@ def main(env,eos=False):
     plc_con.close()
     ict_con.close()
 
-    header_html = """
-                        <tr>
-                        <th style="text-align:center"></th>
-                        """
+    header_html = ""
     output_value_html = """
                         <tr>
-                        <td style="text-align:left"><b>OUTPUT</b></td>
+                        <td style="text-align:left"><b>Carsets</b></td>
                         """
     starved_wip_html = """
                         <tr>
-                        <td style="text-align:left"><b>STARVED_WIP</b></td>
+                        <td style="text-align:left"><b>WIP</b></td>
                         """
     starved_mtr_html = """
                     <tr>
-                    <td style="text-align:left"><b>STARVED_MTR</b></td>
+                    <td style="text-align:left"><b>MTRs</b></td>
                     """
     wb_ct_html = """
                 <tr>
-                <td style="text-align:left"><b>WB_ACTUAL_CT</b></td>
+                <td style="text-align:left"><b>Actual CT</b></td>
                 """
     wb_i_ct_html = """
                     <tr>
-                    <td style="text-align:left"><b>WB_IDEAL_CT</b></td>
+                    <td style="text-align:left"><b>Ideal CT</b></td>
                     """
     total_output = 0
     for line in LINES:
@@ -165,8 +162,10 @@ def main(env,eos=False):
         wb_ct_html += f"""<td style="text-align:center;{color_str}">{actual_ct}</td>"""
         wb_i_ct_html += f"""<td style="text-align:center;{color_str}">{ideal_ct}</td>"""
 
-    output_header_html = header_html + """<th style="text-align:center">TOTAL</th></tr>"""
-    header_html += "</tr>"
+    output_header = "<tr>" + header_html + """<th style="text-align:center">TOTAL</th></tr>"""
+    starved_header = "<tr>" + """<th style="text-align:center">Starved %</th>""" + header_html + "</tr>"
+    wb_header = "<tr>" + """<th style="text-align:center">Cycle Time (mins)</th>""" + header_html + "</tr>"
+
     output_value_html += f"""<td style="text-align:center"><b>{total_output:.1f}</b></td></tr>"""
     starved_wip_html += "</tr>"
     starved_mtr_html += "</tr>"
@@ -174,9 +173,9 @@ def main(env,eos=False):
     wb_i_ct_html += "</tr>"
 
 
-    output_html = "<table>" + "<caption>Carset Ouptut</caption>" + output_header_html + output_value_html + "</table>"
-    starved_html = "<table>" + "<caption>Starvation %</caption>" + header_html + starved_wip_html + starved_mtr_html + "</table>"
-    wb_html = "<table>" + "<caption>Bonder Cycle Time Performance</caption>" +  header_html + wb_ct_html + wb_i_ct_html + "</table>"
+    output_html = "<table>" + output_header + output_value_html + "</table>"
+    starved_html = "<table>" + "<caption>Starvation %</caption>" + starved_header + starved_wip_html + starved_mtr_html + "</table>"
+    wb_html = "<table>" + "<caption>Bonder Cycle Time Performance</caption>" +  wb_header + wb_ct_html + wb_i_ct_html + "</table>"
 
     webhook_key = 'teams_webhook_Zone3_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)

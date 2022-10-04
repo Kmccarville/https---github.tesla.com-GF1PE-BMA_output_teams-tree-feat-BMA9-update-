@@ -31,7 +31,7 @@ def get_mamc_starved_table(start_time,end_time):
     # st30_fix_bma4_percent = round(helper_functions.get_val(st30_fixture_df,'3BM4','LINE','Duration')/3600*100,1)
     # st30_fix_bma5_percent = round(helper_functions.get_val(st30_fixture_df,'3BM5','LINE','Duration')/3600*100,1)
 
-    html=f"""<table>
+    html=f"""
         <tr>
             <td>Starved %</td>
             <td style="text-align:center"><strong>MAMC4</strong></td>
@@ -42,7 +42,6 @@ def get_mamc_starved_table(start_time,end_time):
             <td style="text-align:center">{st10_bma4_percent}%</td>
             <td style="text-align:center">{st10_bma5_percent}%</td>
         </tr>
-        </table>
         """
         # <tr>
         #     <td style="text-align:left"><b>ST20-Frax1</b></td>
@@ -73,9 +72,9 @@ def get_blocked_table(start_time,end_time):
     st50_bma4_percent = round(helper_functions.get_val(st50_df,'3BM4','LINE','Duration')/3600*100,1)
     st50_bma5_percent = round(helper_functions.get_val(st50_df,'3BM5','LINE','Duration')/3600*100,1)
 
-    html=f"""<table>
+    html=f"""
         <tr>
-            <td>Starved %</td>
+            <td>Blocked %</td>
             <td style="text-align:center"><strong>MAMC4</strong></td>
             <td style="text-align:center"><strong>MAMC5</strong></td>
         </tr>
@@ -84,11 +83,8 @@ def get_blocked_table(start_time,end_time):
             <td style="text-align:center">{st50_bma4_percent}%</td>
             <td style="text-align:center">{st50_bma5_percent}%</td>
         </tr>
-        </table>
         """
-
     return html
-
 
 def main(env,eos=False):
     logging.info("output45 start %s" % datetime.utcnow())
@@ -212,7 +208,7 @@ def main(env,eos=False):
     cta_html = '<table>' + cta_header_html + cta4_html + cta5_html + '</table>'
     tsm_starved_html = get_mamc_starved_table(start,end)
     tsm_blocked_html = get_blocked_table(start,end)
-    tsm_html = tsm_starved_html + tsm_blocked_html
+    tsm_html = "<table>" + tsm_blocked_html + tsm_starved_html + "</table>"
     
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
