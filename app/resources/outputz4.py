@@ -34,15 +34,15 @@ def main(env,eos=False):
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC1</strong></td>
-                <td <td style="text-align:left">{mc1_output}</td>
+                <td <td style="text-align:left">{mc1_output/4:.1f}</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC2</strong></td>
-                <td style="text-align:left">{mc1_output}</td>
+                <td style="text-align:left">{mc1_output/4:.1f}</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>TOTAL</strong></td>
-                <td style="text-align:left">{mic_total}</td>
+                <td style="text-align:left">{mic_total/4:.1f}</td>
             </tr>
             </table>"""
 

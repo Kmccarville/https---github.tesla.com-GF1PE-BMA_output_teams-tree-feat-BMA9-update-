@@ -7,6 +7,7 @@ import pandas as pd
 import pymsteams
 
 def get_mamc_starved_table(start_time,end_time):
+    seconds_between = (end_time - start_time).seconds
     #define source tagpaths for each equipment type
     ST10_PATHS = ['[3BM4_30000_Ingress]Project/MDL10/Gripper/Sequences/SeqGripper','[_3BM5_30000_Ingress]Project/MDL10/Gripper/Sequences/SeqGripper']
     ST20_PATHS = ['[3BM4_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence','[_3BM5_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence']
@@ -21,9 +22,9 @@ def get_mamc_starved_table(start_time,end_time):
     st30_walk_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST30_WALK_PATHS, 'Starved')
     st30_fixture_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST30_FIXTURE_PATHS, 'Starved')
 
-    #get starve percentage (divide by 3600s and multiply by 100%)
-    st10_bma4_percent = round(helper_functions.get_val(st10_df,'3BM4','LINE','Duration')/3600*100,1)
-    st10_bma5_percent = round(helper_functions.get_val(st10_df,'3BM5','LINE','Duration')/3600*100,1)
+    #get starve percentage (divide by seconds in between start and end and multiply by 100%)
+    st10_bma4_percent = round(helper_functions.get_val(st10_df,'3BM4','LINE','Duration')/seconds_between*100,1)
+    st10_bma5_percent = round(helper_functions.get_val(st10_df,'3BM5','LINE','Duration')/seconds_between*100,1)
     # st20_bma4_percent = round(helper_functions.get_val(st20_df,'3BM4','LINE','Duration')/3600*100,1)
     # st20_bma5_percent = round(helper_functions.get_val(st20_df,'3BM5','LINE','Duration')/3600*100,1)
     # st30_walk_bma4_percent = round(helper_functions.get_val(st30_walk_df,'3BM4','LINE','Duration')/3600*100,1)
@@ -62,6 +63,7 @@ def get_mamc_starved_table(start_time,end_time):
     return html
 
 def get_blocked_table(start_time,end_time):
+    seconds_between = (end_time - start_time).seconds
     #define source tagpaths for each equipment type
     ST50_PATHS = ['[TSL053_CTR050]Project/PLC_10/MDL10/EmSeq/CycleStateHistory/fbHistoryEM','[TSL063_CTR050]Project/PLC_10/MDL10/EmSeq/CycleStateHistory/fbHistoryEM']
     plc_con = helper_functions.get_sql_conn('plc_db')
@@ -69,8 +71,8 @@ def get_blocked_table(start_time,end_time):
     #get blocked data for each tagpath set
     st50_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST50_PATHS, 'Blocked',3100001)
     #get blocked percentage (divide by 3600s and multiply by 100%)
-    st50_bma4_percent = round(helper_functions.get_val(st50_df,'3BM4','LINE','Duration')/3600*100,1)
-    st50_bma5_percent = round(helper_functions.get_val(st50_df,'3BM5','LINE','Duration')/3600*100,1)
+    st50_bma4_percent = round(helper_functions.get_val(st50_df,'3BM4','LINE','Duration')/seconds_between*100,1)
+    st50_bma5_percent = round(helper_functions.get_val(st50_df,'3BM5','LINE','Duration')/seconds_between*100,1)
 
     html=f"""
         <tr>

@@ -86,6 +86,7 @@ def main(env,eos=False):
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
 
+    seconds_between = (end - start).seconds
     #define global variables
     LINES = ['3BM1','3BM2','3BM3','3BM4','3BM5']
     INGRESS_PATHS = [
@@ -154,9 +155,10 @@ def main(env,eos=False):
         output_val = helper_functions.get_output_val(df_output,line,PO_FLOWSTEP)/4
         total_output += output_val
         output_value_html += f"""<td style="text-align:center">{output_val:.1f}</td>"""
+        #divide by 3 if it's line 4 because there are 4 ingress stations
         ingress_divisor = 3 if line=='3BM4' else 1
-        starved_wip_html += f"""<td style="text-align:center">{helper_functions.get_val(ing_df,line,'LINE','Duration')/ingress_divisor/3600*100:.0f}%</td>"""
-        starved_mtr_html += f"""<td style="text-align:center">{helper_functions.get_val(po_df,line,'LINE','Duration')/3600*100:.0f}%</td>"""
+        starved_wip_html += f"""<td style="text-align:center">{helper_functions.get_val(ing_df,line,'LINE','Duration')/ingress_divisor/seconds_between*100:.0f}%</td>"""
+        starved_mtr_html += f"""<td style="text-align:center">{helper_functions.get_val(po_df,line,'LINE','Duration')/seconds_between*100:.0f}%</td>"""
 
         actual_ct = helper_functions.get_val(wb_ct_df,line,'LINE','CT')
         ideal_ct = helper_functions.get_val(wb_i_ct_df,line,'LINE','I_CT')
