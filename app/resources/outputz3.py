@@ -117,6 +117,9 @@ def main(env,eos=False):
     ideal_ct_df = query_ideal_ct_data(ict_con)
     if not eos:
         wb_ct_df,wb_i_ct_df = query_bonder_ct(mos_con,start,end,ideal_ct_df,LINES)
+    else:
+        wb_ct_df = pd.DataFrame({})
+        wb_i_ct_df = pd.DataFrame({})
 
     ing_df = helper_functions.query_tsm_state(plc_con,start, end, INGRESS_PATHS, 'Starved')
     po_df = helper_functions.query_tsm_state(plc_con,start, end, PO_PATHS, 'Starved',1)    
@@ -160,15 +163,16 @@ def main(env,eos=False):
         color_str = "color:red;" if actual_ct > ideal_ct else ""
 
         wb_ct_html += f"""<td style="text-align:center;{color_str}">{actual_ct}</td>"""
-        wb_i_ct_html += f"""<td style="text-align:center;{color_str}">{ideal_ct}</td>"""
+        wb_i_ct_html += f"""<td style="text-align:center;">{ideal_ct}</td>"""
 
-    output_header = "<tr>" + header_html + """<th style="text-align:center">TOTAL</th></tr>"""
-    starved_header = "<tr>" + """<th style="text-align:center">Starved %</th>""" + header_html + "</tr>"
-    wb_header = "<tr>" + """<th style="text-align:center">Cycle Time (mins)</th>""" + header_html + "</tr>"
+    output_header = "<tr>" + """<th style="text-align:center"></th>""" + header_html + """<th style="text-align:center">TOTAL</th></tr>"""
+    starved_header = "<tr>" + """<th style="text-align:center"></th>""" + header_html + "</tr>"
+    wb_header = "<tr>" + """<th style="text-align:center"></th>""" + header_html + "</tr>"
 
     output_value_html += f"""<td style="text-align:center"><b>{total_output:.1f}</b></td></tr>"""
     starved_wip_html += "</tr>"
     starved_mtr_html += "</tr>"
+
     wb_ct_html += "</tr>"
     wb_i_ct_html += "</tr>"
 
@@ -198,9 +202,10 @@ def main(env,eos=False):
     starved_card.text(starved_html)
     teams_msg.addSection(starved_card)
     #make a card with starvation data
-    wb_card = pymsteams.cardsection()
-    wb_card.text(wb_html)
-    teams_msg.addSection(wb_card)
+    if not eos:
+        wb_card = pymsteams.cardsection()
+        wb_card.text(wb_html)
+        teams_msg.addSection(wb_card)
     #add a link to the confluence page
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Hourly+Update")
     teams_msg.send()
