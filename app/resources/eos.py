@@ -48,11 +48,8 @@ def eos_report(env):
         all_flows_list = list(DF_FLOWSTEP['CTA']) + list(DF_FLOWSTEP['MAMC']) + list(DF_FLOWSTEP['C3A']) + list(DF_FLOWSTEP['ZONE3']) + list(DF_FLOWSTEP['ZONE4'])
         
         #loop through each hour over the 12 hour shift
-        df_output = pd.DataFrame({})
-        manual_mamc_ouputs = []
         df_output = helper_functions.get_flowstep_outputs(mos_con,shift_start,shift_end,all_flows_list)
-        manual_mamc_ouputs = output123.get_mmamc_output(mos_con,shift_start,shift_end))
-        shift_start += timedelta(minutes=60)
+        mmamc_output = output123.get_mmamc_output(mos_con,shift_start,shift_end)
         mos_con.close()
 
         #create lists for each zone output
@@ -112,8 +109,8 @@ def eos_report(env):
                 <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.1f}</td>
                 <td style="text-align:center">{mamc_outputs[3]/NORMAL_DIVISOR:.1f}</td>
                 <td style="text-align:center">{mamc_outputs[4]/NORMAL_DIVISOR:.1f}</td>
-                <td style="text-align:center">{sum(manual_mamc_ouputs)/NORMAL_DIVISOR:.1f}</td>
-                <td style="text-align:center"><strong>{(sum(mamc_outputs)+sum(manual_mamc_ouputs))/NORMAL_DIVISOR:.1f}</strong></td>
+                <td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.1f}</td>
+                <td style="text-align:center"><strong>{(sum(mamc_outputs)+mmamc_output)/NORMAL_DIVISOR:.1f}</strong></td>
                 </tr>
         """
         #create c3a output row
