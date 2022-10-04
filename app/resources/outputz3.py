@@ -124,40 +124,47 @@ def main(env,eos=False):
     plc_con.close()
     ict_con.close()
 
-    output_header_html = """
+    header_html = """
                         <tr>
                         <th style="text-align:center"></th>
                         """
     output_value_html = """
                         <tr>
-                        <td style="text-align:center">OUTPUT</td>
+                        <td style="text-align:left"><b>OUTPUT</b></td>
                         """
     starved_wip_html = """
                         <tr>
-                        <td style="text-align:center">STARVED_WIP</td>
+                        <td style="text-align:left"><b>STARVED_WIP</b></td>
                         """
     starved_mtr_html = """
                     <tr>
-                    <td style="text-align:center">STARVED_MTR</td>
+                    <td style="text-align:left"><b>STARVED_MTR</b></td>
                     """
     wb_ct_html = """
                 <tr>
-                <td style="text-align:center">WB_ACTUAL_CT</td>
+                <td style="text-align:left"><b>WB_ACTUAL_CT</b></td>
                 """
     wb_i_ct_html = """
                     <tr>
-                    <td style="text-align:center">WB_IDEAL_CT</td>
+                    <td style="text-align:left"><b>WB_IDEAL_CT</b></td>
                     """
+    total_output = 0
     for line in LINES:
-        output_header_html += f"""<th style="text-align:center">{line}</th>"""
-        output_value_html += f"""<td style="text-align:center">{helper_functions.get_output_val(df_output,line,PO_FLOWSTEP)/4:.1f}</td>"""
-        starved_wip_html += f"""<td style="text-align:center">{helper_functions.get_val(ing_df,line,'LINE','Duration')}</td>"""
-        starved_mtr_html += f"""<td style="text-align:center">{helper_functions.get_val(po_df,line,'LINE','Duration')}</td>"""
+        header_html += f"""<th style="text-align:center">{line}</th>"""
+        output_val = helper_functions.get_output_val(df_output,line,PO_FLOWSTEP)/4
+        total_output += output_val
+        output_value_html += f"""<td style="text-align:center">{output_val:.1f}</td>"""
+        starved_wip_html += f"""<td style="text-align:center">{helper_functions.get_val(ing_df,line,'LINE','Duration')/3600*100:.1f}%</td>"""
+        starved_mtr_html += f"""<td style="text-align:center">{helper_functions.get_val(po_df,line,'LINE','Duration')/3600*100:.1f}%</td>"""
 
-        wb_ct_html += f"""<td style="text-align:center">{helper_functions.get_val(wb_ct_df,line,'LINE','CT')}</td>"""
-        wb_i_ct_html += f"""<td style="text-align:center">{helper_functions.get_val(wb_i_ct_df,line,'LINE','I_CT')}</td>"""
+        actual_ct = helper_functions.get_val(wb_ct_df,line,'LINE','CT')
+        ideal_ct = helper_functions.get_val(wb_i_ct_df,line,'LINE','I_CT')
+        color_str = "color:red;" if actual_ct > ideal_ct else ""
 
-    output_header_html += "</tr>"
+        wb_ct_html += f"""<td style="text-align:center;{color_str}">{actual_ct}</td>"""
+        wb_i_ct_html += f"""<td style="text-align:center;{color_str}">{ideal_ct}</td>"""
+
+    header_html += "</tr>"
     output_value_html += "</tr>"
     starved_wip_html += "</tr>"
     starved_mtr_html += "</tr>"
@@ -165,9 +172,9 @@ def main(env,eos=False):
     wb_i_ct_html += "</tr>"
 
 
-    output_html = "<table>" + output_header_html + output_value_html + "</table>"
-    starved_html = "<table>" + starved_wip_html + starved_mtr_html + "</table>"
-    wb_html = "<table>" + wb_ct_html + wb_i_ct_html + "</table>"
+    output_html = "<table>" + header_html + output_value_html + "</table>"
+    starved_html = "<table>" + header_html + starved_wip_html + starved_mtr_html + "</table>"
+    wb_html = "<table>" + header_html + wb_ct_html + wb_i_ct_html + "</table>"
 
     webhook_key = 'teams_webhook_Zone3_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
@@ -183,14 +190,17 @@ def main(env,eos=False):
     teams_msg.color(msg_color)
     #make a card with output data
     output_card = pymsteams.cardsection()
+    output_card.addFact("TOTAL ", f"{total_output:.1f}") 
     output_card.text(output_html)
     teams_msg.addSection(output_card)
     #make a card with starvation data
     starved_card = pymsteams.cardsection()
+    starved_card.text("Starved %")
     starved_card.text(starved_html)
     teams_msg.addSection(starved_card)
     #make a card with starvation data
     wb_card = pymsteams.cardsection()
+    wb_card.text("Bonder Cycle Time Performance")
     wb_card.text(wb_html)
     teams_msg.addSection(wb_card)
     #add a link to the confluence page

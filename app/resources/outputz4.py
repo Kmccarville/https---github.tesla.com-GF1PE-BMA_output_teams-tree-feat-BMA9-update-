@@ -27,7 +27,7 @@ def main(env,eos=False):
 
     # Setup teams output table
     title='Zone 4 Hourly Update'
-    html = f"""table>
+    html = f"""<table>
             <tr>
                 <th style="text-align:right">LINE</th>
                 <th style="text-align:center">UPH</th>
