@@ -68,7 +68,7 @@ def get_blocked_table(start_time,end_time):
     plc_con = helper_functions.get_sql_conn('plc_db')
 
     #get blocked data for each tagpath set
-    st50_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST10_PATHS, 'Blocked',3100001)
+    st50_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST50_PATHS, 'Blocked',3100001)
     #get blocked percentage (divide by 3600s and multiply by 100%)
     st50_bma4_percent = round(helper_functions.get_val(st50_df,'3BM4','LINE','Duration')/3600*100,1)
     st50_bma5_percent = round(helper_functions.get_val(st50_df,'3BM5','LINE','Duration')/3600*100,1)
