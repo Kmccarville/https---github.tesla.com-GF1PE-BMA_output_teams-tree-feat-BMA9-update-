@@ -38,7 +38,7 @@ def main(env,eos=False):
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC2</strong></td>
-                <td style="text-align:left">{mc1_output/4:.1f}</td>
+                <td style="text-align:left">{mc2_output/4:.1f}</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>TOTAL</strong></td>
