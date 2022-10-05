@@ -85,24 +85,26 @@ def main(env,eos=False):
         cta2_outputs.append(helper_functions.get_output_val(df_output,'3BM2',CTA_FLOWSTEP,actor=f"3BM2-20000-{lane_num}"))
         cta3_outputs.append(helper_functions.get_output_val(df_output,'3BM3',CTA_FLOWSTEP,actor=f"3BM3-20000-{lane_num}"))
 
+    if mmamc_output > 0:
+        header_mmamc_str = """<th style="text-align:center">MMAMC</th>"""
+        blank_mmamc_str = """<td style="text-align:center">----</td>"""
+        output_mmamc_str = f"""<td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.1f}</td>"""
+    else:
+        header_mmamc_str = ""
+        blank_mmamc_str = ""
+        output_mmamc_str = ""
+
+
     #create bma header
     bma_header_html = """<tr>
             <th style="text-align:center"></th>
             <th style="text-align:center">BMA1</th>
             <th style="text-align:center">BMA2</th>
             <th style="text-align:center">BMA3</th>
-            <th style="text-align:center">MMAMC</th>
+            {header_mmamc_str}
             <th style="text-align:center">TOTAL</th>
             </tr>
     """
-
-    if mmamc_output > 0:
-        blank_mmamc_str = """<td style="text-align:center">----</td>"""
-        output_mmamc_str = f"""<td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.1f}</td>"""
-    else:
-        blank_mmamc_str = ""
-        output_mmamc_str = ""
-
     #create cta output row
     cta_output_html = f"""<tr>
             <td style="text-align:center"><strong>CTA</strong></td>
