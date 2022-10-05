@@ -1,10 +1,10 @@
 import json
-import requests
-from requests.exceptions import Timeout
 import sqlalchemy
 from urllib.parse import quote
 from datetime import timedelta
 import pandas as pd
+import pytz
+from datetime import datetime
 
 def file_reader(FilePath):
     with open(FilePath,"r") as f:
@@ -32,22 +32,16 @@ def get_sql_conn(key, schema=None):
     # Return connection to engine
     return engine.connect()
 
-def send_to_teams(webhook_key, title, html,retry=0):
-    webhook_json = get_pw_json(webhook_key)
-    webhook = webhook_json['url']
-    payload=    {
-                "title":title, 
-                "summary":"summary",
-                "sections":[{'text':html}]
-                }
-    headers = {
-    'Content-Type': 'application/json'
-    }
-    try:
-        requests.post(webhook,timeout=10,headers=headers, data=json.dumps(payload))
-    except Timeout:
-        if retry==1:
-            requests.post(webhook,timeout=10,headers=headers, data=json.dumps(payload))
+def is_it_eos():
+    #this should take care of DST
+    pst = pytz.timezone('US/Pacific')
+    utc = pytz.timezone('UTC')
+    utc_now=utc.localize(datetime.utcnow())
+    pst_now = utc_now.astimezone(pst)
+    if pst_now.hour in [6,18]:
+        return True
+    else:
+        return False
 
 #parse dataframes for line-based value
 def get_val(df,query_val,query_col,return_col):
@@ -58,27 +52,73 @@ def get_val(df,query_val,query_col,return_col):
         val = 0
     return val
 
-def send_to_teams(webhook_key, title, html,retry=0):
-    webhook_json = get_pw_json(webhook_key)
-    webhook = webhook_json['url']
-    payload=    {
-                "title":title, 
-                "summary":"summary",
-                "sections":[{'text':html}]
-                }
-    headers = {
-    'Content-Type': 'application/json'
-    }
-    try:
-        requests.post(webhook,timeout=10,headers=headers, data=json.dumps(payload))
-    except Timeout:
-        if retry==1:
-            requests.post(webhook,timeout=10,headers=headers, data=json.dumps(payload))
+#small helper function to get output by line/flowstep and divides to get carset value
+def get_output_val(df,line,flowstep,actor=None):
+    if actor:
+        df_sub = df.query(f"LINE=='{line}' and ACTOR=='{actor}' and FLOWSTEP=='{flowstep}'")
+    else:
+        df_sub = df.query(f"LINE=='{line}' and FLOWSTEP=='{flowstep}'")
+    if len(df_sub):
+        return df_sub['OUTPUT'].sum()
+    else:
+        return 0
+
+def get_flowstep_outputs(db,start,end,flowsteps):
+    #create flowstep string based on flowstep list given
+    flowstep_str = ""
+    for flow in flowsteps:
+        flowstep_str += f"'{flow}',"
+    flowstep_str = flowstep_str[:-1]
+    #if the time between start and end is more than 1 hour, loop through
+    delta = (end-start).seconds/3600
+    if delta > 1: 
+        df = pd.DataFrame({})
+        while start < end:
+            start_next = start + timedelta(minutes=60)
+            query = f"""
+                    SELECT 
+                    a.name as ACTOR, 
+                    left(a.name,IF(left(tp.flowstepname,2) = 'MC', 3, 4)) as LINE,
+                    tp.flowstepname as FLOWSTEP,
+                    COUNT(DISTINCT tp.thingid) as OUTPUT
+                    FROM
+                    sparq.thingpath tp 
+                    JOIN sparq.actor a on a.id = tp.modifiedby
+                    WHERE 
+                    tp.flowstepname IN ({flowstep_str})
+                    AND
+                    tp.completed between '{start}' and '{start_next}'
+                    AND tp.exitcompletioncode = IF(tp.flowstepname='3BM-40001','NO_INSPECT','PASS')
+                    GROUP BY 1,2,3
+                    """
+            df_sub = pd.read_sql(query,db)
+            df = pd.concat([df,df_sub],axis=0)
+            start += timedelta(minutes=60)
+
+    else:
+        query = f"""
+                    SELECT 
+                    a.name as ACTOR, 
+                    left(a.name,IF(left(tp.flowstepname,2) = 'MC', 3, 4)) as LINE,
+                    tp.flowstepname as FLOWSTEP,
+                    COUNT(DISTINCT tp.thingid) as OUTPUT
+                    FROM
+                    sparq.thingpath tp 
+                    JOIN sparq.actor a on a.id = tp.modifiedby
+                    WHERE 
+                    tp.flowstepname IN ({flowstep_str})
+                    AND
+                    tp.completed between '{start}' and '{end}'
+                    AND tp.exitcompletioncode = IF(tp.flowstepname='3BM-40001','NO_INSPECT','PASS')
+                    GROUP BY 1,2,3
+                    """
+        df = pd.read_sql(query,db)
+        
+    return df
 
 #pull starved/blocked states
 def query_tsm_state(db,start, end, paths, s_or_b, reason=0):
-    
-    start_pad = start-timedelta(hours=12)
+    start_pad = start-timedelta(hours=84) #go 7 days back to cover long states
     reason_str = f"AND reason={reason}" if reason else ""
     s_b_str = f"AND esd.description = '{s_or_b}'"
 

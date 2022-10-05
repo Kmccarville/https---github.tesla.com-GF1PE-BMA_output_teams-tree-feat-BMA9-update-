@@ -7,6 +7,7 @@ import pandas as pd
 import pymsteams
 
 def get_mamc_starved_table(start_time,end_time):
+    seconds_between = (end_time - start_time).seconds
     #define source tagpaths for each equipment type
     ST10_PATHS = ['[3BM4_30000_Ingress]Project/MDL10/Gripper/Sequences/SeqGripper','[_3BM5_30000_Ingress]Project/MDL10/Gripper/Sequences/SeqGripper']
     ST20_PATHS = ['[3BM4_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence','[_3BM5_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence']
@@ -17,237 +18,191 @@ def get_mamc_starved_table(start_time,end_time):
 
     #get starveddata for each tagpath set
     st10_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST10_PATHS, 'Starved')
-    st20_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST20_PATHS, 'Starved')
-    st30_walk_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST30_WALK_PATHS, 'Starved')
-    st30_fixture_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST30_FIXTURE_PATHS, 'Starved')
 
-    #get starve percentage (divide by 3600s and multiply by 100%)
-    st10_bma4_percent = round(helper_functions.get_val(st10_df,'3BM4','LINE','Duration')/3600*100,1)
-    st10_bma5_percent = round(helper_functions.get_val(st10_df,'3BM5','LINE','Duration')/3600*100,1)
-    st20_bma4_percent = round(helper_functions.get_val(st20_df,'3BM4','LINE','Duration')/3600*100,1)
-    st20_bma5_percent = round(helper_functions.get_val(st20_df,'3BM5','LINE','Duration')/3600*100,1)
-    st30_walk_bma4_percent = round(helper_functions.get_val(st30_walk_df,'3BM4','LINE','Duration')/3600*100,1)
-    st30_walk_bma5_percent = round(helper_functions.get_val(st30_walk_df,'3BM5','LINE','Duration')/3600*100,1)
-    st30_fix_bma4_percent = round(helper_functions.get_val(st30_fixture_df,'3BM4','LINE','Duration')/3600*100,1)
-    st30_fix_bma5_percent = round(helper_functions.get_val(st30_fixture_df,'3BM5','LINE','Duration')/3600*100,1)
+    #get starve percentage (divide by seconds in between start and end and multiply by 100%)
+    st10_bma4_percent = round(helper_functions.get_val(st10_df,'3BM4','LINE','Duration')/seconds_between*100,1)
+    st10_bma5_percent = round(helper_functions.get_val(st10_df,'3BM5','LINE','Duration')/seconds_between*100,1)
 
-    html=f"""<table>
+    html=f"""
         <tr>
-            <td>Starved %</td>
-            <td style="text-align:center"><strong>MAMC4</strong></td>
-            <td style="text-align:center"><strong>MAMC5</strong></td>
-        </tr>
-        <tr>
-            <td style="text-align:left"><b>ST10-Bandoliers</b></td>
+            <td style="text-align:left"><b>MAMC Starved</b></td>
             <td style="text-align:center">{st10_bma4_percent}%</td>
             <td style="text-align:center">{st10_bma5_percent}%</td>
         </tr>
-        </table>
         """
-        # <tr>
-        #     <td style="text-align:left"><b>ST20-Frax1</b></td>
-        #     <td style="text-align:center">{st20_bma4_percent}%</td>
-        #     <td style="text-align:center">{st20_bma5_percent}%</td>
-        # </tr>
-        # <tr>
-        #     <td style="text-align:left"><b>ST30-Bando</b></td>
-        #     <td style="text-align:center">{st30_walk_bma4_percent}%</td>
-        #     <td style="text-align:center">{st30_walk_bma5_percent}%</td>
-        # </tr>
-        # <tr>
-        #     <td style="text-align:left"><b>ST30-Fixture</b></td>
-        #     <td style="text-align:center">{st30_fix_bma4_percent}%</td>
-        #     <td style="text-align:center">{st30_fix_bma5_percent}%</td>
-        # </tr>
 
     return html
 
-def get_cta_output(db,start,end):
-    query = f"""
-            SELECT 
-            tp.flowstepname as FLOWSTEP,
-            right(a.name,1) as LINE,
-            count(distinct tp.thingid) as OUTPUT
-            FROM sparq.thingpath tp
-            JOIN sparq.actor a on tp.modifiedby = a.id
-            WHERE
-            tp.flowstepname in ('3BM4-25000','3BM5-25000')
-            AND tp.exitcompletioncode = 'PASS'
-            AND tp.completed BETWEEN '{start}' AND '{end}'
-            GROUP BY 1,2
-            """
-    df = pd.read_sql(query,db)
-    return df
+def get_blocked_table(start_time,end_time):
+    seconds_between = (end_time - start_time).seconds
+    #define source tagpaths for each equipment type
+    ST50_PATHS = ['[TSL053_CTR050]Project/PLC_10/MDL10/EmSeq/CycleStateHistory/fbHistoryEM','[TSL063_CTR050]Project/PLC_10/MDL10/EmSeq/CycleStateHistory/fbHistoryEM']
+    plc_con = helper_functions.get_sql_conn('plc_db')
 
-def get_c3a_mamc_output(db,start,end):
-    query = f"""
-            SELECT 
-            tp.flowstepname as FLOWSTEP,
-            count(distinct tp.thingid) as OUTPUT
-            FROM sparq.thingpath tp
-            WHERE
-            tp.flowstepname in ('3BM4-34000','3BM5-34000','3BM4-45000','3BM5-45000')
-            AND tp.exitcompletioncode = 'PASS'
-            AND tp.completed BETWEEN '{start}' AND '{end}'
-            GROUP BY 1
-            """
-    df = pd.read_sql(query,db)
-    return df
+    #get blocked data for each tagpath set
+    st50_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST50_PATHS, 'Blocked',3100001)
+    #get blocked percentage (divide by 3600s and multiply by 100%)
+    st50_bma4_percent = round(helper_functions.get_val(st50_df,'3BM4','LINE','Duration')/seconds_between*100,1)
+    st50_bma5_percent = round(helper_functions.get_val(st50_df,'3BM5','LINE','Duration')/seconds_between*100,1)
 
-def output45(env):
+    html=f"""
+        <tr>
+            <td style="text-align:left"><b>CTA Blocked</b></td>
+            <td style="text-align:center">{st50_bma4_percent}%</td>
+            <td style="text-align:center">{st50_bma5_percent}%</td>
+        </tr>
+        """
+    return html
+
+def main(env,eos=False):
     logging.info("output45 start %s" % datetime.utcnow())
-    lookback=1 #1 hr
+    lookback=12 if eos else 1
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
 
+    #define globals
+    NORMAL_DIVISOR = 4
+    CTA_DIVISOR = 28
+    CTA_FLOWSTEP_END = '25000'
+    MAMC_FLOWSTEP_END= '34000'
+    C3A_FLOWSTEP_END = '45000'
+    LINES = ['3BM4','3BM5']
+
+    flowsteps = []
+    for line in LINES:
+        flowsteps.append(f"{line}-{CTA_FLOWSTEP_END}")
+        flowsteps.append(f"{line}-{MAMC_FLOWSTEP_END}")
+        flowsteps.append(f"{line}-{C3A_FLOWSTEP_END}")
+
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
-    df_cta = get_cta_output(mos_con,start,end)
-    df_c3a_mamc = get_c3a_mamc_output(mos_con,start,end)
+    df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
     mos_con.close()
 
-    if len(df_cta):
-        df_cta4 = df_cta.query("FLOWSTEP=='3BM4-25000'")
-        cta4_1 = round(helper_functions.get_val(df_cta4,1,'LINE','OUTPUT')/28,2)
-        cta4_2 = round(helper_functions.get_val(df_cta4,2,'LINE','OUTPUT')/28,2)
-        cta4_3 = round(helper_functions.get_val(df_cta4,3,'LINE','OUTPUT')/28,2)
-        cta4_4 = round(helper_functions.get_val(df_cta4,4,'LINE','OUTPUT')/28,2)
-        cta4_5 = round(helper_functions.get_val(df_cta4,5,'LINE','OUTPUT')/28,2)
-        cta4_6 = round(helper_functions.get_val(df_cta4,6,'LINE','OUTPUT')/28,2)
-        cta4_7 = round(helper_functions.get_val(df_cta4,7,'LINE','OUTPUT')/28,2)
-        cta4_8 = round(helper_functions.get_val(df_cta4,8,'LINE','OUTPUT')/28,2)
-        cta4_total = round(df_cta4['OUTPUT'].sum()/28,2) if len(df_cta4) else 0
+    cta_outputs = []
+    mamc_outputs = []
+    c3a_outputs = []
+    cta4_outputs = []
+    cta5_outputs = []
+    for line in LINES:
+        cta_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{CTA_FLOWSTEP_END}"))
+        mamc_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{MAMC_FLOWSTEP_END}"))
+        c3a_outputs.append(helper_functions.get_output_val(df_output,line,f"{line}-{C3A_FLOWSTEP_END}"))
 
-        df_cta5 = df_cta.query("FLOWSTEP=='3BM5-25000'")
-        cta5_1 = round(helper_functions.get_val(df_cta5,1,'LINE','OUTPUT')/28,2)
-        cta5_2 = round(helper_functions.get_val(df_cta5,2,'LINE','OUTPUT')/28,2)
-        cta5_3 = round(helper_functions.get_val(df_cta5,3,'LINE','OUTPUT')/28,2)
-        cta5_4 = round(helper_functions.get_val(df_cta5,4,'LINE','OUTPUT')/28,2)
-        cta5_5 = round(helper_functions.get_val(df_cta5,5,'LINE','OUTPUT')/28,2)
-        cta5_6 = round(helper_functions.get_val(df_cta5,6,'LINE','OUTPUT')/28,2)
-        cta5_7 = round(helper_functions.get_val(df_cta5,7,'LINE','OUTPUT')/28,2)
-        cta5_8 = round(helper_functions.get_val(df_cta5,8,'LINE','OUTPUT')/28,2)
-        cta5_total = round(df_cta5['OUTPUT'].sum()/28,2) if len(df_cta5) else 0
-        cta_total= round(cta4_total+cta5_total,2)
-    else:
-        cta4_1 = 0
-        cta4_2 = 0
-        cta4_3 = 0
-        cta4_4 = 0
-        cta4_5 = 0
-        cta4_6 = 0
-        cta4_7 = 0
-        cta4_8 = 0
-        cta5_1 = 0
-        cta5_2 = 0
-        cta5_3 = 0
-        cta5_4 = 0
-        cta5_5 = 0
-        cta5_6 = 0
-        cta5_7 = 0
-        cta5_8 = 0
-        cta4_total = 0
-        cta5_total = 0
-        cta_total = 0
+    for lane in range(1,9):
+        lane_num = str(lane).zfill(2)
+        cta4_outputs.append(helper_functions.get_output_val(df_output,'3BM4',f"3BM4-{CTA_FLOWSTEP_END}",actor=f"3BM4-20000-{lane_num}"))
+        cta5_outputs.append(helper_functions.get_output_val(df_output,'3BM5',f"3BM5-{CTA_FLOWSTEP_END}",actor=f"3BM5-20000-{lane_num}"))
 
-    bma4mamc_o = round(helper_functions.get_val(df_c3a_mamc,'3BM4-34000','FLOWSTEP','OUTPUT')/4,2)
-    bma5mamc_o = round(helper_functions.get_val(df_c3a_mamc,'3BM5-34000','FLOWSTEP','OUTPUT')/4,2)
-    mamc_total = bma4mamc_o+bma5mamc_o
-    bma4c3a_o = round(helper_functions.get_val(df_c3a_mamc,'3BM4-45000','FLOWSTEP','OUTPUT')/4,2)
-    bma5c3a_o = round(helper_functions.get_val(df_c3a_mamc,'3BM5-45000','FLOWSTEP','OUTPUT')/4,2)
-    c3a_total = bma4c3a_o + bma5c3a_o
+    #create bma header
+    bma_header_html = """<tr>
+            <th style="text-align:center"></th>
+            <th style="text-align:center">BMA4</th>
+            <th style="text-align:center">BMA5</th>
+            <th style="text-align:center">TOTAL</th>
+            </tr>
+    """
+    #create cta output row
+    cta_output_html = f"""<tr>
+            <td style="text-align:center"><strong>CTA</strong></td>
+            <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.1f}</td>
+            <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{sum(cta_outputs)/CTA_DIVISOR:.1f}</strong></td>
+            </tr>
+    """
+    #create mamc output row
+    mamc_output_html = f"""<tr>
+            <td style="text-align:center"><strong>MAMC</strong></td>
+            <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{sum(mamc_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
+            </tr>
+    """
+    #create c3a output row
+    c3a_output_html = f"""<tr>
+            <td style="text-align:center"><strong>C3A</strong></td>
+            <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{sum(c3a_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
+            </tr>
+    """
+    #create full bma html with the above htmls
+    bma_html = '<table>' + bma_header_html + cta_output_html + mamc_output_html + c3a_output_html + '</table>'
 
-    summary_html = f"""<table>
-            <tr>
-                <th>    </th>
-                <th style="text-align:center">BMA4</th>
-                <th style="text-align:center">BMA5</th>
-                <th style="text-align:center">TOTAL</th>
-            </tr>
-            <tr>
-                <td style="text-align:left"><strong>CTA</strong></td>
-                <td style="text-align:center">{'{:.2f}'.format(cta4_total)}</td>
-                <td style="text-align:center">{'{:.2f}'.format(cta5_total)}</td>
-                <td style="text-align:center">{'{:.2f}'.format(cta_total)}</td>
-            </tr>
-            <tr>
-                <td style="text-align:left"><strong>MAMC</strong></td>
-                <td style="text-align:center">{'{:.2f}'.format(bma4mamc_o)}</td>
-                <td style="text-align:center">{'{:.2f}'.format(bma5mamc_o)}</td>
-                <td style="text-align:center">{'{:.2f}'.format(mamc_total)}</td>
-            </tr>
-            <tr>
-                <td style="text-align:left"><strong>C3A</strong></td>
-                <td style="text-align:center">{'{:.2f}'.format(bma4c3a_o)}</td>
-                <td style="text-align:center">{'{:.2f}'.format(bma5c3a_o)}</td>
-                <td style="text-align:center">{'{:.2f}'.format(c3a_total)}</td>
-            </tr>
-            </table>
-        """
+    #create cta header
+    cta_header_html = """<tr>
+                        <th style="text-align:center"></th>
+                        <th style="text-align:center">Ln1</th>
+                        <th style="text-align:center">Ln2</th>
+                        <th style="text-align:center">Ln3</th>
+                        <th style="text-align:center">Ln4</th>
+                        <th style="text-align:center">Ln5</th>
+                        <th style="text-align:center">Ln6</th>
+                        <th style="text-align:center">Ln7</th>
+                        <th style="text-align:center">Ln8</th>
+                        </tr>
+                    """
 
-    cta_html = f"""<table>
+    cta4_html = """
                 <tr>
-                    <td>    </td>
-                    <td style="text-align:center"><strong>CTA4</strong></td>
-                    <td style="text-align:center"><strong>CTA5</strong></td>
-                </tr>
-                <tr>
-                   <td style="text-align:left"><strong>LANE 1</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_1)}</td>
-                    <td style="text-align:center">----</td>
-                </tr>
-                <tr>
-                    <td style="text-align:left"><strong>LANE 2</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_2)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_2)}</td>
-                </tr>
-                <tr>
-                    <td style="text-align:left"><strong>LANE 3</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_3)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_3)}</td>
-                </tr>
-                <tr>
-                    <td style="text-align:left"><strong>LANE 4</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_4)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_4)}</td>
-                </tr>
-                <tr>
-                   <td style="text-align:left"><strong>LANE 5</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_5)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_5)}</td>
-                </tr>
-                <tr>
-                    <td style="text-align:left"><strong>LANE 6</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_6)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_6)}</td>
-                </tr>
-                <tr>
-                   <td style="text-align:left"><strong>LANE 7</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_7)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_7)}</td>
-                </tr>
-                <tr>
-                    <td style="text-align:left"><strong>LANE 8</strong></td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta4_8)}</td>
-                    <td style="text-align:center">{'{:.2f}'.format(cta5_8)}</td>
-                </tr>
-                </table>
+                   <td style="text-align:left"><strong>CTA4</strong></td>
+                """
+    cta5_html = """
+            <tr>
+            <td style="text-align:left"><strong>CTA5</strong></td>
+            <td style="text-align:center">---</td>
             """
 
-    tsm_html = get_mamc_starved_table(start,end)
+    CTA_LANE_GOAL = 3.5
+    eos_multiplier = 12 if eos else 1
+    goal = CTA_LANE_GOAL * eos_multiplier
+    for i,val in enumerate(cta4_outputs):
+        #cta4
+        # color_str = "color:red;" if val/CTA_DIVISOR < goal else "font-weight:bold;"
+        color_str = ""
+        cta4_html += f"""
+                    <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.1f}</td>
+                    """
+        #cta5 - ignore first index
+        if i > 0:
+            # color_str = "color:red;" if cta5_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
+            color_str = ""
+            cta5_html += f"""
+                        <td style="text-align:center;{color_str}">{cta5_outputs[i]/CTA_DIVISOR:.1f}</td>
+                        """
 
+    cta4_html += "</tr>"
+    cta5_html += "</tr>"
+    
+    cta_html = '<table>' + "<caption>CTA Breakdown</caption>" + cta_header_html + cta4_html + cta5_html + '</table>'
+    mamc_starved_html = get_mamc_starved_table(start,end)
+    # cta_blocked_html = get_blocked_table(start,end)
+    tsm_header_html = """
+                        <tr>
+                        <td></td>
+                        <th style="text-align:center"><strong>MAMC4</strong></th>
+                        <th style="text-align:center"><strong>MAMC5</strong></th>
+                    </tr>
+                    """
+    tsm_html = "<table>" + "<caption>Starved %</caption>" + tsm_header_html + mamc_starved_html + "</table>"
+    
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
     
     #making the hourly teams message
-    hourly_msg = pymsteams.connectorcard(webhook)
-    hourly_msg.title('BMA45 Hourly Update')
-    hourly_msg.summary('summary')
+    teams_msg = pymsteams.connectorcard(webhook)
+    title = 'BMA45 EOS Report' if eos else 'BMA45 Hourly Update'
+    teams_msg.title(title)
+    teams_msg.summary('summary')
+    K8S_BLUE = '#3970e4'
+    TESLA_RED = '#cc0000'
+    msg_color = TESLA_RED if eos else K8S_BLUE
+    teams_msg.color(msg_color)
     #make a card with the hourly data
     summary_card = pymsteams.cardsection()
-    summary_card.text(summary_html)
+    summary_card.text(bma_html)
 
     cta_card = pymsteams.cardsection()
     cta_card.text(cta_html)
@@ -255,7 +210,8 @@ def output45(env):
     tsm_card = pymsteams.cardsection()
     tsm_card.text(tsm_html)
 
-    hourly_msg.addSection(summary_card)
-    hourly_msg.addSection(cta_card)
-    hourly_msg.addSection(tsm_card)
-    hourly_msg.send()
+    teams_msg.addSection(summary_card)
+    teams_msg.addSection(cta_card)
+    teams_msg.addSection(tsm_card)
+    teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
+    teams_msg.send()
