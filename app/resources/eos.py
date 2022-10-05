@@ -11,7 +11,8 @@ from datetime import timedelta
 import logging
 
 def main(env):
-    if helper_functions.is_it_eos():
+    # if helper_functions.is_it_eos():
+    if True:
         logging.info('Force Eval True for EOS')
         output123.main(env,eos=True)
         output45.main(env,eos=True)
@@ -74,15 +75,25 @@ def eos_report(env):
             mc_line = line.replace('3BM','MC')
             z4_outputs.append(helper_functions.get_output_val(df_output,mc_line,z4_flowstep))
 
+    if mmamc_output > 0:
+        header_mmamc_str = """<th style="text-align:center">MMAMC</th>"""
+        blank_mmamc_str = """<td style="text-align:center">----</td>"""
+        output_mmamc_str = f"""<td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.1f}</td>"""
+    else:
+        header_mmamc_str = ""
+        blank_mmamc_str = ""
+        output_mmamc_str = ""
+
+
     #create bma header
-    bma_header_html = """<tr>
+    bma_header_html = f"""<tr>
             <th style="text-align:center"></th>
             <th style="text-align:center">BMA1</th>
             <th style="text-align:center">BMA2</th>
             <th style="text-align:center">BMA3</th>
             <th style="text-align:center">BMA4</th>
             <th style="text-align:center">BMA5</th>
-            <th style="text-align:center">MMAMC</th>
+            {header_mmamc_str}
             <th style="text-align:center">TOTAL</th>
             </tr>
     """
@@ -95,7 +106,7 @@ def eos_report(env):
             <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[3]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[4]/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center">----</td>
+            {blank_mmamc_str}
             <td style="text-align:center"><strong>{sum(cta_outputs)/CTA_DIVISOR:.1f}</strong></td>
             </tr>
     """
@@ -107,7 +118,7 @@ def eos_report(env):
             <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[3]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[4]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.1f}</td>
+            {output_mmamc_str}
             <td style="text-align:center"><strong>{(sum(mamc_outputs)+mmamc_output)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
     """
@@ -119,7 +130,7 @@ def eos_report(env):
             <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[3]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[4]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">----</td>
+            {blank_mmamc_str}
             <td style="text-align:center"><strong>{sum(c3a_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
     """
@@ -168,7 +179,7 @@ def eos_report(env):
     """
 
     #get webhook based on environment
-    webhook_key = 'teams_webhook_DEV_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
+    webhook_key = 'teams_webhook_end_of_shift' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
 

@@ -96,13 +96,20 @@ def main(env,eos=False):
             </tr>
     """
 
+    if mmamc_output > 0:
+        blank_mmamc_str = """<td style="text-align:center">----</td>"""
+        output_mmamc_str = f"""<td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.1f}</td>"""
+    else:
+        blank_mmamc_str = ""
+        output_mmamc_str = ""
+
     #create cta output row
     cta_output_html = f"""<tr>
             <td style="text-align:center"><strong>CTA</strong></td>
             <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center">----</td>
+            {blank_mmamc_str}
             <td style="text-align:center"><strong>{sum(cta_outputs)/CTA_DIVISOR:.1f}</strong></td>
             </tr>
     """
@@ -112,7 +119,7 @@ def main(env,eos=False):
             <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.1f}</td>
+            {output_mmamc_str}
             <td style="text-align:center"><strong>{(sum(mamc_outputs)+mmamc_output)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
     """
@@ -122,7 +129,7 @@ def main(env,eos=False):
             <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">----</td>
+            {blank_mmamc_str}
             <td style="text-align:center"><strong>{sum(c3a_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
     """
