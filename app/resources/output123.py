@@ -96,7 +96,7 @@ def main(env,eos=False):
 
 
     #create bma header
-    bma_header_html = """<tr>
+    bma_header_html = f"""<tr>
             <th style="text-align:center"></th>
             <th style="text-align:center">BMA1</th>
             <th style="text-align:center">BMA2</th>
