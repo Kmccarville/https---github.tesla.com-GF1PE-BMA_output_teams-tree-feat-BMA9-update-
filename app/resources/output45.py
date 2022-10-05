@@ -25,7 +25,7 @@ def get_mamc_starved_table(start_time,end_time):
 
     html=f"""
         <tr>
-            <td style="text-align:left"><b>MAMC Starved</b></td>
+            <td style="text-align:left"><b>MAMC</b></td>
             <td style="text-align:center">{st10_bma4_percent}%</td>
             <td style="text-align:center">{st10_bma5_percent}%</td>
         </tr>
@@ -181,11 +181,11 @@ def main(env,eos=False):
     tsm_header_html = """
                         <tr>
                         <td></td>
-                        <th style="text-align:center"><strong>MAMC4</strong></th>
-                        <th style="text-align:center"><strong>MAMC5</strong></th>
-                    </tr>
+                        <th style="text-align:center"><strong>BMA4</strong></th>
+                        <th style="text-align:center"><strong>BMA5</strong></th>
+                        </tr>
                     """
-    tsm_html = "<table>" + "<caption>Starved %</caption>" + tsm_header_html + mamc_starved_html + "</table>"
+    tsm_html = "<table>" + "<caption>Starvation %</caption>" + tsm_header_html + mamc_starved_html + "</table>"
     
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
