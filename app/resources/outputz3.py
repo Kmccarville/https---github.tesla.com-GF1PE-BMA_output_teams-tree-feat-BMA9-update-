@@ -210,5 +210,5 @@ def main(env,eos=False):
         wb_card.text(wb_html)
         teams_msg.addSection(wb_card)
     #add a link to the confluence page
-    teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Hourly+Update")
+    teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
     teams_msg.send()

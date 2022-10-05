@@ -221,6 +221,6 @@ def main(env,eos=False):
     cta_card = pymsteams.cardsection()
     cta_card.text(cta_html)
     teams_msg.addSection(cta_card)
-    teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Hourly+Update")
+    teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
     #SEND IT
     teams_msg.send()

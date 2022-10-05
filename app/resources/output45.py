@@ -213,5 +213,5 @@ def main(env,eos=False):
     teams_msg.addSection(summary_card)
     teams_msg.addSection(cta_card)
     teams_msg.addSection(tsm_card)
-    teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Hourly+Update")
+    teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
     teams_msg.send()
