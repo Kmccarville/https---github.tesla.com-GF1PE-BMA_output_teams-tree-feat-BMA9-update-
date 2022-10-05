@@ -181,7 +181,7 @@ def main(env,eos=False):
 
     output_html = "<table>" + output_header + output_value_html + "</table>"
     starved_html = "<table>" + "<caption>Starvation %</caption>" + starved_header + starved_wip_html + starved_mtr_html + "</table>"
-    wb_html = "<table>" + "<caption>Bonder Cycle Time Performance</caption>" +  wb_header + wb_ct_html + wb_i_ct_html + "</table>"
+    wb_html = "<table>" + "<caption>Bonder Cycle Time (mins)</caption>" +  wb_header + wb_ct_html + wb_i_ct_html + "</table>"
 
     webhook_key = 'teams_webhook_Zone3_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)

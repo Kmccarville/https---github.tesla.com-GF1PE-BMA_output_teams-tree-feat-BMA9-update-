@@ -35,7 +35,7 @@ def get_mmamc_output(db,start,end):
                 """
         df = pd.read_sql(query,db)
 
-    output = round(df.iloc[0]['OUTPUT']/4,1) if len(df) else 0 
+    output = df['OUTPUT'].sum() if len(df) else 0 
     return output
 
 def main(env,eos=False):

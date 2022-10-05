@@ -47,7 +47,7 @@ def get_blocked_table(start_time,end_time):
 
     html=f"""
         <tr>
-            <td style="text-align:left"><b>ST50-Gantry</b></td>
+            <td style="text-align:left"><b>CTA Blocked</b></td>
             <td style="text-align:center">{st50_bma4_percent}%</td>
             <td style="text-align:center">{st50_bma5_percent}%</td>
         </tr>
@@ -178,7 +178,7 @@ def main(env,eos=False):
     cta_blocked_html = get_blocked_table(start,end)
     tsm_header_html = """
                         <tr>
-                        <td>Blocked %</td>
+                        <td></td>
                         <th style="text-align:center"><strong>MAMC4</strong></th>
                         <th style="text-align:center"><strong>MAMC5</strong></th>
                     </tr>
