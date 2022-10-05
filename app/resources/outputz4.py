@@ -42,7 +42,7 @@ def main(env,eos=False):
             </tr>
             <tr>
                 <td style="text-align:right"><strong>TOTAL</strong></td>
-                <td style="text-align:left">{mic_total/4:.1f}</td>
+                <td style="text-align:left"><b>{mic_total/4:.1f}</b></td>
             </tr>
             </table>"""
 

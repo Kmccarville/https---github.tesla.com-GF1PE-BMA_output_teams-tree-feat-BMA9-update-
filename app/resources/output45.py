@@ -18,47 +18,18 @@ def get_mamc_starved_table(start_time,end_time):
 
     #get starveddata for each tagpath set
     st10_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST10_PATHS, 'Starved')
-    st20_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST20_PATHS, 'Starved')
-    st30_walk_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST30_WALK_PATHS, 'Starved')
-    st30_fixture_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST30_FIXTURE_PATHS, 'Starved')
 
     #get starve percentage (divide by seconds in between start and end and multiply by 100%)
     st10_bma4_percent = round(helper_functions.get_val(st10_df,'3BM4','LINE','Duration')/seconds_between*100,1)
     st10_bma5_percent = round(helper_functions.get_val(st10_df,'3BM5','LINE','Duration')/seconds_between*100,1)
-    # st20_bma4_percent = round(helper_functions.get_val(st20_df,'3BM4','LINE','Duration')/3600*100,1)
-    # st20_bma5_percent = round(helper_functions.get_val(st20_df,'3BM5','LINE','Duration')/3600*100,1)
-    # st30_walk_bma4_percent = round(helper_functions.get_val(st30_walk_df,'3BM4','LINE','Duration')/3600*100,1)
-    # st30_walk_bma5_percent = round(helper_functions.get_val(st30_walk_df,'3BM5','LINE','Duration')/3600*100,1)
-    # st30_fix_bma4_percent = round(helper_functions.get_val(st30_fixture_df,'3BM4','LINE','Duration')/3600*100,1)
-    # st30_fix_bma5_percent = round(helper_functions.get_val(st30_fixture_df,'3BM5','LINE','Duration')/3600*100,1)
 
     html=f"""
         <tr>
-            <td>Starved %</td>
-            <td style="text-align:center"><strong>MAMC4</strong></td>
-            <td style="text-align:center"><strong>MAMC5</strong></td>
-        </tr>
-        <tr>
-            <td style="text-align:left"><b>ST10-Bandos</b></td>
+            <td style="text-align:left"><b>MAMC Starved</b></td>
             <td style="text-align:center">{st10_bma4_percent}%</td>
             <td style="text-align:center">{st10_bma5_percent}%</td>
         </tr>
         """
-        # <tr>
-        #     <td style="text-align:left"><b>ST20-Frax1</b></td>
-        #     <td style="text-align:center">{st20_bma4_percent}%</td>
-        #     <td style="text-align:center">{st20_bma5_percent}%</td>
-        # </tr>
-        # <tr>
-        #     <td style="text-align:left"><b>ST30-Bando</b></td>
-        #     <td style="text-align:center">{st30_walk_bma4_percent}%</td>
-        #     <td style="text-align:center">{st30_walk_bma5_percent}%</td>
-        # </tr>
-        # <tr>
-        #     <td style="text-align:left"><b>ST30-Fixture</b></td>
-        #     <td style="text-align:center">{st30_fix_bma4_percent}%</td>
-        #     <td style="text-align:center">{st30_fix_bma5_percent}%</td>
-        # </tr>
 
     return html
 
@@ -75,11 +46,6 @@ def get_blocked_table(start_time,end_time):
     st50_bma5_percent = round(helper_functions.get_val(st50_df,'3BM5','LINE','Duration')/seconds_between*100,1)
 
     html=f"""
-        <tr>
-            <td>Blocked %</td>
-            <td style="text-align:center"><strong>MAMC4</strong></td>
-            <td style="text-align:center"><strong>MAMC5</strong></td>
-        </tr>
         <tr>
             <td style="text-align:left"><b>ST50-Gantry</b></td>
             <td style="text-align:center">{st50_bma4_percent}%</td>
@@ -208,9 +174,16 @@ def main(env,eos=False):
     cta5_html += "</tr>"
     
     cta_html = '<table>' + "<caption>CTA Breakdown</caption>" + cta_header_html + cta4_html + cta5_html + '</table>'
-    tsm_starved_html = get_mamc_starved_table(start,end)
-    tsm_blocked_html = get_blocked_table(start,end)
-    tsm_html = "<table>" + "<caption>Starved/Blocked States</caption>" + tsm_blocked_html + tsm_starved_html + "</table>"
+    mamc_starved_html = get_mamc_starved_table(start,end)
+    cta_blocked_html = get_blocked_table(start,end)
+    tsm_header_html = """
+                        <tr>
+                        <td>Blocked %</td>
+                        <th style="text-align:center"><strong>MAMC4</strong></th>
+                        <th style="text-align:center"><strong>MAMC5</strong></th>
+                    </tr>
+                    """
+    tsm_html = "<table>" + "<caption>Starved/Blocked %</caption>" + tsm_header_html + cta_blocked_html + mamc_starved_html + "</table>"
     
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)

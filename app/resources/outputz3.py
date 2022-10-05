@@ -135,11 +135,11 @@ def main(env,eos=False):
                         """
     starved_wip_html = """
                         <tr>
-                        <td style="text-align:left"><b>WIP</b></td>
+                        <td style="text-align:left"><b>Ingress</b></td>
                         """
     starved_mtr_html = """
                     <tr>
-                    <td style="text-align:left"><b>MTRs</b></td>
+                    <td style="text-align:left"><b>PO MTRs</b></td>
                     """
     wb_ct_html = """
                 <tr>
@@ -189,7 +189,8 @@ def main(env,eos=False):
     
     #making the hourly teams message
     teams_msg = pymsteams.connectorcard(webhook)
-    teams_msg.title('Zone 3 Hourly Update')
+    title = 'Zone 3 EOS Report' if eos else 'Zone 3 Hourly Update'
+    teams_msg.title(title)
     teams_msg.summary('summary')
     K8S_BLUE = '#3970e4'
     TESLA_RED = '#cc0000'
