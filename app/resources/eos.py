@@ -89,7 +89,7 @@ def eos_report(env):
 
     #create cta output row
     cta_html = f"""<tr>
-            <td style="text-align:center"><strong>CTA</strong></td>
+            <td style="text-align:center"><strong>ZONE1 CTA</strong></td>
             <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.1f}</td>
@@ -101,7 +101,7 @@ def eos_report(env):
     """
     #create mamc output row
     mamc_html = f"""<tr>
-            <td style="text-align:center"><strong>MAMC</strong></td>
+            <td style="text-align:center"><strong>ZONE2 MAMC</strong></td>
             <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.1f}</td>
@@ -113,7 +113,7 @@ def eos_report(env):
     """
     #create c3a output row
     c3a_html = f"""<tr>
-            <td style="text-align:center"><strong>C3A</strong></td>
+            <td style="text-align:center"><strong>ZONE2 C3A</strong></td>
             <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.1f}</td>

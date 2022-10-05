@@ -166,17 +166,18 @@ def main(env,eos=False):
     eos_multiplier = 12 if eos else 1
     goal = CTA_LANE_GOAL * eos_multiplier
     for i,val in enumerate(cta1_outputs):
-        color_str = "color:red;" if val/CTA_DIVISOR < goal else "font-weight:bold;"
+        color_str = ""
+        # color_str = "color:red;" if val/CTA_DIVISOR < goal else "font-weight:bold;"
         cta1_html += f"""
                     <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.1f}</td>
                     """
 
-        color_str = "color:red;" if cta2_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
+        # color_str = "color:red;" if cta2_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
         cta2_html += f"""
                     <td style="text-align:center;{color_str}">{cta2_outputs[i]/CTA_DIVISOR:.1f}</td>
                     """
 
-        color_str = "color:red;" if cta3_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
+        # color_str = "color:red;" if cta3_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
         cta3_html += f"""
                     <td style="text-align:center;{color_str}">{cta3_outputs[i]/CTA_DIVISOR:.1f}</td>
                     """
@@ -186,7 +187,7 @@ def main(env,eos=False):
     cta3_html += "</tr>"
 
     #create full bma html with the above htmls
-    cta_html = '<table>' + cta_header_html + cta1_html + cta2_html + cta3_html + '</table>'
+    cta_html = '<table>' + "<caption>CTA Breakdown</caption>" + cta_header_html + cta1_html + cta2_html + cta3_html + '</table>'
 
     #get webhook based on environment
     webhook_key = 'teams_webhook_BMA123_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
@@ -211,5 +212,6 @@ def main(env,eos=False):
     cta_card = pymsteams.cardsection()
     cta_card.text(cta_html)
     teams_msg.addSection(cta_card)
+    teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Hourly+Update")
     #SEND IT
     teams_msg.send()

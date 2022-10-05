@@ -159,13 +159,15 @@ def main(env,eos=False):
     goal = CTA_LANE_GOAL * eos_multiplier
     for i,val in enumerate(cta4_outputs):
         #cta4
-        color_str = "color:red;" if val/CTA_DIVISOR < goal else "font-weight:bold;"
+        # color_str = "color:red;" if val/CTA_DIVISOR < goal else "font-weight:bold;"
+        color_str = ""
         cta4_html += f"""
                     <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.1f}</td>
                     """
         #cta5 - ignore first index
         if i > 0:
-            color_str = "color:red;" if cta5_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
+            # color_str = "color:red;" if cta5_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
+            color_str = ""
             cta5_html += f"""
                         <td style="text-align:center;{color_str}">{cta5_outputs[i]/CTA_DIVISOR:.1f}</td>
                         """
@@ -175,7 +177,7 @@ def main(env,eos=False):
     
     cta_html = '<table>' + "<caption>CTA Breakdown</caption>" + cta_header_html + cta4_html + cta5_html + '</table>'
     mamc_starved_html = get_mamc_starved_table(start,end)
-    cta_blocked_html = get_blocked_table(start,end)
+    # cta_blocked_html = get_blocked_table(start,end)
     tsm_header_html = """
                         <tr>
                         <td></td>
@@ -183,7 +185,7 @@ def main(env,eos=False):
                         <th style="text-align:center"><strong>MAMC5</strong></th>
                     </tr>
                     """
-    tsm_html = "<table>" + "<caption>Starved/Blocked %</caption>" + tsm_header_html + cta_blocked_html + mamc_starved_html + "</table>"
+    tsm_html = "<table>" + "<caption>Starved %</caption>" + tsm_header_html + mamc_starved_html + "</table>"
     
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
@@ -211,4 +213,5 @@ def main(env,eos=False):
     teams_msg.addSection(summary_card)
     teams_msg.addSection(cta_card)
     teams_msg.addSection(tsm_card)
+    teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Hourly+Update")
     teams_msg.send()

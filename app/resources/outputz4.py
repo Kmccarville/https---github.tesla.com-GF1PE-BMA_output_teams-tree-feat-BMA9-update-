@@ -66,5 +66,6 @@ def main(env,eos=False):
     output_card = pymsteams.cardsection()
     output_card.text(html)
     teams_msg.addSection(output_card)
+    teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Hourly+Update")
     #SEND IT
     teams_msg.send()
