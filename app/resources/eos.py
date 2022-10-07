@@ -63,16 +63,16 @@ def eos_report(env):
         c3a_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['C3A']
         z3_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['ZONE3']
         
-        cta_outputs.append(helper_functions.get_output_val(df_output,line,cta_flowstep))
-        mamc_outputs.append(helper_functions.get_output_val(df_output,line,mamc_flowstep))
-        c3a_outputs.append(helper_functions.get_output_val(df_output,line,c3a_flowstep))
-        z3_outputs.append(helper_functions.get_output_val(df_output,line,z3_flowstep))
+        cta_outputs.append(helper_functions.get_output_val(df_output,cta_flowstep,line))
+        mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,line))
+        c3a_outputs.append(helper_functions.get_output_val(df_output,c3a_flowstep,line))
+        z3_outputs.append(helper_functions.get_output_val(df_output,z3_flowstep,line))
         
         #special if statement for MC1/MC2
         if line in ['3BM1','3BM2']:
             z4_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['ZONE4']
             mc_line = line.replace('3BM','MC')
-            z4_outputs.append(helper_functions.get_output_val(df_output,mc_line,z4_flowstep))
+            z4_outputs.append(helper_functions.get_output_val(df_output,z4_flowstep,mc_line))
 
     if mmamc_output > 0:
         header_mmamc_str = """<th style="text-align:center">MMAMC</th>"""
@@ -82,6 +82,29 @@ def eos_report(env):
         header_mmamc_str = ""
         blank_mmamc_str = ""
         output_mmamc_str = ""
+
+    cta123_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['CTA']
+    cta4_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM4'").iloc[0]['CTA']
+    cta5_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM5'").iloc[0]['CTA']
+
+    mamc123_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['MAMC']
+    mamc4_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM4'").iloc[0]['MAMC']
+    mamc5_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM5'").iloc[0]['MAMC']
+
+    c3a123_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['C3A']
+    c3a4_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM4'").iloc[0]['C3A']
+    c3a5_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM5'").iloc[0]['C3A']
+
+    z3_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['ZONE3']
+    z4_mc1_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['ZONE4']
+    z4_mc2_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM2'").iloc[0]['ZONE4']
+
+    total_cta_ouput = helper_functions.get_output_val(df_output,cta123_flowstep) + helper_functions.get_output_val(df_output,cta4_flowstep) + helper_functions.get_output_val(df_output,cta5_flowstep)
+    total_mamc_ouput = helper_functions.get_output_val(df_output,mamc123_flowstep) + helper_functions.get_output_val(df_output,mamc4_flowstep) + helper_functions.get_output_val(df_output,mamc5_flowstep)
+    total_c3a_output = helper_functions.get_output_val(df_output,c3a123_flowstep) + helper_functions.get_output_val(df_output,c3a4_flowstep) + helper_functions.get_output_val(df_output,c3a5_flowstep)
+
+    total_z3_output = helper_functions.get_output_val(df_output,z3_flowstep) 
+    total_z4_output = helper_functions.get_output_val(df_output,z4_mc1_flowstep) + helper_functions.get_output_val(df_output,z4_mc2_flowstep) 
 
 
     #create bma header
@@ -106,7 +129,7 @@ def eos_report(env):
             <td style="text-align:center">{cta_outputs[3]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[4]/CTA_DIVISOR:.1f}</td>
             {blank_mmamc_str}
-            <td style="text-align:center"><strong>{sum(cta_outputs)/CTA_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{total_cta_ouput/CTA_DIVISOR:.1f}</strong></td>
             </tr>
     """
     #create mamc output row
@@ -118,7 +141,7 @@ def eos_report(env):
             <td style="text-align:center">{mamc_outputs[3]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[4]/NORMAL_DIVISOR:.1f}</td>
             {output_mmamc_str}
-            <td style="text-align:center"><strong>{(sum(mamc_outputs)+mmamc_output)/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{(total_mamc_ouput+mmamc_output)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
     """
     #create c3a output row
@@ -130,7 +153,7 @@ def eos_report(env):
             <td style="text-align:center">{c3a_outputs[3]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[4]/NORMAL_DIVISOR:.1f}</td>
             {blank_mmamc_str}
-            <td style="text-align:center"><strong>{sum(c3a_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
     """
 
@@ -155,7 +178,7 @@ def eos_report(env):
             <td style="text-align:center">{z3_outputs[2]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{z3_outputs[3]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{z3_outputs[4]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center"><strong>{sum(z3_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{total_z3_output/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
             </table>
     """
@@ -172,7 +195,7 @@ def eos_report(env):
             <td style="text-align:center"><strong>ZONE4</strong></td>
             <td style="text-align:center">{z4_outputs[0]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{z4_outputs[1]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center"><strong>{sum(z4_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{total_z4_output/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
             </table>
     """
