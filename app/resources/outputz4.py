@@ -21,8 +21,8 @@ def main(env,eos=False):
     flowsteps = [MC1_FLOWSTEP, MC2_FLOWSTEP]
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
-    mc1_output=helper_functions.get_output_val(df_output,'MC1',MC1_FLOWSTEP)
-    mc2_output=helper_functions.get_output_val(df_output,'MC2',MC2_FLOWSTEP)
+    mc1_output=helper_functions.get_output_val(df_output,MC1_FLOWSTEP)
+    mc2_output=helper_functions.get_output_val(df_output,MC2_FLOWSTEP)
     mic_total = mc1_output + mc2_output
 
     # Setup teams output table

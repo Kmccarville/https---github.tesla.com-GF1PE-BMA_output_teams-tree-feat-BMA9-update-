@@ -63,6 +63,20 @@ def get_output_val(df,line,flowstep,actor=None):
     else:
         return 0
 
+#small helper function to get output by line/flowstep and divides to get carset value
+def get_output_val(df,flowstep,line=None,actor=None):
+    if actor:
+        df_sub = df.query(f"LINE=='{line}' and ACTOR=='{actor}' and FLOWSTEP=='{flowstep}'")
+    elif line:
+        df_sub = df.query(f"LINE=='{line}' and FLOWSTEP=='{flowstep}'")
+    else:
+        df_sub = df.query(f"FLOWSTEP=='{flowstep}'")
+        
+    if len(df_sub):
+        return df_sub['OUTPUT'].sum()
+    else:
+        return 0
+
 def get_flowstep_outputs(db,start,end,flowsteps):
     #create flowstep string based on flowstep list given
     flowstep_str = ""

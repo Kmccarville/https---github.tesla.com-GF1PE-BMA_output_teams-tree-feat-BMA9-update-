@@ -149,11 +149,10 @@ def main(env,eos=False):
                     <tr>
                     <td style="text-align:left"><b>Ideal CT</b></td>
                     """
-    total_output = 0
+    total_output = helper_functions.get_output_val(df_output,PO_FLOWSTEP)/4
     for line in LINES:
         header_html += f"""<th style="text-align:center">{line}</th>"""
-        output_val = helper_functions.get_output_val(df_output,line,PO_FLOWSTEP)/4
-        total_output += output_val
+        output_val = helper_functions.get_output_val(df_output,PO_FLOWSTEP,line)/4
         output_value_html += f"""<td style="text-align:center">{output_val:.1f}</td>"""
         #divide by 3 if it's line 4 because there are 4 ingress stations
         ingress_divisor = 3 if line=='3BM4' else 1

@@ -75,15 +75,15 @@ def main(env,eos=False):
     cta2_outputs = []
     cta3_outputs = []
     for line in LINES:
-        cta_outputs.append(helper_functions.get_output_val(df_output,line,CTA_FLOWSTEP))
-        mamc_outputs.append(helper_functions.get_output_val(df_output,line,MAMC_FLOWSTEP))
-        c3a_outputs.append(helper_functions.get_output_val(df_output,line,C3A_FLOWSTEP))
+        cta_outputs.append(helper_functions.get_output_val(df_output,CTA_FLOWSTEP,line))
+        mamc_outputs.append(helper_functions.get_output_val(df_output,MAMC_FLOWSTEP,line))
+        c3a_outputs.append(helper_functions.get_output_val(df_output,C3A_FLOWSTEP,line))
 
     for lane in range(1,5):
         lane_num = str(lane).zfill(2)
-        cta1_outputs.append(helper_functions.get_output_val(df_output,'3BM1',CTA_FLOWSTEP,actor=f"3BM1-20000-{lane_num}"))
-        cta2_outputs.append(helper_functions.get_output_val(df_output,'3BM2',CTA_FLOWSTEP,actor=f"3BM2-20000-{lane_num}"))
-        cta3_outputs.append(helper_functions.get_output_val(df_output,'3BM3',CTA_FLOWSTEP,actor=f"3BM3-20000-{lane_num}"))
+        cta1_outputs.append(helper_functions.get_output_val(df_output,CTA_FLOWSTEP,'3BM1',actor=f"3BM1-20000-{lane_num}"))
+        cta2_outputs.append(helper_functions.get_output_val(df_output,CTA_FLOWSTEP,'3BM2',actor=f"3BM2-20000-{lane_num}"))
+        cta3_outputs.append(helper_functions.get_output_val(df_output,CTA_FLOWSTEP,'3BM3',actor=f"3BM3-20000-{lane_num}"))
 
     if mmamc_output > 0:
         header_mmamc_str = """<th style="text-align:center">MMAMC</th>"""
@@ -94,6 +94,9 @@ def main(env,eos=False):
         blank_mmamc_str = ""
         output_mmamc_str = ""
 
+    total_cta_output = helper_functions.get_output_val(df_output,CTA_FLOWSTEP)
+    total_mamc_output = helper_functions.get_output_val(df_output,MAMC_FLOWSTEP)
+    total_c3a_output = helper_functions.get_output_val(df_output,C3A_FLOWSTEP)
 
     #create bma header
     bma_header_html = f"""<tr>
@@ -112,7 +115,7 @@ def main(env,eos=False):
             <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.1f}</td>
             {blank_mmamc_str}
-            <td style="text-align:center"><strong>{sum(cta_outputs)/CTA_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{total_cta_output/CTA_DIVISOR:.1f}</strong></td>
             </tr>
     """
     #create mamc output row
@@ -122,7 +125,7 @@ def main(env,eos=False):
             <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.1f}</td>
             {output_mmamc_str}
-            <td style="text-align:center"><strong>{(sum(mamc_outputs)+mmamc_output)/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{(total_mamc_output+mmamc_output)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
     """
     #create c3a output row
@@ -132,7 +135,7 @@ def main(env,eos=False):
             <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.1f}</td>
             {blank_mmamc_str}
-            <td style="text-align:center"><strong>{sum(c3a_outputs)/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
     """
 
