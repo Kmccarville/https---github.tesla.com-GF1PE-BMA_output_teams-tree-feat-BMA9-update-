@@ -66,9 +66,9 @@ def main(env,eos=False):
     color_str_NIC3 = "color:red;" if round(NIC_Fail_Count[2]*100, 2) < Yield_Goal else "font-weight:bold;"
     header_html = f"""<tr>
             <th style="text-align:center"></th>
-            <th style="text-align:center">3BM1</th>
-            <th style="text-align:center">3BM2</th>
-            <th style="text-align:center">3BM3</th>
+            <th style="text-align:center">BMA1</th>
+            <th style="text-align:center">BMA2</th>
+            <th style="text-align:center">BMA3</th>
             </tr>
     """
 
