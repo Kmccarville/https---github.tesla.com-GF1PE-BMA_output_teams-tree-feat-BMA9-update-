@@ -100,12 +100,12 @@ def main(env,eos=False):
             <td style="text-align:center">{NIC_Timeout_Count[2]*100:.2f}%</td>
             </tr>
     """
-
+    OCAP_html = f"""<a href="https://confluence.teslamotors.com/display/PRODENG/Dispense+-+Out+of+Control+Action+Plan">Link to OCAP</a>"""
 
 
     #create full bma html with the above htmls
 
-    hour_html = '<table>' + "<caption>C3A Yield Breakdown</caption>" + header_html + IC_Fail_Count_html + NIC_Fail_Count_html + IC_Timeout_Count_html + NIC_Timeout_Count_html + '</table>'
+    hour_html = '<table>' + "<caption>C3A Yield Breakdown</caption>" + header_html + IC_Fail_Count_html + NIC_Fail_Count_html + IC_Timeout_Count_html + NIC_Timeout_Count_html + '</table>' + OCAP_html
 
     webhook_key = 'teams_webhook_BMA123_OCAP_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
