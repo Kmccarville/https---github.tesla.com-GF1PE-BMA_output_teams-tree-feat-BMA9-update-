@@ -46,10 +46,27 @@ def main(env,eos=False):
     NIC_Timeout_Count = []
 
     for line in LINE_LIST:
-        IC_Fail_Count.append(get_yieldval(yield_df, line, 'IC Fail Count'))
-        IC_Timeout_Count.append(get_yieldval(yield_df, line, 'IC Timeout Count'))
-        NIC_Fail_Count.append(get_yieldval(yield_df, line, 'NIC Fail Count'))
-        NIC_Timeout_Count.append(get_yieldval(yield_df, line, 'NIC Timeout Count'))
+        val = get_yieldval(yield_df, line, 'IC Fail Count')*100
+        rounding_value = 0 if val >= 100 else 2
+        val = round(val,rounding_value)
+        IC_Fail_Count.append(val)
+
+        val = get_yieldval(yield_df, line, 'IC Timeout Count')*100
+        rounding_value = 0 if val >= 100 else 2
+        val = round(val,rounding_value)
+        IC_Timeout_Count.append(val)
+
+        val = get_yieldval(yield_df, line, 'NIC Fail Count')*100
+        rounding_value = 0 if val >= 100 else 2
+        val = round(val,rounding_value)
+        NIC_Fail_Count.append(val)
+
+        val = get_yieldval(yield_df, line, 'NIC Timeout Count')*100
+        rounding_value = 0 if val >= 100 else 2
+        val = round(val,rounding_value)
+        NIC_Timeout_Count.append(val)
+
+
  #create bma header
     Yield_Goal = 98.0
     color_str_IC1 = ""
@@ -100,12 +117,10 @@ def main(env,eos=False):
             <td style="text-align:center">{NIC_Timeout_Count[2]*100:.2f}%</td>
             </tr>
     """
-    OCAP_html = f"""<a href="https://confluence.teslamotors.com/display/PRODENG/Dispense+-+Out+of+Control+Action+Plan">Link to OCAP</a>"""
-
 
     #create full bma html with the above htmls
 
-    hour_html = '<table>' + "<caption>C3A Dispense Yield Breakdown</caption>" + header_html + IC_Fail_Count_html + NIC_Fail_Count_html + IC_Timeout_Count_html + NIC_Timeout_Count_html + '</table>' + OCAP_html
+    hour_html = '<table>' + "<caption>C3A Dispense Yield Breakdown</caption>" + header_html + IC_Fail_Count_html + NIC_Fail_Count_html + IC_Timeout_Count_html + NIC_Timeout_Count_html + '</table>'
 
     webhook_key = 'teams_webhook_BMA123_OCAP_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
@@ -120,7 +135,7 @@ def main(env,eos=False):
     hourly_card.text(hour_html)
     hourly_msg.addSection(hourly_card)
     #add a link to the confluence page
-    hourly_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Hourly+Update")
+    hourly_msg.addLinkButton("Link to OCAP", "https://confluence.teslamotors.com/display/PRODENG/Dispense+-+Out+of+Control+Action+Plan")
     hourly_msg.send()
     
     mos_con.close()
