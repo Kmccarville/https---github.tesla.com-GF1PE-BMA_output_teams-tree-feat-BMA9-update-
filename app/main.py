@@ -6,6 +6,7 @@ import os
 from common import helper_functions
 
 from resources import output123
+from resources import yield123
 from resources import output45
 from resources import outputz3
 from resources import outputz4
@@ -35,6 +36,7 @@ if __name__ == '__main__':
         schedule.every().hour.at(":00").do(output45.main,env)
         schedule.every().hour.at(":00").do(outputz3.main,env)
         schedule.every().hour.at(":00").do(outputz4.main,env)
+        schedule.every().hour.at(":00").do(yield123.main,env)
         schedule.every().hour.at(":00").do(eos.main,env)
 
         if env == "dev":
