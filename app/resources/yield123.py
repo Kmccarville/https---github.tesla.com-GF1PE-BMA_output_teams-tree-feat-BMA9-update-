@@ -66,35 +66,35 @@ def main(env,eos=False):
     color_str_NIC3 = "color:red;" if round(NIC_Fail_Count[2]*100, 2) < Yield_Goal else "font-weight:bold;"
     header_html = f"""<tr>
             <th style="text-align:center"></th>
-            <th style="text-align:center">C3A 1 Yield</th>
-            <th style="text-align:center">C3A 2 Yield</th>
-            <th style="text-align:center">C3A 3 Yield</th>
+            <th style="text-align:center">3BM1</th>
+            <th style="text-align:center">3BM2</th>
+            <th style="text-align:center">3BM3</th>
             </tr>
     """
 
     IC_Fail_Count_html = f"""<tr>
-            <td style="text-align:center"><strong>IC Fail Count</strong></td>
+            <td style="text-align:center"><strong>IC Profilometer</strong></td>
             <td style="text-align:center;{color_str_IC1}">{IC_Fail_Count[0]*100:.2f}%</td>
             <td style="text-align:center;{color_str_IC2}">{IC_Fail_Count[1]*100:.2f}%</td>
             <td style="text-align:center;{color_str_IC3}">{IC_Fail_Count[2]*100:.2f}%</td>
             </tr>
     """
     NIC_Fail_Count_html = f"""<tr>
-            <td style="text-align:center"><strong>NIC Fail Count</strong></td>
+            <td style="text-align:center"><strong>NIC Profilometer</strong></td>
             <td style="text-align:center;{color_str_NIC1}">{NIC_Fail_Count[0]*100:.2f}%</td>
             <td style="text-align:center;{color_str_NIC2}">{NIC_Fail_Count[1]*100:.2f}%</td>
             <td style="text-align:center;{color_str_NIC3}">{NIC_Fail_Count[2]*100:.2f}%</td>
             </tr>
     """
     IC_Timeout_Count_html = f"""<tr>
-            <td style="text-align:center"><strong>IC Timeout Count</strong></td>
+            <td style="text-align:center"><strong>IC Timeout</strong></td>
             <td style="text-align:center">{IC_Timeout_Count[0]*100:.2f}%</td>
             <td style="text-align:center">{IC_Timeout_Count[1]*100:.2f}%</td>
             <td style="text-align:center">{IC_Timeout_Count[2]*100:.2f}%</td>
             </tr>
     """
     NIC_Timeout_Count_html = f"""<tr>
-            <td style="text-align:center"><strong>NIC Timeout Count</strong></td>
+            <td style="text-align:center"><strong>NIC Timeout</strong></td>
             <td style="text-align:center">{NIC_Timeout_Count[0]*100:.2f}%</td>
             <td style="text-align:center">{NIC_Timeout_Count[1]*100:.2f}%</td>
             <td style="text-align:center">{NIC_Timeout_Count[2]*100:.2f}%</td>
@@ -105,7 +105,7 @@ def main(env,eos=False):
 
     #create full bma html with the above htmls
 
-    hour_html = '<table>' + "<caption>C3A Yield Breakdown</caption>" + header_html + IC_Fail_Count_html + NIC_Fail_Count_html + IC_Timeout_Count_html + NIC_Timeout_Count_html + '</table>' + OCAP_html
+    hour_html = '<table>' + "<caption>C3A Dispense Yield Breakdown</caption>" + header_html + IC_Fail_Count_html + NIC_Fail_Count_html + IC_Timeout_Count_html + NIC_Timeout_Count_html + '</table>' + OCAP_html
 
     webhook_key = 'teams_webhook_BMA123_OCAP_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
@@ -113,7 +113,7 @@ def main(env,eos=False):
     
     #making the hourly teams message
     hourly_msg = pymsteams.connectorcard(webhook)
-    hourly_msg.title('C3A Dispense Yield Hourly Update')
+    hourly_msg.title('C3A Yield Hourly Update')
     hourly_msg.summary('summary')
     #make a card with the hourly data
     hourly_card = pymsteams.cardsection()
