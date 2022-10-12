@@ -75,12 +75,12 @@ def main(env,eos=False):
     color_str_NIC1 = ""
     color_str_NIC2 = ""
     color_str_NIC3 = ""
-    color_str_IC1 = "color:red;" if round(IC_Fail_Count[0]*100, 2) < Yield_Goal else "font-weight:bold;"
-    color_str_IC2 = "color:red;" if round(IC_Fail_Count[1]*100, 2) < Yield_Goal else "font-weight:bold;"
-    color_str_IC3 = "color:red;" if round(IC_Fail_Count[2]*100, 2) < Yield_Goal else "font-weight:bold;"
-    color_str_NIC1 = "color:red;" if round(NIC_Fail_Count[0]*100, 2) < Yield_Goal else "font-weight:bold;"
-    color_str_NIC2 = "color:red;" if round(NIC_Fail_Count[1]*100, 2) < Yield_Goal else "font-weight:bold;"
-    color_str_NIC3 = "color:red;" if round(NIC_Fail_Count[2]*100, 2) < Yield_Goal else "font-weight:bold;"
+    color_str_IC1 = "color:red;" if IC_Fail_Count[0] < Yield_Goal else "font-weight:bold;"
+    color_str_IC2 = "color:red;" if IC_Fail_Count[1] < Yield_Goal else "font-weight:bold;"
+    color_str_IC3 = "color:red;" if IC_Fail_Count[2] < Yield_Goal else "font-weight:bold;"
+    color_str_NIC1 = "color:red;" if NIC_Fail_Count[0] < Yield_Goal else "font-weight:bold;"
+    color_str_NIC2 = "color:red;" if NIC_Fail_Count[1] < Yield_Goal else "font-weight:bold;"
+    color_str_NIC3 = "color:red;" if NIC_Fail_Count[2] < Yield_Goal else "font-weight:bold;"
     header_html = f"""<tr>
             <th style="text-align:center"></th>
             <th style="text-align:center">BMA1</th>
@@ -91,30 +91,30 @@ def main(env,eos=False):
 
     IC_Fail_Count_html = f"""<tr>
             <td style="text-align:center"><strong>IC Profilometer</strong></td>
-            <td style="text-align:center;{color_str_IC1}">{IC_Fail_Count[0]*100:.2f}%</td>
-            <td style="text-align:center;{color_str_IC2}">{IC_Fail_Count[1]*100:.2f}%</td>
-            <td style="text-align:center;{color_str_IC3}">{IC_Fail_Count[2]*100:.2f}%</td>
+            <td style="text-align:center;{color_str_IC1}">{IC_Fail_Count[0]}%</td>
+            <td style="text-align:center;{color_str_IC2}">{IC_Fail_Count[1]}%</td>
+            <td style="text-align:center;{color_str_IC3}">{IC_Fail_Count[2]}%</td>
             </tr>
     """
     NIC_Fail_Count_html = f"""<tr>
             <td style="text-align:center"><strong>NIC Profilometer</strong></td>
-            <td style="text-align:center;{color_str_NIC1}">{NIC_Fail_Count[0]*100:.2f}%</td>
-            <td style="text-align:center;{color_str_NIC2}">{NIC_Fail_Count[1]*100:.2f}%</td>
-            <td style="text-align:center;{color_str_NIC3}">{NIC_Fail_Count[2]*100:.2f}%</td>
+            <td style="text-align:center;{color_str_NIC1}">{NIC_Fail_Count[0]}%</td>
+            <td style="text-align:center;{color_str_NIC2}">{NIC_Fail_Count[1]}%</td>
+            <td style="text-align:center;{color_str_NIC3}">{NIC_Fail_Count[2]}%</td>
             </tr>
     """
     IC_Timeout_Count_html = f"""<tr>
             <td style="text-align:center"><strong>IC Timeout</strong></td>
-            <td style="text-align:center">{IC_Timeout_Count[0]*100:.2f}%</td>
-            <td style="text-align:center">{IC_Timeout_Count[1]*100:.2f}%</td>
-            <td style="text-align:center">{IC_Timeout_Count[2]*100:.2f}%</td>
+            <td style="text-align:center">{IC_Timeout_Count[0]}%</td>
+            <td style="text-align:center">{IC_Timeout_Count[1]}%</td>
+            <td style="text-align:center">{IC_Timeout_Count[2]}%</td>
             </tr>
     """
     NIC_Timeout_Count_html = f"""<tr>
             <td style="text-align:center"><strong>NIC Timeout</strong></td>
-            <td style="text-align:center">{NIC_Timeout_Count[0]*100:.2f}%</td>
-            <td style="text-align:center">{NIC_Timeout_Count[1]*100:.2f}%</td>
-            <td style="text-align:center">{NIC_Timeout_Count[2]*100:.2f}%</td>
+            <td style="text-align:center">{NIC_Timeout_Count[0]}%</td>
+            <td style="text-align:center">{NIC_Timeout_Count[1]}%</td>
+            <td style="text-align:center">{NIC_Timeout_Count[2]}%</td>
             </tr>
     """
 
