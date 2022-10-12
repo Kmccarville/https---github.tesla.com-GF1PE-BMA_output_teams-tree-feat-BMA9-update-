@@ -47,23 +47,19 @@ def main(env,eos=False):
 
     for line in LINE_LIST:
         val = get_yieldval(yield_df, line, 'IC Fail Count')*100
-        rounding_value = 0 if val >= 100 else 2
-        val = round(val,rounding_value)
+        val = round(val) if val >=100 else round(val,2)
         IC_Fail_Count.append(val)
 
         val = get_yieldval(yield_df, line, 'IC Timeout Count')*100
-        rounding_value = 0 if val >= 100 else 2
-        val = round(val,rounding_value)
+        val = round(val) if val >=100 else round(val,2)
         IC_Timeout_Count.append(val)
 
         val = get_yieldval(yield_df, line, 'NIC Fail Count')*100
-        rounding_value = 0 if val >= 100 else 2
-        val = round(val,rounding_value)
+        val = round(val) if val >=100 else round(val,2)
         NIC_Fail_Count.append(val)
 
         val = get_yieldval(yield_df, line, 'NIC Timeout Count')*100
-        rounding_value = 0 if val >= 100 else 2
-        val = round(val,rounding_value)
+        val = round(val) if val >=100 else round(val,2)
         NIC_Timeout_Count.append(val)
 
 
