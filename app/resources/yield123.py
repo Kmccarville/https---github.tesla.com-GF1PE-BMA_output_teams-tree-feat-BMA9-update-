@@ -39,7 +39,6 @@ def main(env,eos=False):
 
     #get the yield of the hour
     yield_df = query_yield(mos_con,start_time,end_time)
-    print(yield_df)
     IC_Fail_Count = []
     IC_Timeout_Count = []
     NIC_Fail_Count = []
