@@ -9,7 +9,7 @@ import pymsteams
 
 def main(env):
     #define start and end time for the hour
-    lookback=12 if eos else 1
+    lookback=1
     now=datetime.utcnow()
     logging.info("Close NC Check start %s" % datetime.utcnow())
     now_sub1hr=now+timedelta(hours=-lookback)
@@ -22,24 +22,14 @@ def main(env):
 
     query = f"""
             SELECT 
-            nc.description as NC_DESCRIPTION, 
-            count(distinct t.name) as NUM_CLOSED
-            FROM sparq.nc
-            inner join sparq.thing t on t.id = nc.thingid
-            inner join sparq.actor a on a.id = t.actorcreatedby
-            WHERE closedby = '{ACTOR_CLOSED_BY}'
-            and nc.created > now() - interval 1 hour 
-            and nc.description not in ('3BM-29500:NMAMC Leak Test - Short', '3BM-29500:NMAMC Leak Test-5Sec', '3BM-29600:NMAMC Leak Retest', 'Issues detected on dispensed adhesive bead and clamshell has to be scrapped.', 'Adhesive has timed out (cured outside module) and IC clamshell has to be scrapped')
-            and autoclosed = 0
-            GROUP BY 1SELECT 
                 nc.description as NC_DESCRIPTION, 
                 count(distinct t.name) as NUM_CLOSED
             FROM sparq.nc
             inner join sparq.thing t on t.id = nc.thingid
             inner join sparq.actor a on a.id = t.actorcreatedby
-            WHERE closedby in ('ignition-gf1-bm-tag5-prod')
+            WHERE closedby = '{ACTOR_CLOSED_BY}"
             and nc.created BETWEEN '{start}' and '{end}'
-            and nc.description not in ('3BM-29500:NMAMC Leak Test - Short', '3BM-29500:NMAMC Leak Test-5Sec', '3BM-29600:NMAMC Leak Retest', 'Issues detected on dispensed adhesive bead and clamshell has to be scrapped.', 'Adhesive has timed out (cured outside module) and IC clamshell has to be scrapped')
+            and nc.description not in ('3BM-29500:NMAMC Leak Test - Short', '3BM-29500:NMAMC Leak Test-5Sec', '3BM-29600:NMAMC Leak Retest')
             and autoclosed = 0
             GROUP BY 1
             """
