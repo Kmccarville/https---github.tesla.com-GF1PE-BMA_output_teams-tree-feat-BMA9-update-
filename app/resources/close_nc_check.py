@@ -41,10 +41,10 @@ def main(env):
                 <caption>NCs Auto Closed By {ACTOR_CLOSED_BY}</caption>
                 <tr>
                         <th style="text-align:center">NC Description</th>
-                        <th style="text-align:center">Number Closed</th>
+                        <th style="text-align:center">Num Closed</th>
                 </tr>
                 """
-        for row in df.itertuples('Tuples'):
+        for row in df.itertuples(False,'Tuples'):
             nc_desc = row.NC_DESCRIPTION
             nc_count= row.NUM_CLOSED
             msg += f"""
@@ -53,8 +53,8 @@ def main(env):
                     <td style="text-align:center">{nc_count}</td>    
                     </tr>
                     """
-        msg += "</table>"
 
+        msg += "</table>"
 
     else:
         msg = "No Unintended Auto Close NCs by Actor %s" % ACTOR_CLOSED_BY
