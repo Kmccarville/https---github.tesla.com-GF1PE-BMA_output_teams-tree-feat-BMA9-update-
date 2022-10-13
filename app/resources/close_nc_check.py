@@ -19,7 +19,6 @@ def main(env):
     ACTOR_CLOSED_BY = 'ignition-gf1-bm-tag5-prod'
 
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
-
     query = f"""
             SELECT 
                 nc.description as NC_DESCRIPTION, 
@@ -27,7 +26,7 @@ def main(env):
             FROM sparq.nc
             inner join sparq.thing t on t.id = nc.thingid
             inner join sparq.actor a on a.id = t.actorcreatedby
-            WHERE closedby = '{ACTOR_CLOSED_BY}"
+            WHERE closedby = '{ACTOR_CLOSED_BY}'
             and nc.created BETWEEN '{start}' and '{end}'
             and nc.description not in ('3BM-29500:NMAMC Leak Test - Short', '3BM-29500:NMAMC Leak Test-5Sec', '3BM-29600:NMAMC Leak Retest')
             and autoclosed = 0
@@ -35,7 +34,6 @@ def main(env):
             """
 
     df = pd.read_sql(query,mos_con)
-
     mos_con.close()
 
     if len(df) > 0:
