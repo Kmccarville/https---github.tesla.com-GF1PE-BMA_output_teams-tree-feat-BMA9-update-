@@ -3,6 +3,7 @@ from common import helper_functions
 from datetime import datetime
 from datetime import timedelta
 import logging
+import numpy as np
 import pandas as pd
 import pymsteams
 
@@ -54,12 +55,13 @@ def main(env,eos=False):
     NORMAL_DIVISOR = 4
     CTA_DIVISOR = 28
     CTA_FLOWSTEP = '3BM-20000'
-    MAMC_FLOWSTEP= '3BM-29500'
+    MAMC_295_FLOWSTEP= '3BM-29500'
+    MAMC_296_FLOWSTEP= '3BM-29600'
     C3A_FLOWSTEP = '3BM-40001'
     LINES = ['3BM1','3BM2','3BM3']
 
     #create flowstep list
-    flowsteps = [CTA_FLOWSTEP,MAMC_FLOWSTEP,C3A_FLOWSTEP]
+    flowsteps = [CTA_FLOWSTEP,MAMC_295_FLOWSTEP,MAMC_296_FLOWSTEP,C3A_FLOWSTEP]
     #create mos connection
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     #get output for flowsteps
@@ -69,14 +71,16 @@ def main(env,eos=False):
     mos_con.close()
 
     cta_outputs = []
-    mamc_outputs = []
+    mamc_295_outputs = []
+    mamc_296_outputs = []
     c3a_outputs = []
     cta1_outputs = []
     cta2_outputs = []
     cta3_outputs = []
     for line in LINES:
         cta_outputs.append(helper_functions.get_output_val(df_output,CTA_FLOWSTEP,line))
-        mamc_outputs.append(helper_functions.get_output_val(df_output,MAMC_FLOWSTEP,line))
+        mamc_295_outputs.append(helper_functions.get_output_val(df_output,MAMC_295_FLOWSTEP,line))
+        mamc_296_outputs.append(helper_functions.get_output_val(df_output,MAMC_296_FLOWSTEP,line))
         c3a_outputs.append(helper_functions.get_output_val(df_output,C3A_FLOWSTEP,line))
 
     for lane in range(1,5):
@@ -94,8 +98,10 @@ def main(env,eos=False):
         blank_mmamc_str = ""
         output_mmamc_str = ""
 
+    mamc_outputs = np.add(mamc_295_outputs, mamc_296_outputs)
+
     total_cta_output = helper_functions.get_output_val(df_output,CTA_FLOWSTEP)
-    total_mamc_output = helper_functions.get_output_val(df_output,MAMC_FLOWSTEP)
+    total_mamc_output = helper_functions.get_output_val(df_output,MAMC_295_FLOWSTEP) + helper_functions.get_output_val(df_output,MAMC_296_FLOWSTEP)
     total_c3a_output = helper_functions.get_output_val(df_output,C3A_FLOWSTEP)
 
     #create bma header
