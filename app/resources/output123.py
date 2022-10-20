@@ -3,6 +3,7 @@ from common import helper_functions
 from datetime import datetime
 from datetime import timedelta
 import logging
+import numpy as np
 import pandas as pd
 import pymsteams
 
@@ -54,12 +55,13 @@ def main(env,eos=False):
     NORMAL_DIVISOR = 4
     CTA_DIVISOR = 28
     CTA_FLOWSTEP = '3BM-20000'
-    MAMC_FLOWSTEP= '3BM-29500'
+    MAMC_295_FLOWSTEP= '3BM-29500'
+    MAMC_296_FLOWSTEP= '3BM-29600'
     C3A_FLOWSTEP = '3BM-40001'
     LINES = ['3BM1','3BM2','3BM3']
 
     #create flowstep list
-    flowsteps = [CTA_FLOWSTEP,MAMC_FLOWSTEP,C3A_FLOWSTEP]
+    flowsteps = [CTA_FLOWSTEP,MAMC_295_FLOWSTEP,MAMC_296_FLOWSTEP,C3A_FLOWSTEP]
     #create mos connection
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     #get output for flowsteps
@@ -69,14 +71,16 @@ def main(env,eos=False):
     mos_con.close()
 
     cta_outputs = []
-    mamc_outputs = []
+    mamc_295_outputs = []
+    mamc_296_outputs = []
     c3a_outputs = []
     cta1_outputs = []
     cta2_outputs = []
     cta3_outputs = []
     for line in LINES:
         cta_outputs.append(helper_functions.get_output_val(df_output,CTA_FLOWSTEP,line))
-        mamc_outputs.append(helper_functions.get_output_val(df_output,MAMC_FLOWSTEP,line))
+        mamc_295_outputs.append(helper_functions.get_output_val(df_output,MAMC_295_FLOWSTEP,line))
+        mamc_296_outputs.append(helper_functions.get_output_val(df_output,MAMC_296_FLOWSTEP,line))
         c3a_outputs.append(helper_functions.get_output_val(df_output,C3A_FLOWSTEP,line))
 
     for lane in range(1,5):
@@ -88,14 +92,16 @@ def main(env,eos=False):
     if mmamc_output > 0:
         header_mmamc_str = """<th style="text-align:center">MMAMC</th>"""
         blank_mmamc_str = """<td style="text-align:center">----</td>"""
-        output_mmamc_str = f"""<td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.1f}</td>"""
+        output_mmamc_str = f"""<td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.2f}</td>"""
     else:
         header_mmamc_str = ""
         blank_mmamc_str = ""
         output_mmamc_str = ""
 
+    mamc_outputs = np.add(mamc_295_outputs, mamc_296_outputs)
+
     total_cta_output = helper_functions.get_output_val(df_output,CTA_FLOWSTEP)
-    total_mamc_output = helper_functions.get_output_val(df_output,MAMC_FLOWSTEP)
+    total_mamc_output = helper_functions.get_output_val(df_output,MAMC_295_FLOWSTEP) + helper_functions.get_output_val(df_output,MAMC_296_FLOWSTEP)
     total_c3a_output = helper_functions.get_output_val(df_output,C3A_FLOWSTEP)
 
     #create bma header
@@ -111,31 +117,31 @@ def main(env,eos=False):
     #create cta output row
     cta_output_html = f"""<tr>
             <td style="text-align:center"><strong>CTA</strong></td>
-            <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.1f}</td>
+            <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.2f}</td>
+            <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.2f}</td>
+            <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.2f}</td>
             {blank_mmamc_str}
-            <td style="text-align:center"><strong>{total_cta_output/CTA_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{total_cta_output/CTA_DIVISOR:.2f}</strong></td>
             </tr>
     """
     #create mamc output row
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
-            <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.2f}</td>
+            <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.2f}</td>
+            <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.2f}</td>
             {output_mmamc_str}
-            <td style="text-align:center"><strong>{(total_mamc_output+mmamc_output)/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{(total_mamc_output+mmamc_output)/NORMAL_DIVISOR:.2f}</strong></td>
             </tr>
     """
     #create c3a output row
     c3a_output_html = f"""<tr>
             <td style="text-align:center"><strong>C3A</strong></td>
-            <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.2f}</td>
+            <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.2f}</td>
+            <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.2f}</td>
             {blank_mmamc_str}
-            <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.2f}</strong></td>
             </tr>
     """
 
@@ -181,17 +187,17 @@ def main(env,eos=False):
         color_str = ""
         # color_str = "color:red;" if val/CTA_DIVISOR < goal else "font-weight:bold;"
         cta1_html += f"""
-                    <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.2f}</td>
                     """
 
         # color_str = "color:red;" if cta2_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
         cta2_html += f"""
-                    <td style="text-align:center;{color_str}">{cta2_outputs[i]/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:center;{color_str}">{cta2_outputs[i]/CTA_DIVISOR:.2f}</td>
                     """
 
         # color_str = "color:red;" if cta3_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
         cta3_html += f"""
-                    <td style="text-align:center;{color_str}">{cta3_outputs[i]/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:center;{color_str}">{cta3_outputs[i]/CTA_DIVISOR:.2f}</td>
                     """
 
     cta1_html += "</tr>"

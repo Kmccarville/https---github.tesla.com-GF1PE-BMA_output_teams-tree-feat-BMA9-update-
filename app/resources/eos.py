@@ -4,6 +4,7 @@ from resources import output45
 from resources import outputz3
 from resources import outputz4
 
+import numpy as np
 import pandas as pd
 import pymsteams
 from datetime import datetime
@@ -28,6 +29,7 @@ def eos_report(env):
                                     'LINE' : ['3BM1','3BM2','3BM3','3BM4','3BM5'],
                                     'CTA'  : ['3BM-20000','3BM-20000','3BM-20000','3BM4-25000','3BM5-25000'],
                                     'MAMC'  : ['3BM-29500','3BM-29500','3BM-29500','3BM4-34000','3BM5-34000'],
+                                    'MAMC_296'  : ['3BM-29600','3BM-29600','3BM-29600','',''],
                                     'C3A'  : ['3BM-40001','3BM-40001','3BM-40001','3BM4-45000','3BM5-45000'],
                                     'ZONE3'  : ['3BM-57000','3BM-57000','3BM-57000','3BM-57000','3BM-57000'],
                                     'ZONE4'  : ['MC1-30000','MC2-28000','','','']
@@ -43,7 +45,7 @@ def eos_report(env):
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
 
     #make flowstep list
-    all_flows_list = list(DF_FLOWSTEP['CTA']) + list(DF_FLOWSTEP['MAMC']) + list(DF_FLOWSTEP['C3A']) + list(DF_FLOWSTEP['ZONE3']) + list(DF_FLOWSTEP['ZONE4'])
+    all_flows_list = list(DF_FLOWSTEP['CTA']) + list(DF_FLOWSTEP['MAMC']) + list(DF_FLOWSTEP['MAMC_296']) + list(DF_FLOWSTEP['C3A']) + list(DF_FLOWSTEP['ZONE3']) + list(DF_FLOWSTEP['ZONE4'])
 
     #loop through each hour over the 12 hour shift
     df_output = helper_functions.get_flowstep_outputs(mos_con,shift_start,shift_end,all_flows_list)
@@ -53,6 +55,7 @@ def eos_report(env):
     #create lists for each zone output
     cta_outputs = []
     mamc_outputs = []
+    mamc_296_outputs = []
     c3a_outputs = []
     z3_outputs = []
     z4_outputs = []
@@ -60,11 +63,13 @@ def eos_report(env):
     for line in list(DF_FLOWSTEP['LINE']):
         cta_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['CTA']
         mamc_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['MAMC']
+        mmamc_296_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['MAMC_296']
         c3a_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['C3A']
         z3_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['ZONE3']
         
         cta_outputs.append(helper_functions.get_output_val(df_output,cta_flowstep,line))
         mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,line))
+        mamc_296_outputs.append(helper_functions.get_output_val(df_output,mmamc_296_flowstep,line))
         c3a_outputs.append(helper_functions.get_output_val(df_output,c3a_flowstep,line))
         z3_outputs.append(helper_functions.get_output_val(df_output,z3_flowstep,line))
         
@@ -88,6 +93,7 @@ def eos_report(env):
     cta5_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM5'").iloc[0]['CTA']
 
     mamc123_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['MAMC']
+    mamc123_296_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['MAMC_296']
     mamc4_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM4'").iloc[0]['MAMC']
     mamc5_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM5'").iloc[0]['MAMC']
 
@@ -99,8 +105,10 @@ def eos_report(env):
     z4_mc1_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['ZONE4']
     z4_mc2_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM2'").iloc[0]['ZONE4']
 
+    mamc_outputs = np.add(mamc_outputs,mamc_296_outputs)
+
     total_cta_ouput = helper_functions.get_output_val(df_output,cta123_flowstep) + helper_functions.get_output_val(df_output,cta4_flowstep) + helper_functions.get_output_val(df_output,cta5_flowstep)
-    total_mamc_ouput = helper_functions.get_output_val(df_output,mamc123_flowstep) + helper_functions.get_output_val(df_output,mamc4_flowstep) + helper_functions.get_output_val(df_output,mamc5_flowstep)
+    total_mamc_ouput = helper_functions.get_output_val(df_output,mamc123_flowstep) + helper_functions.get_output_val(df_output,mamc123_296_flowstep) + helper_functions.get_output_val(df_output,mamc4_flowstep) + helper_functions.get_output_val(df_output,mamc5_flowstep)
     total_c3a_output = helper_functions.get_output_val(df_output,c3a123_flowstep) + helper_functions.get_output_val(df_output,c3a4_flowstep) + helper_functions.get_output_val(df_output,c3a5_flowstep)
 
     total_z3_output = helper_functions.get_output_val(df_output,z3_flowstep) 
