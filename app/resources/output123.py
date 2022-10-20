@@ -92,7 +92,7 @@ def main(env,eos=False):
     if mmamc_output > 0:
         header_mmamc_str = """<th style="text-align:center">MMAMC</th>"""
         blank_mmamc_str = """<td style="text-align:center">----</td>"""
-        output_mmamc_str = f"""<td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.1f}</td>"""
+        output_mmamc_str = f"""<td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.2f}</td>"""
     else:
         header_mmamc_str = ""
         blank_mmamc_str = ""
@@ -117,31 +117,31 @@ def main(env,eos=False):
     #create cta output row
     cta_output_html = f"""<tr>
             <td style="text-align:center"><strong>CTA</strong></td>
-            <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.1f}</td>
+            <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.2f}</td>
+            <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.2f}</td>
+            <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.2f}</td>
             {blank_mmamc_str}
-            <td style="text-align:center"><strong>{total_cta_output/CTA_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{total_cta_output/CTA_DIVISOR:.2f}</strong></td>
             </tr>
     """
     #create mamc output row
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
-            <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.2f}</td>
+            <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.2f}</td>
+            <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.2f}</td>
             {output_mmamc_str}
-            <td style="text-align:center"><strong>{(total_mamc_output+mmamc_output)/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{(total_mamc_output+mmamc_output)/NORMAL_DIVISOR:.2f}</strong></td>
             </tr>
     """
     #create c3a output row
     c3a_output_html = f"""<tr>
             <td style="text-align:center"><strong>C3A</strong></td>
-            <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.2f}</td>
+            <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.2f}</td>
+            <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.2f}</td>
             {blank_mmamc_str}
-            <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.2f}</strong></td>
             </tr>
     """
 
@@ -187,17 +187,17 @@ def main(env,eos=False):
         color_str = ""
         # color_str = "color:red;" if val/CTA_DIVISOR < goal else "font-weight:bold;"
         cta1_html += f"""
-                    <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.2f}</td>
                     """
 
         # color_str = "color:red;" if cta2_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
         cta2_html += f"""
-                    <td style="text-align:center;{color_str}">{cta2_outputs[i]/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:center;{color_str}">{cta2_outputs[i]/CTA_DIVISOR:.2f}</td>
                     """
 
         # color_str = "color:red;" if cta3_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
         cta3_html += f"""
-                    <td style="text-align:center;{color_str}">{cta3_outputs[i]/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:center;{color_str}">{cta3_outputs[i]/CTA_DIVISOR:.2f}</td>
                     """
 
     cta1_html += "</tr>"
