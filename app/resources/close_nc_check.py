@@ -75,9 +75,9 @@ def main(env):
         teams_msg.addSection(msg_card)
         
         ocap_card = pymsteams.cardsection()
-        ocap_step1 = "1. Immediately follow the escalation path by reaching out to the respective Quality Technician on schedule"
-        ocap_step2 = "2. If there is no response within 30 mins, Please email a screenshot of the alert mentioning the details to M3M_Quality_Leadership@tesla.com"
-        ocap_msg = ocap_step1 + "<br>" + ocap_step2
+        ocap_step1 = "1. Immediately follow the escalation path by reaching out to the respective Quality Technician on schedule."
+        ocap_step2 = "2. If there is no response within 30 mins, email a screenshot of the alert mentioning the details to M3M_Quality_Leadership@tesla.com"
+        ocap_msg = """<style="text-align:left">""" + ocap_step1 + "<br>" + ocap_step2 + "</style>"
         ocap_card.text(ocap_msg)
         teams_msg.addSection(ocap_card)
         #SEND IT
