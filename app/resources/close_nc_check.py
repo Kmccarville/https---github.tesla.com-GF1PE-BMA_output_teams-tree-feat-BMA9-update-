@@ -56,25 +56,31 @@ def main(env):
 
         msg += "</table>"
 
-    else:
-        msg = "No Unintended Auto Close NCs by Actor %s" % ACTOR_CLOSED_BY
+        webhook_key = 'teams_webhook_auto_close_nc' if env=='prod' else 'teams_webhook_DEV_Updates'
+        webhook_json = helper_functions.get_pw_json(webhook_key)
+        webhook = webhook_json['url']
 
-    webhook_key = 'teams_webhook_auto_close_nc' if env=='prod' else 'teams_webhook_DEV_Updates'
-    webhook_json = helper_functions.get_pw_json(webhook_key)
-    webhook = webhook_json['url']
+        #start end of shift message
+        teams_msg = pymsteams.connectorcard(webhook)
+        title = 'Auto Close NC Report'
+        teams_msg.title(title)
+        teams_msg.summary('summary')
+        K8S_BLUE = '#3970e4'
+        msg_color = K8S_BLUE
+        teams_msg.color(msg_color)
 
-    #start end of shift message
-    teams_msg = pymsteams.connectorcard(webhook)
-    title = 'Auto Close NC Report'
-    teams_msg.title(title)
-    teams_msg.summary('summary')
-    K8S_BLUE = '#3970e4'
-    msg_color = K8S_BLUE
-    teams_msg.color(msg_color)
-    
-    #create cards for each major html
-    msg_card = pymsteams.cardsection()
-    msg_card.text(msg)
-    teams_msg.addSection(msg_card)
-    #SEND IT
-    teams_msg.send()
+        #create cards for each major html
+        msg_card = pymsteams.cardsection()
+        msg_card.text(msg)
+        teams_msg.addSection(msg_card)
+        
+        ocap_card = pymsteams.cardsection()
+        ocap_step1 = "1. Immediately follow the escalation path by reaching out to the respective Quality Technician on schedule."
+        ocap_step2 = "2. If there is no response within 30 mins, email a screenshot of the alert mentioning the details to M3M_Quality_Leadership@tesla.com"
+        ocap_msg = """<body><p1 style="text-align:left">""" + ocap_step1 + "<br>" + ocap_step2 + "</p1></body>"
+        ocap_card.text(ocap_msg)
+        teams_msg.addSection(ocap_card)
+        #SEND IT
+        teams_msg.addLinkButton("Quality Tech Schedule", "https://confluence.teslamotors.com/pages/viewpage.action?spaceKey=GIG&title=Quality+Tech+Rosters")
+        #SEND IT
+        teams_msg.send()
