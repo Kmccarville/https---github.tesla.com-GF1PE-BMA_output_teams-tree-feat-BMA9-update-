@@ -28,7 +28,7 @@ def main(env):
             inner join sparq.actor a on a.id = t.actorcreatedby
             WHERE closedby = '{ACTOR_CLOSED_BY}'
             and nc.created BETWEEN '{start}' and '{end}'
-            and nc.description not in ('3BM-29500:NMAMC Leak Test - Short', '3BM-29500:NMAMC Leak Test-5Sec', '3BM-29600:NMAMC Leak Retest','3BM-29500:NMAMC Hipot', 'Issues detected on dispensed adhesive bead and clamshell has to be scrapped.', 'Adhesive has timed out (cured outside module) and IC clamshell has to be scrapped')
+            and nc.description in ('3BM-29500:NMAMC Leak Test - Short', '3BM-29500:NMAMC Leak Test-5Sec', '3BM-29600:NMAMC Leak Retest','3BM-29500:NMAMC Hipot', 'Issues detected on dispensed adhesive bead and clamshell has to be scrapped.', 'Adhesive has timed out (cured outside module) and IC clamshell has to be scrapped')
             and autoclosed = 0
             GROUP BY 1
             """
@@ -56,25 +56,22 @@ def main(env):
 
         msg += "</table>"
 
-    else:
-        msg = "No Unintended Auto Close NCs by Actor %s" % ACTOR_CLOSED_BY
+        webhook_key = 'teams_webhook_auto_close_nc' if env=='prod' else 'teams_webhook_DEV_Updates'
+        webhook_json = helper_functions.get_pw_json(webhook_key)
+        webhook = webhook_json['url']
 
-    webhook_key = 'teams_webhook_auto_close_nc' if env=='prod' else 'teams_webhook_DEV_Updates'
-    webhook_json = helper_functions.get_pw_json(webhook_key)
-    webhook = webhook_json['url']
+        #start end of shift message
+        teams_msg = pymsteams.connectorcard(webhook)
+        title = 'Auto Close NC Report'
+        teams_msg.title(title)
+        teams_msg.summary('summary')
+        K8S_BLUE = '#3970e4'
+        msg_color = K8S_BLUE
+        teams_msg.color(msg_color)
 
-    #start end of shift message
-    teams_msg = pymsteams.connectorcard(webhook)
-    title = 'Auto Close NC Report'
-    teams_msg.title(title)
-    teams_msg.summary('summary')
-    K8S_BLUE = '#3970e4'
-    msg_color = K8S_BLUE
-    teams_msg.color(msg_color)
-    
-    #create cards for each major html
-    msg_card = pymsteams.cardsection()
-    msg_card.text(msg)
-    teams_msg.addSection(msg_card)
-    #SEND IT
-    teams_msg.send()
+        #create cards for each major html
+        msg_card = pymsteams.cardsection()
+        msg_card.text(msg)
+        teams_msg.addSection(msg_card)
+        #SEND IT
+        teams_msg.send()
