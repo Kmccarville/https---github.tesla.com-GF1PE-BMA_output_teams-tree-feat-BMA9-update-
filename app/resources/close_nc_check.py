@@ -75,8 +75,10 @@ def main(env):
         teams_msg.addSection(msg_card)
         
         ocap_card = pymsteams.cardsection()
-        ocap_card.text("1. Immediately follow the escalation path by reaching out to the respective Quality Technician on schedule")
-        ocap_card.text("2. If there is no response within 30 mins, Please email a screenshot of the alert mentioning the details to M3M_Quality_Leadership@tesla.com")
+        ocap_step1 = "1. Immediately follow the escalation path by reaching out to the respective Quality Technician on schedule"
+        ocap_step2 = "2. If there is no response within 30 mins, Please email a screenshot of the alert mentioning the details to M3M_Quality_Leadership@tesla.com"
+        ocap_msg = ocap_step1 + "<br>" + ocap_step2
+        ocap_card.text(ocap_msg)
         teams_msg.addSection(ocap_card)
         #SEND IT
         teams_msg.addLinkButton("Quality Tech Schedule", "https://confluence.teslamotors.com/pages/viewpage.action?spaceKey=GIG&title=Quality+Tech+Rosters")
