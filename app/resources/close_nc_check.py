@@ -28,7 +28,7 @@ def main(env):
             inner join sparq.actor a on a.id = t.actorcreatedby
             WHERE closedby = '{ACTOR_CLOSED_BY}'
             and nc.created BETWEEN '{start}' and '{end}'
-            and nc.description in ('3BM-29500:NMAMC Leak Test - Short', '3BM-29500:NMAMC Leak Test-5Sec', '3BM-29600:NMAMC Leak Retest','3BM-29500:NMAMC Hipot', 'Issues detected on dispensed adhesive bead and clamshell has to be scrapped.', 'Adhesive has timed out (cured outside module) and IC clamshell has to be scrapped')
+            and nc.description not in ('3BM-29500:NMAMC Leak Test - Short', '3BM-29500:NMAMC Leak Test-5Sec', '3BM-29600:NMAMC Leak Retest','3BM-29500:NMAMC Hipot', 'Issues detected on dispensed adhesive bead and clamshell has to be scrapped.', 'Adhesive has timed out (cured outside module) and IC clamshell has to be scrapped')
             and autoclosed = 0
             GROUP BY 1
             """
