@@ -28,7 +28,7 @@ def main(env):
             inner join sparq.actor a on a.id = t.actorcreatedby
             WHERE closedby = '{ACTOR_CLOSED_BY}'
             and nc.created BETWEEN '{start}' and '{end}'
-            and nc.description not in ('3BM-29500:NMAMC Leak Test - Short', '3BM-29500:NMAMC Leak Test-5Sec', '3BM-29600:NMAMC Leak Retest','3BM-29500:NMAMC Hipot', 'Issues detected on dispensed adhesive bead and clamshell has to be scrapped.', 'Adhesive has timed out (cured outside module) and IC clamshell has to be scrapped')
+            and nc.description in ('3BM-29500:NMAMC Leak Test - Short', '3BM-29500:NMAMC Leak Test-5Sec', '3BM-29600:NMAMC Leak Retest','3BM-29500:NMAMC Hipot', 'Issues detected on dispensed adhesive bead and clamshell has to be scrapped.', 'Adhesive has timed out (cured outside module) and IC clamshell has to be scrapped')
             and autoclosed = 0
             GROUP BY 1
             """
@@ -73,5 +73,12 @@ def main(env):
         msg_card = pymsteams.cardsection()
         msg_card.text(msg)
         teams_msg.addSection(msg_card)
+        
+        ocap_card = pymsteams.cardsection()
+        ocap_card.text("1. Immediately follow the escalation path by reaching out to the respective Quality Technician on schedule")
+        ocap_card.text("2. If there is no response within 30 mins, Please email a screenshot of the alert mentioning the details to M3M_Quality_Leadership@tesla.com")
+        teams_msg.addSection(ocap_card)
+        #SEND IT
+        teams_msg.addLinkButton("Quality Tech Schedule", "https://confluence.teslamotors.com/pages/viewpage.action?spaceKey=GIG&title=Quality+Tech+Rosters")
         #SEND IT
         teams_msg.send()
