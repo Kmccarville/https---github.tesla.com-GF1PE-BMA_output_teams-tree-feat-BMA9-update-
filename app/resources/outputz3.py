@@ -95,7 +95,7 @@ def bonder_main(shift_start,shift_end):
         query = f"""
                 SELECT 
                 MACHINE_ID,
-                convert_tz(START_TIME,'GMT','US/Pacific') AS START_DATE_TIME,
+                convert_tz(START_TIME,'US/Pacific','GMT') AS START_DATE_TIME,
                 LANE_F_EM_STEP,
                 LANE_R_EM_STEP,
                 FAULT_CODE,
@@ -117,7 +117,7 @@ def bonder_main(shift_start,shift_end):
         query = f"""
                 SELECT 
                 MACHINE_ID,
-                CONVERT(convert_tz('{shift_start}','GMT','US/Pacific'),DATETIME) as START_DATE_TIME,
+                CONVERT('{shift_start}',DATETIME) as START_DATE_TIME,
                 LANE_F_EM_STEP,
                 LANE_R_EM_STEP,
                 FAULT_CODE,
@@ -323,7 +323,7 @@ def bonder_main(shift_start,shift_end):
     header_html = """<th></th>"""
     quad_a_html = """
                 <tr>
-                <td style="text-align:left"><strong> A</strong></td>
+                <td style="text-align:left"><strong>QUAD A</strong></td>
                 """
     quad_b_html = """
                 <tr>
