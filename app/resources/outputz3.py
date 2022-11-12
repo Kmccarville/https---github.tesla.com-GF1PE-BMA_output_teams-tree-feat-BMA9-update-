@@ -7,6 +7,7 @@ import pandas as pd
 import pytz
 import pymsteams
 import warnings
+import numpy as np
 
 warnings.filterwarnings("ignore")
 
