@@ -8,6 +8,7 @@ import pytz
 import pymsteams
 import warnings
 import numpy as np
+from z3_wb_teep import bonder_main
 
 warnings.filterwarnings("ignore")
 
@@ -183,6 +184,8 @@ def main(env,eos=False):
     starved_html = "<table>" + "<caption>Starvation %</caption>" + starved_header + starved_wip_html + starved_mtr_html + "</table>"
     wb_html = "<table>" + "<caption>Bonder Cycle Time (mins)</caption>" +  wb_header + wb_ct_html + wb_i_ct_html + "</table>"
 
+    wb_teep_html = bonder_main(start,end)
+
     webhook_key = 'teams_webhook_Zone3_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
@@ -207,7 +210,7 @@ def main(env,eos=False):
     #make a card with starvation data
     if not eos:
         wb_card = pymsteams.cardsection()
-        wb_card.text(wb_html)
+        wb_card.text(wb_teep_html)
         teams_msg.addSection(wb_card)
     #add a link to the confluence page
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
