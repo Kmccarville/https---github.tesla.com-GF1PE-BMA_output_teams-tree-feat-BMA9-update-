@@ -248,6 +248,8 @@ def bonder_main(shift_start,shift_end):
     teep_df_group.loc[:,'UTILIZATION'] = round(teep_df_group['UTILIZATION']*100,1)
     teep_df_group.loc[:,'AVAILABILITY'] = round(teep_df_group['AVAILABILITY']*100,1)
 
+    teep_df_group.fillna('null')
+
     LINES = ['3BM1','3BM2','3BM3','3BM4','3BM5']
     header_html = """<th></th>"""
     quad_a_html = """
@@ -266,6 +268,8 @@ def bonder_main(shift_start,shift_end):
                 <tr>
                 <td style="text-align:left"><strong>QUAD D</strong></td>
                 """
+    
+    A_THRESHOLD = 80
     for line in LINES:
         line_num = int(line[-1])
         header_html += f"""<th style="text-align:center">{line}</th>"""
@@ -273,10 +277,25 @@ def bonder_main(shift_start,shift_end):
         quad_b_a = get_teep_val(teep_df_group,line_num,'B','A')
         quad_c_a = get_teep_val(teep_df_group,line_num,'C','A') if line_num < 5 else '---'
         quad_d_a = get_teep_val(teep_df_group,line_num,'D','A') if line_num < 4 else '---'
-        quad_a_html += f"""<td style="text-align:center">{quad_a_a}</td>"""
-        quad_b_html += f"""<td style="text-align:center">{quad_b_a}</td>"""
-        quad_c_html += f"""<td style="text-align:center">{quad_c_a}</td>"""
-        quad_d_html += f"""<td style="text-align:center">{quad_d_a}</td>"""
+
+        quad_a_color_str = ""
+        quad_b_color_str = ""
+        quad_c_color_str = ""
+        quad_d_color_str = ""
+
+        if quad_a_a != 'null':
+            quad_a_color_str = "color:red;" if quad_a_a < A_THRESHOLD else ""
+        if quad_b_a != 'null':
+            quad_b_color_str = "color:red;" if quad_b_a < A_THRESHOLD else ""
+        if quad_c_a != 'null':
+            quad_c_color_str = "color:red;" if quad_c_a < A_THRESHOLD else ""
+        if quad_d_a != 'null':
+            quad_d_color_str = "color:red;" if quad_d_a < A_THRESHOLD else ""
+
+        quad_a_html += f"""<td style="text-align:center;{quad_a_color_str}">{quad_a_a}</td>"""
+        quad_b_html += f"""<td style="text-align:center;{quad_b_color_str}">{quad_b_a}</td>"""
+        quad_c_html += f"""<td style="text-align:center;{quad_c_color_str}">{quad_c_a}</td>"""
+        quad_d_html += f"""<td style="text-align:center;{quad_d_color_str}">{quad_d_a}</td>"""
 
     quad_a_html += "</tr>"
     quad_b_html += "</tr>"
