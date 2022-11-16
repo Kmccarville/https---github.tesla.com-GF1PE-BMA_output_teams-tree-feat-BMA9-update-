@@ -141,9 +141,7 @@ def bonder_main(shift_start,shift_end):
         #continue status of the fault until condition is met
         bondtool_change = 0
         bt_instances = 0
-        logging.info(bonder)
-        logging.info(len(sub_df))
-        for row in sub_df.itertuples(False,'Tuples'):
+        for row in sub_df.itertuples(True,'Tuples'):
             #BOND TOOL CHANGE LOGIC
             if row.FAULT_CODE == BONDTOOL_FAULT_CODE and row.BONDER_MODE == 0:
                 bondtool_change+=1
