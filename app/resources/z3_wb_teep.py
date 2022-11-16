@@ -283,13 +283,13 @@ def bonder_main(shift_start,shift_end):
         quad_c_color_str = ""
         quad_d_color_str = ""
 
-        if quad_a_a != 'null':
+        if quad_a_a not in ['null','---']:
             quad_a_color_str = "color:red;" if int(quad_a_a) < A_THRESHOLD else ""
-        if quad_b_a != 'null':
+        if quad_b_a not in ['null','---']:
             quad_b_color_str = "color:red;" if int(quad_b_a) < A_THRESHOLD else ""
-        if quad_c_a != 'null':
+        if quad_c_a not in ['null','---']:
             quad_c_color_str = "color:red;" if int(quad_c_a) < A_THRESHOLD else ""
-        if quad_d_a != 'null':
+        if quad_d_a not in ['null','---']:
             quad_d_color_str = "color:red;" if int(quad_d_a) < A_THRESHOLD else ""
 
         quad_a_html += f"""<td style="text-align:center;{quad_a_color_str}">{quad_a_a}</td>"""
