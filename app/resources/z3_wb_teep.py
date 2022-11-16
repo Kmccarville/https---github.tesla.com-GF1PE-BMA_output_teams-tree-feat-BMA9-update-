@@ -248,7 +248,7 @@ def bonder_main(shift_start,shift_end):
     teep_df_group.loc[:,'UTILIZATION'] = round(teep_df_group['UTILIZATION']*100,1)
     teep_df_group.loc[:,'AVAILABILITY'] = round(teep_df_group['AVAILABILITY']*100,1)
 
-    teep_df_group.fillna('null')
+    teep_df_group = teep_df_group.fillna('null')
 
     LINES = ['3BM1','3BM2','3BM3','3BM4','3BM5']
     header_html = """<th></th>"""
@@ -284,13 +284,13 @@ def bonder_main(shift_start,shift_end):
         quad_d_color_str = ""
 
         if quad_a_a != 'null':
-            quad_a_color_str = "color:red;" if quad_a_a < A_THRESHOLD else ""
+            quad_a_color_str = "color:red;" if int(quad_a_a) < A_THRESHOLD else ""
         if quad_b_a != 'null':
-            quad_b_color_str = "color:red;" if quad_b_a < A_THRESHOLD else ""
+            quad_b_color_str = "color:red;" if int(quad_b_a) < A_THRESHOLD else ""
         if quad_c_a != 'null':
-            quad_c_color_str = "color:red;" if quad_c_a < A_THRESHOLD else ""
+            quad_c_color_str = "color:red;" if int(quad_c_a) < A_THRESHOLD else ""
         if quad_d_a != 'null':
-            quad_d_color_str = "color:red;" if quad_d_a < A_THRESHOLD else ""
+            quad_d_color_str = "color:red;" if int(quad_d_a) < A_THRESHOLD else ""
 
         quad_a_html += f"""<td style="text-align:center;{quad_a_color_str}">{quad_a_a}</td>"""
         quad_b_html += f"""<td style="text-align:center;{quad_b_color_str}">{quad_b_a}</td>"""
