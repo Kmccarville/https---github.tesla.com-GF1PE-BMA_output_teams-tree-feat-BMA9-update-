@@ -6,28 +6,40 @@ import logging
 import pandas as pd
 import pymsteams
 
-def get_mamc_starved_table(start_time,end_time):
+def get_starve_block_table(start_time,end_time):
     seconds_between = (end_time - start_time).seconds
     #define source tagpaths for each equipment type
-    ST10_PATHS = ['[3BM4_30000_Ingress]Project/MDL10/Gripper/Sequences/SeqGripper','[_3BM5_30000_Ingress]Project/MDL10/Gripper/Sequences/SeqGripper']
-    ST20_PATHS = ['[3BM4_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence','[_3BM5_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence']
-    ST30_WALK_PATHS = ['[3BM4_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl','[_3BM5_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl']
-    ST30_FIXTURE_PATHS = ['[3BM4_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL10/StateControl','[_3BM5_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL10/StateControl']
+    MAMC_ST10_PATHS = ['[3BM4_30000_Ingress]Project/MDL10/Gripper/Sequences/SeqGripper','[_3BM5_30000_Ingress]Project/MDL10/Gripper/Sequences/SeqGripper']
+    MAMC_ST20_PATHS = ['[3BM4_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence','[_3BM5_31000_CouplerStripInstall]Project/MDL10/EM Seq/StripGripper/EM_Sequence']
+    MAMC_ST30_WALK_PATHS = ['[3BM4_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl','[_3BM5_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl']
+    MAMC_ST30_FIXTURE_PATHS = ['[3BM4_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL10/StateControl','[_3BM5_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL10/StateControl']
+    C3A_ST70_ROBOT_PATHS = ['[3BM4_46000]Project/TSL055_ST070/MDL10/TSM/StateControl','[TSL065_ST070]Project/TSL065_ST070/MDL10/TSM/StateControl']
+
     
     plc_con = helper_functions.get_sql_conn('plc_db')
 
-    #get starveddata for each tagpath set
-    st10_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, ST10_PATHS, 'Starved')
+    #get sterve blocked starve data for each tagpath set
+    m_st10_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, MAMC_ST10_PATHS, 'Starved')
+    c_st70_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, C3A_ST70_ROBOT_PATHS, 'Blocked',reason=2)
 
-    #get starve percentage (divide by seconds in between start and end and multiply by 100%)
-    st10_bma4_percent = round(helper_functions.get_val(st10_df,'3BM4','LINE','Duration')/seconds_between*100,1)
-    st10_bma5_percent = round(helper_functions.get_val(st10_df,'3BM5','LINE','Duration')/seconds_between*100,1)
+    #get percentage (divide by seconds in between start and end and multiply by 100%)
+    m_st10_bma4_percent = round(helper_functions.get_val(m_st10_df,'3BM4','LINE','Duration')/seconds_between*100,1)
+    m_st10_bma5_percent = round(helper_functions.get_val(m_st10_df,'3BM5','LINE','Duration')/seconds_between*100,1)
+    c_st70_bma4_percent = round(helper_functions.get_val(c_st70_df,'3BM4','LINE','Duration')/seconds_between*100,1)
+    c_st70_bma5_percent = round(helper_functions.get_val(c_st70_df,'3BM5','LINE','Duration')/seconds_between*100,1)
 
     html=f"""
         <tr>
-            <td style="text-align:left"><b>MAMC</b></td>
-            <td style="text-align:center">{st10_bma4_percent}%</td>
-            <td style="text-align:center">{st10_bma5_percent}%</td>
+            <td style="text-align:left"><b>MAMC ST10 Ingress</b></td>
+            <td style="text-align:left"><b>Starved by CTA</b></td>
+            <td style="text-align:center">{m_st10_bma4_percent}%</td>
+            <td style="text-align:center">{m_st10_bma5_percent}%</td>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b>C3A ST70 RobotBlocked by Module Flip</b></td>
+            <td style="text-align:left"><b>Blocked by Module Flip</b></td>
+            <td style="text-align:center">{m_st10_bma4_percent}%</td>
+            <td style="text-align:center">{m_st10_bma5_percent}%</td>
         </tr>
         """
 
@@ -184,16 +196,17 @@ def main(env,eos=False):
     cta5_html += "</tr>"
     
     cta_html = '<table>' + "<caption>CTA Breakdown</caption>" + cta_header_html + cta4_html + cta5_html + '</table>'
-    mamc_starved_html = get_mamc_starved_table(start,end)
+    mamc_starved_html = get_starve_block_table(start,end)
     # cta_blocked_html = get_blocked_table(start,end)
     tsm_header_html = """
                         <tr>
                         <td></td>
+                        <th style="text-align:center"><strong>REASON</strong></th>
                         <th style="text-align:center"><strong>BMA4</strong></th>
                         <th style="text-align:center"><strong>BMA5</strong></th>
                         </tr>
                     """
-    tsm_html = "<table>" + "<caption>Starvation %</caption>" + tsm_header_html + mamc_starved_html + "</table>"
+    tsm_html = "<table>" + "<caption>Performance</caption>" + tsm_header_html + mamc_starved_html + "</table>"
     
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
