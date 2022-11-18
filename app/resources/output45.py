@@ -30,13 +30,13 @@ def get_starve_block_table(start_time,end_time):
 
     html=f"""
         <tr>
-            <td style="text-align:right"><b>MAMC ST10 Ingress</b></td>
+            <td style="text-align:right"><b>MAMC ST10</b></td>
             <td style="text-align:left">Starved by CTA</td>
             <td style="text-align:center">{m_st10_bma4_percent}%</td>
             <td style="text-align:center">{m_st10_bma5_percent}%</td>
         </tr>
         <tr>
-            <td style="text-align:right"><b>C3A ST70 Robot</b></td>
+            <td style="text-align:right"><b>C3A ST70</b></td>
             <td style="text-align:left">Blocked by Module Flip</td>
             <td style="text-align:center">{c_st70_bma4_percent}%</td>
             <td style="text-align:center">{c_st70_bma5_percent}%</td>
@@ -201,7 +201,7 @@ def main(env,eos=False):
     tsm_header_html = """
                         <tr>
                         <td></td>
-                        <th style="text-align:center"><strong>REASON</strong></th>
+                        <th style="text-align:left"><strong>REASON</strong></th>
                         <th style="text-align:center"><strong>BMA4</strong></th>
                         <th style="text-align:center"><strong>BMA5</strong></th>
                         </tr>
