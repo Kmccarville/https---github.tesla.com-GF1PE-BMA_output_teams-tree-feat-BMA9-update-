@@ -32,16 +32,15 @@ def get_sql_conn(key, schema=None):
     # Return connection to engine
     return engine.connect()
 
-def is_it_eos():
+def is_it_eos_or_24():
     #this should take care of DST
     pst = pytz.timezone('US/Pacific')
     utc = pytz.timezone('UTC')
     utc_now=utc.localize(datetime.utcnow())
     pst_now = utc_now.astimezone(pst)
-    if pst_now.hour in [6,18]:
-        return True
-    else:
-        return False
+    it_is_eos = True if pst_now.hour in [6,18] else False
+    it_is_24 = True if pst_now.hour==6 else False
+    return it_is_eos,it_is_24
 
 #parse dataframes for line-based value
 def get_val(df,query_val,query_col,return_col):
