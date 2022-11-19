@@ -24,6 +24,7 @@ def main(env):
             eos_report(env,do_24=True)
 
 def eos_report(env,do_24=False):
+    logging.info('Start Battery End of Shift. 24_Hour Value: %s' % do_24)
     #define globals
     NORMAL_DIVISOR = 4
     CTA_DIVISOR = 28

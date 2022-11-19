@@ -72,8 +72,9 @@ def get_flowstep_outputs(db,start,end,flowsteps):
         flowstep_str += f"'{flow}',"
     flowstep_str = flowstep_str[:-1]
     #if the time between start and end is more than 1 hour, loop through
-    delta = (end-start).seconds/3600
-    if delta > 1: 
+    delta_hour = (end-start).seconds/3600
+    delta_day = (end-start).days
+    if delta_hour > 1 or delta_day > 0: 
         df = pd.DataFrame({})
         while start < end:
             start_next = start + timedelta(minutes=60)
