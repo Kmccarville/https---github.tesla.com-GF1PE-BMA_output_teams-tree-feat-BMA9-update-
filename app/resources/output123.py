@@ -8,33 +8,20 @@ import pandas as pd
 import pymsteams
 
 def get_mmamc_output(db,start,end):
-    delta = (end-start).seconds/3600
-    if delta > 1: 
-        df = pd.DataFrame({})
-        while start < end:
-            start_next = start + timedelta(minutes=60)
-            query = f"""
-                SELECT count(distinct tp.thingid) as OUTPUT
-                FROM sparq.thingpath tp
-                WHERE
-                    tp.flowstepname = 'MBM-25000'
-                    AND tp.exitcompletioncode = 'PASS'
-                    AND tp.completed BETWEEN '{start}' AND '{start_next}'    
-                """
-            df_sub = pd.read_sql(query,db)
-            df = pd.concat([df,df_sub],axis=0)
-            start += timedelta(minutes=60)
-
-    else:
+    df = pd.DataFrame({})
+    while start < end:
+        start_next = start + timedelta(minutes=60)
         query = f"""
-                SELECT count(distinct tp.thingid) as OUTPUT
-                FROM sparq.thingpath tp
-                WHERE
-                    tp.flowstepname = 'MBM-25000'
-                    AND tp.exitcompletioncode = 'PASS'
-                    AND tp.completed BETWEEN '{start}' AND '{end}'    
-                """
-        df = pd.read_sql(query,db)
+            SELECT count(distinct tp.thingid) as OUTPUT
+            FROM sparq.thingpath tp
+            WHERE
+                tp.flowstepname = 'MBM-25000'
+                AND tp.exitcompletioncode = 'PASS'
+                AND tp.completed BETWEEN '{start}' AND '{start_next}'    
+            """
+        df_sub = pd.read_sql(query,db)
+        df = pd.concat([df,df_sub],axis=0)
+        start += timedelta(minutes=60)
 
     output = df['OUTPUT'].sum() if len(df) else 0 
     return output

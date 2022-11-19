@@ -71,51 +71,28 @@ def get_flowstep_outputs(db,start,end,flowsteps):
     for flow in flowsteps:
         flowstep_str += f"'{flow}',"
     flowstep_str = flowstep_str[:-1]
-    #if the time between start and end is more than 1 hour, loop through
-    delta_hour = (end-start).seconds/3600
-    delta_day = (end-start).days
-    if delta_hour > 1 or delta_day > 0: 
-        df = pd.DataFrame({})
-        while start < end:
-            start_next = start + timedelta(minutes=60)
-            query = f"""
-                    SELECT 
-                    a.name as ACTOR, 
-                    left(a.name,IF(left(tp.flowstepname,2) = 'MC', 3, 4)) as LINE,
-                    tp.flowstepname as FLOWSTEP,
-                    COUNT(DISTINCT tp.thingid) as OUTPUT
-                    FROM
-                    sparq.thingpath tp 
-                    JOIN sparq.actor a on a.id = tp.modifiedby
-                    WHERE 
-                    tp.flowstepname IN ({flowstep_str})
-                    AND
-                    tp.completed between '{start}' and '{start_next}'
-                    AND tp.exitcompletioncode = IF(tp.flowstepname='3BM-40001','NO_INSPECT','PASS')
-                    GROUP BY 1,2,3
-                    """
-            df_sub = pd.read_sql(query,db)
-            df = pd.concat([df,df_sub],axis=0)
-            start += timedelta(minutes=60)
-
-    else:
+    df = pd.DataFrame({})
+    while start < end:
+        start_next = start + timedelta(minutes=60)
         query = f"""
-                    SELECT 
-                    a.name as ACTOR, 
-                    left(a.name,IF(left(tp.flowstepname,2) = 'MC', 3, 4)) as LINE,
-                    tp.flowstepname as FLOWSTEP,
-                    COUNT(DISTINCT tp.thingid) as OUTPUT
-                    FROM
-                    sparq.thingpath tp 
-                    JOIN sparq.actor a on a.id = tp.modifiedby
-                    WHERE 
-                    tp.flowstepname IN ({flowstep_str})
-                    AND
-                    tp.completed between '{start}' and '{end}'
-                    AND tp.exitcompletioncode = IF(tp.flowstepname='3BM-40001','NO_INSPECT','PASS')
-                    GROUP BY 1,2,3
-                    """
-        df = pd.read_sql(query,db)
+                SELECT 
+                a.name as ACTOR, 
+                left(a.name,IF(left(tp.flowstepname,2) = 'MC', 3, 4)) as LINE,
+                tp.flowstepname as FLOWSTEP,
+                COUNT(DISTINCT tp.thingid) as OUTPUT
+                FROM
+                sparq.thingpath tp 
+                JOIN sparq.actor a on a.id = tp.modifiedby
+                WHERE 
+                tp.flowstepname IN ({flowstep_str})
+                AND
+                tp.completed between '{start}' and '{start_next}'
+                AND tp.exitcompletioncode = IF(tp.flowstepname='3BM-40001','NO_INSPECT','PASS')
+                GROUP BY 1,2,3
+                """
+        df_sub = pd.read_sql(query,db)
+        df = pd.concat([df,df_sub],axis=0)
+        start += timedelta(minutes=60)
         
     return df
 

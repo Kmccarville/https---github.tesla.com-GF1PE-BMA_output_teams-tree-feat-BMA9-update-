@@ -13,15 +13,17 @@ import logging
 
 def main(env):
     it_is_eos,it_is_24 = helper_functions.is_it_eos_or_24()
-    if it_is_eos or True:
+    if it_is_eos:
         logging.info('Running End of Shift Report')
         output123.main(env,eos=True)
         output45.main(env,eos=True)
         outputz3.main(env,eos=True)
         outputz4.main(env,eos=True)
         eos_report(env)
-        if it_is_24 or True:
+        if it_is_24:
             eos_report(env,do_24=True)
+
+    eos_report(env,do_24=True)
 
 def eos_report(env,do_24=False):
     logging.info('Start Battery End of Shift. 24_Hour Value: %s' % do_24)
