@@ -23,8 +23,6 @@ def main(env):
         if it_is_24:
             eos_report(env,do_24=True)
 
-    eos_report(env,do_24=True)
-
 def eos_report(env,do_24=False):
     logging.info('Start Battery End of Shift. 24_Hour Value: %s' % do_24)
     #define globals
