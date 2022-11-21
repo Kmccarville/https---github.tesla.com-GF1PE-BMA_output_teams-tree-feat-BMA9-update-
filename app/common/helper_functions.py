@@ -32,16 +32,15 @@ def get_sql_conn(key, schema=None):
     # Return connection to engine
     return engine.connect()
 
-def is_it_eos():
+def is_it_eos_or_24():
     #this should take care of DST
     pst = pytz.timezone('US/Pacific')
     utc = pytz.timezone('UTC')
     utc_now=utc.localize(datetime.utcnow())
     pst_now = utc_now.astimezone(pst)
-    if pst_now.hour in [6,18]:
-        return True
-    else:
-        return False
+    it_is_eos = True if pst_now.hour in [6,18] else False
+    it_is_24 = True if pst_now.hour==6 else False
+    return it_is_eos,it_is_24
 
 #parse dataframes for line-based value
 def get_val(df,query_val,query_col,return_col):
@@ -51,17 +50,6 @@ def get_val(df,query_val,query_col,return_col):
     else:
         val = 0
     return val
-
-#small helper function to get output by line/flowstep and divides to get carset value
-def get_output_val(df,line,flowstep,actor=None):
-    if actor:
-        df_sub = df.query(f"LINE=='{line}' and ACTOR=='{actor}' and FLOWSTEP=='{flowstep}'")
-    else:
-        df_sub = df.query(f"LINE=='{line}' and FLOWSTEP=='{flowstep}'")
-    if len(df_sub):
-        return df_sub['OUTPUT'].sum()
-    else:
-        return 0
 
 #small helper function to get output by line/flowstep and divides to get carset value
 def get_output_val(df,flowstep,line=None,actor=None):
@@ -83,50 +71,28 @@ def get_flowstep_outputs(db,start,end,flowsteps):
     for flow in flowsteps:
         flowstep_str += f"'{flow}',"
     flowstep_str = flowstep_str[:-1]
-    #if the time between start and end is more than 1 hour, loop through
-    delta = (end-start).seconds/3600
-    if delta > 1: 
-        df = pd.DataFrame({})
-        while start < end:
-            start_next = start + timedelta(minutes=60)
-            query = f"""
-                    SELECT 
-                    a.name as ACTOR, 
-                    left(a.name,IF(left(tp.flowstepname,2) = 'MC', 3, 4)) as LINE,
-                    tp.flowstepname as FLOWSTEP,
-                    COUNT(DISTINCT tp.thingid) as OUTPUT
-                    FROM
-                    sparq.thingpath tp 
-                    JOIN sparq.actor a on a.id = tp.modifiedby
-                    WHERE 
-                    tp.flowstepname IN ({flowstep_str})
-                    AND
-                    tp.completed between '{start}' and '{start_next}'
-                    AND tp.exitcompletioncode = IF(tp.flowstepname='3BM-40001','NO_INSPECT','PASS')
-                    GROUP BY 1,2,3
-                    """
-            df_sub = pd.read_sql(query,db)
-            df = pd.concat([df,df_sub],axis=0)
-            start += timedelta(minutes=60)
-
-    else:
+    df = pd.DataFrame({})
+    while start < end:
+        start_next = start + timedelta(minutes=60)
         query = f"""
-                    SELECT 
-                    a.name as ACTOR, 
-                    left(a.name,IF(left(tp.flowstepname,2) = 'MC', 3, 4)) as LINE,
-                    tp.flowstepname as FLOWSTEP,
-                    COUNT(DISTINCT tp.thingid) as OUTPUT
-                    FROM
-                    sparq.thingpath tp 
-                    JOIN sparq.actor a on a.id = tp.modifiedby
-                    WHERE 
-                    tp.flowstepname IN ({flowstep_str})
-                    AND
-                    tp.completed between '{start}' and '{end}'
-                    AND tp.exitcompletioncode = IF(tp.flowstepname='3BM-40001','NO_INSPECT','PASS')
-                    GROUP BY 1,2,3
-                    """
-        df = pd.read_sql(query,db)
+                SELECT 
+                a.name as ACTOR, 
+                left(a.name,IF(left(tp.flowstepname,2) = 'MC', 3, 4)) as LINE,
+                tp.flowstepname as FLOWSTEP,
+                COUNT(DISTINCT tp.thingid) as OUTPUT
+                FROM
+                sparq.thingpath tp 
+                JOIN sparq.actor a on a.id = tp.modifiedby
+                WHERE 
+                tp.flowstepname IN ({flowstep_str})
+                AND
+                tp.completed between '{start}' and '{start_next}'
+                AND tp.exitcompletioncode = IF(tp.flowstepname='3BM-40001','NO_INSPECT','PASS')
+                GROUP BY 1,2,3
+                """
+        df_sub = pd.read_sql(query,db)
+        df = pd.concat([df,df_sub],axis=0)
+        start += timedelta(minutes=60)
         
     return df
 

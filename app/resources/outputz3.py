@@ -7,6 +7,8 @@ import pandas as pd
 import pytz
 import pymsteams
 import warnings
+import numpy as np
+from resources import z3_wb_teep
 
 warnings.filterwarnings("ignore")
 
@@ -181,6 +183,8 @@ def main(env,eos=False):
     output_html = "<table>" + output_header + output_value_html + "</table>"
     starved_html = "<table>" + "<caption>Starvation %</caption>" + starved_header + starved_wip_html + starved_mtr_html + "</table>"
     wb_html = "<table>" + "<caption>Bonder Cycle Time (mins)</caption>" +  wb_header + wb_ct_html + wb_i_ct_html + "</table>"
+
+    # wb_teep_html = z3_wb_teep.bonder_main(start,end)
 
     webhook_key = 'teams_webhook_Zone3_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)

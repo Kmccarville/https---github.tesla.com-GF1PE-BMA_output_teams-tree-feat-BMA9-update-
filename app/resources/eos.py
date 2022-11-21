@@ -12,15 +12,19 @@ from datetime import timedelta
 import logging
 
 def main(env):
-    if helper_functions.is_it_eos():
-        logging.info('Force Eval True for EOS')
+    it_is_eos,it_is_24 = helper_functions.is_it_eos_or_24()
+    if it_is_eos:
+        logging.info('Running End of Shift Report')
         output123.main(env,eos=True)
         output45.main(env,eos=True)
         outputz3.main(env,eos=True)
         outputz4.main(env,eos=True)
         eos_report(env)
+        if it_is_24:
+            eos_report(env,do_24=True)
 
-def eos_report(env):
+def eos_report(env,do_24=False):
+    logging.info('Start Battery End of Shift. 24_Hour Value: %s' % do_24)
     #define globals
     NORMAL_DIVISOR = 4
     CTA_DIVISOR = 28
@@ -38,7 +42,7 @@ def eos_report(env):
     #get start and end of shift times
     now=datetime.utcnow()
     shift_end = now.replace(minute=00,second=00,microsecond=00)
-    lookback=12 #1 hr
+    lookback=24 if do_24 else 12 #1 hr
     shift_start=shift_end+timedelta(hours=-lookback)
 
     #create mos connection
@@ -215,7 +219,8 @@ def eos_report(env):
 
     #start end of shift message
     eos_msg = pymsteams.connectorcard(webhook)
-    eos_msg.title('Battery Module -- EOS Report')
+    title = '24-Hour Report' if do_24 else 'End Of Shift Report'
+    eos_msg.title(title)
     eos_msg.summary('summary')
     eos_msg.color('#cc0000')
 
