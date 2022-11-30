@@ -360,7 +360,7 @@ def main(env,eos=False):
     mamc_yield_table = get_mamc_yield_table(start,end)
 
     starved_html = '<table>'+ header_html + starved_table + '</table>'
-    cycle_time_html = '<table>' + "<caption>Cycle Time (secs)</caption>" + header_html + cycle_time_table + '</table>'
+    cycle_time_html = '<table>' + "<caption>Cycle Time (secs) || Target: <b>67s</b></caption>" + header_html + cycle_time_table + '</table>'
     mamc_yield_html = '<table>' + header_html + mamc_yield_table + '</table>'
 
     #get webhook based on environment
