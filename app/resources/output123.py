@@ -226,6 +226,11 @@ def main(env,eos=False):
             <th style="text-align:center">BMA3</th>
             {header_mmamc_str}
             <th style="text-align:center">TOTAL</th>
+            <th style="text-align:center"></th>
+            <th style="text-align:center">Lane1</th>
+            <th style="text-align:center">Lane2</th>
+            <th style="text-align:center">Lane3</th>
+            <th style="text-align:center">Lane4</th>
             </tr>
     """
     #create cta output row
@@ -236,8 +241,14 @@ def main(env,eos=False):
             <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.2f}</td>
             {blank_mmamc_str}
             <td style="text-align:center"><strong>{total_cta_output/CTA_DIVISOR:.2f}</strong></td>
+            <td style="text-align:center"></td>
+            <td style="text-align:center">{cta1_outputs[0]/CTA_DIVISOR:.2f}</td>
+            <td style="text-align:center">{cta1_outputs[1]/CTA_DIVISOR:.2f}</td>
+            <td style="text-align:center">{cta1_outputs[2]/CTA_DIVISOR:.2f}</td>
+            <td style="text-align:center">{cta1_outputs[3]/CTA_DIVISOR:.2f}</td>
             </tr>
     """
+    
     #create mamc output row
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
@@ -246,6 +257,11 @@ def main(env,eos=False):
             <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.2f}</td>
             {output_mmamc_str}
             <td style="text-align:center"><strong>{(total_mamc_output+mmamc_output)/NORMAL_DIVISOR:.2f}</strong></td>
+            <td style="text-align:center"></td>
+            <td style="text-align:center">{cta2_outputs[0]/CTA_DIVISOR:.2f}</td>
+            <td style="text-align:center">{cta2_outputs[1]/CTA_DIVISOR:.2f}</td>
+            <td style="text-align:center">{cta2_outputs[2]/CTA_DIVISOR:.2f}</td>
+            <td style="text-align:center">{cta2_outputs[3]/CTA_DIVISOR:.2f}</td>
             </tr>
     """
     #create c3a output row
@@ -256,6 +272,11 @@ def main(env,eos=False):
             <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.2f}</td>
             {blank_mmamc_str}
             <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.2f}</strong></td>
+            <td style="text-align:center"></td>
+            <td style="text-align:center">{cta3_outputs[0]/CTA_DIVISOR:.2f}</td>
+            <td style="text-align:center">{cta3_outputs[1]/CTA_DIVISOR:.2f}</td>
+            <td style="text-align:center">{cta3_outputs[2]/CTA_DIVISOR:.2f}</td>
+            <td style="text-align:center">{cta3_outputs[3]/CTA_DIVISOR:.2f}</td>
             </tr>
     """
 
@@ -358,9 +379,9 @@ def main(env,eos=False):
     bma_card.text(bma_html)
     teams_msg.addSection(bma_card)
 
-    cta_card = pymsteams.cardsection()
-    cta_card.text(cta_html)
-    teams_msg.addSection(cta_card)
+    # cta_card = pymsteams.cardsection()
+    # cta_card.text(cta_html)
+    # teams_msg.addSection(cta_card)
 
     starved_card = pymsteams.cardsection()
     starved_card.text(starved_html)
@@ -369,9 +390,9 @@ def main(env,eos=False):
     yield_card = pymsteams.cardsection()
     yield_card.text(mamc_yield_html)
 
-    teams_msg.addSection(starved_card)
     teams_msg.addSection(cycle_card)
     teams_msg.addSection(yield_card)
+    teams_msg.addSection(starved_card)
 
 
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
