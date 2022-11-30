@@ -51,9 +51,9 @@ def get_mamc_yield_table(start,end):
 
     mos_con.close()
 
-    bma1_yield = round(helper_functions.get_val(df,'3BM1','LINE','Duration'),1)
-    bma2_yield = round(helper_functions.get_val(df,'3BM2','LINE','Duration'),1)
-    bma3_yield = round(helper_functions.get_val(df,'3BM3','LINE','Duration'),1)
+    bma1_yield = round(helper_functions.get_val(df,'3BM1','LINE','YIELD'),1)
+    bma2_yield = round(helper_functions.get_val(df,'3BM2','LINE','YIELD'),1)
+    bma3_yield = round(helper_functions.get_val(df,'3BM3','LINE','YIELD'),1)
 
     html=f"""
     <tr>
@@ -63,7 +63,6 @@ def get_mamc_yield_table(start,end):
         <td style="text-align:center">{bma3_yield}%</td>
     </tr>
     """
-
     return html
 
 def get_starved_table(start,end):
@@ -104,9 +103,9 @@ def get_cycle_time_table(start,end):
                         ]
 
     bando_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,BANDO_CT_PATHS)
-    bando_ct_bma1 = round(helper_functions.get_val(bando_df,'3BM1','LINE','Duration'),1)
-    bando_ct_bma2 = round(helper_functions.get_val(bando_df,'3BM2','LINE','Duration'),1)
-    bando_ct_bma3 = round(helper_functions.get_val(bando_df,'3BM3','LINE','Duration'),1)
+    bando_ct_bma1 = round(helper_functions.get_val(bando_df,'3BM1','LINE','CT_SEC'),1)
+    bando_ct_bma2 = round(helper_functions.get_val(bando_df,'3BM2','LINE','CT_SEC'),1)
+    bando_ct_bma3 = round(helper_functions.get_val(bando_df,'3BM3','LINE','CT_SEC'),1)
 
     SIDEMOUNT_CT_PATHS = [
                         '[3BM1_29500_01]ManualStationReporting/SidemountInstall/StateControl',
@@ -115,9 +114,9 @@ def get_cycle_time_table(start,end):
                         ]
 
     sidemount_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,SIDEMOUNT_CT_PATHS)
-    sidemount_ct_bma1 = round(helper_functions.get_val(sidemount_df,'3BM1','LINE','Duration'),1)
-    sidemount_ct_bma2 = round(helper_functions.get_val(sidemount_df,'3BM2','LINE','Duration'),1)
-    sidemount_ct_bma3 = round(helper_functions.get_val(sidemount_df,'3BM3','LINE','Duration'),1)
+    sidemount_ct_bma1 = round(helper_functions.get_val(sidemount_df,'3BM1','LINE','CT_SEC'),1)
+    sidemount_ct_bma2 = round(helper_functions.get_val(sidemount_df,'3BM2','LINE','CT_SEC'),1)
+    sidemount_ct_bma3 = round(helper_functions.get_val(sidemount_df,'3BM3','LINE','CT_SEC'),1)
     
     QIS_CT_PATHS = [
                         '[3BM1_29500_01]ManualStationReporting/QIS/StateControl',
@@ -126,9 +125,9 @@ def get_cycle_time_table(start,end):
                         ]
 
     qis_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,QIS_CT_PATHS)
-    qis_ct_bma1 = round(helper_functions.get_val(qis_df,'3BM1','LINE','Duration'),1)
-    qis_ct_bma2 = round(helper_functions.get_val(qis_df,'3BM2','LINE','Duration'),1)
-    qis_ct_bma3 = round(helper_functions.get_val(qis_df,'3BM3','LINE','Duration'),1)
+    qis_ct_bma1 = round(helper_functions.get_val(qis_df,'3BM1','LINE','CT_SEC'),1)
+    qis_ct_bma2 = round(helper_functions.get_val(qis_df,'3BM2','LINE','CT_SEC'),1)
+    qis_ct_bma3 = round(helper_functions.get_val(qis_df,'3BM3','LINE','CT_SEC'),1)
 
     plc_con.close()
     
