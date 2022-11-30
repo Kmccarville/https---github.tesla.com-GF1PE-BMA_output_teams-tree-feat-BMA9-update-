@@ -57,7 +57,7 @@ def get_mamc_yield_table(start,end):
 
     html=f"""
     <tr>
-        <td style="text-align:center">Yield</td>
+        <td style="text-align:center">MAMC Yield</td>
         <td style="text-align:center">{bma1_yield}%</td>
         <td style="text-align:center">{bma2_yield}%</td>
         <td style="text-align:center">{bma3_yield}%</td>
@@ -84,7 +84,7 @@ def get_starved_table(start,end):
     
     html=f"""
         <tr>
-            <td style="text-align:right"><b>Auto Closer</b></td>
+            <td style="text-align:right"><b>AutoCloser Starved</b></td>
             <td style="text-align:center">{auto_close_bma1_percent}%</td>
             <td style="text-align:center">{auto_close_bma2_percent}%</td>
             <td style="text-align:center">{auto_close_bma3_percent}%</td>
@@ -241,7 +241,8 @@ def main(env,eos=False):
             <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.2f}</td>
             {blank_mmamc_str}
             <td style="text-align:center"><strong>{total_cta_output/CTA_DIVISOR:.2f}</strong></td>
-            <td style="text-align:center"></td>
+            <td style="text-align:center">||</td>
+            <td style="text-align:center"><strong>CTA1</strong></td>
             <td style="text-align:center">{cta1_outputs[0]/CTA_DIVISOR:.2f}</td>
             <td style="text-align:center">{cta1_outputs[1]/CTA_DIVISOR:.2f}</td>
             <td style="text-align:center">{cta1_outputs[2]/CTA_DIVISOR:.2f}</td>
@@ -257,7 +258,8 @@ def main(env,eos=False):
             <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.2f}</td>
             {output_mmamc_str}
             <td style="text-align:center"><strong>{(total_mamc_output+mmamc_output)/NORMAL_DIVISOR:.2f}</strong></td>
-            <td style="text-align:center"></td>
+            <td style="text-align:center">||</td>
+            <td style="text-align:center"><strong>CTA2</strong></td>
             <td style="text-align:center">{cta2_outputs[0]/CTA_DIVISOR:.2f}</td>
             <td style="text-align:center">{cta2_outputs[1]/CTA_DIVISOR:.2f}</td>
             <td style="text-align:center">{cta2_outputs[2]/CTA_DIVISOR:.2f}</td>
@@ -272,7 +274,8 @@ def main(env,eos=False):
             <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.2f}</td>
             {blank_mmamc_str}
             <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.2f}</strong></td>
-            <td style="text-align:center"></td>
+            <td style="text-align:center">||</td>
+            <td style="text-align:center"><strong>CTA3</strong></td>
             <td style="text-align:center">{cta3_outputs[0]/CTA_DIVISOR:.2f}</td>
             <td style="text-align:center">{cta3_outputs[1]/CTA_DIVISOR:.2f}</td>
             <td style="text-align:center">{cta3_outputs[2]/CTA_DIVISOR:.2f}</td>
@@ -355,9 +358,9 @@ def main(env,eos=False):
     cycle_time_table = get_cycle_time_table(start,end)
     mamc_yield_table = get_mamc_yield_table(start,end)
 
-    starved_html = '<table>' + "<caption>Starved %</caption>" + header_html + starved_table + '</table>'
+    starved_html = '<table>'+ header_html + starved_table + '</table>'
     cycle_time_html = '<table>' + "<caption>Cycle Time (secs)</caption>" + header_html + cycle_time_table + '</table>'
-    mamc_yield_html = '<table>' + "<caption>MAMC Yield</caption>" + header_html + mamc_yield_table + '</table>'
+    mamc_yield_html = '<table>' + header_html + mamc_yield_table + '</table>'
 
     #get webhook based on environment
     webhook_key = 'teams_webhook_BMA123_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
@@ -391,9 +394,8 @@ def main(env,eos=False):
     yield_card.text(mamc_yield_html)
 
     teams_msg.addSection(cycle_card)
-    teams_msg.addSection(yield_card)
     teams_msg.addSection(starved_card)
-
+    teams_msg.addSection(yield_card)
 
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
     #SEND IT
