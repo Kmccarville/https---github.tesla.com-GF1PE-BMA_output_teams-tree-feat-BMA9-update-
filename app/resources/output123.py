@@ -36,10 +36,10 @@ def get_mamc_yield_table(start,end):
                 left(a.name,4) as LINE,
                 ((COUNT(DISTINCT tp.thingid) - COUNT(DISTINCT nc.thingid)) / COUNT(DISTINCT tp.thingid)* 100) AS YIELD
                 FROM
-                    thingpath tp
-                    JOIN actor a ON a.id = tp.actorcreatedby
+                    sparq.thingpath tp
+                    JOIN sparq.actor a ON a.id = tp.actorcreatedby
                     LEFT JOIN
-                    nc ON nc.thingid = tp.thingid
+                    sparq.nc ON nc.thingid = tp.thingid
                 WHERE
                     tp.flowstepname IN ('3BM-29500')
                     AND tp.completed BETWEEN '{start}' AND '{start_next}'

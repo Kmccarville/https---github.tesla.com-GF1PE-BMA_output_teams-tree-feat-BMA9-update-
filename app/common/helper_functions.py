@@ -164,8 +164,8 @@ def query_tsm_cycle_time(db,start,end,paths):
                     left(e.name,4) as LINE,
                     AVG(ch.elapsed_time) as CT_SEC
                 FROM
-                    equipment e 
-                    JOIN cycle_history ch on ch.equipment_id = e.id
+                    rno_eqtstatushistory_batterymodule.equipment e 
+                    JOIN rno_eqtstatushistory_batterymodule.cycle_history ch on ch.equipment_id = e.id
                 WHERE 
                     e.source_tagpath in {path_list}
                 AND ch.timestamp BETWEEN '{start}' and '{end}'
