@@ -57,7 +57,7 @@ def get_mamc_yield_table(start,end):
 
     html=f"""
     <tr>
-        <td style="text-align:center">MAMC Yield</td>
+        <td style="text-align:center"><b>MAMC Yield</b></td>
         <td style="text-align:center">{bma1_yield}%</td>
         <td style="text-align:center">{bma2_yield}%</td>
         <td style="text-align:center">{bma3_yield}%</td>
@@ -84,7 +84,7 @@ def get_starved_table(start,end):
     
     html=f"""
         <tr>
-            <td style="text-align:right"><b>AutoCloser Starved</b></td>
+            <td style="text-align:right"><b>Closer Starved</b></td>
             <td style="text-align:center">{auto_close_bma1_percent}%</td>
             <td style="text-align:center">{auto_close_bma2_percent}%</td>
             <td style="text-align:center">{auto_close_bma3_percent}%</td>
@@ -226,6 +226,7 @@ def main(env,eos=False):
             <th style="text-align:center">BMA3</th>
             {header_mmamc_str}
             <th style="text-align:center">TOTAL</th>
+            <th style="text-align:center"></th>
             <th style="text-align:center"></th>
             <th style="text-align:center">Lane1</th>
             <th style="text-align:center">Lane2</th>
