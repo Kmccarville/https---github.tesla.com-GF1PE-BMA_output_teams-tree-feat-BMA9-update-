@@ -102,7 +102,10 @@ def get_cycle_time_table(start,end):
                         '[3BM3_29500_01]BandoLandCT/CycleTimeReporting/PalletInfeed'
                         ]
 
-    bando_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,BANDO_CT_PATHS)
+    BANDO_LOW_LIMIT = 36
+    BANDO_HIGH_LIMIT = 95
+
+    bando_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,BANDO_CT_PATHS,BANDO_LOW_LIMIT,BANDO_HIGH_LIMIT)
     bando_ct_bma1 = round(helper_functions.get_val(bando_df,'3BM1','LINE','CT_SEC'),1)
     bando_ct_bma2 = round(helper_functions.get_val(bando_df,'3BM2','LINE','CT_SEC'),1)
     bando_ct_bma3 = round(helper_functions.get_val(bando_df,'3BM3','LINE','CT_SEC'),1)
@@ -113,7 +116,10 @@ def get_cycle_time_table(start,end):
                         '[3BM3_29500_01]ManualStationReporting/SidemountInstall/StateControl'
                         ]
 
-    sidemount_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,SIDEMOUNT_CT_PATHS)
+    SIDEMOUNT_LOW_LIMIT = 38
+    SIDEMOUNT_HIGH_LIMIT = 165
+
+    sidemount_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,SIDEMOUNT_CT_PATHS,SIDEMOUNT_LOW_LIMIT,SIDEMOUNT_HIGH_LIMIT)
     sidemount_ct_bma1 = round(helper_functions.get_val(sidemount_df,'3BM1','LINE','CT_SEC'),1)
     sidemount_ct_bma2 = round(helper_functions.get_val(sidemount_df,'3BM2','LINE','CT_SEC'),1)
     sidemount_ct_bma3 = round(helper_functions.get_val(sidemount_df,'3BM3','LINE','CT_SEC'),1)
@@ -124,7 +130,10 @@ def get_cycle_time_table(start,end):
                         '[3BM3_29500_01]ManualStationReporting/QIS/StateControl'
                         ]
 
-    qis_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,QIS_CT_PATHS)
+    QIS_LOW_LIMIT = 41
+    QIS_HIGH_LIMIT = 98
+
+    qis_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,QIS_CT_PATHS,QIS_LOW_LIMIT,QIS_HIGH_LIMIT)
     qis_ct_bma1 = round(helper_functions.get_val(qis_df,'3BM1','LINE','CT_SEC'),1)
     qis_ct_bma2 = round(helper_functions.get_val(qis_df,'3BM2','LINE','CT_SEC'),1)
     qis_ct_bma3 = round(helper_functions.get_val(qis_df,'3BM3','LINE','CT_SEC'),1)
@@ -285,7 +294,7 @@ def main(env,eos=False):
     """
 
     #create full bma html with the above htmls
-    bma_html = '<table>' + bma_header_html + cta_output_html + mamc_output_html + c3a_output_html + '</table>'
+    bma_html = '<table>' + "<caption>Throughput</caption>" + bma_header_html + cta_output_html + mamc_output_html + c3a_output_html + '</table>'
 
     #create cta header
     cta_header_html = """<tr>
@@ -359,9 +368,18 @@ def main(env,eos=False):
     cycle_time_table = get_cycle_time_table(start,end)
     mamc_yield_table = get_mamc_yield_table(start,end)
 
+    divider_row = """
+                    <tr>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <tr>
+                """
+
     starved_html = '<table>'+ header_html + starved_table + '</table>'
-    cycle_time_html = '<table>' + "<caption>Cycle Time (secs) || Target: <b>67s</b></caption>" + header_html + cycle_time_table + '</table>'
-    mamc_yield_html = '<table>' + header_html + mamc_yield_table + '</table>'
+    cycle_time_html = '<table>' + "<caption>Performance <b>(Target 67s Cycle Time)</b></caption>" + header_html + cycle_time_table + divider_row + starved_table + '</table>'
+    mamc_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + mamc_yield_table + '</table>'
 
     #get webhook based on environment
     webhook_key = 'teams_webhook_BMA123_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
