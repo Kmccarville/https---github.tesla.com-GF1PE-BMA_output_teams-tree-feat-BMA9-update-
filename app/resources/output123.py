@@ -369,6 +369,11 @@ def main(env,eos=False):
     yield_card = pymsteams.cardsection()
     yield_card.text(mamc_yield_html)
 
+    teams_msg.addSection(starved_card)
+    teams_msg.addSection(cycle_card)
+    teams_msg.addSection(yield_card)
+
+
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
     #SEND IT
     teams_msg.send()
