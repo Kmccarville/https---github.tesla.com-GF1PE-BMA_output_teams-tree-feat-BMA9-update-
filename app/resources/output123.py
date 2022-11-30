@@ -26,6 +26,134 @@ def get_mmamc_output(db,start,end):
     output = df['OUTPUT'].sum() if len(df) else 0 
     return output
 
+def get_mamc_yield_table(start,end):
+    mos_con = helper_functions.get_sql_conn('mos_rpt2')
+    df = pd.DataFrame({})
+    while start < end:
+        start_next = start + timedelta(minutes=60)
+        query = f"""
+                SELECT
+                left(a.name,4) as LINE,
+                ((COUNT(DISTINCT tp.thingid) - COUNT(DISTINCT nc.thingid)) / COUNT(DISTINCT tp.thingid)* 100) AS YIELD
+                FROM
+                    thingpath tp
+                    JOIN actor a ON a.id = tp.actorcreatedby
+                    LEFT JOIN
+                    nc ON nc.thingid = tp.thingid
+                WHERE
+                    tp.flowstepname IN ('3BM-29500')
+                    AND tp.completed BETWEEN '{start}' AND '{start_next}'
+                GROUP BY 1
+                """
+        df_sub = pd.read_sql(query,mos_con)
+        df = pd.concat([df,df_sub],axis=0)
+        start += timedelta(minutes=60)
+
+    mos_con.close()
+
+    bma1_yield = round(helper_functions.get_val(df,'3BM1','LINE','Duration'),1)
+    bma2_yield = round(helper_functions.get_val(df,'3BM2','LINE','Duration'),1)
+    bma3_yield = round(helper_functions.get_val(df,'3BM3','LINE','Duration'),1)
+
+    html=f"""
+    <tr>
+        <td style="text-align:center">Yield</td>
+        <td style="text-align:center">{bma1_yield}%</td>
+        <td style="text-align:center">{bma2_yield}%</td>
+        <td style="text-align:center">{bma3_yield}%</td>
+    </tr>
+    """
+
+    return html
+
+def get_starved_table(start,end):
+    plc_con = helper_functions.get_sql_conn('plc_db')
+    seconds_between = (end - start).seconds
+    AUTO_CLOSER_PATHS = [
+                        '[3BM1_29500_01]Line1A/Closer/TSM/StateControl',
+                        '[3BM2_29500_01]LINE1A/Closer/TSM/StateControl',
+                        '[3BM3_29500_01]LINE1A/Closer/TSM/StateControl'
+                        ]
+
+    auto_close_df = helper_functions.query_tsm_state(plc_con,start, end, AUTO_CLOSER_PATHS, 'Starved')
+    #get percentage (divide by seconds in between start and end and multiply by 100%)
+    auto_close_bma1_percent = round(helper_functions.get_val(auto_close_df,'3BM1','LINE','Duration')/seconds_between*100,1)
+    auto_close_bma2_percent = round(helper_functions.get_val(auto_close_df,'3BM2','LINE','Duration')/seconds_between*100,1)
+    auto_close_bma3_percent = round(helper_functions.get_val(auto_close_df,'3BM3','LINE','Duration')/seconds_between*100,1)
+
+    plc_con.close()
+    
+    html=f"""
+        <tr>
+            <td style="text-align:right"><b>Auto Closer</b></td>
+            <td style="text-align:center">{auto_close_bma1_percent}%</td>
+            <td style="text-align:center">{auto_close_bma2_percent}%</td>
+            <td style="text-align:center">{auto_close_bma3_percent}%</td>
+        </tr>
+        """
+
+    return html
+
+def get_cycle_time_table(start,end):
+    plc_con = helper_functions.get_sql_conn('plc_db')
+
+    BANDO_CT_PATHS = [
+                        '[3BM1_29500_01]BandoLandCT/CycleTimeReporting/PalletInfeed',
+                        '[3BM2_29500_01]BandoLandCT/CycleTimeReporting/PalletInfeed',
+                        '[3BM3_29500_01]BandoLandCT/CycleTimeReporting/PalletInfeed'
+                        ]
+
+    bando_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,BANDO_CT_PATHS)
+    bando_ct_bma1 = round(helper_functions.get_val(bando_df,'3BM1','LINE','Duration'),1)
+    bando_ct_bma2 = round(helper_functions.get_val(bando_df,'3BM2','LINE','Duration'),1)
+    bando_ct_bma3 = round(helper_functions.get_val(bando_df,'3BM3','LINE','Duration'),1)
+
+    SIDEMOUNT_CT_PATHS = [
+                        '[3BM1_29500_01]ManualStationReporting/SidemountInstall/StateControl',
+                        '[3BM2_29500_01]ManualStationReporting/SidemountInstall/StateControl',
+                        '[3BM3_29500_01]ManualStationReporting/SidemountInstall/StateControl'
+                        ]
+
+    sidemount_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,SIDEMOUNT_CT_PATHS)
+    sidemount_ct_bma1 = round(helper_functions.get_val(sidemount_df,'3BM1','LINE','Duration'),1)
+    sidemount_ct_bma2 = round(helper_functions.get_val(sidemount_df,'3BM2','LINE','Duration'),1)
+    sidemount_ct_bma3 = round(helper_functions.get_val(sidemount_df,'3BM3','LINE','Duration'),1)
+    
+    QIS_CT_PATHS = [
+                        '[3BM1_29500_01]ManualStationReporting/QIS/StateControl',
+                        '[3BM2_29500_01]ManualStationReporting/QIS/StateControl',
+                        '[3BM3_29500_01]ManualStationReporting/QIS/StateControl'
+                        ]
+
+    qis_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,QIS_CT_PATHS)
+    qis_ct_bma1 = round(helper_functions.get_val(qis_df,'3BM1','LINE','Duration'),1)
+    qis_ct_bma2 = round(helper_functions.get_val(qis_df,'3BM2','LINE','Duration'),1)
+    qis_ct_bma3 = round(helper_functions.get_val(qis_df,'3BM3','LINE','Duration'),1)
+
+    plc_con.close()
+    
+    html=f"""
+        <tr>
+            <td style="text-align:left"><b>BandoLand</b></td>
+            <td style="text-align:center">{bando_ct_bma1}</td>
+            <td style="text-align:center">{bando_ct_bma2}</td>
+            <td style="text-align:center">{bando_ct_bma3}</td>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b>Sidemount</b></td>
+            <td style="text-align:center">{sidemount_ct_bma1}</td>
+            <td style="text-align:center">{sidemount_ct_bma2}</td>
+            <td style="text-align:center">{sidemount_ct_bma3}</td>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b>QIS</b></td>
+            <td style="text-align:center">{qis_ct_bma1}</td>
+            <td style="text-align:center">{qis_ct_bma2}</td>
+            <td style="text-align:center">{qis_ct_bma3}</td>
+        </tr>
+        """
+    return html
+
 def main(env,eos=False):
     #define start and end time for the hour
     lookback=12 if eos else 1
@@ -193,6 +321,23 @@ def main(env,eos=False):
 
     #create full bma html with the above htmls
     cta_html = '<table>' + "<caption>CTA Breakdown</caption>" + cta_header_html + cta1_html + cta2_html + cta3_html + '</table>'
+    
+    header_html = """
+                    <tr>
+                    <td></td>
+                    <th style="text-align:center"><strong>BMA1</strong></th>
+                    <th style="text-align:center"><strong>BMA2</strong></th>
+                    <th style="text-align:center"><strong>BMA3</strong></th>
+                    </tr>
+                """
+    #get cycle time html
+    starved_table = get_starved_table(start,end)
+    cycle_time_table = get_cycle_time_table(start,end)
+    mamc_yield_table = get_mamc_yield_table(start,end)
+
+    starved_html = '<table>' + "<caption>Starved %</caption>" + header_html + starved_table + '</table>'
+    cycle_time_html = '<table>' + "<caption>Cycle Time (secs)</caption>" + header_html + cycle_time_table + '</table>'
+    mamc_yield_html = '<table>' + "<caption>MAMC Yield</caption>" + header_html + mamc_yield_table + '</table>'
 
     #get webhook based on environment
     webhook_key = 'teams_webhook_BMA123_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
@@ -217,6 +362,14 @@ def main(env,eos=False):
     cta_card = pymsteams.cardsection()
     cta_card.text(cta_html)
     teams_msg.addSection(cta_card)
+
+    starved_card = pymsteams.cardsection()
+    starved_card.text(starved_html)
+    cycle_card = pymsteams.cardsection()
+    cycle_card.text(cycle_time_html)
+    yield_card = pymsteams.cardsection()
+    yield_card.text(mamc_yield_html)
+
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
     #SEND IT
     teams_msg.send()

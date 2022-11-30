@@ -151,3 +151,24 @@ def query_tsm_state(db,start, end, paths, s_or_b, reason=0):
     
     df= pd.read_sql(tsm_query,db)
     return df
+
+
+def query_tsm_cycle_time(db,start,end,paths):
+    path_list = ""
+    for path in paths:
+        path_list += ("'" + path + "'" + ',')
+        
+    path_list = '(' + path_list.strip(',') + ')'
+    query = f"""
+                SELECT 
+                    left(e.name,4) as LINE,
+                    AVG(ch.elapsed_time) as CT_SEC
+                FROM
+                    equipment e 
+                    JOIN cycle_history ch on ch.equipment_id = e.id
+                WHERE 
+                    e.source_tagpath in {path_list}
+                AND ch.timestamp BETWEEN '{start}' and '{end}'
+            """
+    df = pd.read_sql(query,db)
+    return df
