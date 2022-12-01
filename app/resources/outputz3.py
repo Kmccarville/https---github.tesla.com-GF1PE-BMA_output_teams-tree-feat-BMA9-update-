@@ -353,53 +353,54 @@ def get_mttr_table(db,start,end):
         </tr>
         <tr>
             <td style="text-align:left"><b>A</b></td>
-            <td style="text-align:center">{quad1a_actual}</td>
-            <td style="text-align:center">{quad1a_target}</td>
-            <td style="text-align:center">{quad2a_actual}</td>
-            <td style="text-align:center">{quad2a_target}</td>
-            <td style="text-align:center">{quad3a_actual}</td>
-            <td style="text-align:center">{quad3a_target}</td>
-            <td style="text-align:center">{quad4a_actual}</td>
-            <td style="text-align:center">{quad4a_target}</td>
-            <td style="text-align:center">{quad5a_actual}</td>
-            <td style="text-align:center">{quad5a_target}</td>
+            <td style="text-align:center;{'color:red' if quad1a_actual > quad1a_target else ''}">{'---' if quad1a_actual==0 else quad1a_actual}</td>
+            <td style="text-align:center">{'---' if quad1a_target==0 else quad1a_target}</td>
+            <td style="text-align:center;{'color:red' if quad2a_actual > quad2a_target else ''}">{'---' if quad2a_actual==0 else quad2a_actual}</td>
+            <td style="text-align:center">{'---' if quad2a_target==0 else quad2a_target}</td>
+            <td style="text-align:center;{'color:red' if quad3a_actual > quad3a_target else ''}">{'---' if quad3a_actual==0 else quad3a_actual}</td>
+            <td style="text-align:center">{'---' if quad3a_target==0 else quad3a_target}</td>
+            <td style="text-align:center;{'color:red' if quad4a_actual > quad4a_target else ''}">{'---' if quad4a_actual==0 else quad4a_actual}</td>
+            <td style="text-align:center">{'---' if quad4a_target==0 else quad4a_target}</td>
+            <td style="text-align:center;{'color:red' if quad5a_actual > quad5a_target else ''}">{'---' if quad5a_actual==0 else quad5a_actual}</td>
+            <td style="text-align:center">{'---' if quad5a_target==0 else quad5a_target}</td>
         </tr>
         <tr>
             <td style="text-align:left"><b>B</b></td>
-            <td style="text-align:center">{quad1b_actual}</td>
-            <td style="text-align:center">{quad1b_target}</td>
-            <td style="text-align:center">{quad2b_actual}</td>
-            <td style="text-align:center">{quad2b_target}</td>
-            <td style="text-align:center">{quad3b_actual}</td>
-            <td style="text-align:center">{quad3b_target}</td>
-            <td style="text-align:center">{quad4b_actual}</td>
-            <td style="text-align:center">{quad4b_target}</td>
-            <td style="text-align:center">{quad5b_actual}</td>
-            <td style="text-align:center">{quad5b_target}</td>
+            <td style="text-align:center;{'color:red' if quad1b_actual > quad1b_target else ''}">{'---' if quad1b_actual==0 else quad1b_actual}</td>
+            <td style="text-align:center">{'---' if quad1b_target==0 else quad1b_target}</td>
+            <td style="text-align:center;{'color:red' if quad2b_actual > quad2b_target else ''}">{'---' if quad2b_actual==0 else quad2b_actual}</td>
+            <td style="text-align:center">{'---' if quad2b_target==0 else quad2b_target}</td>
+            <td style="text-align:center;{'color:red' if quad3b_actual > quad3b_target else ''}">{'---' if quad3b_actual==0 else quad3b_actual}</td>
+            <td style="text-align:center">{'---' if quad3b_target==0 else quad3b_target}</td>
+            <td style="text-align:center;{'color:red' if quad4b_actual > quad4b_target else ''}">{'---' if quad4b_actual==0 else quad4b_actual}</td>
+            <td style="text-align:center">{'---' if quad4b_target==0 else quad4b_target}</td>
+            <td style="text-align:center;{'color:red' if quad5b_actual > quad5b_target else ''}">{'---' if quad5b_actual==0 else quad5b_actual}</td>
+            <td style="text-align:center">{'---' if quad5b_target==0 else quad5b_target}</td>
         </tr>
         <tr>
             <td style="text-align:left"><b>C</b></td>
-            <td style="text-align:center">{quad1c_actual}</td>
-            <td style="text-align:center">{quad1c_target}</td>
-            <td style="text-align:center">{quad2c_actual}</td>
-            <td style="text-align:center">{quad2c_target}</td>
-            <td style="text-align:center">{quad3c_actual}</td>
-            <td style="text-align:center">{quad3c_target}</td>
-            <td style="text-align:center">{quad4c_actual}</td>
-            <td style="text-align:center">{quad4c_target}</td>
-            <td style="text-align:center">---</td>
+            <td style="text-align:center;{'color:red' if quad1c_actual > quad1c_target else ''}">{'---' if quad1c_actual==0 else quad1c_actual}</td>
+            <td style="text-align:center">{'---' if quad1c_target==0 else quad1c_target}</td>
+            <td style="text-align:center;{'color:red' if quad2c_actual > quad2c_target else ''}">{'---' if quad2c_actual==0 else quad2c_actual}</td>
+            <td style="text-align:center">{'---' if quad2c_target==0 else quad2c_target}</td>
+            <td style="text-align:center;{'color:red' if quad3c_actual > quad3c_target else ''}">{'---' if quad3c_actual==0 else quad3c_actual}</td>
+            <td style="text-align:center">{'---' if quad3c_target==0 else quad3c_target}</td>
+            <td style="text-align:center;{'color:red' if quad4c_actual > quad4c_target else ''}">{'---' if quad4c_actual==0 else quad4c_actual}</td>
+            <td style="text-align:center">{'---' if quad4c_target==0 else quad4c_target}</td>
+            <td style="text-align:center;">---</td>
             <td style="text-align:center">---</td>
         </tr>
         <tr>
-            <td style="text-align:center">{quad1d_actual}</td>
-            <td style="text-align:center">{quad1d_target}</td>
-            <td style="text-align:center">{quad2d_actual}</td>
-            <td style="text-align:center">{quad2d_target}</td>
-            <td style="text-align:center">{quad3d_actual}</td>
-            <td style="text-align:center">{quad3d_target}</td>
+            <td style="text-align:left"><b>D</b></td>
+            <td style="text-align:center;{'color:red' if quad1d_actual > quad1d_target else ''}">{'---' if quad1d_actual==0 else quad1d_actual}</td>
+            <td style="text-align:center">{'---' if quad1d_target==0 else quad1d_target}</td>
+            <td style="text-align:center;{'color:red' if quad2d_actual > quad2d_target else ''}">{'---' if quad2d_actual==0 else quad2d_actual}</td>
+            <td style="text-align:center">{'---' if quad2d_target==0 else quad2d_target}</td>
+            <td style="text-align:center;{'color:red' if quad3d_actual > quad3d_target else ''}">{'---' if quad3d_actual==0 else quad3d_actual}</td>
+            <td style="text-align:center">{'---' if quad3d_target==0 else quad3d_target}</td>
+            <td style="text-align:center;">---</td>
             <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
+            <td style="text-align:center;">---</td>
             <td style="text-align:center">---</td>
         </tr>
         """
