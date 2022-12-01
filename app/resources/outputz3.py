@@ -93,7 +93,7 @@ def query_bonder_list(db):
             """
     return pd.read_sql(query,db)    
 
-def query_bonder_logs(db,shift_start,shift_end):
+def query_bonder_logs(db,start,end):
     query = f"""
             SELECT 
             MACHINE_ID,
@@ -108,18 +108,18 @@ def query_bonder_logs(db,shift_start,shift_end):
             LANE_R_MODE
             FROM m3_teep_v3.wirebond_logs t
             WHERE 
-            START_TIME > convert_tz('{shift_start}','GMT','US/Pacific')
-            AND START_TIME < convert_tz('{shift_end}','GMT','US/Pacific')
+            START_TIME > convert_tz('{start}','GMT','US/Pacific')
+            AND START_TIME < convert_tz('{end}','GMT','US/Pacific')
             AND left(MACHINE_ID,3) = '3BM'
             ORDER BY 2 ASC
             """
     return pd.read_sql(query,db)
 
-def query_first_log(db,shift_start,machine_id):
+def query_first_log(db,start,machine_id):
     query = f"""
             SELECT 
             MACHINE_ID,
-            CONVERT('{shift_start}',DATETIME) as START_DATE_TIME,
+            CONVERT('{start}',DATETIME) as START_DATE_TIME,
             LANE_F_EM_STEP,
             LANE_R_EM_STEP,
             FAULT_CODE,
@@ -130,7 +130,7 @@ def query_first_log(db,shift_start,machine_id):
             LANE_R_MODE
             FROM m3_teep_v3.wirebond_logs t
             WHERE 
-            START_TIME < convert_tz('{shift_start}','GMT','US/Pacific')
+            START_TIME < convert_tz('{start}','GMT','US/Pacific')
             AND MACHINE_ID = '{machine_id}'
             ORDER BY START_TIME DESC
             LIMIT 1;
@@ -180,7 +180,7 @@ def get_mttr_table(db,start,end):
         #remove rows where start and end time are the same (for the time buffer)
         sub_df = sub_df.query("START_DATE_TIME!=END_DATE_TIME")
         #assign the shift end time to the last row's end time
-        sub_df.iloc[-1,sub_df.columns.get_loc('END_DATE_TIME')] = shift_end
+        sub_df.iloc[-1,sub_df.columns.get_loc('END_DATE_TIME')] = end
         #derive time between start and end times
         sub_df['CT_SEC'] = (sub_df['END_DATE_TIME'] - sub_df['START_DATE_TIME']).astype('timedelta64[ms]')/1000    
         #loop through rows to determine when bondtool change or fault starts
