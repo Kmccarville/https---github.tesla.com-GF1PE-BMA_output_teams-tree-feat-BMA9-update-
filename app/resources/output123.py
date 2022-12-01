@@ -370,14 +370,13 @@ def main(env,eos=False):
 
     divider_row = """
                     <tr>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>-</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                     <tr>
                 """
 
-    starved_html = '<table>'+ header_html + starved_table + '</table>'
     cycle_time_html = '<table>' + "<caption>Performance <b>(Target 67s Cycle Time)</b></caption>" + header_html + cycle_time_table + divider_row + starved_table + '</table>'
     mamc_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + mamc_yield_table + '</table>'
 
@@ -405,15 +404,12 @@ def main(env,eos=False):
     # cta_card.text(cta_html)
     # teams_msg.addSection(cta_card)
 
-    starved_card = pymsteams.cardsection()
-    starved_card.text(starved_html)
     cycle_card = pymsteams.cardsection()
     cycle_card.text(cycle_time_html)
     yield_card = pymsteams.cardsection()
     yield_card.text(mamc_yield_html)
 
     teams_msg.addSection(cycle_card)
-    teams_msg.addSection(starved_card)
     teams_msg.addSection(yield_card)
 
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
