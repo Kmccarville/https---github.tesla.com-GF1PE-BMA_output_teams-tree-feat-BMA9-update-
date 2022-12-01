@@ -277,27 +277,28 @@ def get_mttr_table(db,start,end):
     bt_summary = bt_df.groupby(['LINE','QUAD'])['LOST_SEC'].sum().reset_index()
     bt_summary.loc[:,'LOST_MIN'] = bt_summary['LOST_SEC']/60
 
-    quad1a_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','QUAD','A','LOST_MIN'),1)
-    quad1b_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','QUAD','B','LOST_MIN'),1)
-    quad1c_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','QUAD','C','LOST_MIN'),1)
-    quad1d_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','QUAD','D','LOST_MIN'),1)
 
-    quad2a_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','QUAD','A','LOST_MIN'),1)
-    quad2b_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','QUAD','B','LOST_MIN'),1)
-    quad2c_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','QUAD','C','LOST_MIN'),1)
-    quad2d_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','QUAD','D','LOST_MIN'),1)
+    quad1a_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','A','QUAD','LOST_MIN'),1)
+    quad1b_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','B','QUAD','LOST_MIN'),1)
+    quad1c_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','C','QUAD','LOST_MIN'),1)
+    quad1d_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','D','QUAD','LOST_MIN'),1)
+
+    quad2a_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','A','QUAD','LOST_MIN'),1)
+    quad2b_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','B','QUAD','LOST_MIN'),1)
+    quad2c_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','C','QUAD','LOST_MIN'),1)
+    quad2d_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','D','QUAD','LOST_MIN'),1)
     
-    quad3a_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','QUAD','A','LOST_MIN'),1)
-    quad3b_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','QUAD','B','LOST_MIN'),1)
-    quad3c_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','QUAD','C','LOST_MIN'),1)
-    quad3d_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','QUAD','D','LOST_MIN'),1)
+    quad3a_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','A','QUAD','LOST_MIN'),1)
+    quad3b_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','B','QUAD','LOST_MIN'),1)
+    quad3c_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','C','QUAD','LOST_MIN'),1)
+    quad3d_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','D','QUAD','LOST_MIN'),1)
 
-    quad4a_lost = round(helper_functions.get_val_2(bt_summary,4,'LINE','QUAD','A','LOST_MIN'),1)
-    quad4b_lost = round(helper_functions.get_val_2(bt_summary,4,'LINE','QUAD','B','LOST_MIN'),1)
-    quad4c_lost = round(helper_functions.get_val_2(bt_summary,4,'LINE','QUAD','C','LOST_MIN'),1)
+    quad4a_lost = round(helper_functions.get_val_2(bt_summary,4,'LINE','A','QUAD','LOST_MIN'),1)
+    quad4b_lost = round(helper_functions.get_val_2(bt_summary,4,'LINE','B','QUAD','LOST_MIN'),1)
+    quad4c_lost = round(helper_functions.get_val_2(bt_summary,4,'LINE','C','QUAD','LOST_MIN'),1)
 
-    quad5a_lost = round(helper_functions.get_val_2(bt_summary,5,'LINE','QUAD','A','LOST_MIN'),1)
-    quad5b_lost = round(helper_functions.get_val_2(bt_summary,5,'LINE','QUAD','B','LOST_MIN'),1)
+    quad5a_lost = round(helper_functions.get_val_2(bt_summary,5,'LINE','A','QUAD','LOST_MIN'),1)
+    quad5b_lost = round(helper_functions.get_val_2(bt_summary,5,'LINE','B','QUAD','LOST_MIN'),1)
 
     html=f"""
         <tr>
