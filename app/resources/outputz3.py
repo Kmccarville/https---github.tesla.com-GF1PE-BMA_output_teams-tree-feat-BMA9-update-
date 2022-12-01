@@ -274,70 +274,131 @@ def get_mttr_table(db,start,end):
                             np.where((bt_df['LINE'] == 5) & (bt_df['BOND_NUM'] % 2 == 0), 'B','NONE')))))))))
 
 
-    bt_summary = bt_df.groupby(['LINE','QUAD'])['LOST_SEC'].sum().reset_index()
-    bt_summary.loc[:,'LOST_MIN'] = bt_summary['LOST_SEC']/60
+    bt_summary = bt_df.groupby(['LINE','QUAD'])['IDEAL_SEC','ACTUAL_SEC'].sum().reset_index()
+    bt_summary.loc[:,'IDEAL_MIN'] = bt_summary['IDEAL_SEC']/60
+    bt_summary.loc[:,'ACTUAL_MIN'] = bt_summary['ACTUAL_SEC']/60
 
 
-    quad1a_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','A','QUAD','LOST_MIN'),1)
-    quad1b_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','B','QUAD','LOST_MIN'),1)
-    quad1c_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','C','QUAD','LOST_MIN'),1)
-    quad1d_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','D','QUAD','LOST_MIN'),1)
+    quad1a_target = round(helper_functions.get_val_2(bt_summary,1,'LINE','A','QUAD','IDEAL_MIN'),1)
+    quad1b_target = round(helper_functions.get_val_2(bt_summary,1,'LINE','B','QUAD','IDEAL_MIN'),1)
+    quad1c_target = round(helper_functions.get_val_2(bt_summary,1,'LINE','C','QUAD','IDEAL_MIN'),1)
+    quad1d_target = round(helper_functions.get_val_2(bt_summary,1,'LINE','D','QUAD','IDEAL_MIN'),1)
 
-    quad2a_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','A','QUAD','LOST_MIN'),1)
-    quad2b_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','B','QUAD','LOST_MIN'),1)
-    quad2c_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','C','QUAD','LOST_MIN'),1)
-    quad2d_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','D','QUAD','LOST_MIN'),1)
+    quad2a_target = round(helper_functions.get_val_2(bt_summary,2,'LINE','A','QUAD','IDEAL_MIN'),1)
+    quad2b_target = round(helper_functions.get_val_2(bt_summary,2,'LINE','B','QUAD','IDEAL_MIN'),1)
+    quad2c_target = round(helper_functions.get_val_2(bt_summary,2,'LINE','C','QUAD','IDEAL_MIN'),1)
+    quad2d_target = round(helper_functions.get_val_2(bt_summary,2,'LINE','D','QUAD','IDEAL_MIN'),1)
     
-    quad3a_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','A','QUAD','LOST_MIN'),1)
-    quad3b_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','B','QUAD','LOST_MIN'),1)
-    quad3c_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','C','QUAD','LOST_MIN'),1)
-    quad3d_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','D','QUAD','LOST_MIN'),1)
+    quad3a_target = round(helper_functions.get_val_2(bt_summary,3,'LINE','A','QUAD','IDEAL_MIN'),1)
+    quad3b_target = round(helper_functions.get_val_2(bt_summary,3,'LINE','B','QUAD','IDEAL_MIN'),1)
+    quad3c_target = round(helper_functions.get_val_2(bt_summary,3,'LINE','C','QUAD','IDEAL_MIN'),1)
+    quad3d_target = round(helper_functions.get_val_2(bt_summary,3,'LINE','D','QUAD','IDEAL_MIN'),1)
 
-    quad4a_lost = round(helper_functions.get_val_2(bt_summary,4,'LINE','A','QUAD','LOST_MIN'),1)
-    quad4b_lost = round(helper_functions.get_val_2(bt_summary,4,'LINE','B','QUAD','LOST_MIN'),1)
-    quad4c_lost = round(helper_functions.get_val_2(bt_summary,4,'LINE','C','QUAD','LOST_MIN'),1)
+    quad4a_target = round(helper_functions.get_val_2(bt_summary,4,'LINE','A','QUAD','IDEAL_MIN'),1)
+    quad4b_target = round(helper_functions.get_val_2(bt_summary,4,'LINE','B','QUAD','IDEAL_MIN'),1)
+    quad4c_target = round(helper_functions.get_val_2(bt_summary,4,'LINE','C','QUAD','IDEAL_MIN'),1)
 
-    quad5a_lost = round(helper_functions.get_val_2(bt_summary,5,'LINE','A','QUAD','LOST_MIN'),1)
-    quad5b_lost = round(helper_functions.get_val_2(bt_summary,5,'LINE','B','QUAD','LOST_MIN'),1)
+    quad5a_target = round(helper_functions.get_val_2(bt_summary,5,'LINE','A','QUAD','IDEAL_MIN'),1)
+    quad5b_target = round(helper_functions.get_val_2(bt_summary,5,'LINE','B','QUAD','IDEAL_MIN'),1)
+
+    #
+    quad1a_actual = round(helper_functions.get_val_2(bt_summary,1,'LINE','A','QUAD','ACTUAL_MIN'),1)
+    quad1b_actual = round(helper_functions.get_val_2(bt_summary,1,'LINE','B','QUAD','ACTUAL_MIN'),1)
+    quad1c_actual = round(helper_functions.get_val_2(bt_summary,1,'LINE','C','QUAD','ACTUAL_MIN'),1)
+    quad1d_actual = round(helper_functions.get_val_2(bt_summary,1,'LINE','D','QUAD','ACTUAL_MIN'),1)
+
+    quad2a_actual = round(helper_functions.get_val_2(bt_summary,2,'LINE','A','QUAD','ACTUAL_MIN'),1)
+    quad2b_actual = round(helper_functions.get_val_2(bt_summary,2,'LINE','B','QUAD','ACTUAL_MIN'),1)
+    quad2c_actual = round(helper_functions.get_val_2(bt_summary,2,'LINE','C','QUAD','ACTUAL_MIN'),1)
+    quad2d_actual = round(helper_functions.get_val_2(bt_summary,2,'LINE','D','QUAD','ACTUAL_MIN'),1)
+    
+    quad3a_actual = round(helper_functions.get_val_2(bt_summary,3,'LINE','A','QUAD','ACTUAL_MIN'),1)
+    quad3b_actual = round(helper_functions.get_val_2(bt_summary,3,'LINE','B','QUAD','ACTUAL_MIN'),1)
+    quad3c_actual = round(helper_functions.get_val_2(bt_summary,3,'LINE','C','QUAD','ACTUAL_MIN'),1)
+    quad3d_actual = round(helper_functions.get_val_2(bt_summary,3,'LINE','D','QUAD','ACTUAL_MIN'),1)
+
+    quad4a_actual = round(helper_functions.get_val_2(bt_summary,4,'LINE','A','QUAD','ACTUAL_MIN'),1)
+    quad4b_actual = round(helper_functions.get_val_2(bt_summary,4,'LINE','B','QUAD','ACTUAL_MIN'),1)
+    quad4c_actual = round(helper_functions.get_val_2(bt_summary,4,'LINE','C','QUAD','ACTUAL_MIN'),1)
+
+    quad5a_actual = round(helper_functions.get_val_2(bt_summary,5,'LINE','A','QUAD','ACTUAL_MIN'),1)
+    quad5b_actual = round(helper_functions.get_val_2(bt_summary,5,'LINE','B','QUAD','ACTUAL_MIN'),1)
 
     html=f"""
         <tr>
             <td></td>
             <th style="text-align:center"><strong>3BM1</strong></th>
+            <th></th>
             <th style="text-align:center"><strong>3BM2</strong></th>
+            <th></th>
             <th style="text-align:center"><strong>3BM3</strong></th>
+            <th></th>
             <th style="text-align:center"><strong>3BM4</strong></th>
+            <th></th>
             <th style="text-align:center"><strong>3BM5</strong></th>
+            <th></th>
+        </tr>
+        <tr>
+            <td></td>
+            <th style="text-align:center"><strong>Actual</strong></th>
+            <th style="text-align:center"><strong>Target</strong></th>
+            <th style="text-align:center"><strong>Actual</strong></th>
+            <th style="text-align:center"><strong>Target</strong></th>
+            <th style="text-align:center"><strong>Actual</strong></th>
+            <th style="text-align:center"><strong>Target</strong></th>
+            <th style="text-align:center"><strong>Actual</strong></th>
+            <th style="text-align:center"><strong>Target</strong></th>
+            <th style="text-align:center"><strong>Actual</strong></th>
+            <th style="text-align:center"><strong>Target</strong></th>
         </tr>
         <tr>
             <td style="text-align:left"><b>A</b></td>
-            <td style="text-align:center">{quad1a_lost}</td>
-            <td style="text-align:center">{quad2a_lost}</td>
-            <td style="text-align:center">{quad3a_lost}</td>
-            <td style="text-align:center">{quad4a_lost}</td>
-            <td style="text-align:center">{quad5a_lost}</td>
+            <td style="text-align:center">{quad1a_actual}</td>
+            <td style="text-align:center">{quad1a_target}</td>
+            <td style="text-align:center">{quad2a_actual}</td>
+            <td style="text-align:center">{quad2a_target}</td>
+            <td style="text-align:center">{quad3a_actual}</td>
+            <td style="text-align:center">{quad3a_target}</td>
+            <td style="text-align:center">{quad4a_actual}</td>
+            <td style="text-align:center">{quad4a_target}</td>
+            <td style="text-align:center">{quad5a_actual}</td>
+            <td style="text-align:center">{quad5a_target}</td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>A</b></td>
-            <td style="text-align:center">{quad1b_lost}</td>
-            <td style="text-align:center">{quad2b_lost}</td>
-            <td style="text-align:center">{quad3b_lost}</td>
-            <td style="text-align:center">{quad4b_lost}</td>
-            <td style="text-align:center">{quad5b_lost}</td>
+            <td style="text-align:left"><b>B</b></td>
+            <td style="text-align:center">{quad1b_actual}</td>
+            <td style="text-align:center">{quad1b_target}</td>
+            <td style="text-align:center">{quad2b_actual}</td>
+            <td style="text-align:center">{quad2b_target}</td>
+            <td style="text-align:center">{quad3b_actual}</td>
+            <td style="text-align:center">{quad3b_target}</td>
+            <td style="text-align:center">{quad4b_actual}</td>
+            <td style="text-align:center">{quad4b_target}</td>
+            <td style="text-align:center">{quad5b_actual}</td>
+            <td style="text-align:center">{quad5b_target}</td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>A</b></td>
-            <td style="text-align:center">{quad1c_lost}</td>
-            <td style="text-align:center">{quad2c_lost}</td>
-            <td style="text-align:center">{quad3c_lost}</td>
-            <td style="text-align:center">{quad4c_lost}</td>
+            <td style="text-align:left"><b>C</b></td>
+            <td style="text-align:center">{quad1c_actual}</td>
+            <td style="text-align:center">{quad1c_target}</td>
+            <td style="text-align:center">{quad2c_actual}</td>
+            <td style="text-align:center">{quad2c_target}</td>
+            <td style="text-align:center">{quad3c_actual}</td>
+            <td style="text-align:center">{quad3c_target}</td>
+            <td style="text-align:center">{quad4c_actual}</td>
+            <td style="text-align:center">{quad4c_target}</td>
+            <td style="text-align:center">---</td>
             <td style="text-align:center">---</td>
         </tr>
-                <tr>
-            <td style="text-align:left"><b>A</b></td>
-            <td style="text-align:center">{quad1d_lost}</td>
-            <td style="text-align:center">{quad2d_lost}</td>
-            <td style="text-align:center">{quad3d_lost}</td>
+        <tr>
+            <td style="text-align:center">{quad1d_actual}</td>
+            <td style="text-align:center">{quad1d_target}</td>
+            <td style="text-align:center">{quad2d_actual}</td>
+            <td style="text-align:center">{quad2d_target}</td>
+            <td style="text-align:center">{quad3d_actual}</td>
+            <td style="text-align:center">{quad3d_target}</td>
+            <td style="text-align:center">---</td>
+            <td style="text-align:center">---</td>
             <td style="text-align:center">---</td>
             <td style="text-align:center">---</td>
         </tr>
@@ -361,20 +422,22 @@ def get_starved_table(db,start,end):
                 '[3BM04_57000_01]_OEE_Reporting/TSMs/Main',
                 '[3BM04_50000]3BM05_57000/_OEE_Reporting/Packout_MTR']
 
+    seconds_between = (end - start).seconds
+
     ing_df = helper_functions.query_tsm_state(db,start, end, INGRESS_PATHS, 'Starved')
     po_df = helper_functions.query_tsm_state(db,start, end, PO_PATHS, 'Starved',1)   
 
-    ing1_starved = round(helper_functions.get_val(ing_df,'3BM1','LINE','Duration'),1)
-    ing2_starved = round(helper_functions.get_val(ing_df,'3BM2','LINE','Duration'),1)
-    ing3_starved = round(helper_functions.get_val(ing_df,'3BM3','LINE','Duration'),1)
-    ing4_starved = round(helper_functions.get_val(ing_df,'3BM4','LINE','Duration'),1)
-    ing5_starved = round(helper_functions.get_val(ing_df,'3BM5','LINE','Duration'),1)
+    ing1_starved = round(helper_functions.get_val(ing_df,'3BM1','LINE','Duration')/seconds_between*100,1)
+    ing2_starved = round(helper_functions.get_val(ing_df,'3BM2','LINE','Duration')/seconds_between*100,1)
+    ing3_starved = round(helper_functions.get_val(ing_df,'3BM3','LINE','Duration')/seconds_between*100,1)
+    ing4_starved = round(helper_functions.get_val(ing_df,'3BM4','LINE','Duration')/seconds_between*100,1)
+    ing5_starved = round(helper_functions.get_val(ing_df,'3BM5','LINE','Duration')/seconds_between*100,1)
 
-    po1_starved = round(helper_functions.get_val(po_df,'3BM1','LINE','Duration'),1)
-    po2_starved = round(helper_functions.get_val(po_df,'3BM2','LINE','Duration'),1)
-    po3_starved = round(helper_functions.get_val(po_df,'3BM3','LINE','Duration'),1)
-    po4_starved = round(helper_functions.get_val(po_df,'3BM4','LINE','Duration'),1)
-    po5_starved = round(helper_functions.get_val(po_df,'3BM5','LINE','Duration'),1)
+    po1_starved = round(helper_functions.get_val(po_df,'3BM1','LINE','Duration')/seconds_between*100,1)
+    po2_starved = round(helper_functions.get_val(po_df,'3BM2','LINE','Duration')/seconds_between*100,1)
+    po3_starved = round(helper_functions.get_val(po_df,'3BM3','LINE','Duration')/seconds_between*100,1)
+    po4_starved = round(helper_functions.get_val(po_df,'3BM4','LINE','Duration')/seconds_between*100,1)
+    po5_starved = round(helper_functions.get_val(po_df,'3BM5','LINE','Duration')/seconds_between*100,1)
 
     html=f"""
         <tr>
@@ -413,16 +476,13 @@ def main(env,eos=False):
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)
-
-    seconds_between = (end - start).seconds
+    
     #define global variables
-    LINES = ['3BM1','3BM2','3BM3','3BM4','3BM5']
     NORMAL_DIVISOR = 4
     PO_FLOWSTEP = '3BM-57000'
     flowsteps = [PO_FLOWSTEP]
 
     #establish db connections
-
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     plc_con = helper_functions.get_sql_conn('plc_db')
     ict_con = helper_functions.get_sql_conn('interconnect_ro')
