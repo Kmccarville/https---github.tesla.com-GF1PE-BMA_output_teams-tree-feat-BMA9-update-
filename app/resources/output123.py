@@ -131,7 +131,7 @@ def get_performance_table(start,end):
             <th style="text-align:left">(Target:</th>
             <th style="text-align:left"> 67s)</th>
             <th></th>
-            <th>||</th>
+            <th></th>
             <th style="text-align:left">Starved %</th>
         </tr>
         <tr>
@@ -139,7 +139,7 @@ def get_performance_table(start,end):
             <th style="text-align:center"><strong>BMA1</strong></th>
             <th style="text-align:center"><strong>BMA2</strong></th>
             <th style="text-align:center"><strong>BMA3</strong></th>
-            <td>/td>
+            <td></td>
             <td></td>
             <th style="text-align:center"><strong>BMA1</strong></th>
             <th style="text-align:center"><strong>BMA2</strong></th>
