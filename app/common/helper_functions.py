@@ -151,3 +151,25 @@ def query_tsm_state(db,start, end, paths, s_or_b, reason=0):
     
     df= pd.read_sql(tsm_query,db)
     return df
+
+def query_tsm_cycle_time(db,start,end,paths,low_limit,high_limit):
+    path_list = ""
+    for path in paths:
+        path_list += ("'" + path + "'" + ',')
+        
+    path_list = '(' + path_list.strip(',') + ')'
+    query = f"""
+                SELECT 
+                    left(e.name,4) as LINE,
+                    AVG(ch.elapsed_time) as CT_SEC
+                FROM
+                    rno_eqtstatushistory_batterymodule.equipment e 
+                    JOIN rno_eqtstatushistory_batterymodule.cycle_history ch on ch.equipment_id = e.id
+                WHERE 
+                    e.source_tagpath in {path_list}
+                AND ch.timestamp BETWEEN '{start}' and '{end}'
+                AND ch.elapsed_time BETWEEN {low_limit} and {high_limit}
+                GROUP BY 1
+            """
+    df = pd.read_sql(query,db)
+    return df
