@@ -131,9 +131,19 @@ def get_performance_table(start,end):
             <th style="text-align:left">(Target 67s)</th>
             <th></th>
             <th></th>
-            <th></th>
-            <th></th>
-            <th style="text-align:left">Starved Percentage</th>
+            <th>||</th>
+            <th style="text-align:left">Starved %</th>
+        </tr>
+        <tr>
+            <td></td>
+            <th style="text-align:center"><strong>BMA1</strong></th>
+            <th style="text-align:center"><strong>BMA2</strong></th>
+            <th style="text-align:center"><strong>BMA3</strong></th>
+            <td>||</td>
+            <td></td>
+            <th style="text-align:center"><strong>BMA1</strong></th>
+            <th style="text-align:center"><strong>BMA2</strong></th>
+            <th style="text-align:center"><strong>BMA3</strong></th>
         </tr>
         <tr>
             <td style="text-align:left"><b>BandoLand</b></td>
@@ -365,19 +375,6 @@ def main(env,eos=False):
                     <th style="text-align:center"><strong>BMA3</strong></th>
                     </tr>
                 """
-
-    double_header_html = """
-                <tr>
-                <td></td>
-                <th style="text-align:center"><strong>BMA1</strong></th>
-                <th style="text-align:center"><strong>BMA2</strong></th>
-                <th style="text-align:center"><strong>BMA3</strong></th>
-                <td></td>
-                <th style="text-align:center"><strong>BMA1</strong></th>
-                <th style="text-align:center"><strong>BMA2</strong></th>
-                <th style="text-align:center"><strong>BMA3</strong></th>
-                </tr>
-            """
     
     #get cycle time html
     # starved_table = get_starved_table(start,end)
@@ -385,7 +382,7 @@ def main(env,eos=False):
     performance_table = get_performance_table(start,end)
     mamc_yield_table = get_mamc_yield_table(start,end)
 
-    cycle_time_html = '<table>' + "<caption>Performance</caption>" + double_header_html + performance_table + '</table>'
+    cycle_time_html = '<table>' + "<caption>Performance</caption>"  + performance_table + '</table>'
     mamc_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + mamc_yield_table + '</table>'
 
     #get webhook based on environment
