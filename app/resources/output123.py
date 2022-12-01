@@ -65,7 +65,8 @@ def get_mamc_yield_table(start,end):
     """
     return html
 
-def get_starved_table(start,end):
+def get_performance_table(start,end):
+
     plc_con = helper_functions.get_sql_conn('plc_db')
     seconds_between = (end - start).seconds
     AUTO_CLOSER_PATHS = [
@@ -79,23 +80,7 @@ def get_starved_table(start,end):
     auto_close_bma1_percent = round(helper_functions.get_val(auto_close_df,'3BM1','LINE','Duration')/seconds_between*100,1)
     auto_close_bma2_percent = round(helper_functions.get_val(auto_close_df,'3BM2','LINE','Duration')/seconds_between*100,1)
     auto_close_bma3_percent = round(helper_functions.get_val(auto_close_df,'3BM3','LINE','Duration')/seconds_between*100,1)
-
-    plc_con.close()
     
-    html=f"""
-        <tr>
-            <td style="text-align:right"><b>Closer Starved</b></td>
-            <td style="text-align:center">{auto_close_bma1_percent}%</td>
-            <td style="text-align:center">{auto_close_bma2_percent}%</td>
-            <td style="text-align:center">{auto_close_bma3_percent}%</td>
-        </tr>
-        """
-
-    return html
-
-def get_cycle_time_table(start,end):
-    plc_con = helper_functions.get_sql_conn('plc_db')
-
     BANDO_CT_PATHS = [
                         '[3BM1_29500_01]BandoLandCT/CycleTimeReporting/PalletInfeed',
                         '[3BM2_29500_01]BandoLandCT/CycleTimeReporting/PalletInfeed',
@@ -142,10 +127,23 @@ def get_cycle_time_table(start,end):
     
     html=f"""
         <tr>
+            <th style="text-align:left">Cycle Time (Target 67s)</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th style="text-align:left">Starved Percentage</th>
+        </tr>
+        <tr>
             <td style="text-align:left"><b>BandoLand</b></td>
             <td style="text-align:center">{bando_ct_bma1}</td>
             <td style="text-align:center">{bando_ct_bma2}</td>
             <td style="text-align:center">{bando_ct_bma3}</td>
+            <td></td>
+            <td style="text-align:right"><b>Auto Closer</b></td>
+            <td style="text-align:center">{auto_close_bma1_percent}%</td>
+            <td style="text-align:center">{auto_close_bma2_percent}%</td>
+            <td style="text-align:center">{auto_close_bma3_percent}%</td>
         </tr>
         <tr>
             <td style="text-align:left"><b>Sidemount</b></td>
@@ -160,6 +158,7 @@ def get_cycle_time_table(start,end):
             <td style="text-align:center">{qis_ct_bma3}</td>
         </tr>
         """
+    
     return html
 
 def main(env,eos=False):
@@ -364,20 +363,12 @@ def main(env,eos=False):
                     </tr>
                 """
     #get cycle time html
-    starved_table = get_starved_table(start,end)
-    cycle_time_table = get_cycle_time_table(start,end)
+    # starved_table = get_starved_table(start,end)
+    # cycle_time_table = get_cycle_time_table(start,end)
+    performance_table = get_performance_table(start,end)
     mamc_yield_table = get_mamc_yield_table(start,end)
 
-    divider_row = """
-                    <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <tr>
-                """
-
-    cycle_time_html = '<table>' + "<caption>Performance <b>(Target 67s Cycle Time)</b></caption>" + header_html + cycle_time_table + divider_row + starved_table + '</table>'
+    cycle_time_html = '<table>' + "<caption>Performance</caption>" + header_html + header_html + performance_table + '</table>'
     mamc_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + mamc_yield_table + '</table>'
 
     #get webhook based on environment
