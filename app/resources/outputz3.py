@@ -240,11 +240,11 @@ def get_mttr_table(db,start,end):
     html=f"""
         <tr>
             <td></td>
-            <th colspan="2">3BM1</th>
-            <th colspan="2">3BM2</th>
-            <th colspan="2">3BM3</th>
-            <th colspan="2">3BM4</th>
-            <th colspan="2">3BM5</th>
+            <th colspan="2" style="text-align:center">3BM1</th>
+            <th colspan="2" style="text-align:center">3BM2</th>
+            <th colspan="2" style="text-align:center">3BM3</th>
+            <th colspan="2" style="text-align:center">3BM4</th>
+            <th colspan="2" style="text-align:center">3BM5</th>
             <th></th>
         </tr>
         <tr>
@@ -297,7 +297,7 @@ def get_mttr_table(db,start,end):
             <td style="text-align:center;{'color:red' if quad4c_actual > quad4c_target else ''}">{'---' if quad4c_actual==0 else quad4c_actual}</td>
             <td style="text-align:center;">{'---' if quad4c_target==0 else quad4c_target}</td>
             <td style="text-align:center;">---</td>
-            <td style="text-align:center>---</td>
+            <td style="text-align:center">---</td>
         </tr>
         <tr>
             <td style="text-align:left"><b>D</b></td>
@@ -310,7 +310,7 @@ def get_mttr_table(db,start,end):
             <td style="text-align:center;">---</td>
             <td style="text-align:center;">---</td>
             <td style="text-align:center;">---</td>
-            <td style="text-align:center>---</td>
+            <td style="text-align:center">---</td>
         </tr>
         """
     return html
