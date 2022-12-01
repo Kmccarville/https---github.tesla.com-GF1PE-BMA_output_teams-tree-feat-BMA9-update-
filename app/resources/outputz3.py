@@ -360,19 +360,19 @@ def get_starved_table(db,start,end):
         </tr>
         <tr>
             <td style="text-align:left"><b>Ingress</b></td>
-            <td style="text-align:center">{ing1_starved}</td>
-            <td style="text-align:center">{ing2_starved}</td>
-            <td style="text-align:center">{ing3_starved}</td>
-            <td style="text-align:center">{ing4_starved}</td>
-            <td style="text-align:center">{ing5_starved}</td>
+            <td style="text-align:center">{ing1_starved}%</td>
+            <td style="text-align:center">{ing2_starved}%</td>
+            <td style="text-align:center">{ing3_starved}%</td>
+            <td style="text-align:center">{ing4_starved}%</td>
+            <td style="text-align:center">{ing5_starved}%</td>
         </tr>
         <tr>
             <td style="text-align:left"><b>PO MTRs</b></td>
-            <td style="text-align:center">{po1_starved}</td>
-            <td style="text-align:center">{po2_starved}</td>
-            <td style="text-align:center">{po3_starved}</td>
-            <td style="text-align:center">{po4_starved}</td>
-            <td style="text-align:center">{po5_starved}</td>
+            <td style="text-align:center">{po1_starved}%</td>
+            <td style="text-align:center">{po2_starved}%</td>
+            <td style="text-align:center">{po3_starved}%</td>
+            <td style="text-align:center">{po4_starved}%</td>
+            <td style="text-align:center">{po5_starved}%</td>
         </tr>
         """
     return html
