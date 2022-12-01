@@ -13,7 +13,6 @@ import logging
 
 def main(env):
     it_is_eos,it_is_24 = helper_functions.is_it_eos_or_24()
-    outputz3.main(env,eos=True) 
     if it_is_eos:
         logging.info('Running End of Shift Report')
         output123.main(env,eos=True)
