@@ -79,18 +79,271 @@ def query_bonder_ct(db,start,end, ideal_ct_df, line_list):
     
     return ct_df,i_ct_df
 
-def main(env,eos=False):
-    #begin by defining timestamps
-    lookback=12 if eos else 1
-    now=datetime.utcnow()
-    logging.info("Z3 start %s" % datetime.utcnow())
-    now_sub1hr=now+timedelta(hours=-lookback)
-    start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
-    end=start+timedelta(hours=lookback)
+def query_bonder_list(db):
+    query = f"""
+            SELECT 
+            MACHINE_ID,
+            OBTC
+            FROM
+            m3_bm_process_parameters.static_station
+            WHERE 
+            IN_USE=1 
+            AND MACHINE_ID like '3BM_-52000-___'
+            AND left(MACHINE_ID,3) = '3BM'
+            """
+    return pd.read_sql(query,db)    
 
-    seconds_between = (end - start).seconds
-    #define global variables
-    LINES = ['3BM1','3BM2','3BM3','3BM4','3BM5']
+def query_bonder_logs(db,shift_start,shift_end):
+    query = f"""
+            SELECT 
+            MACHINE_ID,
+            convert_tz(START_TIME,'US/Pacific','GMT') AS START_DATE_TIME,
+            LANE_F_EM_STEP,
+            LANE_R_EM_STEP,
+            FAULT_CODE,
+            BONDER_MODE,
+            BONDER_STATUS,
+            BONDER_ASSY_COMP,
+            LANE_F_MODE,
+            LANE_R_MODE
+            FROM m3_teep_v3.wirebond_logs t
+            WHERE 
+            START_TIME > convert_tz('{shift_start}','GMT','US/Pacific')
+            AND START_TIME < convert_tz('{shift_end}','GMT','US/Pacific')
+            AND left(MACHINE_ID,3) = '3BM'
+            ORDER BY 2 ASC
+            """
+    return pd.read_sql(query,db)
+
+def query_first_log(db,shift_start,machine_id):
+    query = f"""
+            SELECT 
+            MACHINE_ID,
+            CONVERT('{shift_start}',DATETIME) as START_DATE_TIME,
+            LANE_F_EM_STEP,
+            LANE_R_EM_STEP,
+            FAULT_CODE,
+            BONDER_MODE,
+            BONDER_STATUS,
+            BONDER_ASSY_COMP,
+            LANE_F_MODE,
+            LANE_R_MODE
+            FROM m3_teep_v3.wirebond_logs t
+            WHERE 
+            START_TIME < convert_tz('{shift_start}','GMT','US/Pacific')
+            AND MACHINE_ID = '{machine_id}'
+            ORDER BY START_TIME DESC
+            LIMIT 1;
+            """
+    df = pd.read_sql(query,db)
+    return df
+    
+def get_total_time(sub_df,col_name):
+    # sub_logs_df_sub = sub_df.query(f"{col_name}==1")
+    sub_logs_df_sub = sub_df[sub_df[col_name].astype(int)==1]
+    if len(sub_logs_df_sub):
+        total_time = int(round(sub_logs_df_sub.groupby(col_name)['CT_SEC'].sum().iloc[0],0))
+    else:
+        total_time = 0
+    
+    return total_time
+
+#parse dataframes for line-based value
+def get_teep_val(df,line,quad,u_or_a):
+    if len(df):
+        col = 'UTILIZATION' if u_or_a == 'U' else 'AVAILABILITY'
+        sub_df = df.query(f"LINE=={line} and QUAD=='{quad}'")
+        val = sub_df.iloc[0][col] if len(sub_df) else 0
+    else:
+        val = 0
+    return val
+
+def get_mttr_table(db,start,end):
+    bonder_start = start+timedelta(hours=-2)
+    BONDTOOL_FAULT_CODE = 214
+    bonders = query_bonder_list(db)
+    bonder_logs_df = query_bonder_logs(db,bonder_start,end)
+
+    all_times_df = pd.DataFrame({})
+    for bonder in bonders['MACHINE_ID']:   
+        #get subset of bonder logs
+        sub_df = bonder_logs_df.query(f"MACHINE_ID=='{bonder}'")
+        first_df = query_first_log(db,start,bonder)
+        #add to existing df
+        sub_df = pd.concat([first_df,sub_df],axis=0)
+        #assign EM STEP as greater of LANE EM STEPs
+        sub_df.loc[:,'EM_STEP'] = np.where(sub_df['LANE_F_EM_STEP'] >= sub_df['LANE_R_EM_STEP'],sub_df['LANE_F_EM_STEP'],sub_df['LANE_R_EM_STEP'])
+        sub_df.loc[:,'BONDTOOL_CHANGE'] = 0
+        
+        #assign end times based on start time of next row
+        sub_df['END_DATE_TIME'] = sub_df['START_DATE_TIME'].shift(-1)
+        #remove rows where start and end time are the same (for the time buffer)
+        sub_df = sub_df.query("START_DATE_TIME!=END_DATE_TIME")
+        #assign the shift end time to the last row's end time
+        sub_df.iloc[-1,sub_df.columns.get_loc('END_DATE_TIME')] = shift_end
+        #derive time between start and end times
+        sub_df['CT_SEC'] = (sub_df['END_DATE_TIME'] - sub_df['START_DATE_TIME']).astype('timedelta64[ms]')/1000    
+        #loop through rows to determine when bondtool change or fault starts
+        #continue status of the fault until condition is met
+        bondtool_change = 0
+        bt_change_times = []
+        in_auto_times = []
+        for row in sub_df.itertuples(True,'Tuples'):
+            #BOND TOOL CHANGE LOGIC
+            if row.FAULT_CODE == BONDTOOL_FAULT_CODE and row.BONDER_MODE == 0:
+                bondtool_change+=1
+                if bondtool_change == 1:
+                    bt_change_times.append(row.START_DATE_TIME)
+            if row.BONDER_STATUS==3 and row.BONDER_MODE==1 and bondtool_change>0:
+                bondtool_change=0
+                in_auto_times.append(row.START_DATE_TIME)
+                
+        delta = len(bt_change_times) - len(in_auto_times)
+        for i in range(delta):
+            in_auto_times.append(end)
+        
+        machine_list = [bonder]*len(in_auto_times)
+        times_df = pd.DataFrame({
+                                    'MACHINE_ID'     : machine_list,
+                                    'BT_CHANGE_TIME' : bt_change_times,
+                                    'IN_AUTO_TIME' : in_auto_times
+                                    })
+        
+        all_times_df = pd.concat([all_times_df,times_df],axis=0,ignore_index=True)
+            
+    all_times_df_filter = all_times_df[(all_times_df['IN_AUTO_TIME']>=start) & (all_times_df['IN_AUTO_TIME']<end)]
+
+    bt_df = pd.DataFrame({})
+    for row in all_times_df_filter.itertuples(True,'Tuples'):
+        query = f"""
+                SELECT
+                    EquipmentID as MACHINE_ID,
+                    CONVERT('{row.BT_CHANGE_TIME}',DATETIME) as BT_START_TIME,
+                    convert_tz(Time_Stamp,'US/Pacific','GMT') as BT_COMPLETE_TIME,
+                    Bond_Count1 as BC1,
+                    Bond_Count2 as BC2,
+                    Bond_Count3 as BC3,
+                    Bond_Count4 as BC4,
+                    Bond_Count5 as BC5,
+                    Bond_Count6 as BC6
+                FROM
+                    m3_wirebond.bond_counter
+                WHERE 
+                    Time_Stamp < (convert_tz('{row.IN_AUTO_TIME}','GMT','US/Pacific') + interval 60 second)
+                    AND EquipmentID = '{row.MACHINE_ID}'
+                    AND Source = 'Ready To Running'
+                ORDER BY ID DESC
+                LIMIT 1
+                """
+        df = pd.read_sql(query,db)
+        bt_df = pd.concat([bt_df,df],axis=0)
+
+    bt_df = bt_df.merge(bonders,how='left',on='MACHINE_ID')
+    bt_df.fillna(0,inplace=True)
+
+    #define ideal cycle time for each consumabel change in seconds
+    BT_IDEAL = 450
+    WG_IDEAL = 196
+    CB_IDEAL = 190
+    FT_IDEAL = 310
+    SS_IDEAL = 479
+    #define threshold that count needs to be below to be counted as a change
+    COUNT_THRESHOLD = 100
+
+    bt_df.loc[:,'BT'] = np.where(((bt_df['BC1'] < COUNT_THRESHOLD) & (bt_df['OBTC']==0)) | ((bt_df['BC2'] < COUNT_THRESHOLD) & (bt_df['OBTC']==1)),1,0)
+    bt_df.loc[:,'WG'] = np.where(bt_df['BC3'] < COUNT_THRESHOLD,1,0)
+    bt_df.loc[:,'CB'] = np.where(bt_df['BC4'] < COUNT_THRESHOLD,1,0)
+    bt_df.loc[:,'FT'] = np.where(bt_df['BC5'] < COUNT_THRESHOLD,1,0)
+    bt_df.loc[:,'SS'] = np.where(bt_df['BC6'] < COUNT_THRESHOLD,1,0)
+
+    bt_df.loc[:,'IDEAL_SEC'] = bt_df['BT']*BT_IDEAL + bt_df['WG']*WG_IDEAL + bt_df['CB']*CB_IDEAL + bt_df['FT']*FT_IDEAL + np.where(bt_df['BT']==0,bt_df['SS']*SS_IDEAL,0)
+    bt_df.loc[:,'ACTUAL_SEC'] = (bt_df['BT_COMPLETE_TIME'] - bt_df['BT_START_TIME']).dt.total_seconds()
+    bt_df.loc[:,'LOST_SEC'] = bt_df['ACTUAL_SEC'] - bt_df['IDEAL_SEC']
+
+    bt_df.loc[:,'LINE'] = bt_df['MACHINE_ID'].str.split('-').str[0].str.split('3BM').str[-1].astype('int64')
+    bt_df.loc[:,'BOND_NUM'] = bt_df['MACHINE_ID'].str.split('-').str[-1].str[-3:-1].astype('int64')
+
+    bt_df.loc[:,'QUAD'] = np.where((bt_df['LINE'] < 4 ) & (bt_df['BOND_NUM'] < 6), 'A',
+                            np.where((bt_df['LINE'] < 4 ) & (bt_df['BOND_NUM'] >= 6) & (bt_df['BOND_NUM'] < 11), 'B',
+                            np.where((bt_df['LINE'] < 4 ) & (bt_df['BOND_NUM'] >= 11)& (bt_df['BOND_NUM'] < 17) , 'C',
+                            np.where((bt_df['LINE'] < 4 ) & (bt_df['BOND_NUM'] >= 17), 'D',
+                            np.where((bt_df['LINE'] == 4) & (bt_df['BOND_NUM'] >= 1) & (bt_df['BOND_NUM'] < 7), 'A',
+                            np.where((bt_df['LINE'] == 4) & (bt_df['BOND_NUM'] >= 7) & (bt_df['BOND_NUM'] < 13), 'B',
+                            np.where((bt_df['LINE'] == 4) & (bt_df['BOND_NUM'] >= 13) , 'C',
+                            np.where((bt_df['LINE'] == 5) & (bt_df['BOND_NUM'] % 2 == 1), 'A',
+                            np.where((bt_df['LINE'] == 5) & (bt_df['BOND_NUM'] % 2 == 0), 'B','NONE')))))))))
+
+
+    bt_summary = bt_df.groupby(['LINE','QUAD'])['LOST_SEC'].sum().reset_index()
+    bt_summary.loc[:,'LOST_MIN'] = bt_summary['LOST_SEC']/60
+
+    quad1a_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','QUAD','A','LOST_MIN'),1)
+    quad1b_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','QUAD','B','LOST_MIN'),1)
+    quad1c_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','QUAD','C','LOST_MIN'),1)
+    quad1d_lost = round(helper_functions.get_val_2(bt_summary,1,'LINE','QUAD','D','LOST_MIN'),1)
+
+    quad2a_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','QUAD','A','LOST_MIN'),1)
+    quad2b_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','QUAD','B','LOST_MIN'),1)
+    quad2c_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','QUAD','C','LOST_MIN'),1)
+    quad2d_lost = round(helper_functions.get_val_2(bt_summary,2,'LINE','QUAD','D','LOST_MIN'),1)
+    
+    quad3a_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','QUAD','A','LOST_MIN'),1)
+    quad3b_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','QUAD','B','LOST_MIN'),1)
+    quad3c_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','QUAD','C','LOST_MIN'),1)
+    quad3d_lost = round(helper_functions.get_val_2(bt_summary,3,'LINE','QUAD','D','LOST_MIN'),1)
+
+    quad4a_lost = round(helper_functions.get_val_2(bt_summary,4,'LINE','QUAD','A','LOST_MIN'),1)
+    quad4b_lost = round(helper_functions.get_val_2(bt_summary,4,'LINE','QUAD','B','LOST_MIN'),1)
+    quad4c_lost = round(helper_functions.get_val_2(bt_summary,4,'LINE','QUAD','C','LOST_MIN'),1)
+
+    quad5a_lost = round(helper_functions.get_val_2(bt_summary,5,'LINE','QUAD','A','LOST_MIN'),1)
+    quad5b_lost = round(helper_functions.get_val_2(bt_summary,5,'LINE','QUAD','B','LOST_MIN'),1)
+
+    html=f"""
+        <tr>
+            <td></td>
+            <th style="text-align:center"><strong>3BM1</strong></th>
+            <th style="text-align:center"><strong>3BM2</strong></th>
+            <th style="text-align:center"><strong>3BM3</strong></th>
+            <th style="text-align:center"><strong>3BM4</strong></th>
+            <th style="text-align:center"><strong>3BM5</strong></th>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b>A</b></td>
+            <td style="text-align:center">{quad1a_lost}</td>
+            <td style="text-align:center">{quad2a_lost}</td>
+            <td style="text-align:center">{quad3a_lost}</td>
+            <td style="text-align:center">{quad4a_lost}</td>
+            <td style="text-align:center">{quad5a_lost}</td>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b>A</b></td>
+            <td style="text-align:center">{quad1b_lost}</td>
+            <td style="text-align:center">{quad2b_lost}</td>
+            <td style="text-align:center">{quad3b_lost}</td>
+            <td style="text-align:center">{quad4b_lost}</td>
+            <td style="text-align:center">{quad5b_lost}</td>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b>A</b></td>
+            <td style="text-align:center">{quad1c_lost}</td>
+            <td style="text-align:center">{quad2c_lost}</td>
+            <td style="text-align:center">{quad3c_lost}</td>
+            <td style="text-align:center">{quad4c_lost}</td>
+            <td style="text-align:center">---</td>
+        </tr>
+                <tr>
+            <td style="text-align:left"><b>A</b></td>
+            <td style="text-align:center">{quad1d_lost}</td>
+            <td style="text-align:center">{quad2d_lost}</td>
+            <td style="text-align:center">{quad3d_lost}</td>
+            <td style="text-align:center">---</td>
+            <td style="text-align:center">---</td>
+        </tr>
+        """
+    return html
+
+def get_starved_table(db,start,end):
     INGRESS_PATHS = [
                     '[3BM01_50000_00]01/_OEE_Reporting/TSMs/InputStation',
                     '[3BM02_50000_00]02/_OEE_Reporting/TSMs/InputStation',
@@ -107,6 +360,63 @@ def main(env,eos=False):
                 '[3BM04_57000_01]_OEE_Reporting/TSMs/Main',
                 '[3BM04_50000]3BM05_57000/_OEE_Reporting/Packout_MTR']
 
+    ing_df = helper_functions.query_tsm_state(db,start, end, INGRESS_PATHS, 'Starved')
+    po_df = helper_functions.query_tsm_state(db,start, end, PO_PATHS, 'Starved',1)   
+
+    ing1_starved = round(helper_functions.get_val(ing_df,'3BM1','LINE','Duration'),1)
+    ing2_starved = round(helper_functions.get_val(ing_df,'3BM2','LINE','Duration'),1)
+    ing3_starved = round(helper_functions.get_val(ing_df,'3BM3','LINE','Duration'),1)
+    ing4_starved = round(helper_functions.get_val(ing_df,'3BM4','LINE','Duration'),1)
+    ing5_starved = round(helper_functions.get_val(ing_df,'3BM5','LINE','Duration'),1)
+
+    po1_starved = round(helper_functions.get_val(po_df,'3BM1','LINE','Duration'),1)
+    po2_starved = round(helper_functions.get_val(po_df,'3BM2','LINE','Duration'),1)
+    po3_starved = round(helper_functions.get_val(po_df,'3BM3','LINE','Duration'),1)
+    po4_starved = round(helper_functions.get_val(po_df,'3BM4','LINE','Duration'),1)
+    po5_starved = round(helper_functions.get_val(po_df,'3BM5','LINE','Duration'),1)
+
+    html=f"""
+        <tr>
+            <td></td>
+            <th style="text-align:center"><strong>3BM1</strong></th>
+            <th style="text-align:center"><strong>3BM2</strong></th>
+            <th style="text-align:center"><strong>3BM3</strong></th>
+            <th style="text-align:center"><strong>3BM4</strong></th>
+            <th style="text-align:center"><strong>3BM5</strong></th>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b>Ingress</b></td>
+            <td style="text-align:center">{ing1_starved}</td>
+            <td style="text-align:center">{ing2_starved}</td>
+            <td style="text-align:center">{ing3_starved}</td>
+            <td style="text-align:center">{ing4_starved}</td>
+            <td style="text-align:center">{ing5_starved}</td>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b>PO MTRs</b></td>
+            <td style="text-align:center">{po1_starved}</td>
+            <td style="text-align:center">{po2_starved}</td>
+            <td style="text-align:center">{po3_starved}</td>
+            <td style="text-align:center">{po4_starved}</td>
+            <td style="text-align:center">{po5_starved}</td>
+        </tr>
+        """
+    return html
+
+
+def main(env,eos=False):
+    #begin by defining timestamps
+    lookback=12 if eos else 1
+    now=datetime.utcnow()
+    logging.info("Z3 start %s" % datetime.utcnow())
+    now_sub1hr=now+timedelta(hours=-lookback)
+    start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
+    end=start+timedelta(hours=lookback)
+
+    seconds_between = (end - start).seconds
+    #define global variables
+    LINES = ['3BM1','3BM2','3BM3','3BM4','3BM5']
+    NORMAL_DIVISOR = 4
     PO_FLOWSTEP = '3BM-57000'
     flowsteps = [PO_FLOWSTEP]
 
@@ -117,72 +427,45 @@ def main(env,eos=False):
     ict_con = helper_functions.get_sql_conn('interconnect_ro')
 
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
-    ideal_ct_df = query_ideal_ct_data(ict_con)
-    if not eos:
-        wb_ct_df,wb_i_ct_df = query_bonder_ct(mos_con,start,end,ideal_ct_df,LINES)
-    else:
-        wb_ct_df = pd.DataFrame({})
-        wb_i_ct_df = pd.DataFrame({})
+    starve_table = get_starved_table(plc_con,start,end)
+    mttr_table = get_mttr_table(ict_con,start,end)
 
-    ing_df = helper_functions.query_tsm_state(plc_con,start, end, INGRESS_PATHS, 'Starved')
-    po_df = helper_functions.query_tsm_state(plc_con,start, end, PO_PATHS, 'Starved',1)    
     mos_con.close()
     plc_con.close()
     ict_con.close()
 
-    header_html = ""
-    output_value_html = """
-                        <tr>
-                        <td style="text-align:left"><b>Carsets</b></td>
-                        """
-    starved_wip_html = """
-                        <tr>
-                        <td style="text-align:left"><b>Ingress</b></td>
-                        """
-    starved_mtr_html = """
-                    <tr>
-                    <td style="text-align:left"><b>PO MTRs</b></td>
-                    """
-    wb_ct_html = """
+    output1 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM1')/NORMAL_DIVISOR,1)
+    output2 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM2')/NORMAL_DIVISOR,1)
+    output3 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM3')/NORMAL_DIVISOR,1)
+    output4 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM4')/NORMAL_DIVISOR,1)
+    output5 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM5')/NORMAL_DIVISOR,1)  
+    total_output = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP)/NORMAL_DIVISOR,1)
+
+    output_table=f"""
                 <tr>
-                <td style="text-align:left"><b>Actual CT</b></td>
+                    <td></td>
+                    <th style="text-align:center">3BM1</th>
+                    <th style="text-align:center">3BM2</th>
+                    <th style="text-align:center">3BM3</th>
+                    <th style="text-align:center">3BM4</th>
+                    <th style="text-align:center">3BM5</th>
+                    <th style="text-align:center">TOTAL</th>
+                </tr>
+                <tr>
+                    <td style="text-align:left"><b>Carsets</b></td>
+                    <td style="text-align:center">{output1}</td>
+                    <td style="text-align:center">{output2}</td>
+                    <td style="text-align:center">{output3}</td>
+                    <td style="text-align:center">{output4}</td>
+                    <td style="text-align:center">{output5}</td>
+                    <td style="text-align:center"><b>{total_output}</b></td>
+                </tr>
                 """
-    wb_i_ct_html = """
-                    <tr>
-                    <td style="text-align:left"><b>Ideal CT</b></td>
-                    """
-    total_output = helper_functions.get_output_val(df_output,PO_FLOWSTEP)/4
-    for line in LINES:
-        header_html += f"""<th style="text-align:center">{line}</th>"""
-        output_val = helper_functions.get_output_val(df_output,PO_FLOWSTEP,line)/4
-        output_value_html += f"""<td style="text-align:center">{output_val:.1f}</td>"""
-        #divide by 3 if it's line 4 because there are 4 ingress stations
-        ingress_divisor = 3 if line=='3BM4' else 1
-        starved_wip_html += f"""<td style="text-align:center">{helper_functions.get_val(ing_df,line,'LINE','Duration')/ingress_divisor/seconds_between*100:.0f}%</td>"""
-        starved_mtr_html += f"""<td style="text-align:center">{helper_functions.get_val(po_df,line,'LINE','Duration')/seconds_between*100:.0f}%</td>"""
-
-        actual_ct = helper_functions.get_val(wb_ct_df,line,'LINE','CT')
-        ideal_ct = helper_functions.get_val(wb_i_ct_df,line,'LINE','I_CT')
-        color_str = "color:red;" if actual_ct > ideal_ct else ""
-
-        wb_ct_html += f"""<td style="text-align:center;{color_str}">{actual_ct}</td>"""
-        wb_i_ct_html += f"""<td style="text-align:center;">{ideal_ct}</td>"""
-
-    output_header = "<tr>" + """<th style="text-align:center"></th>""" + header_html + """<th style="text-align:center">TOTAL</th></tr>"""
-    starved_header = "<tr>" + """<th style="text-align:center"></th>""" + header_html + "</tr>"
-    wb_header = "<tr>" + """<th style="text-align:center"></th>""" + header_html + "</tr>"
-
-    output_value_html += f"""<td style="text-align:center"><b>{total_output:.1f}</b></td></tr>"""
-    starved_wip_html += "</tr>"
-    starved_mtr_html += "</tr>"
-
-    wb_ct_html += "</tr>"
-    wb_i_ct_html += "</tr>"
 
 
-    output_html = "<table>" + output_header + output_value_html + "</table>"
-    starved_html = "<table>" + "<caption>Starvation %</caption>" + starved_header + starved_wip_html + starved_mtr_html + "</table>"
-    wb_html = "<table>" + "<caption>Bonder Cycle Time (mins)</caption>" +  wb_header + wb_ct_html + wb_i_ct_html + "</table>"
+    output_html = "<table>" + "<caption>Throughput</caption>" + output_table + "</table>"
+    starved_html = "<table>" + "<caption>Starvation %</caption>" + starve_table + "</table>"
+    wb_html = "<table>" + "<caption>Consumable Change Lost Minutes</caption>" +  mttr_table + "</table>"
 
     # wb_teep_html = z3_wb_teep.bonder_main(start,end)
 
@@ -208,10 +491,9 @@ def main(env,eos=False):
     starved_card.text(starved_html)
     teams_msg.addSection(starved_card)
     #make a card with starvation data
-    if not eos:
-        wb_card = pymsteams.cardsection()
-        wb_card.text(wb_html)
-        teams_msg.addSection(wb_card)
+    wb_card = pymsteams.cardsection()
+    wb_card.text(wb_html)
+    teams_msg.addSection(wb_card)
     #add a link to the confluence page
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
     teams_msg.send()
