@@ -127,7 +127,8 @@ def get_performance_table(start,end):
     
     html=f"""
         <tr>
-            <th style="text-align:left">Cycle Time (Target 67s)</th>
+            <th style="text-align:left">Cycle Time</th>
+            <th style="text-align:left">(Target 67s)</th>
             <th></th>
             <th></th>
             <th></th>
@@ -139,7 +140,7 @@ def get_performance_table(start,end):
             <td style="text-align:center">{bando_ct_bma1}</td>
             <td style="text-align:center">{bando_ct_bma2}</td>
             <td style="text-align:center">{bando_ct_bma3}</td>
-            <td></td>
+            <td>||</td>
             <td style="text-align:right"><b>Auto Closer</b></td>
             <td style="text-align:center">{auto_close_bma1_percent}%</td>
             <td style="text-align:center">{auto_close_bma2_percent}%</td>
@@ -150,12 +151,14 @@ def get_performance_table(start,end):
             <td style="text-align:center">{sidemount_ct_bma1}</td>
             <td style="text-align:center">{sidemount_ct_bma2}</td>
             <td style="text-align:center">{sidemount_ct_bma3}</td>
+            <td>||</td>
         </tr>
         <tr>
             <td style="text-align:left"><b>QIS</b></td>
             <td style="text-align:center">{qis_ct_bma1}</td>
             <td style="text-align:center">{qis_ct_bma2}</td>
             <td style="text-align:center">{qis_ct_bma3}</td>
+            <td>||</td>
         </tr>
         """
     
@@ -362,13 +365,27 @@ def main(env,eos=False):
                     <th style="text-align:center"><strong>BMA3</strong></th>
                     </tr>
                 """
+
+    double_header_html = """
+                <tr>
+                <td></td>
+                <th style="text-align:center"><strong>BMA1</strong></th>
+                <th style="text-align:center"><strong>BMA2</strong></th>
+                <th style="text-align:center"><strong>BMA3</strong></th>
+                <td></td>
+                <th style="text-align:center"><strong>BMA1</strong></th>
+                <th style="text-align:center"><strong>BMA2</strong></th>
+                <th style="text-align:center"><strong>BMA3</strong></th>
+                </tr>
+            """
+    
     #get cycle time html
     # starved_table = get_starved_table(start,end)
     # cycle_time_table = get_cycle_time_table(start,end)
     performance_table = get_performance_table(start,end)
     mamc_yield_table = get_mamc_yield_table(start,end)
 
-    cycle_time_html = '<table>' + "<caption>Performance</caption>" + header_html + header_html + performance_table + '</table>'
+    cycle_time_html = '<table>' + "<caption>Performance</caption>" + double_header_html + performance_table + '</table>'
     mamc_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + mamc_yield_table + '</table>'
 
     #get webhook based on environment
