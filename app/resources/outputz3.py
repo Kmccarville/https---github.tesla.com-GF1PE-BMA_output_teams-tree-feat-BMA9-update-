@@ -133,23 +133,22 @@ def get_mttr_table(env,eos,db,start,end):
     bt_df.loc[:,'ACTUAL_SEC'] = (bt_df['BT_COMPLETE_TIME'] - bt_df['BT_START_TIME']).dt.total_seconds()
     bt_df.loc[:,'LOST_SEC'] = bt_df['ACTUAL_SEC'] - bt_df['IDEAL_SEC']
     #prep insert for database logging only on prod branch to avoid duplicate inserts
-    if env=='dev' and not eos and len(bt_df):
-        bt_df_insert = bt_df[['MACHINE_ID','BT_START_TIME','BT_COMPLETE_TIME','BT','WG','CB','FT','SS','IDEAL_SEC']]
-        bt_df_insert.rename({
-                            'BT_START_TIME' : 'START_TIME',
-                            'BT_COMPLETE_TIME' : 'COMPLETE_TIME',
-                            'BT' : 'BONDTOOL_CHANGE',
-                            'WG' : 'WIREGUIDE_CHANGE',
-                            'CB' : 'CUTTERBLADE_CHANGE',
-                            'FT' : 'FEEDTUBE_CHANGE',
-                            'SS' : 'SETSCREW_CHANGE',
-                            'IDEAL_SEC' : 'IDEAL_CHANGE_SEC'
-                            },inplace=True,axis=1)
-
-        bt_df_insert.loc[:,'START_TIME'] = bt_df_insert.apply(lambda x: helper_functions.convert_from_utc_to_pst(x.START_TIME),axis=1)
-        bt_df_insert.loc[:,'COMPLETE_TIME'] = bt_df_insert.apply(lambda x: helper_functions.convert_from_utc_to_pst(x.COMPLETE_TIME),axis=1)
-
+    if env=='prod' and not eos and len(bt_df):
         try:
+            bt_df_insert = bt_df[['MACHINE_ID','BT_START_TIME','BT_COMPLETE_TIME','BT','WG','CB','FT','SS','IDEAL_SEC']]
+            bt_df_insert.rename({
+                                'BT_START_TIME' : 'START_TIME',
+                                'BT_COMPLETE_TIME' : 'COMPLETE_TIME',
+                                'BT' : 'BONDTOOL_CHANGE',
+                                'WG' : 'WIREGUIDE_CHANGE',
+                                'CB' : 'CUTTERBLADE_CHANGE',
+                                'FT' : 'FEEDTUBE_CHANGE',
+                                'SS' : 'SETSCREW_CHANGE',
+                                'IDEAL_SEC' : 'IDEAL_CHANGE_SEC'
+                                },inplace=True,axis=1)
+
+            bt_df_insert.loc[:,'START_TIME'] = bt_df_insert.apply(lambda x: helper_functions.convert_from_utc_to_pst(x.START_TIME),axis=1)
+            bt_df_insert.loc[:,'COMPLETE_TIME'] = bt_df_insert.apply(lambda x: helper_functions.convert_from_utc_to_pst(x.COMPLETE_TIME),axis=1)
             ict_con = helper_functions.get_sql_conn('interconnect_eng')
             bt_df_insert.to_sql('consumable_change_log',ict_con,'m3_teep_v3',if_exists='append',index=False)
             logging.info('Successfully Inserted Consumable Logs')
