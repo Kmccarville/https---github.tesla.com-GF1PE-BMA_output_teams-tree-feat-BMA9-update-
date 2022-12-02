@@ -51,6 +51,15 @@ def get_val(df,query_val,query_col,return_col):
         val = 0
     return val
 
+#parse dataframes for line-based value
+def get_val_2(df,query_val,query_col,query_val2,query_col2,return_col):
+    if len(df):
+        sub_df = df.query(f"{query_col}=='{query_val}' and {query_col2}=='{query_val2}'")
+        val = sub_df.iloc[0][return_col] if len(sub_df) else 0
+    else:
+        val = 0
+    return val
+
 #small helper function to get output by line/flowstep and divides to get carset value
 def get_output_val(df,flowstep,line=None,actor=None):
     if actor:
@@ -173,3 +182,10 @@ def query_tsm_cycle_time(db,start,end,paths,low_limit,high_limit):
             """
     df = pd.read_sql(query,db)
     return df
+
+def convert_from_utc_to_pst(inp_time):
+    pst = pytz.timezone('US/Pacific')
+    utc = pytz.timezone('UTC')
+    utc_time=utc.localize(inp_time)
+    pst_time = utc_time.astimezone(pst)
+    return pst_time
