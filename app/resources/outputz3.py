@@ -107,7 +107,7 @@ def get_mttr_table(db,start,end):
                 bondtool_change+=1
                 if bondtool_change == 1:
                     bt_change_times.append(row.START_DATE_TIME)
-            if row.BONDER_STATUS==3 and row.BONDER_MODE==1 and bondtool_change>0:
+            if row.BONDER_MODE==1 and bondtool_change>0:
                 bondtool_change=0
                 in_auto_times.append(row.START_DATE_TIME)
                 
