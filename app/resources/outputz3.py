@@ -48,7 +48,7 @@ def query_bonder_logs(db,start,end):
             """
     return pd.read_sql(query,db)
     
-def get_mttr_table(env,db,start,end):
+def get_mttr_table(env,eos,db,start,end):
     bonder_start = start+timedelta(hours=-2)
     BONDTOOL_FAULT_CODE = 214
     bonders = query_bonder_list(db)
@@ -130,7 +130,7 @@ def get_mttr_table(env,db,start,end):
     bt_df.loc[:,'SS'] = np.where(bt_df['BC6'] < COUNT_THRESHOLD,1,0)
 
     #prep insert for database logging only on prod branch to avoid duplicate inserts
-    if env=='prod':
+    if env=='prod' and not eos:
         bt_df_insert = bt_df[['MACHINE_ID','BT_START_TIME','BT_COMPLETE_TIME','BT','WG','CB','FT','SS','IDEAL_SEC']]
         bt_df_insert.rename({
                             'BT_START_TIME' : 'START_TIME',
@@ -387,7 +387,7 @@ def main(env,eos=False):
 
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
     starve_table = get_starved_table(plc_con,start,end)
-    mttr_table = get_mttr_table(env,ict_con,start,end)
+    mttr_table = get_mttr_table(env,eos,ict_con,start,end)
 
     mos_con.close()
     plc_con.close()
