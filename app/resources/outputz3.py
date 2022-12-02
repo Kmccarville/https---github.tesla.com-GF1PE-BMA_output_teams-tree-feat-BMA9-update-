@@ -129,8 +129,11 @@ def get_mttr_table(env,eos,db,start,end):
     bt_df.loc[:,'FT'] = np.where(bt_df['BC5'] < COUNT_THRESHOLD,1,0)
     bt_df.loc[:,'SS'] = np.where(bt_df['BC6'] < COUNT_THRESHOLD,1,0)
 
+    bt_df.loc[:,'IDEAL_SEC'] = bt_df['BT']*BT_IDEAL + bt_df['WG']*WG_IDEAL + bt_df['CB']*CB_IDEAL + bt_df['FT']*FT_IDEAL + np.where(bt_df['BT']==0,bt_df['SS']*SS_IDEAL,0)
+    bt_df.loc[:,'ACTUAL_SEC'] = (bt_df['BT_COMPLETE_TIME'] - bt_df['BT_START_TIME']).dt.total_seconds()
+    bt_df.loc[:,'LOST_SEC'] = bt_df['ACTUAL_SEC'] - bt_df['IDEAL_SEC']
     #prep insert for database logging only on prod branch to avoid duplicate inserts
-    if env=='prod' and not eos:
+    if env=='dev' and not eos and len(bt_df):
         bt_df_insert = bt_df[['MACHINE_ID','BT_START_TIME','BT_COMPLETE_TIME','BT','WG','CB','FT','SS','IDEAL_SEC']]
         bt_df_insert.rename({
                             'BT_START_TIME' : 'START_TIME',
@@ -147,7 +150,7 @@ def get_mttr_table(env,eos,db,start,end):
         bt_df_insert.loc[:,'COMPLETE_TIME'] = bt_df_insert.apply(lambda x: helper_functions.convert_from_utc_to_pst(x.COMPLETE_TIME),axis=1)
 
         try:
-            ict_con = get_sql_conn('interconnect_eng')
+            ict_con = helper_functions.get_sql_conn('interconnect_eng')
             bt_df_insert.to_sql('consumable_change_log',ict_con,'m3_teep_v3',if_exists='append',index=False)
             logging.info('Successfully Inserted Consumable Logs')
             ict_con.close()
@@ -156,10 +159,6 @@ def get_mttr_table(env,eos,db,start,end):
 
     #filter out all set screw changes
     bt_df = bt_df.query("SS==0")
-
-    bt_df.loc[:,'IDEAL_SEC'] = bt_df['BT']*BT_IDEAL + bt_df['WG']*WG_IDEAL + bt_df['CB']*CB_IDEAL + bt_df['FT']*FT_IDEAL + np.where(bt_df['BT']==0,bt_df['SS']*SS_IDEAL,0)
-    bt_df.loc[:,'ACTUAL_SEC'] = (bt_df['BT_COMPLETE_TIME'] - bt_df['BT_START_TIME']).dt.total_seconds()
-    bt_df.loc[:,'LOST_SEC'] = bt_df['ACTUAL_SEC'] - bt_df['IDEAL_SEC']
 
     bt_df.loc[:,'LINE'] = bt_df['MACHINE_ID'].str.split('-').str[0].str.split('3BM').str[-1].astype('int64')
     bt_df.loc[:,'BOND_NUM'] = bt_df['MACHINE_ID'].str.split('-').str[-1].str[-3:-1].astype('int64')
