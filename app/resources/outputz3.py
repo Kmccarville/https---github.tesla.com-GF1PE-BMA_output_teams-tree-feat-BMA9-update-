@@ -47,31 +47,8 @@ def query_bonder_logs(db,start,end):
             ORDER BY 2 ASC
             """
     return pd.read_sql(query,db)
-
-def query_first_log(db,start,machine_id):
-    query = f"""
-            SELECT 
-            MACHINE_ID,
-            CONVERT('{start}',DATETIME) as START_DATE_TIME,
-            LANE_F_EM_STEP,
-            LANE_R_EM_STEP,
-            FAULT_CODE,
-            BONDER_MODE,
-            BONDER_STATUS,
-            BONDER_ASSY_COMP,
-            LANE_F_MODE,
-            LANE_R_MODE
-            FROM m3_teep_v3.wirebond_logs t
-            WHERE 
-            START_TIME < convert_tz('{start}','GMT','US/Pacific')
-            AND MACHINE_ID = '{machine_id}'
-            ORDER BY START_TIME DESC
-            LIMIT 1;
-            """
-    df = pd.read_sql(query,db)
-    return df
     
-def get_mttr_table(db,start,end):
+def get_mttr_table(env,db,start,end):
     bonder_start = start+timedelta(hours=-2)
     BONDTOOL_FAULT_CODE = 214
     bonders = query_bonder_list(db)
@@ -81,23 +58,6 @@ def get_mttr_table(db,start,end):
     for bonder in bonders['MACHINE_ID']:   
         #get subset of bonder logs
         sub_df = bonder_logs_df.query(f"MACHINE_ID=='{bonder}'")
-        first_df = query_first_log(db,start,bonder)
-        #add to existing df
-        sub_df = pd.concat([first_df,sub_df],axis=0)
-        #assign EM STEP as greater of LANE EM STEPs
-        sub_df.loc[:,'EM_STEP'] = np.where(sub_df['LANE_F_EM_STEP'] >= sub_df['LANE_R_EM_STEP'],sub_df['LANE_F_EM_STEP'],sub_df['LANE_R_EM_STEP'])
-        sub_df.loc[:,'BONDTOOL_CHANGE'] = 0
-        
-        #assign end times based on start time of next row
-        sub_df['END_DATE_TIME'] = sub_df['START_DATE_TIME'].shift(-1)
-        #remove rows where start and end time are the same (for the time buffer)
-        sub_df = sub_df.query("START_DATE_TIME!=END_DATE_TIME")
-        #assign the shift end time to the last row's end time
-        sub_df.iloc[-1,sub_df.columns.get_loc('END_DATE_TIME')] = end
-        #derive time between start and end times
-        sub_df['CT_SEC'] = (sub_df['END_DATE_TIME'] - sub_df['START_DATE_TIME']).astype('timedelta64[ms]')/1000    
-        #loop through rows to determine when bondtool change or fault starts
-        #continue status of the fault until condition is met
         bondtool_change = 0
         bt_change_times = []
         in_auto_times = []
@@ -142,7 +102,7 @@ def get_mttr_table(db,start,end):
                 FROM
                     m3_wirebond.bond_counter
                 WHERE 
-                    Time_Stamp < (convert_tz('{row.IN_AUTO_TIME}','GMT','US/Pacific') + interval 60 second)
+                    Time_Stamp BETWEEN convert_tz('{row.BT_CHANGE_TIME}','GMT','US/Pacific') and (convert_tz('{row.IN_AUTO_TIME}','GMT','US/Pacific') + interval 60 second)
                     AND EquipmentID = '{row.MACHINE_ID}'
                     AND Source = 'Ready To Running'
                 ORDER BY ID DESC
@@ -168,6 +128,34 @@ def get_mttr_table(db,start,end):
     bt_df.loc[:,'CB'] = np.where(bt_df['BC4'] < COUNT_THRESHOLD,1,0)
     bt_df.loc[:,'FT'] = np.where(bt_df['BC5'] < COUNT_THRESHOLD,1,0)
     bt_df.loc[:,'SS'] = np.where(bt_df['BC6'] < COUNT_THRESHOLD,1,0)
+
+    #prep insert for database logging only on prod branch to avoid duplicate inserts
+    if env=='prod':
+        bt_df_insert = bt_df[['MACHINE_ID','BT_START_TIME','BT_COMPLETE_TIME','BT','WG','CB','FT','SS','IDEAL_SEC']]
+        bt_df_insert.rename({
+                            'BT_START_TIME' : 'START_TIME',
+                            'BT_COMPLETE_TIME' : 'COMPLETE_TIME',
+                            'BT' : 'BONDTOOL_CHANGE',
+                            'WG' : 'WIREGUIDE_CHANGE',
+                            'CB' : 'CUTTERBLADE_CHANGE',
+                            'FT' : 'FEEDTUBE_CHANGE',
+                            'SS' : 'SETSCREW_CHANGE',
+                            'IDEAL_SEC' : 'IDEAL_CHANGE_SEC'
+                            },inplace=True,axis=1)
+
+        bt_df_insert.loc[:,'START_TIME'] = bt_df_insert.apply(lambda x: helper_functions.convert_from_utc_to_pst(x.START_TIME),axis=1)
+        bt_df_insert.loc[:,'COMPLETE_TIME'] = bt_df_insert.apply(lambda x: helper_functions.convert_from_utc_to_pst(x.COMPLETE_TIME),axis=1)
+
+        try:
+            ict_con = get_sql_conn('interconnect_eng')
+            bt_df_insert.to_sql('consumable_change_log',ict_con,'m3_teep_v3',if_exists='append',index=False)
+            logging.info('Successfully Inserted Consumable Logs')
+            ict_con.close()
+        except:
+            logging.info('Failed to Insert Consumable Logs')
+
+    #filter out all set screw changes
+    bt_df = bt_df.query("SS==0")
 
     bt_df.loc[:,'IDEAL_SEC'] = bt_df['BT']*BT_IDEAL + bt_df['WG']*WG_IDEAL + bt_df['CB']*CB_IDEAL + bt_df['FT']*FT_IDEAL + np.where(bt_df['BT']==0,bt_df['SS']*SS_IDEAL,0)
     bt_df.loc[:,'ACTUAL_SEC'] = (bt_df['BT_COMPLETE_TIME'] - bt_df['BT_START_TIME']).dt.total_seconds()
@@ -399,7 +387,7 @@ def main(env,eos=False):
 
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
     starve_table = get_starved_table(plc_con,start,end)
-    mttr_table = get_mttr_table(ict_con,start,end)
+    mttr_table = get_mttr_table(env,ict_con,start,end)
 
     mos_con.close()
     plc_con.close()

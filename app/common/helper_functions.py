@@ -182,3 +182,10 @@ def query_tsm_cycle_time(db,start,end,paths,low_limit,high_limit):
             """
     df = pd.read_sql(query,db)
     return df
+
+def convert_from_utc_to_pst(inp_time):
+    pst = pytz.timezone('US/Pacific')
+    utc = pytz.timezone('UTC')
+    utc_time=utc.localize(inp_time)
+    pst_time = utc_time.astimezone(pst)
+    return pst_time
