@@ -5,6 +5,7 @@ from datetime import timedelta
 import pandas as pd
 import pytz
 from datetime import datetime
+import pymsteams
 
 def file_reader(FilePath):
     with open(FilePath,"r") as f:
@@ -189,3 +190,22 @@ def convert_from_utc_to_pst(inp_time):
     utc_time=utc.localize(inp_time)
     pst_time = utc_time.astimezone(pst)
     return pst_time
+
+def send_alert(webhook_key,title,df,caption="",link_title="",link_button=""):
+    webhook_json = get_pw_json(webhook_key)
+    webhook = webhook_json['url']
+    
+    html = df.to_html(index=False,border=0,justify='left',bold_rows=True)
+    
+    teams_msg = pymsteams.connectorcard(webhook)
+    teams_msg.title(title)
+    teams_msg.summary('summary')
+    
+    card = pymsteams.cardsection()
+    card.title(caption)
+    card.text(html)
+    teams_msg.addSection(card)
+
+    if link_title != "" and link_button != "":
+        teams_msg.addLinkButton(link_title,link_button)
+    teams_msg.send()
