@@ -13,8 +13,7 @@ from resources import outputz4
 from resources import close_nc_check
 from resources import eos
 
-from resources import alerts
-from alerts import cta45_ct
+from resources.alerts import cta45_ct
 
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
