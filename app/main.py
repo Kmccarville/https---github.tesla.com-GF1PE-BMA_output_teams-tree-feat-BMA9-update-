@@ -27,6 +27,7 @@ if __name__ == '__main__':
     scheduler_hourly = schedule.Scheduler()
     scheduler_alerts = schedule.Scheduler()
 
+    #define hourly scheduler
     scheduler_hourly.every().hour.at(":00").do(output123.main,env)
     scheduler_hourly.every().hour.at(":00").do(output45.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz3.main,env)
@@ -35,7 +36,8 @@ if __name__ == '__main__':
     scheduler_hourly.every().hour.at(":00").do(close_nc_check.main,env)
     scheduler_hourly.every().hour.at(":00").do(eos.main,env)
 
-    scheduler_alerts.every(3).hours.at(":00").do(cta45_ct.main,env)
+    #define alert scheduler
+    scheduler_alerts.every().hour.at(":00").do(cta45_ct.main,env)
 
     if env == "dev":
         logging.info("Run all command executed")
