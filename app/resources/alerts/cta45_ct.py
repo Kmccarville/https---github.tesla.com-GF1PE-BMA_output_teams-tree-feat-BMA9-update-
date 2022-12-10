@@ -13,7 +13,6 @@ def main(env):
     #only run this script at hours 0,3,9,12,15,21
     pst_now = helper_functions.convert_from_utc_to_pst(now)
     if pst_now.hour%3 == 0 and pst_now.hour not in [6,18]:
-
         logging.info("CTA45 Alert %s" % datetime.utcnow())
         now_sub3=now+timedelta(hours=-lookback)
         start=now_sub3.replace(minute=00,second=00,microsecond=00)
@@ -82,9 +81,10 @@ def main(env):
             
             df_html = df_alert[['CTA_ID','PERCENT_GOOD']]
             df_html.rename({"PERCENT_GOOD" : "% Good Cycle"},axis=1,inplace=True)
+            webhook_key = 'teams_webhook_BMA45_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates''
             title = 'CTA45 Tube Loading - Cycle Time Alert!'
             caption = 'Percent of Cycle Times Below 35s in the Last 3 Hours'
-            helper_functions.send_alert('teams_webhook_DEV_Updates',title,df_html,caption)
+            helper_functions.send_alert(webhook_key,title,df_html,caption)
             logging.info("Sent Alert for CTA45")
         else:
             logging.info("No Alert for CTA45 CT")
