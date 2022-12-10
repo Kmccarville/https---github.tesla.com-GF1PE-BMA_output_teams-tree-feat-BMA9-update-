@@ -13,38 +13,39 @@ from resources import outputz4
 from resources import close_nc_check
 from resources import eos
 
+from resources.alerts import cta45_ct
+
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
-debug = False
-
-def run_schedule():
-    while 1:
-        schedule.run_pending()
-        time.sleep(1) 
 
 if __name__ == '__main__':
-    if debug==True:
-        logging.info("serve_active")
-        output123()
-  
-    elif debug==False:
-        env=os.getenv('ENVVAR3')
 
-        logging.info("Code is running...better go catch it!")
-        logging.info("Environment: %s", env)
+    env=os.getenv('ENVVAR3')
+    logging.info("Code is running...better go catch it!")
+    logging.info("Environment: %s", env)
 
-        schedule.every().hour.at(":00").do(output123.main,env)
-        schedule.every().hour.at(":00").do(output45.main,env)
-        schedule.every().hour.at(":00").do(outputz3.main,env)
-        schedule.every().hour.at(":00").do(outputz4.main,env)
-        schedule.every().hour.at(":00").do(yield123.main,env)
-        schedule.every().hour.at(":00").do(close_nc_check.main,env)
-        schedule.every().hour.at(":00").do(eos.main,env)
+    scheduler_hourly = schedule.Scheduler()
+    scheduler_alerts = schedule.Scheduler()
 
-        if env == "dev":
-            logging.info("Run all command executed")
-            schedule.run_all(delay_seconds=10)
-            logging.info("Run all command complete")
+    #define hourly scheduler
+    scheduler_hourly.every().hour.at(":00").do(output123.main,env)
+    scheduler_hourly.every().hour.at(":00").do(output45.main,env)
+    scheduler_hourly.every().hour.at(":00").do(outputz3.main,env)
+    scheduler_hourly.every().hour.at(":00").do(outputz4.main,env)
+    scheduler_hourly.every().hour.at(":00").do(yield123.main,env)
+    scheduler_hourly.every().hour.at(":00").do(close_nc_check.main,env)
+    scheduler_hourly.every().hour.at(":00").do(eos.main,env)
 
-        logging.info("Hourly run schedule initiated")
-        run_schedule()
+    #define alert scheduler
+    scheduler_alerts.every().hour.at(":00").do(cta45_ct.main,env)
+
+    if env == "dev":
+        logging.info("Run all command executed")
+        scheduler_hourly.run_all(delay_seconds=10)
+        scheduler_alerts.run_all(delay_seconds=10)
+        logging.info("Run all command complete")
+
+    logging.info("Hourly run schedule initiated")
+    while 1:
+        scheduler_hourly.run_pending()
+        scheduler_alerts.run_pending()
