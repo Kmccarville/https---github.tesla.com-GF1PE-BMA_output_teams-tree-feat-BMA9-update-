@@ -81,7 +81,7 @@ def main(env):
             
             df_html = df_alert[['CTA_ID','PERCENT_GOOD']]
             df_html.rename({"PERCENT_GOOD" : "% Good Cycle"},axis=1,inplace=True)
-            webhook_key = 'teams_webhook_BMA45_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates''
+            webhook_key = 'teams_webhook_BMA45_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
             title = 'CTA45 Tube Loading - Cycle Time Alert!'
             caption = 'Percent of Cycle Times Below 35s in the Last 3 Hours'
             helper_functions.send_alert(webhook_key,title,df_html,caption)
