@@ -381,7 +381,7 @@ def main(env,eos=False):
     #establish db connections
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     plc_con = helper_functions.get_sql_conn('plc_db')
-    ict_con = helper_functions.get_sql_conn('interconnect_ro')
+    ict_con = helper_functions.get_sql_conn('interconnect_eng')
 
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
     starve_table = get_starved_table(plc_con,start,end)
