@@ -48,7 +48,7 @@ def query_bonder_logs(db,start,end):
             """
     return pd.read_sql(query,db)
     
-def get_mttr_table(env,eos,db,start,end):
+def get_mttr_df(env,eos,db,start,end):
     bonder_start = start+timedelta(hours=-2)
     BONDTOOL_FAULT_CODE = 214
     bonders = query_bonder_list(db)
@@ -111,117 +111,124 @@ def get_mttr_table(env,eos,db,start,end):
         df = pd.read_sql(query,db)
         bt_df = pd.concat([bt_df,df],axis=0)
 
-    bt_df = bt_df.merge(bonders,how='left',on='MACHINE_ID')
-    bt_df.fillna(0,inplace=True)
+    if len(bt_df):
+        bt_df = bt_df.merge(bonders,how='left',on='MACHINE_ID')
+        bt_df.fillna(0,inplace=True)
 
-    #define ideal cycle time for each consumabel change in seconds
-    BT_IDEAL = 450
-    WG_IDEAL = 196
-    CB_IDEAL = 190
-    FT_IDEAL = 310
-    SS_IDEAL = 479
-    #define threshold that count needs to be below to be counted as a change
-    COUNT_THRESHOLD = 100
+        #define ideal cycle time for each consumabel change in seconds
+        BT_IDEAL = 450
+        WG_IDEAL = 196
+        CB_IDEAL = 190
+        FT_IDEAL = 310
+        SS_IDEAL = 479
+        #define threshold that count needs to be below to be counted as a change
+        COUNT_THRESHOLD = 100
 
-    bt_df.loc[:,'BT'] = np.where(((bt_df['BC1'] < COUNT_THRESHOLD) & (bt_df['OBTC']==0)) | ((bt_df['BC2'] < COUNT_THRESHOLD) & (bt_df['OBTC']==1)),1,0)
-    bt_df.loc[:,'WG'] = np.where(bt_df['BC3'] < COUNT_THRESHOLD,1,0)
-    bt_df.loc[:,'CB'] = np.where(bt_df['BC4'] < COUNT_THRESHOLD,1,0)
-    bt_df.loc[:,'FT'] = np.where(bt_df['BC5'] < COUNT_THRESHOLD,1,0)
-    bt_df.loc[:,'SS'] = np.where(bt_df['BC6'] < COUNT_THRESHOLD,1,0)
+        bt_df.loc[:,'BT'] = np.where(((bt_df['BC1'] < COUNT_THRESHOLD) & (bt_df['OBTC']==0)) | ((bt_df['BC2'] < COUNT_THRESHOLD) & (bt_df['OBTC']==1)),1,0)
+        bt_df.loc[:,'WG'] = np.where(bt_df['BC3'] < COUNT_THRESHOLD,1,0)
+        bt_df.loc[:,'CB'] = np.where(bt_df['BC4'] < COUNT_THRESHOLD,1,0)
+        bt_df.loc[:,'FT'] = np.where(bt_df['BC5'] < COUNT_THRESHOLD,1,0)
+        bt_df.loc[:,'SS'] = np.where(bt_df['BC6'] < COUNT_THRESHOLD,1,0)
 
-    bt_df.loc[:,'IDEAL_SEC'] = bt_df['BT']*BT_IDEAL + bt_df['WG']*WG_IDEAL + bt_df['CB']*CB_IDEAL + bt_df['FT']*FT_IDEAL + np.where(bt_df['BT']==0,bt_df['SS']*SS_IDEAL,0)
-    bt_df.loc[:,'ACTUAL_SEC'] = (bt_df['BT_COMPLETE_TIME'] - bt_df['BT_START_TIME']).dt.total_seconds()
-    bt_df.loc[:,'LOST_SEC'] = bt_df['ACTUAL_SEC'] - bt_df['IDEAL_SEC']
-    #prep insert for database logging only on prod branch to avoid duplicate inserts
-    if env=='prod' and not eos and len(bt_df):
-        try:
-            bt_df_insert = bt_df[['MACHINE_ID','BT_START_TIME','BT_COMPLETE_TIME','BT','WG','CB','FT','SS','IDEAL_SEC']]
-            bt_df_insert.rename({
-                                'BT_START_TIME' : 'START_TIME',
-                                'BT_COMPLETE_TIME' : 'COMPLETE_TIME',
-                                'BT' : 'BONDTOOL_CHANGE',
-                                'WG' : 'WIREGUIDE_CHANGE',
-                                'CB' : 'CUTTERBLADE_CHANGE',
-                                'FT' : 'FEEDTUBE_CHANGE',
-                                'SS' : 'SETSCREW_CHANGE',
-                                'IDEAL_SEC' : 'IDEAL_CHANGE_SEC'
-                                },inplace=True,axis=1)
+        bt_df.loc[:,'IDEAL_SEC'] = bt_df['BT']*BT_IDEAL + bt_df['WG']*WG_IDEAL + bt_df['CB']*CB_IDEAL + bt_df['FT']*FT_IDEAL + np.where(bt_df['BT']==0,bt_df['SS']*SS_IDEAL,0)
+        bt_df.loc[:,'ACTUAL_SEC'] = (bt_df['BT_COMPLETE_TIME'] - bt_df['BT_START_TIME']).dt.total_seconds()
+        bt_df.loc[:,'LOST_SEC'] = bt_df['ACTUAL_SEC'] - bt_df['IDEAL_SEC']
+        #prep insert for database logging only on prod branch to avoid duplicate inserts
+        if env=='prod' and not eos and len(bt_df):
+            try:
+                bt_df_insert = bt_df[['MACHINE_ID','BT_START_TIME','BT_COMPLETE_TIME','BT','WG','CB','FT','SS','IDEAL_SEC']]
+                bt_df_insert.rename({
+                                    'BT_START_TIME' : 'START_TIME',
+                                    'BT_COMPLETE_TIME' : 'COMPLETE_TIME',
+                                    'BT' : 'BONDTOOL_CHANGE',
+                                    'WG' : 'WIREGUIDE_CHANGE',
+                                    'CB' : 'CUTTERBLADE_CHANGE',
+                                    'FT' : 'FEEDTUBE_CHANGE',
+                                    'SS' : 'SETSCREW_CHANGE',
+                                    'IDEAL_SEC' : 'IDEAL_CHANGE_SEC'
+                                    },inplace=True,axis=1)
 
-            bt_df_insert.loc[:,'START_TIME'] = bt_df_insert.apply(lambda x: helper_functions.convert_from_utc_to_pst(x.START_TIME),axis=1)
-            bt_df_insert.loc[:,'COMPLETE_TIME'] = bt_df_insert.apply(lambda x: helper_functions.convert_from_utc_to_pst(x.COMPLETE_TIME),axis=1)
-            ict_con = helper_functions.get_sql_conn('interconnect_eng')
-            bt_df_insert.to_sql('consumable_change_log',ict_con,'m3_teep_v3',if_exists='append',index=False)
-            logging.info('Successfully Inserted Consumable Logs')
-            ict_con.close()
-        except:
-            logging.info('Failed to Insert Consumable Logs')
+                bt_df_insert.loc[:,'START_TIME'] = bt_df_insert.apply(lambda x: helper_functions.convert_from_utc_to_pst(x.START_TIME),axis=1)
+                bt_df_insert.loc[:,'COMPLETE_TIME'] = bt_df_insert.apply(lambda x: helper_functions.convert_from_utc_to_pst(x.COMPLETE_TIME),axis=1)
+                ict_con = helper_functions.get_sql_conn('interconnect_eng')
+                bt_df_insert.to_sql('consumable_change_log',ict_con,'m3_teep_v3',if_exists='append',index=False)
+                logging.info('Successfully Inserted Consumable Logs')
+                ict_con.close()
+            except:
+                logging.info('Failed to Insert Consumable Logs')
 
-    #filter out all set screw changes
-    bt_df = bt_df.query("SS==0")
+        #filter out all set screw changes
+        bt_df = bt_df.query("SS==0")
 
-    bt_df.loc[:,'LINE'] = bt_df['MACHINE_ID'].str.split('-').str[0].str.split('3BM').str[-1].astype('int64')
-    bt_df.loc[:,'BOND_NUM'] = bt_df['MACHINE_ID'].str.split('-').str[-1].str[-3:-1].astype('int64')
+        bt_df.loc[:,'LINE'] = bt_df['MACHINE_ID'].str.split('-').str[0].str.split('3BM').str[-1].astype('int64')
+        bt_df.loc[:,'BOND_NUM'] = bt_df['MACHINE_ID'].str.split('-').str[-1].str[-3:-1].astype('int64')
 
-    bt_df.loc[:,'QUAD'] = np.where((bt_df['LINE'] < 4 ) & (bt_df['BOND_NUM'] < 6), 'A',
-                            np.where((bt_df['LINE'] < 4 ) & (bt_df['BOND_NUM'] >= 6) & (bt_df['BOND_NUM'] < 11), 'B',
-                            np.where((bt_df['LINE'] < 4 ) & (bt_df['BOND_NUM'] >= 11)& (bt_df['BOND_NUM'] < 17) , 'C',
-                            np.where((bt_df['LINE'] < 4 ) & (bt_df['BOND_NUM'] >= 17), 'D',
-                            np.where((bt_df['LINE'] == 4) & (bt_df['BOND_NUM'] >= 1) & (bt_df['BOND_NUM'] < 7), 'A',
-                            np.where((bt_df['LINE'] == 4) & (bt_df['BOND_NUM'] >= 7) & (bt_df['BOND_NUM'] < 13), 'B',
-                            np.where((bt_df['LINE'] == 4) & (bt_df['BOND_NUM'] >= 13) , 'C',
-                            np.where((bt_df['LINE'] == 5) & (bt_df['BOND_NUM'] % 2 == 1), 'A',
-                            np.where((bt_df['LINE'] == 5) & (bt_df['BOND_NUM'] % 2 == 0), 'B','NONE')))))))))
-
-
-    bt_summary = bt_df.groupby(['LINE','QUAD'])['IDEAL_SEC','ACTUAL_SEC'].sum().reset_index()
-    bt_summary.loc[:,'IDEAL_MIN'] = bt_summary['IDEAL_SEC']/60
-    bt_summary.loc[:,'ACTUAL_MIN'] = bt_summary['ACTUAL_SEC']/60
+        bt_df.loc[:,'QUAD'] = np.where((bt_df['LINE'] < 4 ) & (bt_df['BOND_NUM'] < 6), 'A',
+                                np.where((bt_df['LINE'] < 4 ) & (bt_df['BOND_NUM'] >= 6) & (bt_df['BOND_NUM'] < 11), 'B',
+                                np.where((bt_df['LINE'] < 4 ) & (bt_df['BOND_NUM'] >= 11)& (bt_df['BOND_NUM'] < 17) , 'C',
+                                np.where((bt_df['LINE'] < 4 ) & (bt_df['BOND_NUM'] >= 17), 'D',
+                                np.where((bt_df['LINE'] == 4) & (bt_df['BOND_NUM'] >= 1) & (bt_df['BOND_NUM'] < 7), 'A',
+                                np.where((bt_df['LINE'] == 4) & (bt_df['BOND_NUM'] >= 7) & (bt_df['BOND_NUM'] < 13), 'B',
+                                np.where((bt_df['LINE'] == 4) & (bt_df['BOND_NUM'] >= 13) , 'C',
+                                np.where((bt_df['LINE'] == 5) & (bt_df['BOND_NUM'] % 2 == 1), 'A',
+                                np.where((bt_df['LINE'] == 5) & (bt_df['BOND_NUM'] % 2 == 0), 'B','NONE')))))))))
 
 
-    quad1a_target = round(helper_functions.get_val_2(bt_summary,1,'LINE','A','QUAD','IDEAL_MIN'),1)
-    quad1b_target = round(helper_functions.get_val_2(bt_summary,1,'LINE','B','QUAD','IDEAL_MIN'),1)
-    quad1c_target = round(helper_functions.get_val_2(bt_summary,1,'LINE','C','QUAD','IDEAL_MIN'),1)
-    quad1d_target = round(helper_functions.get_val_2(bt_summary,1,'LINE','D','QUAD','IDEAL_MIN'),1)
+        bt_summary = bt_df.groupby(['LINE','QUAD'])['IDEAL_SEC','ACTUAL_SEC'].sum().reset_index()
+        bt_summary.loc[:,'IDEAL_MIN'] = bt_summary['IDEAL_SEC']/60
+        bt_summary.loc[:,'ACTUAL_MIN'] = bt_summary['ACTUAL_SEC']/60
+        return bt_summary
 
-    quad2a_target = round(helper_functions.get_val_2(bt_summary,2,'LINE','A','QUAD','IDEAL_MIN'),1)
-    quad2b_target = round(helper_functions.get_val_2(bt_summary,2,'LINE','B','QUAD','IDEAL_MIN'),1)
-    quad2c_target = round(helper_functions.get_val_2(bt_summary,2,'LINE','C','QUAD','IDEAL_MIN'),1)
-    quad2d_target = round(helper_functions.get_val_2(bt_summary,2,'LINE','D','QUAD','IDEAL_MIN'),1)
+    else:
+        empty_df = pd.DataFrame({})
+        return empty_df
+
+def mttr_to_html(df):
+
+    quad1a_target = round(helper_functions.get_val_2(df,1,'LINE','A','QUAD','IDEAL_MIN'),1)
+    quad1b_target = round(helper_functions.get_val_2(df,1,'LINE','B','QUAD','IDEAL_MIN'),1)
+    quad1c_target = round(helper_functions.get_val_2(df,1,'LINE','C','QUAD','IDEAL_MIN'),1)
+    quad1d_target = round(helper_functions.get_val_2(df,1,'LINE','D','QUAD','IDEAL_MIN'),1)
+
+    quad2a_target = round(helper_functions.get_val_2(df,2,'LINE','A','QUAD','IDEAL_MIN'),1)
+    quad2b_target = round(helper_functions.get_val_2(df,2,'LINE','B','QUAD','IDEAL_MIN'),1)
+    quad2c_target = round(helper_functions.get_val_2(df,2,'LINE','C','QUAD','IDEAL_MIN'),1)
+    quad2d_target = round(helper_functions.get_val_2(df,2,'LINE','D','QUAD','IDEAL_MIN'),1)
     
-    quad3a_target = round(helper_functions.get_val_2(bt_summary,3,'LINE','A','QUAD','IDEAL_MIN'),1)
-    quad3b_target = round(helper_functions.get_val_2(bt_summary,3,'LINE','B','QUAD','IDEAL_MIN'),1)
-    quad3c_target = round(helper_functions.get_val_2(bt_summary,3,'LINE','C','QUAD','IDEAL_MIN'),1)
-    quad3d_target = round(helper_functions.get_val_2(bt_summary,3,'LINE','D','QUAD','IDEAL_MIN'),1)
+    quad3a_target = round(helper_functions.get_val_2(df,3,'LINE','A','QUAD','IDEAL_MIN'),1)
+    quad3b_target = round(helper_functions.get_val_2(df,3,'LINE','B','QUAD','IDEAL_MIN'),1)
+    quad3c_target = round(helper_functions.get_val_2(df,3,'LINE','C','QUAD','IDEAL_MIN'),1)
+    quad3d_target = round(helper_functions.get_val_2(df,3,'LINE','D','QUAD','IDEAL_MIN'),1)
 
-    quad4a_target = round(helper_functions.get_val_2(bt_summary,4,'LINE','A','QUAD','IDEAL_MIN'),1)
-    quad4b_target = round(helper_functions.get_val_2(bt_summary,4,'LINE','B','QUAD','IDEAL_MIN'),1)
-    quad4c_target = round(helper_functions.get_val_2(bt_summary,4,'LINE','C','QUAD','IDEAL_MIN'),1)
+    quad4a_target = round(helper_functions.get_val_2(df,4,'LINE','A','QUAD','IDEAL_MIN'),1)
+    quad4b_target = round(helper_functions.get_val_2(df,4,'LINE','B','QUAD','IDEAL_MIN'),1)
+    quad4c_target = round(helper_functions.get_val_2(df,4,'LINE','C','QUAD','IDEAL_MIN'),1)
 
-    quad5a_target = round(helper_functions.get_val_2(bt_summary,5,'LINE','A','QUAD','IDEAL_MIN'),1)
-    quad5b_target = round(helper_functions.get_val_2(bt_summary,5,'LINE','B','QUAD','IDEAL_MIN'),1)
+    quad5a_target = round(helper_functions.get_val_2(df,5,'LINE','A','QUAD','IDEAL_MIN'),1)
+    quad5b_target = round(helper_functions.get_val_2(df,5,'LINE','B','QUAD','IDEAL_MIN'),1)
 
     #
-    quad1a_actual = round(helper_functions.get_val_2(bt_summary,1,'LINE','A','QUAD','ACTUAL_MIN'),1)
-    quad1b_actual = round(helper_functions.get_val_2(bt_summary,1,'LINE','B','QUAD','ACTUAL_MIN'),1)
-    quad1c_actual = round(helper_functions.get_val_2(bt_summary,1,'LINE','C','QUAD','ACTUAL_MIN'),1)
-    quad1d_actual = round(helper_functions.get_val_2(bt_summary,1,'LINE','D','QUAD','ACTUAL_MIN'),1)
+    quad1a_actual = round(helper_functions.get_val_2(df,1,'LINE','A','QUAD','ACTUAL_MIN'),1)
+    quad1b_actual = round(helper_functions.get_val_2(df,1,'LINE','B','QUAD','ACTUAL_MIN'),1)
+    quad1c_actual = round(helper_functions.get_val_2(df,1,'LINE','C','QUAD','ACTUAL_MIN'),1)
+    quad1d_actual = round(helper_functions.get_val_2(df,1,'LINE','D','QUAD','ACTUAL_MIN'),1)
 
-    quad2a_actual = round(helper_functions.get_val_2(bt_summary,2,'LINE','A','QUAD','ACTUAL_MIN'),1)
-    quad2b_actual = round(helper_functions.get_val_2(bt_summary,2,'LINE','B','QUAD','ACTUAL_MIN'),1)
-    quad2c_actual = round(helper_functions.get_val_2(bt_summary,2,'LINE','C','QUAD','ACTUAL_MIN'),1)
-    quad2d_actual = round(helper_functions.get_val_2(bt_summary,2,'LINE','D','QUAD','ACTUAL_MIN'),1)
+    quad2a_actual = round(helper_functions.get_val_2(df,2,'LINE','A','QUAD','ACTUAL_MIN'),1)
+    quad2b_actual = round(helper_functions.get_val_2(df,2,'LINE','B','QUAD','ACTUAL_MIN'),1)
+    quad2c_actual = round(helper_functions.get_val_2(df,2,'LINE','C','QUAD','ACTUAL_MIN'),1)
+    quad2d_actual = round(helper_functions.get_val_2(df,2,'LINE','D','QUAD','ACTUAL_MIN'),1)
     
-    quad3a_actual = round(helper_functions.get_val_2(bt_summary,3,'LINE','A','QUAD','ACTUAL_MIN'),1)
-    quad3b_actual = round(helper_functions.get_val_2(bt_summary,3,'LINE','B','QUAD','ACTUAL_MIN'),1)
-    quad3c_actual = round(helper_functions.get_val_2(bt_summary,3,'LINE','C','QUAD','ACTUAL_MIN'),1)
-    quad3d_actual = round(helper_functions.get_val_2(bt_summary,3,'LINE','D','QUAD','ACTUAL_MIN'),1)
+    quad3a_actual = round(helper_functions.get_val_2(df,3,'LINE','A','QUAD','ACTUAL_MIN'),1)
+    quad3b_actual = round(helper_functions.get_val_2(df,3,'LINE','B','QUAD','ACTUAL_MIN'),1)
+    quad3c_actual = round(helper_functions.get_val_2(df,3,'LINE','C','QUAD','ACTUAL_MIN'),1)
+    quad3d_actual = round(helper_functions.get_val_2(df,3,'LINE','D','QUAD','ACTUAL_MIN'),1)
 
-    quad4a_actual = round(helper_functions.get_val_2(bt_summary,4,'LINE','A','QUAD','ACTUAL_MIN'),1)
-    quad4b_actual = round(helper_functions.get_val_2(bt_summary,4,'LINE','B','QUAD','ACTUAL_MIN'),1)
-    quad4c_actual = round(helper_functions.get_val_2(bt_summary,4,'LINE','C','QUAD','ACTUAL_MIN'),1)
+    quad4a_actual = round(helper_functions.get_val_2(df,4,'LINE','A','QUAD','ACTUAL_MIN'),1)
+    quad4b_actual = round(helper_functions.get_val_2(df,4,'LINE','B','QUAD','ACTUAL_MIN'),1)
+    quad4c_actual = round(helper_functions.get_val_2(df,4,'LINE','C','QUAD','ACTUAL_MIN'),1)
 
-    quad5a_actual = round(helper_functions.get_val_2(bt_summary,5,'LINE','A','QUAD','ACTUAL_MIN'),1)
-    quad5b_actual = round(helper_functions.get_val_2(bt_summary,5,'LINE','B','QUAD','ACTUAL_MIN'),1)
+    quad5a_actual = round(helper_functions.get_val_2(df,5,'LINE','A','QUAD','ACTUAL_MIN'),1)
+    quad5b_actual = round(helper_functions.get_val_2(df,5,'LINE','B','QUAD','ACTUAL_MIN'),1)
 
     html=f"""
         <tr>
@@ -385,7 +392,7 @@ def main(env,eos=False):
 
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
     starve_table = get_starved_table(plc_con,start,end)
-    mttr_table = get_mttr_table(env,eos,ict_con,start,end)
+    mttr_df = get_mttr_df(env,eos,ict_con,start,end)
 
     mos_con.close()
     plc_con.close()
@@ -422,7 +429,12 @@ def main(env,eos=False):
 
     output_html = "<table>" + "<caption>Throughput</caption>" + output_table + "</table>"
     starved_html = "<table>" + "<caption>Starvation %</caption>" + starve_table + "</table>"
-    wb_html = "<table>" + "<caption>Consumable Change Overtime (minutes)</caption>" +  mttr_table + "</table>"
+
+    if len(mttr_df):
+        mttr_table = mttr_to_html(mttr_df)
+        wb_html = "<table>" + "<caption>Consumable Change Overtime (minutes)</caption>" +  mttr_table + "</table>"
+    else:
+        wb_html = "No Consumables Changed This Hour"
 
     # wb_teep_html = z3_wb_teep.bonder_main(start,end)
 
