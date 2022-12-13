@@ -111,8 +111,7 @@ def get_mttr_df(env,eos,db,start,end):
         df = pd.read_sql(query,db)
         bt_df = pd.concat([bt_df,df],axis=0)
 
-    # if len(bt_df):
-    if False:
+    if len(bt_df):
         bt_df = bt_df.merge(bonders,how='left',on='MACHINE_ID')
         bt_df.fillna(0,inplace=True)
 
