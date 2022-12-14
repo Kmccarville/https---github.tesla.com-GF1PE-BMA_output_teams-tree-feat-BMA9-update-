@@ -35,12 +35,12 @@ def get_starved_table(db, start, end):
             <th style="text-align:center"><strong>MC2</strong></th>
         </tr>
         <tr>
-            <td style="text-align:left"><b>Pack-in MTRs</b></td>
+            <td style="text-align:left"><b>Pack-in</b></td>
             <td style="text-align:center">{pi1_starved}%</td>
             <td style="text-align:center">{pi2_starved}%</td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>Pack-out MTRs</b></td>
+            <td style="text-align:left"><b>Pack-out</b></td>
             <td style="text-align:center">{po1_starved}%</td>
             <td style="text-align:center">{po2_starved}%</td>
         </tr>
@@ -97,7 +97,7 @@ def main(env, eos=False):
             </table>"""
 
     # Setup teams starvation table
-    starved_html = "<table>" + "<caption>Starvation %</caption>" + starve_table + "</table>"
+    starved_html = "<table>" + "<caption><u>MTR Starvation</u></caption>" + starve_table + "</table>"
 
     # get webhook based on environment
     webhook_key = 'teams_webhook_Zone4_Updates' if env == 'prod' else 'teams_webhook_DEV_Updates'
