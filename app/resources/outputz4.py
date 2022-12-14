@@ -61,12 +61,19 @@ def main(env, eos=False):
     MC2_FLOWSTEP = 'MC2-28000'
 
     flowsteps = [MC1_FLOWSTEP, MC2_FLOWSTEP]
+    
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
+    plc_con = helper_functions.get_sql_conn('plc_db')
+    
     df_output = helper_functions.get_flowstep_outputs(mos_con, start, end, flowsteps)
     mc1_output = helper_functions.get_output_val(df_output, MC1_FLOWSTEP)
     mc2_output = helper_functions.get_output_val(df_output, MC2_FLOWSTEP)
     mic_total = mc1_output + mc2_output
+    
     starve_table = get_starved_table(plc_con, start, end)  # pull starvation data
+    
+    mos_con.close()
+    plc_con.close()
 
     # Setup teams output table
     title = 'Zone 4 Hourly Update'
