@@ -45,7 +45,7 @@ def get_starved_table(db, start, end):
             <td style="text-align:center">{po2_starved}%</td>
         </tr>
         """
-    return html
+    return pi1_starved, pi2_starved, po1_starved, po2_starved
 
 
 def main(env, eos=False):
@@ -70,7 +70,7 @@ def main(env, eos=False):
     mc2_output = helper_functions.get_output_val(df_output, MC2_FLOWSTEP)
     mic_total = mc1_output + mc2_output
     
-    starve_table = get_starved_table(plc_con, start, end)  # pull starvation data
+    pi1_starved, pi2_starved, po1_starved, po2_starved = get_starved_table(plc_con, start, end)  # pull starvation data
     
     mos_con.close()
     plc_con.close()
@@ -78,26 +78,41 @@ def main(env, eos=False):
     # Setup teams output table
     title = 'Zone 4 Hourly Update'
     html = f"""<table>
-            <tr>
-                <th style="text-align:right">LINE</th>
-                <th style="text-align:center">UPH</th>
-            </tr>
-            <tr>
-                <td style="text-align:right"><strong>MC1</strong></td>
-                <td <td style="text-align:left">{mc1_output/4:.1f}</td>
-            </tr>
-            <tr>
-                <td style="text-align:right"><strong>MC2</strong></td>
-                <td style="text-align:left">{mc2_output/4:.1f}</td>
-            </tr>
-            <tr>
-                <td style="text-align:right"><strong>TOTAL</strong></td>
-                <td style="text-align:left"><b>{mic_total/4:.1f}</b></td>
-            </tr>
+                <tr padding= 6px>
+                <th style="text-align:center"></th>
+                  <th style="text-align:center">Rate</th>
+                  <th colspan="2" style="text-align:center">MTR Starvation</th>
+                </tr>
+            
+            
+                <tr bgcolor = #f2f2f2 >
+                  <th style="text-align:right">LINE</th>
+                  <th style="text-align:center">UPH</th>
+                  <th style="text-align:center">Pack-in</th>
+                  <th style="text-align:center">Pack-out</th>
+                </tr>
+              
+                <tr>
+                 <td style="text-align:right"><strong>MC1</strong></td>
+                 <td style="text-align:center">{mc1_output/4:.1f}</td>
+                 <td style="text-align:center">{pi1_starved}%</td>
+                 <td style="text-align:center">{po1_starved}%</td>
+                </tr>
+            
+                <tr bgcolor = #f2f2f2>
+                 <td style="text-align:right"><strong>MC2</strong></td>
+                 <td style="text-align:center">{mc2_output/4:.1f}</td>
+                 <td style="text-align:center">{pi2_starved}%</td>
+                 <td style="text-align:center">{po2_starved}%</td>
+                </tr>
+            
+                <tr>
+                 <td style="text-align:right"><strong>TOTAL</strong></td>
+                 <td style="text-align:center"><b>{mic_total/4:.1f}</b></td>
+                 <td style="text-align:center">-</td>
+                 <td style="text-align:center">-</td>
+                </tr>
             </table>"""
-
-    # Setup teams starvation table
-    starved_html = "<table>" + "<caption><u>MTR Starvation</u></caption>" + starve_table + "</table>"
 
     # get webhook based on environment
     webhook_key = 'teams_webhook_Zone4_Updates' if env == 'prod' else 'teams_webhook_DEV_Updates'
@@ -118,10 +133,6 @@ def main(env, eos=False):
     output_card = pymsteams.cardsection()
     output_card.text(html)
     teams_msg.addSection(output_card)
-    # make a card with starvation data
-    starved_card = pymsteams.cardsection()
-    starved_card.text(starved_html)
-    teams_msg.addSection(starved_card)
     # add a link to the confluence page
     teams_msg.addLinkButton("Questions?",
                             "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
