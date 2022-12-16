@@ -78,7 +78,7 @@ def main(env, eos=False):
     # Setup teams output table
     title = 'Zone 4 Hourly Update'
     html = f"""<table>
-                <tr padding= 6px>
+                <tr>
                 <th style="text-align:center"></th>
                   <th style="text-align:center">Rate</th>
                   <th colspan="2" style="text-align:center">MTR Starvation</th>
