@@ -198,69 +198,6 @@ def main(env, eos=False):
 
     pi1_starved, pi2_starved, po1_starved, po2_starved = get_starved_table(plc_con, start, end)  # pull starvation data
 
-    # ======================================================================================================================
-    MC1_flow_steps = ['MC1-01350', 'MC1-02000', 'MC1-02200', 'MC1-02500', 'MC1-02600', 'MC1-03000', 'MC1-04000',
-                      'MC1-06000', 'MC1-06500', 'MC1-07000', 'MC1-08000', 'MC1-09000', 'MC1-10000', 'MC1-12000',
-                      'MC1-14000', 'MC1-15250', 'MC1-15500', 'MC1-16000', 'MC1-17000', 'MC1-19000', 'MC1-21250',
-                      'MC1-03000', 'MC1-03200', 'MC1-04000', 'MC1-21250', 'MC1-21500', 'MC1-21900', 'MC1-23000',
-                      'MC1-24000', 'MC1-26000', 'MC1-29000']
-    MC1_flow_steps = format_flow_steps(MC1_flow_steps)
-    MC1_NIC, MC1_IC, MC1_A2 = get_pallet_count_MC1(pr_con, MC1_flow_steps)
-    MC1_NIC_style = get_pallet_color_reporting(MC1_NIC, 'MC1', 'NIC')
-    MC1_IC_style = get_pallet_color_reporting(MC1_IC, 'MC1', 'IC')
-    MC1_A2_style = get_pallet_color_reporting(MC1_A2, 'MC1', 'A2')
-
-    MC2_NIC_flow_steps = ['MC2-10000', 'MC2-11000', 'MC2-12000', 'MC2-12500', 'MC2-13000', 'MC2-14000', 'MC2-15000',
-                          'MC2-16000', 'MC2-17000', 'MC2-18000', 'MC2-19000', 'MC2-19500', 'MC2-20000']
-    MC2_NIC_flow_steps = format_flow_steps(MC2_NIC_flow_steps)
-    MC2_NIC23, MC2_NIC25 = get_pallet_count_MC2(pr_con, mos_con, MC2_NIC_flow_steps)
-    MC2_NIC23_style = get_pallet_color_reporting(MC2_NIC23, 'MC2', 'NIC')
-    MC2_NIC25_style = get_pallet_color_reporting(MC2_NIC25, 'MC2', 'NIC')
-
-    MC2_IC_flow_steps = ['MC2-20000', 'MC2-21000', 'MC2-22000', 'MC2-23000', 'MC2-26000', 'MC2-27000', 'MC2-28000']
-    MC2_IC_flow_steps = format_flow_steps(MC2_IC_flow_steps)
-    MC2_IC23, MC2_IC25 = get_pallet_count_MC2(pr_con, mos_con, MC2_IC_flow_steps, 1)
-    MC2_IC23_style = get_pallet_color_reporting(MC2_IC23, 'MC2', 'IC')
-    MC2_IC25_style = get_pallet_color_reporting(MC2_IC25, 'MC2', 'IC')
-
-    pallet_html = f"""
-                 <table cellpadding="8" border ='1'>
-                  <tr bgcolor = #f2f2f2>
-                    <th rowspan="2" style="text-align:center"></th>
-                    <th bgcolor = #f2f2f2 rowspan="1" style="text-align:center">MC1</th>
-                    <th bgcolor = #f2f2f2 colspan="2" style="text-align:center">MC2</th>
-                  </tr>
-
-
-                  <tr bgcolor = #f2f2f2 >
-                    <th bgcolor = #f2f2f2 rowspan="1" style="text-align:center"></th>
-                    <th style="text-align:center">23s</th>
-                    <th style="text-align:center">25s</th>
-                  </tr>
-
-                  <tr>
-                    <td style="text-align:center"><strong>NIC</strong></td>
-                    <td {MC1_NIC_style}>{MC1_NIC}</td>
-                    <td {MC2_NIC23_style}>{MC2_NIC23}</td>
-                    <td {MC2_NIC25_style}>{MC2_NIC25}</td>
-                  </tr>
-
-                  <tr bgcolor = #f2f2f2>
-                    <td style="text-align:center"><strong>IC</strong></td>
-                    <td {MC1_IC_style}>{MC1_IC}</td>
-                    <td {MC2_IC23_style}>{MC2_IC23}</td>
-                    <td {MC2_IC25_style}>{MC2_IC25}</td>
-                  </tr>
-
-                  <tr>
-                    <td style="text-align:right"><strong>Area 2</strong></td>
-                    <td {MC1_A2_style}>{MC1_A2}</td>
-                    <td style="text-align:center">-</td>
-                    <td style="text-align:center">-</td>
-                  </tr>
-                </table>"""
-    # ======================================================================================================================
-
     mos_con.close()
     plc_con.close()
     pr_con.close()
