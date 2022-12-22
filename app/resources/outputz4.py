@@ -48,131 +48,6 @@ def get_starved_table(db, start, end):
     return pi1_starved, pi2_starved, po1_starved, po2_starved
 
 
-def get_pallet_count_MC1(pr_db, flow_steps, time_frame=12):
-    query = f"""
-                SELECT A.PalletType as 'Pallet Type', count(distinct A.PALLET_ID) as 'Pallet Count'
-            FROM(
-                    Select 
-                    CASE when PALLET_ID like 'NIC%%' then 'NIC'
-                         when PALLET_ID like 'IC%%' then 'A2_IC'
-                         when PALLET_ID like '1%%' then 'IC' END as PalletType,
-                    PALLET_ID, convert_Tz(max(LAST_REQUEST_TIME) ,'UTC','US/Pacific') as 'LastTime'
-                    From pallet_history
-                    Where (PALLET_ID LIKE "NIC%%" or PALLET_ID LIKE "IC%%" or PALLET_ID LIKE "1%%") AND 
-                          DESTINATION in ({flow_steps})
-                          AND LAST_REQUEST_TIME > DATE_SUB(now(), INTERVAL {time_frame} HOUR)
-                    Group by PALLET_ID) as A
-            WHERE A.LastTime  > ( SELECT convert_Tz(max(LAST_REQUEST_TIME) ,'UTC','US/Pacific') - interval 1 hour as 'LastTime'
-                                  FROM pallet_history
-                                  WHERE DESTINATION LIKE "MC1%%" AND 
-                                  (PALLET_ID LIKE "NIC%%" or PALLET_ID LIKE "IC%%" or PALLET_ID LIKE "1%%")
-                                        AND LAST_REQUEST_TIME > DATE_SUB(now(), INTERVAL {time_frame} HOUR))
-            GROUP BY A.PalletType
-        """
-
-    df = pd.read_sql(query, pr_db)
-
-    NIC = df.iloc[2][1]
-    IC = df.iloc[1][1]
-    A2 = df.iloc[0][1]
-
-    return NIC, IC, A2
-
-
-def get_pallet_count_MC2(pr_db, mos_db, flow_steps, pallet_type=0, time_frame=12):
-    pallet = ''
-    if pallet_type == 0:
-        pallet = 'NIC'
-    elif pallet_type == 1:
-        pallet = 'IC'
-
-    query1 = f"""
-                    SELECT distinct A.PALLET_ID, B.SERIAL_NUMBER
-    				FROM
-                        (SELECT PALLET_ID, convert_Tz(max(LAST_REQUEST_TIME) ,'UTC','US/Pacific') as 'LastTime'
-                        FROM pallet_history
-                        WHERE DESTINATION LIKE "MC2%%" AND PALLET_ID LIKE "{pallet}%%"
-                             AND LAST_REQUEST_TIME > DATE_SUB(now(), INTERVAL {time_frame} HOUR)
-                        GROUP BY PALLET_ID
-                        ORDER BY 'Last Time') as A
-                        INNER JOIN
-                        (SELECT PALLET_ID, SERIAL_NUMBER, DESTINATION, 
-                        convert_Tz(max(LAST_REQUEST_TIME) ,'UTC','US/Pacific') as 'LastTime'
-                        FROM pallet_history
-                        WHERE DESTINATION LIKE "MC2%%" AND PALLET_ID LIKE "{pallet}%%"
-                             AND LAST_REQUEST_TIME > DATE_SUB(now(), INTERVAL {time_frame} HOUR)
-                        GROUP BY PALLET_ID, SERIAL_NUMBER, DESTINATION
-                        ORDER BY 'Last Time') as B ON A.PALLET_ID = B.PALLET_ID AND A.LastTime = B.LastTime
-    				WHERE B.DESTINATION in ({flow_steps}) 
-    				AND A.LastTime > ( Select convert_Tz(max(LAST_REQUEST_TIME) ,'UTC','US/Pacific') - interval 0.5 hour as 'LastTime'
-    									   FROM pallet_history
-    										WHERE DESTINATION LIKE "MC2%%" AND PALLET_ID LIKE "NIC%%"
-    										AND LAST_REQUEST_TIME > DATE_SUB(now(), INTERVAL {time_frame} HOUR))
-    				ORDER BY PALLET_ID
-                """
-    data = pd.read_sql(query1, pr_db)
-    data = data.values.tolist()
-
-    serial_data = [x[1] for x in data]
-    serials = f""
-    for serial in serial_data:
-        serials = serials + f"'{serial}',"
-    serials = serials[:-1]
-
-    query2 = f"""
-                    SELECT A.ModType, count(*) as Pallet_Count
-                    FROM (Select name, 
-    	                    CASE when left(mid(description, 12,14),1) = 1 OR left(mid(description, 12,14),1) = 4 THEN '23s'
-                                 when left(mid(description, 12,14),1) = 2 OR left(mid(description, 12,14),1) = 3 THEN '25s' 
-                                 END as ModType
-                            From thing
-                            where name in ({serials})) as A
-                    GROUP BY ModType
-                    ORDER BY A.ModType"""
-
-    df = pd.read_sql(query2, mos_db)
-
-    mod23s = df.iloc[0][1]
-    mod25s = df.iloc[1][1]
-    return mod23s, mod25s
-
-
-def format_flow_steps(flow_steps):
-    valid_flow_steps = f""
-    for flow_step in flow_steps:
-        valid_flow_steps = valid_flow_steps + f"'{flow_step}',"
-    valid_flow_steps = valid_flow_steps[:-1]
-
-    return valid_flow_steps
-
-
-def get_pallet_color_reporting(value, line, pallet_type):
-    if line == 'MC1':
-        if pallet_type == 'NIC':
-            limits = [110, 100]
-        elif pallet_type == 'IC':
-            limits = [60, 50]
-        elif pallet_type == 'A2':
-            limits = [15, 11]
-    elif line == 'MC2':
-        if pallet_type == 'NIC':
-            limits = [46, 40]
-        elif pallet_type == 'IC':
-            limits = [28, 22]
-
-    HTML_style = ["bgcolor=#28a745 style='text-align:center;color:white'", "bgcolor=#ffc107 style='text-align:center'",
-                  "bgcolor=#dc3545 style='text-align:center;color:white'"]
-
-    if value >= limits[0]:
-        style = HTML_style[0]
-    elif value >= limits[1]:
-        style = HTML_style[1]
-    else:
-        style = HTML_style[2]
-
-    return style
-
-
 def main(env, eos=False):
     logging.info("Z4 start %s" % datetime.utcnow())
 
@@ -188,7 +63,6 @@ def main(env, eos=False):
     flowsteps = [MC1_FLOWSTEP, MC2_FLOWSTEP]
 
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
-    #pr_con = helper_functions.get_sql_conn('gf1_pallet_management')  # pallet record data
     plc_con = helper_functions.get_sql_conn('plc_db')
 
     df_output = helper_functions.get_flowstep_outputs(mos_con, start, end, flowsteps)
@@ -200,7 +74,6 @@ def main(env, eos=False):
 
     mos_con.close()
     plc_con.close()
-    #pr_con.close()
 
     # Setup teams output table
     title = 'Zone 4 Hourly Update'
@@ -260,10 +133,6 @@ def main(env, eos=False):
     output_card = pymsteams.cardsection()
     output_card.text(html)
     teams_msg.addSection(output_card)
-    # create card for pallet count
-    pallet_card = pymsteams.cardsection()
-    pallet_card.text(pallet_html)
-    teams_msg.addSection(pallet_card)
     # add a link to the confluence page
     teams_msg.addLinkButton("Questions?",
                             "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
