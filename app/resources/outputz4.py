@@ -188,7 +188,7 @@ def main(env, eos=False):
     flowsteps = [MC1_FLOWSTEP, MC2_FLOWSTEP]
 
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
-    pr_con = helper_functions.get_sql_conn('gf1_pallet_management')  # pallet record data
+    #pr_con = helper_functions.get_sql_conn('gf1_pallet_management')  # pallet record data
     plc_con = helper_functions.get_sql_conn('plc_db')
 
     df_output = helper_functions.get_flowstep_outputs(mos_con, start, end, flowsteps)
@@ -200,7 +200,7 @@ def main(env, eos=False):
 
     mos_con.close()
     plc_con.close()
-    pr_con.close()
+    #pr_con.close()
 
     # Setup teams output table
     title = 'Zone 4 Hourly Update'
