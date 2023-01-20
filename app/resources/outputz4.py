@@ -189,7 +189,7 @@ def main(env, eos=False):
 
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     plc_con = helper_functions.get_sql_conn('plc_db')
-    pr_con = helper_functions.get_sql_conn('gf1_pallet_management')  # pallet record data
+    pr_con = helper_functions.get_sql_conn('gf1_pallet_management', 'gf1_pallet_management')  # pallet record data
 
     df_output = helper_functions.get_flowstep_outputs(mos_con, start, end, flowsteps)
     mc1_output = helper_functions.get_output_val(df_output, MC1_FLOWSTEP)
