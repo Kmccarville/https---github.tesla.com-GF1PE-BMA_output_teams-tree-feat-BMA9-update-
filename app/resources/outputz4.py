@@ -5,6 +5,7 @@ from datetime import timedelta
 import logging
 import pandas as pd
 import pymsteams
+import traceback
 
 
 def get_starved_table(db, start, end):
@@ -69,11 +70,13 @@ def get_pallet_count_MC1(pr_db, flow_steps, time_frame=12):
                                         AND LAST_REQUEST_TIME > DATE_SUB(now(), INTERVAL {time_frame} HOUR))
             GROUP BY A.PalletType
         """
-
-    df = pd.read_sql(query, pr_db)
-    NIC = df.iloc[2][1]
-    IC = df.iloc[1][1]
-    A2 = df.iloc[0][1]
+    try:
+        df = pd.read_sql(query, pr_db)
+        NIC = df.iloc[2][1]
+        IC = df.iloc[1][1]
+        A2 = df.iloc[0][1]
+    except Exception:
+        logging.error(traceback.print_exc())
 
     return NIC, IC, A2
 
@@ -87,7 +90,7 @@ def get_pallet_count_MC2(pr_db, mos_db, flow_steps, pallet_type=0, time_frame=12
 
     query1 = f"""
                     SELECT distinct A.PALLET_ID, B.SERIAL_NUMBER
-    				FROM
+                    FROM
                         (SELECT PALLET_ID, convert_Tz(max(LAST_REQUEST_TIME) ,'UTC','US/Pacific') as 'LastTime'
                         FROM pallet_history
                         WHERE DESTINATION LIKE "MC2%" AND PALLET_ID LIKE "{pallet}%"
@@ -102,38 +105,42 @@ def get_pallet_count_MC2(pr_db, mos_db, flow_steps, pallet_type=0, time_frame=12
                              AND LAST_REQUEST_TIME > DATE_SUB(now(), INTERVAL {time_frame} HOUR)
                         GROUP BY PALLET_ID, SERIAL_NUMBER, DESTINATION
                         ORDER BY 'Last Time') as B ON A.PALLET_ID = B.PALLET_ID AND A.LastTime = B.LastTime
-    				WHERE B.DESTINATION in ({flow_steps}) 
-    				AND A.LastTime > ( Select convert_Tz(max(LAST_REQUEST_TIME) ,'UTC','US/Pacific') - interval 0.5 hour as 'LastTime'
-    									   FROM pallet_history
-    										WHERE DESTINATION LIKE "MC2%" AND PALLET_ID LIKE "NIC%"
-    										AND LAST_REQUEST_TIME > DATE_SUB(now(), INTERVAL {time_frame} HOUR))
-    				ORDER BY PALLET_ID
+                    WHERE B.DESTINATION in ({flow_steps}) 
+                    AND A.LastTime > ( Select convert_Tz(max(LAST_REQUEST_TIME) ,'UTC','US/Pacific') - interval 0.5 hour as 'LastTime'
+                                           FROM pallet_history
+                                            WHERE DESTINATION LIKE "MC2%" AND PALLET_ID LIKE "NIC%"
+                                            AND LAST_REQUEST_TIME > DATE_SUB(now(), INTERVAL {time_frame} HOUR))
+                    ORDER BY PALLET_ID
                 """
-    data = pd.read_sql(query1, pr_db)
-    data = data.values.tolist()
+    try:
+        data = pd.read_sql(query1, pr_db)
+        data = data.values.tolist()
 
-    serial_data = [x[1] for x in data]
-    serials = f""
-    for serial in serial_data:
-        serials = serials + f"'{serial}',"
-    serials = serials[:-1]
+        serial_data = [x[1] for x in data]
+        serials = f""
+        for serial in serial_data:
+            serials = serials + f"'{serial}',"
+        serials = serials[:-1]
+    except Exception:
+        logging.error(traceback.print_exc())
 
     query2 = f"""
                     SELECT A.ModType, count(*) as Pallet_Count
                     FROM (Select name, 
-    	                    CASE when left(mid(description, 12,14),1) = 1 OR left(mid(description, 12,14),1) = 4 THEN '23s'
+                            CASE when left(mid(description, 12,14),1) = 1 OR left(mid(description, 12,14),1) = 4 THEN '23s'
                                  when left(mid(description, 12,14),1) = 2 OR left(mid(description, 12,14),1) = 3 THEN '25s' 
                                  END as ModType
                             From thing
                             where name in ({serials})) as A
                     GROUP BY ModType
                     ORDER BY A.ModType"""
-
-    df = pd.read_sql(query2, mos_db)
-    mod23s = df.iloc[0][1]
-    mod25s = df.iloc[1][1]
-    return mod23s, mod25s
-
+    try:
+        df = pd.read_sql(query2, mos_db)
+        mod23s = df.iloc[0][1]
+        mod25s = df.iloc[1][1]
+        return mod23s, mod25s
+    except Exception:
+        logging.error(traceback.print_exc())
 
 def format_flow_steps(flow_steps):
     valid_flow_steps = f""
@@ -142,7 +149,6 @@ def format_flow_steps(flow_steps):
     valid_flow_steps = valid_flow_steps[:-1]
 
     return valid_flow_steps
-
 
 def get_pallet_color_reporting(value, line, pallet_type):
     limits = [0, 0]
