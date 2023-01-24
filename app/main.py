@@ -31,7 +31,7 @@ if __name__ == '__main__':
     scheduler_hourly.every().hour.at(":00").do(output123.main,env)
     scheduler_hourly.every().hour.at(":00").do(output45.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz3.main,env)
-    #scheduler_hourly.every().hour.at(":00").do(outputz4.main,env)
+    scheduler_hourly.every().hour.at(":00").do(outputz4.main,env)
     scheduler_hourly.every().hour.at(":00").do(yield123.main,env)
     scheduler_hourly.every().hour.at(":00").do(close_nc_check.main,env)
     scheduler_hourly.every().hour.at(":00").do(eos.main,env)
