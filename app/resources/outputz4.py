@@ -69,16 +69,17 @@ def get_pallet_count_MC1(pr_db, flow_steps, time_frame=12):
                                   (PALLET_ID LIKE "NIC%" or PALLET_ID LIKE "IC%" or PALLET_ID LIKE "1%")
                                         AND LAST_REQUEST_TIME > DATE_SUB(now(), INTERVAL {time_frame} HOUR))
             GROUP BY A.PalletType
+            ORDER BY 
         """
     try:
         df = pd.read_sql(query, pr_db)
         NIC = df.iloc[2][1]
         IC = df.iloc[1][1]
-        A2 = df.iloc[0][1]
+        A2 = df.iloc[0,1]
+        logging.info(df)
+        return NIC, IC, A2
     except Exception:
         logging.error(traceback.print_exc())
-
-    return NIC, IC, A2
 
 
 def get_pallet_count_MC2(pr_db, mos_db, flow_steps, pallet_type=0, time_frame=12):
@@ -121,8 +122,8 @@ def get_pallet_count_MC2(pr_db, mos_db, flow_steps, pallet_type=0, time_frame=12
         for serial in serial_data:
             serials = serials + f"'{serial}',"
         serials = serials[:-1]
-    except Exception:
-        logging.error(traceback.print_exc())
+    except Exception as e:
+        logging.exception("Error occurred MC2 Query1")
 
     query2 = f"""
                     SELECT A.ModType, count(*) as Pallet_Count
