@@ -25,7 +25,7 @@ def main(env,eos=False):
         NORMAL_DIVISOR = 4
         MAMC_FLOWSTEP = 'MBM-25000'
         MAMC_LINE = 'MMAM'
-        C3A_FLOWSTEP = '3BM8-47000'
+        C3A_FLOWSTEP = '3BM8-44000'
         C3A_LINE = '3BM8'
 
         #create flowstep list
