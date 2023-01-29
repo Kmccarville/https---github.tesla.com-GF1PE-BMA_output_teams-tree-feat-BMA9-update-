@@ -37,12 +37,8 @@ def main(env,eos=False):
 
         mos_con.close()
 
-        mamc_outputs = []
-        c3a_outputs = []
-
-
-        mamc_outputs.append(helper_functions.get_output_val(df_output, MAMC_FLOWSTEP,MAMC_LINE))
-        c3a_outputs.append(helper_functions.get_output_val(df_output,C3A_FLOWSTEP,C3A_LINE))
+        mamc_outputs = helper_functions.get_output_val(df_output, MAMC_FLOWSTEP,MAMC_LINE)
+        c3a_outputs = helper_functions.get_output_val(df_output,C3A_FLOWSTEP,C3A_LINE)
 
         #create bma header
         bma_header_html = f"""<tr>
