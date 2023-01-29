@@ -31,7 +31,6 @@ def main(env,eos=False):
     #create mos connection
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     #get output for flowsteps
-    mamc_output = get_mamc_output(mos_con,start,end)
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
 
     mos_con.close()
