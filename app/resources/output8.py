@@ -6,6 +6,7 @@ import logging
 import numpy as np
 import pandas as pd
 import pymsteams
+import traceback
 
 def main(env,eos=False):
     #define start and end time for the hour
