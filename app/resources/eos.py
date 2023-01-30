@@ -1,6 +1,7 @@
 from common import helper_functions
 from resources import output123
 from resources import output45
+from resource import output8
 from resources import outputz3
 from resources import outputz4
 
@@ -16,14 +17,16 @@ def main(env):
     #test output in DEV
     try:
         eos_report(env,do_24=True)
+        output8.main(env,eos=True)
     except Exception:
         logging.error(traceback.print_exc())
-    
+
     it_is_eos,it_is_24 = helper_functions.is_it_eos_or_24()
     if it_is_eos:
         logging.info('Running End of Shift Report')
         output123.main(env,eos=True)
         output45.main(env,eos=True)
+        output8.main(env,eos=True)
         outputz3.main(env,eos=True)
         outputz4.main(env,eos=True)
         eos_report(env)
