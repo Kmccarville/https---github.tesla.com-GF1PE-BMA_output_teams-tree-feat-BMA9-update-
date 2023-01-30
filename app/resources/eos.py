@@ -49,7 +49,6 @@ def eos_report(env,do_24=False):
                                     'ZONE3'  : ['3BM-57000','3BM-57000','3BM-57000','3BM-57000','3BM-57000',''],
                                     'ZONE4'  : ['MC1-30000','MC2-28000','','','','']
                                     })
-    try:
     #get start and end of shift times
     now=datetime.utcnow()
     shift_end = now.replace(minute=00,second=00,microsecond=00)
