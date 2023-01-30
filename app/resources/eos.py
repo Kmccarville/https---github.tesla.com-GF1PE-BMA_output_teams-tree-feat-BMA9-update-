@@ -78,7 +78,11 @@ def eos_report(env,do_24=False):
 			z3_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['ZONE3']
 
 			cta_outputs.append(helper_functions.get_output_val(df_output,cta_flowstep,line))
-			mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,line))
+			#special case for 3BM8 mamc
+			if line == '3BM8':
+				mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,'MMAM'))
+			else:
+				mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,line))
 			mamc_296_outputs.append(helper_functions.get_output_val(df_output,mamc_296_flowstep,line))
 			c3a_outputs.append(helper_functions.get_output_val(df_output,c3a_flowstep,line))
 			z3_outputs.append(helper_functions.get_output_val(df_output,z3_flowstep,line))
