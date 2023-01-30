@@ -15,7 +15,7 @@ import traceback
 
 def main(env):
 	#test output in DEV
-	logging.info('Test Battery End of Shift. 24_Hour Value: %s' % do_24)
+	logging.info('Test Battery End of Shift')
 	try:
 		output8.main(env,eos=True)
 		eos_report(env)
