@@ -18,6 +18,7 @@ def main(env):
 	logging.info('Test Battery End of Shift. 24_Hour Value: %s' % do_24)
 	try:
 		output8.main(env,eos=True)
+		eos_report(env)
 		eos_report(env,do_24=True)
 	except Exception:
 		logging.error(traceback.print_exc())
