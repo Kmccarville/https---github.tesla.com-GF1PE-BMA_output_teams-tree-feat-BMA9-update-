@@ -1,7 +1,7 @@
 from common import helper_functions
 from resources import output123
 from resources import output45
-from resource import output8
+from resources import output8
 from resources import outputz3
 from resources import outputz4
 
