@@ -39,7 +39,7 @@ if __name__ == '__main__':
     scheduler_hourly.every().hour.at(":00").do(eos.main,env)
 
     #define alert scheduler
-    scheduler_alerts.every().hour.at(":05").do(cta45_ct.main,env)
+    scheduler_alerts.every().hour.at(":00").do(cta45_ct.main,env)
 
     if env == "dev":
         logging.info("Run all command executed")
