@@ -7,25 +7,6 @@ import numpy as np
 import pandas as pd
 import pymsteams
 
-def get_mmamc_output(db,start,end):
-    df = pd.DataFrame({})
-    while start < end:
-        start_next = start + timedelta(minutes=60)
-        query = f"""
-            SELECT count(distinct tp.thingid) as OUTPUT
-            FROM sparq.thingpath tp
-            WHERE
-                tp.flowstepname = 'MBM-25000'
-                AND tp.exitcompletioncode = 'PASS'
-                AND tp.completed BETWEEN '{start}' AND '{start_next}'    
-            """
-        df_sub = pd.read_sql(query,db)
-        df = pd.concat([df,df_sub],axis=0)
-        start += timedelta(minutes=60)
-
-    output = df['OUTPUT'].sum() if len(df) else 0 
-    return output
-
 def get_mamc_yield_table(start,end):
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     df = pd.DataFrame({})
@@ -200,7 +181,6 @@ def main(env,eos=False):
     #create mos connection
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     #get output for flowsteps
-    mmamc_output = get_mmamc_output(mos_con,start,end)
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)    
 
     mos_con.close()
@@ -224,15 +204,6 @@ def main(env,eos=False):
         cta2_outputs.append(helper_functions.get_output_val(df_output,CTA_FLOWSTEP,'3BM2',actor=f"3BM2-20000-{lane_num}"))
         cta3_outputs.append(helper_functions.get_output_val(df_output,CTA_FLOWSTEP,'3BM3',actor=f"3BM3-20000-{lane_num}"))
 
-    if mmamc_output > 0:
-        header_mmamc_str = """<th style="text-align:center">MMAMC</th>"""
-        blank_mmamc_str = """<td style="text-align:center">----</td>"""
-        output_mmamc_str = f"""<td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.2f}</td>"""
-    else:
-        header_mmamc_str = ""
-        blank_mmamc_str = ""
-        output_mmamc_str = ""
-
     mamc_outputs = np.add(mamc_295_outputs, mamc_296_outputs)
 
     total_cta_output = helper_functions.get_output_val(df_output,CTA_FLOWSTEP)
@@ -245,7 +216,6 @@ def main(env,eos=False):
             <th style="text-align:center">BMA1</th>
             <th style="text-align:center">BMA2</th>
             <th style="text-align:center">BMA3</th>
-            {header_mmamc_str}
             <th style="text-align:center">TOTAL</th>
             <th style="text-align:center"></th>
             <th style="text-align:center"></th>
@@ -261,7 +231,6 @@ def main(env,eos=False):
             <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.2f}</td>
             <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.2f}</td>
             <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.2f}</td>
-            {blank_mmamc_str}
             <td style="text-align:center"><strong>{total_cta_output/CTA_DIVISOR:.2f}</strong></td>
             <td style="text-align:center">||</td>
             <td style="text-align:center"><strong>CTA1</strong></td>
@@ -278,7 +247,6 @@ def main(env,eos=False):
             <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.2f}</td>
             <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.2f}</td>
             <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.2f}</td>
-            {output_mmamc_str}
             <td style="text-align:center"><strong>{(total_mamc_output+mmamc_output)/NORMAL_DIVISOR:.2f}</strong></td>
             <td style="text-align:center">||</td>
             <td style="text-align:center"><strong>CTA2</strong></td>
@@ -294,7 +262,6 @@ def main(env,eos=False):
             <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.2f}</td>
             <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.2f}</td>
             <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.2f}</td>
-            {blank_mmamc_str}
             <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.2f}</strong></td>
             <td style="text-align:center">||</td>
             <td style="text-align:center"><strong>CTA3</strong></td>
