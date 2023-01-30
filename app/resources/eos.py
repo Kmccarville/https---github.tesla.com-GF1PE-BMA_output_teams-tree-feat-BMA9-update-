@@ -16,8 +16,6 @@ import traceback
 def main(env):
 	#test output in DEV
 	logging.info('Test Battery End of Shift')
-
-	output8.main(env,eos=True)
 	eos_report(env)
 	eos_report(env,do_24=True)
 	# it_is_eos,it_is_24 = helper_functions.is_it_eos_or_24()
@@ -75,13 +73,13 @@ def eos_report(env,do_24=False):
 		for line in list(DF_FLOWSTEP['LINE']):
 			cta_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['CTA']
 			mamc_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['MAMC']
-			mmamc_296_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['MAMC_296']
+			mamc_296_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['MAMC_296']
 			c3a_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['C3A']
 			z3_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['ZONE3']
 
 			cta_outputs.append(helper_functions.get_output_val(df_output,cta_flowstep,line))
 			mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,line))
-			mamc_296_outputs.append(helper_functions.get_output_val(df_output,mmamc_296_flowstep,line))
+			mamc_296_outputs.append(helper_functions.get_output_val(df_output,mamc_296_flowstep,line))
 			c3a_outputs.append(helper_functions.get_output_val(df_output,c3a_flowstep,line))
 			z3_outputs.append(helper_functions.get_output_val(df_output,z3_flowstep,line))
 
@@ -154,7 +152,7 @@ def eos_report(env,do_24=False):
 				<td style="text-align:center">{mamc_outputs[3]/NORMAL_DIVISOR:.1f}</td>
 				<td style="text-align:center">{mamc_outputs[4]/NORMAL_DIVISOR:.1f}</td>
 				<td style="text-align:center">{mamc_outputs[5]/NORMAL_DIVISOR:.1f}</td>
-				<td style="text-align:center"><strong>{(total_mamc_ouput+mmamc_output)/NORMAL_DIVISOR:.1f}</strong></td>
+				<td style="text-align:center"><strong>{(total_mamc_ouput)/NORMAL_DIVISOR:.1f}</strong></td>
 				</tr>
 				"""
 		#create c3a output row
@@ -238,4 +236,4 @@ def eos_report(env,do_24=False):
 		#SEND IT
 		eos_msg.send()
 	except Exception:
-		logging.error(traceback.format_exc())
+		logging.exception('exception')
