@@ -1,6 +1,7 @@
 from common import helper_functions
 from resources import output123
 from resources import output45
+from resources import output8
 from resources import outputz3
 from resources import outputz4
 
@@ -10,6 +11,7 @@ import pymsteams
 from datetime import datetime
 from datetime import timedelta
 import logging
+import traceback
 
 def main(env):
     it_is_eos,it_is_24 = helper_functions.is_it_eos_or_24()
@@ -17,6 +19,7 @@ def main(env):
         logging.info('Running End of Shift Report')
         output123.main(env,eos=True)
         output45.main(env,eos=True)
+        output8.main(env,eos=True)
         outputz3.main(env,eos=True)
         outputz4.main(env,eos=True)
         eos_report(env)
@@ -30,15 +33,14 @@ def eos_report(env,do_24=False):
     CTA_DIVISOR = 28
     #define all flowsteps to be used
     DF_FLOWSTEP = pd.DataFrame({
-                                    'LINE' : ['3BM1','3BM2','3BM3','3BM4','3BM5'],
-                                    'CTA'  : ['3BM-20000','3BM-20000','3BM-20000','3BM4-25000','3BM5-25000'],
-                                    'MAMC'  : ['3BM-29500','3BM-29500','3BM-29500','3BM4-34000','3BM5-34000'],
-                                    'MAMC_296'  : ['3BM-29600','3BM-29600','3BM-29600','',''],
-                                    'C3A'  : ['3BM-40001','3BM-40001','3BM-40001','3BM4-45000','3BM5-45000'],
-                                    'ZONE3'  : ['3BM-57000','3BM-57000','3BM-57000','3BM-57000','3BM-57000'],
-                                    'ZONE4'  : ['MC1-30000','MC2-28000','','','']
+                                    'LINE' : ['3BM1','3BM2','3BM3','3BM4','3BM5','3BM8'],
+                                    'CTA'  : ['3BM-20000','3BM-20000','3BM-20000','3BM4-25000','3BM5-25000',''],
+                                    'MAMC'  : ['3BM-29500','3BM-29500','3BM-29500','3BM4-34000','3BM5-34000','MBM-25000'],
+                                    'MAMC_296'  : ['3BM-29600','3BM-29600','3BM-29600','','',''],
+                                    'C3A'  : ['3BM-40001','3BM-40001','3BM-40001','3BM4-45000','3BM5-45000','3BM8-44000'],
+                                    'ZONE3'  : ['3BM-57000','3BM-57000','3BM-57000','3BM-57000','3BM-57000',''],
+                                    'ZONE4'  : ['MC1-30000','MC2-28000','','','','']
                                     })
-
     #get start and end of shift times
     now=datetime.utcnow()
     shift_end = now.replace(minute=00,second=00,microsecond=00)
@@ -53,7 +55,6 @@ def eos_report(env,do_24=False):
 
     #loop through each hour over the 12 hour shift
     df_output = helper_functions.get_flowstep_outputs(mos_con,shift_start,shift_end,all_flows_list)
-    mmamc_output = output123.get_mmamc_output(mos_con,shift_start,shift_end)
     mos_con.close()
 
     #create lists for each zone output
@@ -67,30 +68,25 @@ def eos_report(env,do_24=False):
     for line in list(DF_FLOWSTEP['LINE']):
         cta_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['CTA']
         mamc_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['MAMC']
-        mmamc_296_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['MAMC_296']
+        mamc_296_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['MAMC_296']
         c3a_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['C3A']
         z3_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['ZONE3']
-        
+
         cta_outputs.append(helper_functions.get_output_val(df_output,cta_flowstep,line))
-        mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,line))
-        mamc_296_outputs.append(helper_functions.get_output_val(df_output,mmamc_296_flowstep,line))
+        #special case for 3BM8 mamc
+        if line == '3BM8':
+            mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,'MMAM'))
+        else:
+            mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,line))
+        mamc_296_outputs.append(helper_functions.get_output_val(df_output,mamc_296_flowstep,line))
         c3a_outputs.append(helper_functions.get_output_val(df_output,c3a_flowstep,line))
         z3_outputs.append(helper_functions.get_output_val(df_output,z3_flowstep,line))
-        
+
         #special if statement for MC1/MC2
         if line in ['3BM1','3BM2']:
             z4_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['ZONE4']
             mc_line = line.replace('3BM','MC')
             z4_outputs.append(helper_functions.get_output_val(df_output,z4_flowstep,mc_line))
-
-    if mmamc_output > 0:
-        header_mmamc_str = """<th style="text-align:center">MMAMC</th>"""
-        blank_mmamc_str = """<td style="text-align:center">----</td>"""
-        output_mmamc_str = f"""<td style="text-align:center">{mmamc_output/NORMAL_DIVISOR:.1f}</td>"""
-    else:
-        header_mmamc_str = ""
-        blank_mmamc_str = ""
-        output_mmamc_str = ""
 
     cta123_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['CTA']
     cta4_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM4'").iloc[0]['CTA']
@@ -100,10 +96,12 @@ def eos_report(env,do_24=False):
     mamc123_296_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['MAMC_296']
     mamc4_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM4'").iloc[0]['MAMC']
     mamc5_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM5'").iloc[0]['MAMC']
+    mamc8_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM8'").iloc[0]['MAMC']
 
     c3a123_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['C3A']
     c3a4_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM4'").iloc[0]['C3A']
     c3a5_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM5'").iloc[0]['C3A']
+    c3a8_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM8'").iloc[0]['C3A']
 
     z3_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['ZONE3']
     z4_mc1_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['ZONE4']
@@ -112,12 +110,12 @@ def eos_report(env,do_24=False):
     mamc_outputs = np.add(mamc_outputs,mamc_296_outputs)
 
     total_cta_ouput = helper_functions.get_output_val(df_output,cta123_flowstep) + helper_functions.get_output_val(df_output,cta4_flowstep) + helper_functions.get_output_val(df_output,cta5_flowstep)
-    total_mamc_ouput = helper_functions.get_output_val(df_output,mamc123_flowstep) + helper_functions.get_output_val(df_output,mamc123_296_flowstep) + helper_functions.get_output_val(df_output,mamc4_flowstep) + helper_functions.get_output_val(df_output,mamc5_flowstep)
-    total_c3a_output = helper_functions.get_output_val(df_output,c3a123_flowstep) + helper_functions.get_output_val(df_output,c3a4_flowstep) + helper_functions.get_output_val(df_output,c3a5_flowstep)
-
-    total_z3_output = helper_functions.get_output_val(df_output,z3_flowstep) 
+    total_mamc_ouput = helper_functions.get_output_val(df_output,mamc123_flowstep) + helper_functions.get_output_val(df_output,mamc123_296_flowstep) + helper_functions.get_output_val(df_output,mamc4_flowstep) + helper_functions.get_output_val(df_output,mamc5_flowstep) + helper_functions.get_output_val(df_output,mamc8_flowstep)
+    total_c3a_output = helper_functions.get_output_val(df_output,c3a123_flowstep) + helper_functions.get_output_val(df_output,c3a4_flowstep) + helper_functions.get_output_val(df_output,c3a5_flowstep) + helper_functions.get_output_val(df_output,c3a8_flowstep)
+    total_z3_output = helper_functions.get_output_val(df_output,z3_flowstep)
     total_z4_output = helper_functions.get_output_val(df_output,z4_mc1_flowstep) + helper_functions.get_output_val(df_output,z4_mc2_flowstep) 
 
+    blank_bma8_str = """<td style="text-align:center">----</td>"""
 
     #create bma header
     bma_header_html = f"""<tr>
@@ -127,10 +125,10 @@ def eos_report(env,do_24=False):
             <th style="text-align:center">BMA3</th>
             <th style="text-align:center">BMA4</th>
             <th style="text-align:center">BMA5</th>
-            {header_mmamc_str}
+            <th style="text-align:center">BMA8</th>
             <th style="text-align:center">TOTAL</th>
             </tr>
-    """
+            """
 
     #create cta output row
     cta_html = f"""<tr>
@@ -140,10 +138,10 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[3]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[4]/CTA_DIVISOR:.1f}</td>
-            {blank_mmamc_str}
+            {blank_bma8_str}
             <td style="text-align:center"><strong>{total_cta_ouput/CTA_DIVISOR:.1f}</strong></td>
             </tr>
-    """
+            """
     #create mamc output row
     mamc_html = f"""<tr>
             <td style="text-align:center"><strong>ZONE2 MAMC</strong></td>
@@ -152,10 +150,10 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[3]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[4]/NORMAL_DIVISOR:.1f}</td>
-            {output_mmamc_str}
-            <td style="text-align:center"><strong>{(total_mamc_ouput+mmamc_output)/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center">{mamc_outputs[5]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{(total_mamc_ouput)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
-    """
+            """
     #create c3a output row
     c3a_html = f"""<tr>
             <td style="text-align:center"><strong>ZONE2 C3A</strong></td>
@@ -164,10 +162,10 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[3]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[4]/NORMAL_DIVISOR:.1f}</td>
-            {blank_mmamc_str}
+            <td style="text-align:center">{c3a_outputs[5]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
-    """
+            """
 
     #create full bma html with the above htmls
     bma_html = '<table>' + bma_header_html + cta_html + mamc_html + c3a_html + '</table>'
@@ -193,7 +191,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center"><strong>{total_z3_output/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
             </table>
-    """
+            """
 
     #create z4 html
     z4_html = f"""<table>
@@ -210,7 +208,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center"><strong>{total_z4_output/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
             </table>
-    """
+            """
 
     #get webhook based on environment
     webhook_key = 'teams_webhook_end_of_shift' if env=='prod' else 'teams_webhook_DEV_Updates'
