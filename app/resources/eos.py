@@ -14,7 +14,6 @@ import logging
 import traceback
 
 def main(env):
-    output8.main(env,eos=True)
     it_is_eos,it_is_24 = helper_functions.is_it_eos_or_24()
     if it_is_eos:
         logging.info('Running End of Shift Report')
