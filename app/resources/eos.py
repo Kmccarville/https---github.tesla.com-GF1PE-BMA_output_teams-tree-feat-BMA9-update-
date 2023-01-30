@@ -238,4 +238,4 @@ def eos_report(env,do_24=False):
 		#SEND IT
 		eos_msg.send()
 	except Exception:
-		pring(traceback.format_exc())
+		print(traceback.format_exc())
