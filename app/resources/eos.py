@@ -74,23 +74,23 @@ def eos_report(env,do_24=False):
     z4_outputs = []
     #loop through lines and append outputs to each list
     for line in list(DF_FLOWSTEP['LINE']):
-            cta_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['CTA']
-            mamc_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['MAMC']
-            mmamc_296_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['MAMC_296']
-            c3a_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['C3A']
-            z3_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['ZONE3']
-            
-            cta_outputs.append(helper_functions.get_output_val(df_output,cta_flowstep,line))
-            mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,line))
-            mamc_296_outputs.append(helper_functions.get_output_val(df_output,mmamc_296_flowstep,line))
-            c3a_outputs.append(helper_functions.get_output_val(df_output,c3a_flowstep,line))
-            z3_outputs.append(helper_functions.get_output_val(df_output,z3_flowstep,line))
-            
-            #special if statement for MC1/MC2
-            if line in ['3BM1','3BM2']:
-                z4_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['ZONE4']
-                mc_line = line.replace('3BM','MC')
-                z4_outputs.append(helper_functions.get_output_val(df_output,z4_flowstep,mc_line))
+        cta_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['CTA']
+        mamc_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['MAMC']
+        mmamc_296_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['MAMC_296']
+        c3a_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['C3A']
+        z3_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['ZONE3']
+        
+        cta_outputs.append(helper_functions.get_output_val(df_output,cta_flowstep,line))
+        mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,line))
+        mamc_296_outputs.append(helper_functions.get_output_val(df_output,mmamc_296_flowstep,line))
+        c3a_outputs.append(helper_functions.get_output_val(df_output,c3a_flowstep,line))
+        z3_outputs.append(helper_functions.get_output_val(df_output,z3_flowstep,line))
+        
+        #special if statement for MC1/MC2
+        if line in ['3BM1','3BM2']:
+        z4_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['ZONE4']
+        mc_line = line.replace('3BM','MC')
+        z4_outputs.append(helper_functions.get_output_val(df_output,z4_flowstep,mc_line))
 
     cta123_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['CTA']
     cta4_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM4'").iloc[0]['CTA']
