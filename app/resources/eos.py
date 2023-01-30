@@ -129,7 +129,7 @@ def eos_report(env,do_24=False):
             <th style="text-align:center">BMA8</th>
             <th style="text-align:center">TOTAL</th>
             </tr>
-    """
+            """
 
     #create cta output row
     cta_html = f"""<tr>
@@ -142,7 +142,7 @@ def eos_report(env,do_24=False):
             {blank_bma8_str}
             <td style="text-align:center"><strong>{total_cta_ouput/CTA_DIVISOR:.1f}</strong></td>
             </tr>
-    """
+            """
     #create mamc output row
     mamc_html = f"""<tr>
             <td style="text-align:center"><strong>ZONE2 MAMC</strong></td>
@@ -154,7 +154,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{mamc_outputs[5]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{(total_mamc_ouput+mmamc_output)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
-    """
+            """
     #create c3a output row
     c3a_html = f"""<tr>
             <td style="text-align:center"><strong>ZONE2 C3A</strong></td>
@@ -166,7 +166,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{c3a_outputs[5]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
-    """
+            """
 
     #create full bma html with the above htmls
     bma_html = '<table>' + bma_header_html + cta_html + mamc_html + c3a_html + '</table>'
@@ -192,7 +192,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center"><strong>{total_z3_output/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
             </table>
-    """
+            """
 
     #create z4 html
     z4_html = f"""<table>
@@ -209,7 +209,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center"><strong>{total_z4_output/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
             </table>
-    """
+            """
 
     #get webhook based on environment
     webhook_key = 'teams_webhook_end_of_shift' if env=='prod' else 'teams_webhook_DEV_Updates'
