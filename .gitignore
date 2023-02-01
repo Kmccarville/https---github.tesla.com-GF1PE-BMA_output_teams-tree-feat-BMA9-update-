@@ -3,6 +3,7 @@ pass.txt
 passMaster.txt
 .vscode
 test.py
+*app/local*
 heartbeat.py
 gf1pe_prod_cred.json
 .venv

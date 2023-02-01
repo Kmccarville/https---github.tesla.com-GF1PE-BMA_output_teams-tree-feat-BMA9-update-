@@ -12,9 +12,16 @@ def file_reader(FilePath):
         contents = f.read()
         return contents
 
-with open(r'/app/secrets/credentials') as f:
-    pw_json = json.load(f)
-    f.close()
+try:
+    with open(r'/app/secrets/credentials') as f:
+        pw_json = json.load(f)
+        f.close()
+except:
+    with open('app\local_creds.py') as f:
+        pw_json = json.load(f)
+        pw_json = pw_json['credentials']
+        f.close()
+    pass
 
 def get_pw_json(key):
     return pw_json[key]

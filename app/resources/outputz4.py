@@ -3,8 +3,42 @@ from common import helper_functions
 from datetime import datetime
 from datetime import timedelta
 import logging
+from sqlalchemy import text
 import pandas as pd
 import pymsteams
+
+def get_mc1_pallets(db,lookback):
+    percent = '%'
+    query = f"""
+        SELECT
+        DISTINCT(PALLET_ID)
+        FROM pallet_record
+        WHERE line_id LIKE 'M3BM_MC_v1'
+        AND pallet_id NOT LIKE 'IC%'
+        AND (destination NOT LIKE '%NCM%' OR destination IS NULL)
+        AND last_request_time > DATE_SUB(NOW(), INTERVAL 2 HOUR)
+        """
+    df = pd.read_sql(text(query),db)
+    df_nic = df.loc[df['PALLET_ID'].str.contains('NIC')]
+    nic = len(df_nic)
+    ic = len(df) - nic
+    return nic,ic
+
+def get_mc2_pallets(db,tagpath):
+    query = f"""
+            SELECT sqlth84.intvalue
+            FROM rno_ia_taghistory_batterymodule.sqlth_84_data sqlth84
+            LEFT JOIN rno_ia_taghistory_batterymodule.sqlth_te te ON sqlth84.tagid = te.id
+            LEFT JOIN rno_ia_taghistory_batterymodule.sqlth_scinfo sc ON te.scid = sc.id
+            LEFT JOIN rno_ia_taghistory_batterymodule.sqlth_drv drv ON sc.drvid = drv.id
+            WHERE
+                te.tagpath = '{tagpath}'
+            ORDER BY t_stamp DESC
+            LIMIT 1
+            """
+    df = pd.read_sql(query,db)
+    count = df.get_value(0,'intvalue')
+    return count
 
 
 def get_starved_table(db, start, end):
@@ -57,29 +91,100 @@ def main(env, eos=False):
     start = now_sub1hr.replace(minute=00, second=00, microsecond=00)
     end = start + timedelta(hours=lookback)
 
+    mos_con = helper_functions.get_sql_conn('mos_rpt2')
+    pr_con = helper_functions.get_sql_conn('gf1_pallet_management',schema='gf1_pallet_management')
+    plc_con = helper_functions.get_sql_conn('plc_db')
+
+
     MC1_FLOWSTEP = 'MC1-30000'
     MC2_FLOWSTEP = 'MC2-28000'
-
     flowsteps = [MC1_FLOWSTEP, MC2_FLOWSTEP]
-    
-    mos_con = helper_functions.get_sql_conn('mos_rpt2')
-    plc_con = helper_functions.get_sql_conn('plc_db')
-    
     df_output = helper_functions.get_flowstep_outputs(mos_con, start, end, flowsteps)
     mc1_output = helper_functions.get_output_val(df_output, MC1_FLOWSTEP)
     mc2_output = helper_functions.get_output_val(df_output, MC2_FLOWSTEP)
     mic_total = mc1_output + mc2_output
+
+    # setup query constants
+    MC1_PALLET_LOOKBACK = 2 #HOURS
     
+    MC2_NIC1_TAGPATH = 'nic lanes/stscountlane4'
+    MC2_NIC2_TAGPATH = 'nic lanes/stscountlane1'
+    MC2_NIC3_TAGPATH = 'nic lanes/stscountlane2'
+    MC2_NIC4_TAGPATH = 'nic lanes/stscountlane3'
+    MC2_IC14_TAGPATH = 'TotalNumberCarriersLane1_4'
+    MC2_IC23_TAGPATH = 'TotalNumberCarriersLane2_3'
+
+    
+    #setup threshold constants
+    MC1_NIC_GREEN = 110
+    MC1_NIC_YELLOW = 100
+    MC1_IC_GREEN = 60
+    MC1_IC_YELLOW = 50
+
+    MC2_NIC_GREEN = 43
+    MC2_NIC_YELLOW = 40
+    MC2_IC_GREEN = 25
+    MC2_IC_YELLOW = 22
+
+
+    mc1_nic_pallets,mc1_ic_pallets = get_mc1_pallets(pr_con, MC1_PALLET_LOOKBACK)
+
+    mc2_nic1_pallets = get_mc2_pallets(plc_con , MC2_NIC1_TAGPATH)
+    mc2_nic2_pallets = get_mc2_pallets(plc_con , MC2_NIC2_TAGPATH)
+    mc2_nic3_pallets = get_mc2_pallets(plc_con , MC2_NIC3_TAGPATH)
+    mc2_nic4_pallets = get_mc2_pallets(plc_con , MC2_NIC4_TAGPATH)
+    mc2_nic14_pallets = mc2_nic1_pallets + mc2_nic4_pallets
+    mc2_nic23_pallets = mc2_nic2_pallets + mc2_nic3_pallets
+    mc2_ic14_pallets = get_mc2_pallets(plc_con , MC2_IC14_TAGPATH)
+    mc2_ic23_pallets = get_mc2_pallets(plc_con , MC2_IC23_TAGPATH)
+
+    if mc1_nic_pallets >= MC1_NIC_GREEN:
+        mc1_nic_color = 'green'
+    elif mc1_nic_pallets >= MC1_NIC_YELLOW:
+        mc1_nic_color = 'orange'
+    else: mc1_nic_color = 'red'
+
+    if mc1_ic_pallets >= MC1_IC_GREEN:
+        mc1_ic_color = 'green'
+    elif  mc1_ic_pallets >= MC1_IC_YELLOW:
+        mc1_ic_color = 'orange'
+    else: mc1_ic_color = 'red'
+
+    if mc2_nic14_pallets >= MC2_NIC_GREEN:
+        mc2_nic14_color = 'green'
+    elif mc2_nic14_pallets >= MC2_NIC_YELLOW:
+        mc2_nic14_color = 'orange'
+    else: mc2_nic14_color = 'red'
+
+    if mc2_nic23_pallets >= MC2_NIC_GREEN:
+        mc2_nic23_color = 'green'
+    elif mc2_nic23_pallets >= MC2_NIC_YELLOW:
+        mc2_nic23_color = 'orange'
+    else: mc2_nic23_color = 'red'
+
+    if mc2_ic14_pallets >= MC2_IC_GREEN:
+        mc2_ic14_color = 'green'
+    elif mc2_ic14_pallets >= MC2_IC_YELLOW:
+        mc2_ic14_color = 'orange'
+    else: mc2_ic14_color = 'red'
+
+    if mc2_ic23_pallets >= MC2_IC_GREEN:
+        mc2_ic23_color = 'green'
+    elif mc2_ic23_pallets >= MC2_IC_YELLOW:
+        mc2_ic23_color = 'orange'
+    else: mc2_ic23_color = 'red'
+
     starve_table = get_starved_table(plc_con, start, end)  # pull starvation data
-    
+
     mos_con.close()
     plc_con.close()
+    pr_con.close()
 
     # Setup teams output table
     title = 'Zone 4 Hourly Update'
     html = f"""<table>
             <tr>
-                <th style="text-align:right">LINE</th>
+                <th style="text-align:right"></th>
                 <th style="text-align:center">UPH</th>
             </tr>
             <tr>
@@ -95,7 +200,46 @@ def main(env, eos=False):
                 <td style="text-align:left"><b>{mic_total/4:.1f}</b></td>
             </tr>
             </table>"""
-
+    na_html = "---"
+    pallet_html = f"""
+                <tr>
+                    <th style="text-align:right"></th>
+                    <th style="text-align:center">NIC</th>
+                    <th style="text-align:center">IC</th>
+                    <th style="text-align:center">NIC 1_4</th>
+                    <th style="text-align:center">NIC 2_3</th>
+                    <th style="text-align:center">IC 1_4</th>
+                    <th style="text-align:center">IC 2_3</th>
+                </tr>
+                <tr>
+                    <td style="text-align:right"><strong>MC1</strong></td>
+                    <td <td style="text-align:center;color:{mc1_nic_color}">{mc1_nic_pallets}</td>
+                    <td <td style="text-align:center;color:{mc1_ic_color}">{mc1_ic_pallets}</td>
+                    <td <td style="text-align:center">{na_html}</td>
+                    <td <td style="text-align:center">{na_html}</td>
+                    <td <td style="text-align:center">{na_html}</td>
+                    <td <td style="text-align:center">{na_html}</td>
+                </tr>
+                <tr>
+                    <td style="text-align:right"><strong>MC2</strong></td>
+                    <td <td style="text-align:center">{na_html}</td>
+                    <td <td style="text-align:center">{na_html}</td>
+                    <td <td style="text-align:center;color:{mc2_nic14_color}">{mc2_nic14_pallets} ({mc2_nic1_pallets}+{mc2_nic4_pallets})</td>
+                    <td <td style="text-align:center;color:{mc2_nic23_color}">{mc2_nic23_pallets} ({mc2_nic2_pallets}+{mc2_nic3_pallets})</td>
+                    <td <td style="text-align:center;color:{mc2_ic14_color}">{mc2_ic14_pallets}</td>
+                    <td <td style="text-align:center;color:{mc2_ic23_color}">{mc2_ic23_pallets}</td>
+                </tr>
+                <tr>
+                    <td style="text-align:right"><strong>GOAL</strong></td>
+                    <td <td style="text-align:center">{MC1_NIC_GREEN}</td>
+                    <td <td style="text-align:center">{MC1_IC_GREEN}</td>
+                    <td <td style="text-align:center">{MC2_NIC_GREEN}</td>
+                    <td <td style="text-align:center">{MC2_NIC_GREEN}</td>
+                    <td <td style="text-align:center">{MC2_IC_GREEN}</td>
+                    <td <td style="text-align:center">{MC2_IC_GREEN}</td>
+                </tr>
+                """
+    pallet_html = "<table>" + "<caption><u>Pallet Count</u></caption>" + pallet_html + "</table>"
     # Setup teams starvation table
     starved_html = "<table>" + "<caption><u>MTR Starvation</u></caption>" + starve_table + "</table>"
 
@@ -118,6 +262,10 @@ def main(env, eos=False):
     output_card = pymsteams.cardsection()
     output_card.text(html)
     teams_msg.addSection(output_card)
+    # create cards for pallet counts
+    pallet_card = pymsteams.cardsection()
+    pallet_card.text(pallet_html)
+    teams_msg.addSection(pallet_card)
     # make a card with starvation data
     starved_card = pymsteams.cardsection()
     starved_card.text(starved_html)
