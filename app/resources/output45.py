@@ -1,4 +1,3 @@
-from common.db import db_connector
 import common.helper_functions as helper_functions
 from datetime import datetime
 from datetime import timedelta
