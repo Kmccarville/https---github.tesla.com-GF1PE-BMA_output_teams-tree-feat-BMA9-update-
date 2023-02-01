@@ -6,6 +6,51 @@ import logging
 import pandas as pd
 import pymsteams
 
+def get_mc1_pallets(db,lookback):
+    # queryIC = f'''
+    #         SELECT  COUNT(*)
+    #         FROM pallet_record
+    #         WHERE line_id LIKE 'M3BM_MC_v1'
+    #         AND pallet_id NOT LIKE '%IC%'
+    #         AND (destination NOT LIKE '%NCM%' OR destination IS NULL)
+    #         AND last_request_time > DATE_SUB(NOW(), INTERVAL {lookback} HOUR)    
+    # '''
+    # queryNIC = f'''
+    #         SELECT  COUNT(*)
+    #         FROM pallet_record
+    #         WHERE line_id LIKE 'M3BM_MC_v1'
+    #         AND pallet_id NOT LIKE '%IC%'
+    #         AND (destination NOT LIKE '%NCM%' OR destination IS NULL)
+    #         AND last_request_time > DATE_SUB(NOW(), INTERVAL {lookback} HOUR)
+    # '''
+    query = f'''
+            SELECT  
+            DISTINCT(PALLET_ID)
+            FROM pallet_record
+            WHERE line_id LIKE 'M3BM_MC_v1'
+            AND pallet_id NOT LIKE 'IC%'
+            AND (destination NOT LIKE '%NCM%' OR destination IS NULL)
+            AND last_request_time > DATE_SUB(NOW(), INTERVAL {lookback} HOUR)
+            '''
+    df = pd.read_sql(query,db)
+    return ic,nic
+
+def get_mc2_pallets(db,tagpath):
+    query = f'''
+            SELECT sqlth84.intvalue,
+            FROM sqlth_84_data sqlth84
+            LEFT JOIN sqlth_te te ON sqlth84.tagid = te.id
+            LEFT JOIN sqlth_scinfo sc ON te.scid = sc.id
+            LEFT JOIN sqlth_drv drv ON sc.drvid = drv.id
+            WHERE
+                te.tagpath = '{tagpath}'
+            ORDER BY t_stamp DESC
+            LIMIT 1
+            '''
+    df = pd.read_sql(query,db)
+    count = df.get_value(0,'intvalue')
+    return count
+
 
 def get_starved_table(db, start, end):
     pi_paths = [
@@ -57,21 +102,31 @@ def main(env, eos=False):
     start = now_sub1hr.replace(minute=00, second=00, microsecond=00)
     end = start + timedelta(hours=lookback)
 
+    mos_con = helper_functions.get_sql_conn('mos_rpt2')
+    pr_con = helper_functions.get_sql_conn('gf1_pallet_management')
+    plc_con = helper_functions.get_sql_conn('plc_db')
+
+
     MC1_FLOWSTEP = 'MC1-30000'
     MC2_FLOWSTEP = 'MC2-28000'
-
     flowsteps = [MC1_FLOWSTEP, MC2_FLOWSTEP]
-    
-    mos_con = helper_functions.get_sql_conn('mos_rpt2')
-    plc_con = helper_functions.get_sql_conn('plc_db')
-    
     df_output = helper_functions.get_flowstep_outputs(mos_con, start, end, flowsteps)
     mc1_output = helper_functions.get_output_val(df_output, MC1_FLOWSTEP)
     mc2_output = helper_functions.get_output_val(df_output, MC2_FLOWSTEP)
     mic_total = mc1_output + mc2_output
-    
+
+    MC1_PALLET_LOOKBACK = 2 #HOURS
+    MC2_NIC1_TAGPATH = 'nic lanes/stscountlane4'
+    MC2_NIC2_TAGPATH = 'nic lanes/stscountlane1'
+    MC2_NIC3_TAGPATH = 'nic lanes/stscountlane2'
+    MC2_NIC1_TAGPATH = 'nic lanes/stscountlane3'
+
+    df_mc1_pallets = get_mc1_pallets(pr_con, MC1_PALLET_LOOKBACK)
+    mc1_ic_pallets = 
+
     starve_table = get_starved_table(plc_con, start, end)  # pull starvation data
-    
+
+
     mos_con.close()
     plc_con.close()
 
