@@ -452,7 +452,7 @@ def main(env,eos=False):
                     <td style="text-align:center"><b>{total_output}</b></td>
                 </tr>
                 <tr>
-                    <td style="text-align:left"><b>Empty Bonders</b></td>
+                    <td style="text-align:left"><b>Open Bonders</b></td>
                     <td style="text-align:center">{l1_empty_spots}</td>
                     <td style="text-align:center">{l2_empty_spots}</td>
                     <td style="text-align:center">{l3_empty_spots}</td>
