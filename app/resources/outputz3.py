@@ -370,6 +370,21 @@ def get_starved_table(db,start,end):
         """
     return html
 
+def get_empty_bonders(db,tagpath):
+    query = f"""
+            SELECT sqlth54.intvalue
+            FROM rno_ia_taghistory_batterymodule.sqlth_54_data sqlth54
+            LEFT JOIN rno_ia_taghistory_batterymodule.sqlth_te te ON sqlth54.tagid = te.id
+            LEFT JOIN rno_ia_taghistory_batterymodule.sqlth_scinfo sc ON te.scid = sc.id
+            LEFT JOIN rno_ia_taghistory_batterymodule.sqlth_drv drv ON sc.drvid = drv.id
+            WHERE
+                te.tagpath = '{tagpath}'
+            ORDER BY t_stamp DESC
+            LIMIT 1
+            """
+    df = pd.read_sql(query,db)
+    count = df.get_value(0,'intvalue')
+    return count
 
 def main(env,eos=False):
     #begin by defining timestamps
@@ -393,6 +408,18 @@ def main(env,eos=False):
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
     starve_table = get_starved_table(plc_con,start,end)
     mttr_df = get_mttr_df(env,eos,ict_con,start,end)
+
+    #get empty bonder spots
+    L1_EMPTY_TAGPATH = '02/_Summary/line1free'
+    L2_EMPTY_TAGPATH = '02/_Summary/line2free'
+    L3_EMPTY_TAGPATH = '02/_Summary/line3free'
+    L4_EMPTY_TAGPATH = '02/_Summary/line4free'
+    L5_EMPTY_TAGPATH = '02/_Summary/line5free'
+    l1_empty_spots = get_empty_bonders(plc_con,L1_EMPTY_TAGPATH)
+    l2_empty_spots = get_empty_bonders(plc_con,L2_EMPTY_TAGPATH)
+    l3_empty_spots = get_empty_bonders(plc_con,L3_EMPTY_TAGPATH)
+    l4_empty_spots = get_empty_bonders(plc_con,L4_EMPTY_TAGPATH)
+    l5_empty_spots = get_empty_bonders(plc_con,L5_EMPTY_TAGPATH)
 
     mos_con.close()
     plc_con.close()
@@ -423,6 +450,15 @@ def main(env,eos=False):
                     <td style="text-align:center">{output4}</td>
                     <td style="text-align:center">{output5}</td>
                     <td style="text-align:center"><b>{total_output}</b></td>
+                </tr>
+                <tr>
+                    <td style="text-align:left"><b>Empty Bonders</b></td>
+                    <td style="text-align:center">{l1_empty_spots}</td>
+                    <td style="text-align:center">{l2_empty_spots}</td>
+                    <td style="text-align:center">{l3_empty_spots}</td>
+                    <td style="text-align:center">{l4_empty_spots}</td>
+                    <td style="text-align:center">{l5_empty_spots}</td>
+                    <td style="text-align:center"><b>---</b></td>
                 </tr>
                 """
 
