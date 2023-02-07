@@ -273,5 +273,13 @@ def main(env, eos=False):
     # add a link to the confluence page
     teams_msg.addLinkButton("Questions?",
                             "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
-    # SEND IT
-    teams_msg.send()
+    #SEND IT
+    try:
+        teams_msg.send()
+    except Timeout:
+        logging.info("Webhook timed out, retry once")
+        try:
+            teams_msg.send()
+        except Timeout:
+            logging.info("Webhook timeded out twice -- pass to next area")
+            pass
