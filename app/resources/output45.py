@@ -93,7 +93,6 @@ def get_cta_yield(db,lookback):
         GROUP BY 1
         ORDER BY 1 ASC    """
     df = pd.read_sql(text(query), db)
-    print(df)
     return df
 
 def main(env,eos=False):
