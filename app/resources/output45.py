@@ -2,6 +2,7 @@ import common.helper_functions as helper_functions
 from datetime import datetime
 from datetime import timedelta
 import logging
+from sqlalchemy import text
 import pandas as pd
 import pymsteams
 
@@ -65,6 +66,36 @@ def get_blocked_table(start_time,end_time):
         """
     return html
 
+def get_cta_yield(db,lookback):
+    query = f"""
+        SELECT  
+        a.name as LINE
+            ,COUNT(DISTINCT(tp.thingid)) AS BUILT
+            ,COUNT(DISTINCT(nc.thingid)) AS NC
+            ,left((COUNT(DISTINCT tp.thingid) - COUNT(DISTINCT nc.thingid))*100/COUNT(DISTINCT tp.thingid) ,4) AS YIELD
+        FROM sparq.thingpath tp force index
+        (ix_thingpath_flowstepid_iscurrent_completed
+        )
+        INNER JOIN sparq.actor a
+        ON a.id = tp.actorcreatedby
+        LEFT JOIN
+        (
+            SELECT *
+            FROM nc
+            WHERE processname IN ('3bm4-bandolier', '3bm5-bandolier')
+            AND flowstepname not IN ('3bm4-25500', '3bm5-25500')
+            AND stepname IN ('3bm4-22000', '3bm4-24000', '3bm4-25000', '3bm5-22000', '3bm5-24000', '3bm5-25000')
+        ) AS nc
+        ON nc.thingid = tp.thingid
+        WHERE tp.completed > NOW() - INTERVAL {lookback} HOUR
+        AND tp.iscurrent = 0
+        AND tp.flowstepid IN (891483, 891496)
+        GROUP BY 1
+        ORDER BY 1 ASC    """
+    df = pd.read_sql(text(query), db)
+    print(df)
+    return df
+
 def main(env,eos=False):
     logging.info("output45 start %s" % datetime.utcnow())
     lookback=12 if eos else 1
@@ -87,15 +118,19 @@ def main(env,eos=False):
         flowsteps.append(f"{line}-{MAMC_FLOWSTEP_END}")
         flowsteps.append(f"{line}-{C3A_FLOWSTEP_END}")
 
-    mos_con = helper_functions.get_sql_conn('mos_rpt2')
+    mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
+    if eos:
+        df_cta_yield = get_cta_yield(mos_con,lookback)
     mos_con.close()
 
     cta_outputs = []
     mamc_outputs = []
     c3a_outputs = []
     cta4_outputs = []
+    cta4_yield = []
     cta5_outputs = []
+    cta5_yield = []
     for line in LINES:
         cta_outputs.append(helper_functions.get_output_val(df_output,f"{line}-{CTA_FLOWSTEP_END}",line))
         mamc_outputs.append(helper_functions.get_output_val(df_output,f"{line}-{MAMC_FLOWSTEP_END}",line))
@@ -105,6 +140,10 @@ def main(env,eos=False):
         lane_num = str(lane).zfill(2)
         cta4_outputs.append(helper_functions.get_output_val(df_output,f"3BM4-{CTA_FLOWSTEP_END}",'3BM4',actor=f"3BM4-20000-{lane_num}"))
         cta5_outputs.append(helper_functions.get_output_val(df_output,f"3BM5-{CTA_FLOWSTEP_END}",'3BM5',actor=f"3BM5-20000-{lane_num}"))
+        if eos:
+            cta4_yield.append(helper_functions.get_val(df_cta_yield, f"3BM4-20000-{lane_num}",'LINE','YIELD'))
+            cta5_yield.append(helper_functions.get_val(df_cta_yield, f"3BM5-20000-{lane_num}",'LINE','YIELD'))
+
 
     total_cta4_output = helper_functions.get_output_val(df_output,f"3BM4-{CTA_FLOWSTEP_END}")
     total_mamc4_output = helper_functions.get_output_val(df_output,f"3BM4-{MAMC_FLOWSTEP_END}")
@@ -165,13 +204,24 @@ def main(env,eos=False):
 
     cta4_html = """
                 <tr>
-                   <td style="text-align:left"><strong>CTA4</strong></td>
+                   <td style="text-align:right"><strong>CTA4</strong></td>
                 """
+    cta4_yield_html = """
+                <tr>
+                   <td style="text-align:right">YIELD %</strong></td>
+                """
+
     cta5_html = """
             <tr>
-            <td style="text-align:left"><strong>CTA5</strong></td>
+            <td style="text-align:right"><strong>CTA5</strong></td>
             <td style="text-align:center">---</td>
             """
+    cta5_yield_html = """
+            <tr>
+            <td style="text-align:right">YIELD %</strong></td>
+            <td style="text-align:center">---</td>
+            """
+
 
     CTA_LANE_GOAL = 3.5
     eos_multiplier = 12 if eos else 1
@@ -183,6 +233,11 @@ def main(env,eos=False):
         cta4_html += f"""
                     <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.1f}</td>
                     """
+        if eos:
+            cta4_yield_html += f"""
+                        <td style="text-align:center;{color_str}">{cta4_yield[i]}</td>
+                        """
+
         #cta5 - ignore first index
         if i > 0:
             # color_str = "color:red;" if cta5_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
@@ -190,11 +245,22 @@ def main(env,eos=False):
             cta5_html += f"""
                         <td style="text-align:center;{color_str}">{cta5_outputs[i]/CTA_DIVISOR:.1f}</td>
                         """
+            if eos:
+                cta5_yield_html += f"""
+                            <td style="text-align:center;{color_str}">{cta5_yield[i]}</td>
+                            """
+
 
     cta4_html += "</tr>"
+    cta4_yield_html += "</tr>"
     cta5_html += "</tr>"
-    
-    cta_html = '<table>' + "<caption>CTA Breakdown</caption>" + cta_header_html + cta4_html + cta5_html + '</table>'
+    cta4_yield_html += "</tr>"
+
+    if eos:
+        cta_html = '<table>' + "<caption>CTA Breakdown</caption>" + cta_header_html + cta4_html + cta4_yield_html + cta5_html + cta5_yield_html + '</table>'
+    else:
+        cta_html = '<table>' + "<caption>CTA Breakdown</caption>" + cta_header_html + cta4_html + cta5_html + '</table>'
+
     mamc_starved_html = get_starve_block_table(start,end)
     # cta_blocked_html = get_blocked_table(start,end)
     tsm_header_html = """
