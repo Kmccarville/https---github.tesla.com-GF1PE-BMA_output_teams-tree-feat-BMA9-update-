@@ -24,9 +24,13 @@ def get_mamc_output(db,flowstep,start,end):
         GROUP BY  1
     """
     df = pd.read_sql(query,db)
-    total = df.get_value(0,'TOTAL')
-    ncs = df.get_value(0,'NCs')
-    good = total - ncs
+    if len(df) > 0:
+        total = df.get_value(0,'TOTAL')
+        ncs = df.get_value(0,'NCs')
+        good = total - ncs
+    else:
+        good = 0
+        ncs = 0
     return good,ncs
 
 def main(env,eos=False):
