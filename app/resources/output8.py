@@ -23,6 +23,15 @@ def get_mamc_output(db,flowstep,start,end):
         AND tp.completed between '{start}' and '{end}'
         GROUP BY  1
     """
+    query_nc=f"""
+        select count(distinct nc.thingid) from thingpath tp
+        inner join nc on nc.thingid = tp.thingid
+        where tp.completed between '{start}' and '{end}'
+        and tp.flowstepid = 1023527
+        and nc.detectedatstepid = '268859'
+        and tp.iscurrent = 0
+    """
+    logging.info(query)
     df = pd.read_sql(query,db)
     if len(df) > 0:
         total = df.get_value(0,'TOTAL')
