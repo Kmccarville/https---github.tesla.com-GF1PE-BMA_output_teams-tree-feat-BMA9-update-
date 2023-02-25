@@ -37,29 +37,6 @@ def main(env,eos=False):
     logging.info(str(start))
     logging.info(str(end))
 
-
-    # #define globals
-    # NORMAL_DIVISOR = 4
-    # MAMC_FLOWSTEP = 'MBM-25000'
-    # MAMC_LINE = 'MMAM'
-    # C3A_FLOWSTEP = '3BM8-44000'
-    # C3A_LINE = '3BM8'
-
-    # #create flowstep list
-    # flowsteps = [MAMC_FLOWSTEP,C3A_FLOWSTEP]
-    # #create mos connection
-    # mos_con = helper_functions.get_sql_conn('mos_rpt2')
-    # #get output for flowsteps
-    # df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
-
-    # mos_con.close()
-
-    # mamc_outputs = helper_functions.get_output_val(df_output, MAMC_FLOWSTEP,MAMC_LINE)
-    # c3a_outputs = helper_functions.get_output_val(df_output,C3A_FLOWSTEP,C3A_LINE)
-
-
-
-
     #define globals
     NORMAL_DIVISOR = 4
     MAMC_FLOWSTEP = 'MBM-25000'
