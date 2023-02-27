@@ -8,6 +8,7 @@ from common import helper_functions
 from resources import output123
 from resources import yield123
 from resources import output45
+from resources import outputz1
 from resources import output8
 from resources import outputz3
 from resources import outputz4
@@ -31,6 +32,7 @@ if __name__ == '__main__':
     #define hourly scheduler
     scheduler_hourly.every().hour.at(":00").do(output123.main,env)
     scheduler_hourly.every().hour.at(":00").do(output45.main,env)
+    scheduler_hourly.every().hour.at(":00").do(outputz1.main,env)
     scheduler_hourly.every().hour.at(":00").do(output8.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz3.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz4.main,env)

@@ -66,35 +66,6 @@ def get_blocked_table(start_time,end_time):
         """
     return html
 
-def get_cta_yield(db,lookback):
-    query = f"""
-        SELECT  
-        a.name as LINE
-            ,COUNT(DISTINCT(tp.thingid)) AS BUILT
-            ,COUNT(DISTINCT(nc.thingid)) AS NC
-            ,left((COUNT(DISTINCT tp.thingid) - COUNT(DISTINCT nc.thingid))*100/COUNT(DISTINCT tp.thingid) ,4) AS YIELD
-        FROM sparq.thingpath tp force index
-        (ix_thingpath_flowstepid_iscurrent_completed
-        )
-        INNER JOIN sparq.actor a
-        ON a.id = tp.actorcreatedby
-        LEFT JOIN
-        (
-            SELECT *
-            FROM nc
-            WHERE processname IN ('3bm4-bandolier', '3bm5-bandolier')
-            AND flowstepname not IN ('3bm4-25500', '3bm5-25500')
-            AND stepname IN ('3bm4-22000', '3bm4-24000', '3bm4-25000', '3bm5-22000', '3bm5-24000', '3bm5-25000')
-        ) AS nc
-        ON nc.thingid = tp.thingid
-        WHERE tp.completed > NOW() - INTERVAL {lookback} HOUR
-        AND tp.iscurrent = 0
-        AND tp.flowstepid IN (891483, 891496)
-        GROUP BY 1
-        ORDER BY 1 ASC    """
-    df = pd.read_sql(text(query), db)
-    return df
-
 def main(env,eos=False):
     logging.info("output45 start %s" % datetime.utcnow())
     lookback=12 if eos else 1
@@ -105,50 +76,29 @@ def main(env,eos=False):
 
     #define globals
     NORMAL_DIVISOR = 4
-    CTA_DIVISOR = 28
-    CTA_FLOWSTEP_END = '25000'
     MAMC_FLOWSTEP_END= '34000'
     C3A_FLOWSTEP_END = '45000'
     LINES = ['3BM4','3BM5']
 
     flowsteps = []
     for line in LINES:
-        flowsteps.append(f"{line}-{CTA_FLOWSTEP_END}")
         flowsteps.append(f"{line}-{MAMC_FLOWSTEP_END}")
         flowsteps.append(f"{line}-{C3A_FLOWSTEP_END}")
 
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
-    if eos:
-        df_cta_yield = get_cta_yield(mos_con,lookback)
+
     mos_con.close()
 
-    cta_outputs = []
     mamc_outputs = []
     c3a_outputs = []
-    cta4_outputs = []
-    cta4_yield = []
-    cta5_outputs = []
-    cta5_yield = []
     for line in LINES:
-        cta_outputs.append(helper_functions.get_output_val(df_output,f"{line}-{CTA_FLOWSTEP_END}",line))
         mamc_outputs.append(helper_functions.get_output_val(df_output,f"{line}-{MAMC_FLOWSTEP_END}",line))
         c3a_outputs.append(helper_functions.get_output_val(df_output,f"{line}-{C3A_FLOWSTEP_END}",line))
 
-    for lane in range(1,9):
-        lane_num = str(lane).zfill(2)
-        cta4_outputs.append(helper_functions.get_output_val(df_output,f"3BM4-{CTA_FLOWSTEP_END}",'3BM4',actor=f"3BM4-20000-{lane_num}"))
-        cta5_outputs.append(helper_functions.get_output_val(df_output,f"3BM5-{CTA_FLOWSTEP_END}",'3BM5',actor=f"3BM5-20000-{lane_num}"))
-        if eos:
-            cta4_yield.append(helper_functions.get_val(df_cta_yield, f"3BM4-20000-{lane_num}",'LINE','YIELD'))
-            cta5_yield.append(helper_functions.get_val(df_cta_yield, f"3BM5-20000-{lane_num}",'LINE','YIELD'))
-
-
-    total_cta4_output = helper_functions.get_output_val(df_output,f"3BM4-{CTA_FLOWSTEP_END}")
     total_mamc4_output = helper_functions.get_output_val(df_output,f"3BM4-{MAMC_FLOWSTEP_END}")
     total_c3a4_output = helper_functions.get_output_val(df_output,f"3BM4-{C3A_FLOWSTEP_END}")
 
-    total_cta5_output = helper_functions.get_output_val(df_output,f"3BM5-{CTA_FLOWSTEP_END}")
     total_mamc5_output = helper_functions.get_output_val(df_output,f"3BM5-{MAMC_FLOWSTEP_END}")
     total_c3a5_output = helper_functions.get_output_val(df_output,f"3BM5-{C3A_FLOWSTEP_END}")
 
@@ -158,14 +108,6 @@ def main(env,eos=False):
             <th style="text-align:center">BMA4</th>
             <th style="text-align:center">BMA5</th>
             <th style="text-align:center">TOTAL</th>
-            </tr>
-    """
-    #create cta output row
-    cta_output_html = f"""<tr>
-            <td style="text-align:center"><strong>CTA</strong></td>
-            <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center"><strong>{(total_cta4_output+total_cta5_output)/CTA_DIVISOR:.1f}</strong></td>
             </tr>
     """
     #create mamc output row
@@ -185,83 +127,9 @@ def main(env,eos=False):
             </tr>
     """
     #create full bma html with the above htmls
-    bma_html = '<table>' + bma_header_html + cta_output_html + mamc_output_html + c3a_output_html + '</table>'
-
-    #create cta header
-    cta_header_html = """<tr>
-                        <th style="text-align:center"></th>
-                        <th style="text-align:center">Ln1</th>
-                        <th style="text-align:center">Ln2</th>
-                        <th style="text-align:center">Ln3</th>
-                        <th style="text-align:center">Ln4</th>
-                        <th style="text-align:center">Ln5</th>
-                        <th style="text-align:center">Ln6</th>
-                        <th style="text-align:center">Ln7</th>
-                        <th style="text-align:center">Ln8</th>
-                        </tr>
-                    """
-
-    cta4_html = """
-                <tr>
-                   <td style="text-align:right"><strong>CTA4</strong></td>
-                """
-    cta4_yield_html = """
-                <tr>
-                   <td style="text-align:right">YIELD %</strong></td>
-                """
-
-    cta5_html = """
-            <tr>
-            <td style="text-align:right"><strong>CTA5</strong></td>
-            <td style="text-align:center">---</td>
-            """
-    cta5_yield_html = """
-            <tr>
-            <td style="text-align:right">YIELD %</strong></td>
-            <td style="text-align:center">---</td>
-            """
-
-
-    CTA_LANE_GOAL = 3.5
-    eos_multiplier = 12 if eos else 1
-    goal = CTA_LANE_GOAL * eos_multiplier
-    for i,val in enumerate(cta4_outputs):
-        #cta4
-        # color_str = "color:red;" if val/CTA_DIVISOR < goal else "font-weight:bold;"
-        color_str = ""
-        cta4_html += f"""
-                    <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.1f}</td>
-                    """
-        if eos:
-            cta4_yield_html += f"""
-                        <td style="text-align:center;{color_str}">{cta4_yield[i]}</td>
-                        """
-
-        #cta5 - ignore first index
-        if i > 0:
-            # color_str = "color:red;" if cta5_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
-            color_str = ""
-            cta5_html += f"""
-                        <td style="text-align:center;{color_str}">{cta5_outputs[i]/CTA_DIVISOR:.1f}</td>
-                        """
-            if eos:
-                cta5_yield_html += f"""
-                            <td style="text-align:center;{color_str}">{cta5_yield[i]}</td>
-                            """
-
-
-    cta4_html += "</tr>"
-    cta4_yield_html += "</tr>"
-    cta5_html += "</tr>"
-    cta4_yield_html += "</tr>"
-
-    if eos:
-        cta_html = '<table>' + "<caption>CTA Breakdown</caption>" + cta_header_html + cta4_html + cta4_yield_html + cta5_html + cta5_yield_html + '</table>'
-    else:
-        cta_html = '<table>' + "<caption>CTA Breakdown</caption>" + cta_header_html + cta4_html + cta5_html + '</table>'
+    bma_html = '<table>' + bma_header_html + mamc_output_html + c3a_output_html + '</table>'
 
     mamc_starved_html = get_starve_block_table(start,end)
-    # cta_blocked_html = get_blocked_table(start,end)
     tsm_header_html = """
                         <tr>
                         <td></td>
@@ -278,7 +146,7 @@ def main(env,eos=False):
     
     #making the hourly teams message
     teams_msg = pymsteams.connectorcard(webhook)
-    title = 'BMA45 EOS Report' if eos else 'BMA45 Hourly Update'
+    title = 'BMA45 ZONE2 EOS Report' if eos else 'BMA45 ZONE2 Hourly Update'
     teams_msg.title(title)
     teams_msg.summary('summary')
     K8S_BLUE = '#3970e4'
@@ -289,14 +157,10 @@ def main(env,eos=False):
     summary_card = pymsteams.cardsection()
     summary_card.text(bma_html)
 
-    cta_card = pymsteams.cardsection()
-    cta_card.text(cta_html)
-
     tsm_card = pymsteams.cardsection()
     tsm_card.text(tsm_html)
 
     teams_msg.addSection(summary_card)
-    teams_msg.addSection(cta_card)
     teams_msg.addSection(tsm_card)
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
     #SEND IT
