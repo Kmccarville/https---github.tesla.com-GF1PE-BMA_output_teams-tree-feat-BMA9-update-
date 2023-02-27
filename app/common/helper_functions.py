@@ -99,7 +99,7 @@ def get_flowstep_outputs(db,start,end,flowsteps):
                 COUNT(DISTINCT tp.thingid) as OUTPUT
                 FROM
                 sparq.thingpath tp 
-                JOIN sparq.actor a on a.id = tp.modifiedby
+                JOIN sparq.actor a on a.id = tp.actormodifiedby
                 WHERE 
                 tp.flowstepname IN ({flowstep_str})
                 AND
