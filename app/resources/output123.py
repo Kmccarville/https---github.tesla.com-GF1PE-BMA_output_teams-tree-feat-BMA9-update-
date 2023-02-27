@@ -169,15 +169,13 @@ def main(env,eos=False):
 
     #define globals
     NORMAL_DIVISOR = 4
-    CTA_DIVISOR = 28
-    CTA_FLOWSTEP = '3BM-20000'
     MAMC_295_FLOWSTEP= '3BM-29500'
     MAMC_296_FLOWSTEP= '3BM-29600'
     C3A_FLOWSTEP = '3BM-40001'
     LINES = ['3BM1','3BM2','3BM3']
 
     #create flowstep list
-    flowsteps = [CTA_FLOWSTEP,MAMC_295_FLOWSTEP,MAMC_296_FLOWSTEP,C3A_FLOWSTEP]
+    flowsteps = [MAMC_295_FLOWSTEP,MAMC_296_FLOWSTEP,C3A_FLOWSTEP]
     #create mos connection
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     #get output for flowsteps
@@ -185,28 +183,16 @@ def main(env,eos=False):
 
     mos_con.close()
 
-    cta_outputs = []
     mamc_295_outputs = []
     mamc_296_outputs = []
     c3a_outputs = []
-    cta1_outputs = []
-    cta2_outputs = []
-    cta3_outputs = []
     for line in LINES:
-        cta_outputs.append(helper_functions.get_output_val(df_output,CTA_FLOWSTEP,line))
         mamc_295_outputs.append(helper_functions.get_output_val(df_output,MAMC_295_FLOWSTEP,line))
         mamc_296_outputs.append(helper_functions.get_output_val(df_output,MAMC_296_FLOWSTEP,line))
         c3a_outputs.append(helper_functions.get_output_val(df_output,C3A_FLOWSTEP,line))
 
-    for lane in range(1,5):
-        lane_num = str(lane).zfill(2)
-        cta1_outputs.append(helper_functions.get_output_val(df_output,CTA_FLOWSTEP,'3BM1',actor=f"3BM1-20000-{lane_num}"))
-        cta2_outputs.append(helper_functions.get_output_val(df_output,CTA_FLOWSTEP,'3BM2',actor=f"3BM2-20000-{lane_num}"))
-        cta3_outputs.append(helper_functions.get_output_val(df_output,CTA_FLOWSTEP,'3BM3',actor=f"3BM3-20000-{lane_num}"))
-
     mamc_outputs = np.add(mamc_295_outputs, mamc_296_outputs)
 
-    total_cta_output = helper_functions.get_output_val(df_output,CTA_FLOWSTEP)
     total_mamc_output = helper_functions.get_output_val(df_output,MAMC_295_FLOWSTEP) + helper_functions.get_output_val(df_output,MAMC_296_FLOWSTEP)
     total_c3a_output = helper_functions.get_output_val(df_output,C3A_FLOWSTEP)
 
@@ -217,30 +203,8 @@ def main(env,eos=False):
             <th style="text-align:center">BMA2</th>
             <th style="text-align:center">BMA3</th>
             <th style="text-align:center">TOTAL</th>
-            <th style="text-align:center"></th>
-            <th style="text-align:center"></th>
-            <th style="text-align:center">Lane1</th>
-            <th style="text-align:center">Lane2</th>
-            <th style="text-align:center">Lane3</th>
-            <th style="text-align:center">Lane4</th>
             </tr>
-    """
-    #create cta output row
-    cta_output_html = f"""<tr>
-            <td style="text-align:center"><strong>CTA</strong></td>
-            <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.2f}</td>
-            <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.2f}</td>
-            <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.2f}</td>
-            <td style="text-align:center"><strong>{total_cta_output/CTA_DIVISOR:.2f}</strong></td>
-            <td style="text-align:center">||</td>
-            <td style="text-align:center"><strong>CTA1</strong></td>
-            <td style="text-align:center">{cta1_outputs[0]/CTA_DIVISOR:.2f}</td>
-            <td style="text-align:center">{cta1_outputs[1]/CTA_DIVISOR:.2f}</td>
-            <td style="text-align:center">{cta1_outputs[2]/CTA_DIVISOR:.2f}</td>
-            <td style="text-align:center">{cta1_outputs[3]/CTA_DIVISOR:.2f}</td>
-            </tr>
-    """
-    
+            """
     #create mamc output row
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
@@ -248,14 +212,7 @@ def main(env,eos=False):
             <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.2f}</td>
             <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.2f}</td>
             <td style="text-align:center"><strong>{total_mamc_output/NORMAL_DIVISOR:.2f}</strong></td>
-            <td style="text-align:center">||</td>
-            <td style="text-align:center"><strong>CTA2</strong></td>
-            <td style="text-align:center">{cta2_outputs[0]/CTA_DIVISOR:.2f}</td>
-            <td style="text-align:center">{cta2_outputs[1]/CTA_DIVISOR:.2f}</td>
-            <td style="text-align:center">{cta2_outputs[2]/CTA_DIVISOR:.2f}</td>
-            <td style="text-align:center">{cta2_outputs[3]/CTA_DIVISOR:.2f}</td>
-            </tr>
-    """
+            """
     #create c3a output row
     c3a_output_html = f"""<tr>
             <td style="text-align:center"><strong>C3A</strong></td>
@@ -263,77 +220,12 @@ def main(env,eos=False):
             <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.2f}</td>
             <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.2f}</td>
             <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.2f}</strong></td>
-            <td style="text-align:center">||</td>
-            <td style="text-align:center"><strong>CTA3</strong></td>
-            <td style="text-align:center">{cta3_outputs[0]/CTA_DIVISOR:.2f}</td>
-            <td style="text-align:center">{cta3_outputs[1]/CTA_DIVISOR:.2f}</td>
-            <td style="text-align:center">{cta3_outputs[2]/CTA_DIVISOR:.2f}</td>
-            <td style="text-align:center">{cta3_outputs[3]/CTA_DIVISOR:.2f}</td>
-            </tr>
-    """
+            """
 
     #create full bma html with the above htmls
-    bma_html = '<table>' + "<caption>Throughput</caption>" + bma_header_html + cta_output_html + mamc_output_html + c3a_output_html + '</table>'
+    bma_html = '<table>' + "<caption>Throughput</caption>" + bma_header_html + mamc_output_html + c3a_output_html + '</table>'
 
-    #create cta header
-    cta_header_html = """<tr>
-                        <th style="text-align:center"></th>
-                        <th style="text-align:center">Lane1</th>
-                        <th style="text-align:center">Lane2</th>
-                        <th style="text-align:center">Lane3</th>
-                        <th style="text-align:center">Lane4</th>
-                        </tr>
-                """
-    #create cta header
-    cta_header_html = """<tr>
-                        <th style="text-align:center"></th>
-                        <th style="text-align:center">Lane1</th>
-                        <th style="text-align:center">Lane2</th>
-                        <th style="text-align:center">Lane3</th>
-                        <th style="text-align:center">Lane4</th>
-                        </tr>
-                    """
-
-    cta1_html = """
-                <tr>
-                <td style="text-align:left"><strong>CTA1</strong></td>
-                """
-    cta2_html = """
-                <tr>
-                <td style="text-align:left"><strong>CTA2</strong></td>
-                """
-    cta3_html = """
-                <tr>
-                <td style="text-align:left"><strong>CTA3</strong></td>
-                """
-
-    CTA_LANE_GOAL = 1.4
-    eos_multiplier = 12 if eos else 1
-    goal = CTA_LANE_GOAL * eos_multiplier
-    for i,val in enumerate(cta1_outputs):
-        color_str = ""
-        # color_str = "color:red;" if val/CTA_DIVISOR < goal else "font-weight:bold;"
-        cta1_html += f"""
-                    <td style="text-align:center;{color_str}">{val/CTA_DIVISOR:.2f}</td>
-                    """
-
-        # color_str = "color:red;" if cta2_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
-        cta2_html += f"""
-                    <td style="text-align:center;{color_str}">{cta2_outputs[i]/CTA_DIVISOR:.2f}</td>
-                    """
-
-        # color_str = "color:red;" if cta3_outputs[i]/CTA_DIVISOR < goal else "font-weight:bold;"
-        cta3_html += f"""
-                    <td style="text-align:center;{color_str}">{cta3_outputs[i]/CTA_DIVISOR:.2f}</td>
-                    """
-
-    cta1_html += "</tr>"
-    cta2_html += "</tr>"
-    cta3_html += "</tr>"
-
-    #create full bma html with the above htmls
-    cta_html = '<table>' + "<caption>CTA Breakdown</caption>" + cta_header_html + cta1_html + cta2_html + cta3_html + '</table>'
-    
+    #get cycle time html
     header_html = """
                     <tr>
                     <td></td>
@@ -342,8 +234,6 @@ def main(env,eos=False):
                     <th style="text-align:center"><strong>BMA3</strong></th>
                     </tr>
                 """
-    
-    #get cycle time html
     # starved_table = get_starved_table(start,end)
     # cycle_time_table = get_cycle_time_table(start,end)
     performance_table = get_performance_table(start,end)
