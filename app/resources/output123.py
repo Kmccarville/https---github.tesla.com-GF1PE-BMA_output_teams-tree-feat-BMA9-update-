@@ -262,10 +262,6 @@ def main(env,eos=False):
     bma_card.text(bma_html)
     teams_msg.addSection(bma_card)
 
-    # cta_card = pymsteams.cardsection()
-    # cta_card.text(cta_html)
-    # teams_msg.addSection(cta_card)
-
     cycle_card = pymsteams.cardsection()
     cycle_card.text(cycle_time_html)
     yield_card = pymsteams.cardsection()
