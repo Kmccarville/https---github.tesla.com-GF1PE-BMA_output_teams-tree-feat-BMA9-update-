@@ -249,7 +249,7 @@ def main(env,eos=False):
 
     #start end of shift message
     teams_msg = pymsteams.connectorcard(webhook)
-    title = 'BMA123 EOS Report' if eos else 'BMA123 Hourly Update'
+    title = 'BMA123 ZONE2 EOS Report' if eos else 'BMA123 ZONE2 Hourly Update'
     teams_msg.title(title)
     teams_msg.summary('summary')
     K8S_BLUE = '#3970e4'
