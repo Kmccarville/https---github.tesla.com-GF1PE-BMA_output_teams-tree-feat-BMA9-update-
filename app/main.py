@@ -31,6 +31,7 @@ if __name__ == '__main__':
     #define hourly scheduler
     scheduler_hourly.every().hour.at(":00").do(output123.main,env)
     scheduler_hourly.every().hour.at(":00").do(output45.main,env)
+    scheduler_hourly.every().hour.at(":00").do(outputz1.main,env)
     scheduler_hourly.every().hour.at(":00").do(output8.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz3.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz4.main,env)
