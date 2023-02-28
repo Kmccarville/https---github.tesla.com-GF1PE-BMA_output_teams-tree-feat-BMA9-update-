@@ -5,11 +5,11 @@ import os
 
 from common import helper_functions
 
-from resources import output123
 from resources import yield123
-from resources import output45
 from resources import outputz1
-from resources import output8
+from resources import outputz2_123
+from resources import outputz2_45
+from resources import outputz2_8
 from resources import outputz3
 from resources import outputz4
 from resources import close_nc_check
@@ -30,10 +30,10 @@ if __name__ == '__main__':
     scheduler_alerts = schedule.Scheduler()
 
     #define hourly scheduler
-    scheduler_hourly.every().hour.at(":00").do(output123.main,env)
-    scheduler_hourly.every().hour.at(":00").do(output45.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz1.main,env)
-    scheduler_hourly.every().hour.at(":00").do(output8.main,env)
+    scheduler_hourly.every().hour.at(":00").do(outputz2_123.main,env)
+    scheduler_hourly.every().hour.at(":00").do(outputz2_45.main,env)
+    scheduler_hourly.every().hour.at(":00").do(outputz2_8.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz3.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz4.main,env)
     scheduler_hourly.every().hour.at(":00").do(yield123.main,env)
