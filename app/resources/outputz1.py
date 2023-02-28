@@ -62,7 +62,7 @@ def get_cta_yield(db,lookback):
     return df
 
 def main(env,eos=False):
-    logging.info("output45 start %s" % datetime.utcnow())
+    logging.info("output Z1 start %s" % datetime.utcnow())
     lookback=12 if eos else 1
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
@@ -172,7 +172,7 @@ def main(env,eos=False):
 
     for i,val in enumerate(cta1_outputs):
         if i in range(4):
-            #color_str = ""
+            color_str = ""
             cta1_html += f"""
                         <td style="text-align:center">{cta1_outputs[i]/CTA_DIVISOR:.1f}</td>
                         """
