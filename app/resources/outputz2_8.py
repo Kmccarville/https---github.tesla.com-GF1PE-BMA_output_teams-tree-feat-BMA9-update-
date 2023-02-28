@@ -8,30 +8,22 @@ import pandas as pd
 import pymsteams
 import traceback
 
-def get_mamc_output(db,flowstep,start,end):
-    query= f"""
-        SELECT  a.name as 'LINE'
-        ,COUNT(DISTINCT tp.thingid)                                                                    AS 'TOTAL'
-        ,COUNT(DISTINCT nc.thingid)                                                                    AS 'NCs'
-        ,((COUNT(DISTINCT tp.thingid) - COUNT(DISTINCT nc.thingid)) / COUNT(DISTINCT tp.thingid)* 100) AS 'YIELD'
-        FROM thingpath tp
-        JOIN actor a
-        ON a.id = tp.actorcreatedby
-        LEFT JOIN nc
-        ON nc.thingid = tp.thingid
-        WHERE tp.flowstepname IN ('{flowstep}')
-        AND tp.completed between '{start}' and '{end}'
-        GROUP BY  1
+def get_mamc_ncs(db,start,end):
+    query=f"""
+        select count(distinct nc.thingid) as NCs
+        from thingpath tp
+        inner join nc on nc.thingid = tp.thingid
+        where tp.completed between '{start}' and '{end}'
+        and tp.flowstepid = 1023527
+        and nc.detectedatstepid = '268859'
+        and tp.iscurrent = 0
     """
     df = pd.read_sql(query,db)
     if len(df) > 0:
-        total = df.get_value(0,'TOTAL')
         ncs = df.get_value(0,'NCs')
-        good = total - ncs
     else:
-        good = 0
         ncs = 0
-    return good,ncs
+    return ncs
 
 def main(env,eos=False):
     #define start and end time for the hour
@@ -48,6 +40,7 @@ def main(env,eos=False):
     #define globals
     NORMAL_DIVISOR = 4
     MAMC_FLOWSTEP = 'MBM-25000'
+    MAMC_LINE = 'MMAM'
     C3A_FLOWSTEP = '3BM8-44000'
     C3A_LINE = '3BM8'
 
@@ -59,7 +52,9 @@ def main(env,eos=False):
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
 
 
-    mamc_output_good , mamc_output_ncs = get_mamc_output(mos_con, MAMC_FLOWSTEP, start, end)
+    mamc_output_good = helper_functions.get_output_val(df_output, MAMC_FLOWSTEP,MAMC_LINE)
+
+    mamc_output_ncs = get_mamc_ncs(mos_con,start, end)
     c3a_outputs = helper_functions.get_output_val(df_output,C3A_FLOWSTEP,C3A_LINE)
 
     mos_con.close()
