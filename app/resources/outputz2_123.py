@@ -159,7 +159,7 @@ def main(env,eos=False):
     #define start and end time for the hour
     lookback=12 if eos else 1
     now=datetime.utcnow()
-    logging.info("Output123 start %s" % datetime.utcnow())
+    logging.info("Output Z2 123 start %s" % datetime.utcnow())
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
     end=start+timedelta(hours=lookback)

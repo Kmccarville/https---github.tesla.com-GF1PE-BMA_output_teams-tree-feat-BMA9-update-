@@ -67,7 +67,7 @@ def get_blocked_table(start_time,end_time):
     return html
 
 def main(env,eos=False):
-    logging.info("output45 start %s" % datetime.utcnow())
+    logging.info("Output Z2 45 start %s" % datetime.utcnow())
     lookback=12 if eos else 1
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
