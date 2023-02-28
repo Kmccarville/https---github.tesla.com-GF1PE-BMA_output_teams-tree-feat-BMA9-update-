@@ -1,7 +1,8 @@
 from common import helper_functions
-from resources import output123
-from resources import output45
-from resources import output8
+from resources import outputz1
+from resources import outputz2_123
+from resources import outputz2_45
+from resources import outputz2_8
 from resources import outputz3
 from resources import outputz4
 
@@ -17,9 +18,10 @@ def main(env):
     it_is_eos,it_is_24 = helper_functions.is_it_eos_or_24()
     if it_is_eos:
         logging.info('Running End of Shift Report')
-        output123.main(env,eos=True)
-        output45.main(env,eos=True)
-        output8.main(env,eos=True)
+        outputz1.main(env,eos=True)
+        outputz2_123.main(env,eos=True)
+        outputz2_45.main(env,eos=True)
+        outputz2_8.main(env,eos=True)
         outputz3.main(env,eos=True)
         outputz4.main(env,eos=True)
         eos_report(env)
