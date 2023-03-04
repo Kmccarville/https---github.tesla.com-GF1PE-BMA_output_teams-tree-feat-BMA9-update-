@@ -121,10 +121,10 @@ def main(env, eos=False):
     MC1_IC_GREEN = 60
     MC1_IC_YELLOW = 50
 
-    MC2_NIC_GREEN = 43
-    MC2_NIC_YELLOW = 40
-    MC2_IC_GREEN = 25
-    MC2_IC_YELLOW = 22
+    MC2_NIC_GREEN = 50
+    MC2_NIC_YELLOW = 43
+    MC2_IC_GREEN = 28
+    MC2_IC_YELLOW = 25
 
 
     mc1_nic_pallets,mc1_ic_pallets = get_mc1_pallets(pr_con, MC1_PALLET_LOOKBACK)
@@ -152,27 +152,31 @@ def main(env, eos=False):
 
     if mc2_nic14_pallets >= MC2_NIC_GREEN:
         mc2_nic14_color = 'green'
-    elif mc2_nic14_pallets >= MC2_NIC_YELLOW:
-        mc2_nic14_color = 'orange'
-    else: mc2_nic14_color = 'red'
+    # elif mc2_nic14_pallets >= MC2_NIC_YELLOW:
+    #    mc2_nic14_color = 'orange'
+    else:
+        mc2_nic14_color = 'red'
 
     if mc2_nic23_pallets >= MC2_NIC_GREEN:
         mc2_nic23_color = 'green'
-    elif mc2_nic23_pallets >= MC2_NIC_YELLOW:
-        mc2_nic23_color = 'orange'
-    else: mc2_nic23_color = 'red'
+    # elif mc2_nic23_pallets >= MC2_NIC_YELLOW:
+    #    mc2_nic23_color = 'orange'
+    else:
+        mc2_nic23_color = 'red'
 
     if mc2_ic14_pallets >= MC2_IC_GREEN:
         mc2_ic14_color = 'green'
-    elif mc2_ic14_pallets >= MC2_IC_YELLOW:
-        mc2_ic14_color = 'orange'
-    else: mc2_ic14_color = 'red'
+    # elif mc2_ic14_pallets >= MC2_IC_YELLOW:
+    #    mc2_ic14_color = 'orange'
+    else:
+        mc2_ic14_color = 'red'
 
     if mc2_ic23_pallets >= MC2_IC_GREEN:
         mc2_ic23_color = 'green'
-    elif mc2_ic23_pallets >= MC2_IC_YELLOW:
-        mc2_ic23_color = 'orange'
-    else: mc2_ic23_color = 'red'
+    # elif mc2_ic23_pallets >= MC2_IC_YELLOW:
+    #    mc2_ic23_color = 'orange'
+    else: 
+        mc2_ic23_color = 'red'
 
     starve_table = get_starved_table(plc_con, start, end)  # pull starvation data
 
