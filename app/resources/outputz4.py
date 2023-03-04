@@ -121,10 +121,10 @@ def main(env, eos=False):
     MC1_IC_GREEN = 60
     MC1_IC_YELLOW = 50
 
-    MC2_NIC_GREEN = 43
-    MC2_NIC_YELLOW = 40
-    MC2_IC_GREEN = 25
-    MC2_IC_YELLOW = 22
+    MC2_NIC_GREEN = 50
+    MC2_NIC_YELLOW = 43
+    MC2_IC_GREEN = 28
+    MC2_IC_YELLOW = 25
 
 
     mc1_nic_pallets,mc1_ic_pallets = get_mc1_pallets(pr_con, MC1_PALLET_LOOKBACK)
