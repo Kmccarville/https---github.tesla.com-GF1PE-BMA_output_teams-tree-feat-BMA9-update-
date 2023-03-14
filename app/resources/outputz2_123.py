@@ -1,4 +1,5 @@
 from common import helper_functions
+from resources import yield123
 
 from datetime import datetime
 from datetime import timedelta
@@ -238,9 +239,12 @@ def main(env,eos=False):
     # cycle_time_table = get_cycle_time_table(start,end)
     performance_table = get_performance_table(start,end)
     mamc_yield_table = get_mamc_yield_table(start,end)
+    c3a_dispense_yield_table = yield123.get_C3A_Shift_yield_table(start,end)
+
 
     cycle_time_html = '<table>' + "<caption>Performance</caption>"  + performance_table + '</table>'
     mamc_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + mamc_yield_table + '</table>'
+    c3a_dispense_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + c3a_dispense_yield_table + '</table>'
 
     #get webhook based on environment
     webhook_key = 'teams_webhook_BMA123_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
@@ -266,9 +270,12 @@ def main(env,eos=False):
     cycle_card.text(cycle_time_html)
     yield_card = pymsteams.cardsection()
     yield_card.text(mamc_yield_html)
+    c3a_yield_card = pymsteams.cardsection()
+    c3a_yield_card.text(c3a_dispense_yield_html)
 
     teams_msg.addSection(cycle_card)
     teams_msg.addSection(yield_card)
+    teams_msg.addSection(c3a_yield_card)
 
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
     #SEND IT
