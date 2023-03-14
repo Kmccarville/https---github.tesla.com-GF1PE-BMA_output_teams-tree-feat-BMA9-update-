@@ -168,3 +168,45 @@ def get_yieldval(df,line_number,parameter_name):
     else:
         val = 0
     return val
+
+
+#Shiftly-Dispense-Yield 
+def get_C3A_Shift_yield_table(start,end):
+    mos_con = helper_functions.get_sql_conn('mos_rpt2')
+    df = pd.DataFrame({})
+    while start < end:
+        start_next = start + timedelta(minutes=60)
+        query = f"""
+          SELECT
+                left(actor.name,4) as LINE,
+                        (Count((CASE WHEN thingdata.valuetext = 0 THEN 1 END))/(sum(thingdata.valuetext) + Count((CASE WHEN thingdata.valuetext = 0 THEN 1 END)))) AS YIELD
+                FROM sparq.thingdata
+                        JOIN sparq.thing ON thing.id = thingdata.thingid
+                        INNER JOIN sparq.actor ON actor.id = thingdata.actormodifiedby
+                        INNER JOIN sparq.parameter ON parameter.id = thingdata.parameterid
+                WHERE
+                        thingdata.created between '{start}' and '{end}'
+                        and thingdata.taskid in (select task.id from sparq.task where task.name in ('ClamshellClose001'))
+                        and thingdata.parameterid in (select parameter.id from sparq.parameter where parameter.name in ('IC Fail Count','NIC Fail Count','IC Timeout Count','NIC Timeout Count'))
+                        and actor.type = 'EQUIPMENT'
+                group by actor.name
+                order by LINE"""
+        df_sub = pd.read_sql(query,mos_con)
+        df = pd.concat([df,df_sub],axis=0)
+        start += timedelta(minutes=60)
+
+    mos_con.close()
+
+    bma1_dispense_yield = round(helper_functions.get_val(df,'3BM1','LINE','YIELD'),1)
+    bma2_dispense_yield = round(helper_functions.get_val(df,'3BM2','LINE','YIELD'),1)
+    bma3_dispense_yield = round(helper_functions.get_val(df,'3BM3','LINE','YIELD'),1)
+
+    html=f"""
+    <tr>
+        <td style="text-align:center"><b>C3A Dispense Yield</b></td>
+        <td style="text-align:center">{bma1_dispense_yield}%</td>
+        <td style="text-align:center">{bma2_dispense_yield}%</td>
+        <td style="text-align:center">{bma3_dispense_yield}%</td>
+    </tr>
+    """
+    return html
