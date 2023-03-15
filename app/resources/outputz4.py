@@ -51,16 +51,24 @@ def get_starved_table(db, start, end):
         '[MC2_28000_01]_OEE_Reporting/TSMs/MC2_28000_01_ST250_MDL10_Robot'
     ]
 
+    mc2_pi_path = '[MC2_10000_01]_OEE_Reporting/TSMs/MC2_10000_01_ST010_MDL10_Robot'
+
     seconds_between = (end - start).seconds
 
     pi_df = helper_functions.query_tsm_state(db, start, end, pi_paths, 'Starved', 1)
     po_df = helper_functions.query_tsm_state(db, start, end, po_paths, 'Starved', 2)
+    mc2_po_df5 = helper_functions.query_tsm_state(db, start, end, [mc2_pi_path], 'Blocked', 5) #starved for 25s
+    mc2_po_df6 = helper_functions.query_tsm_state(db, start, end, [mc2_pi_path], 'Blocked', 6) #starved for 23s
 
     pi1_starved = round(helper_functions.get_val(pi_df, 'MC1-', 'LINE', 'Duration') / seconds_between * 100, 1)
     pi2_starved = round(helper_functions.get_val(pi_df, 'MC2-', 'LINE', 'Duration') / seconds_between * 100, 1)
 
     po1_starved = round(helper_functions.get_val(po_df, 'MC1-', 'LINE', 'Duration') / seconds_between * 100, 1)
     po2_starved = round(helper_functions.get_val(po_df, 'MC2-', 'LINE', 'Duration') / seconds_between * 100, 1)
+
+    pi2_starved5 = round(helper_functions.get_val(mc2_po_df5, 'MC2-', 'LINE', 'Duration') / seconds_between * 100, 1)
+    pi2_starved6 = round(helper_functions.get_val(mc2_po_df6, 'MC2-', 'LINE', 'Duration') / seconds_between * 100, 1)
+
 
     html = f"""
         <tr>
@@ -77,6 +85,16 @@ def get_starved_table(db, start, end):
             <td style="text-align:left"><b>Pack-out</b></td>
             <td style="text-align:center">{po1_starved}%</td>
             <td style="text-align:center">{po2_starved}%</td>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b>No 23S</b></td>
+            <td style="text-align:center">---</td>
+            <td style="text-align:center">{pi2_starved6}%</td>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b>No 25S</b></td>
+            <td style="text-align:center">---</td>
+            <td style="text-align:center">{pi2_starved5}%</td>
         </tr>
         """
     return html
