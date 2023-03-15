@@ -38,7 +38,7 @@ if __name__ == '__main__':
     scheduler_hourly.every().hour.at(":00").do(outputz4.main,env)
     scheduler_hourly.every().hour.at(":00").do(yield123.main,env)
     scheduler_hourly.every().hour.at(":00").do(close_nc_check.main,env)
-    scheduler_hourly.every().hour.at(":00").do(eos.main,env)
+    scheduler_hourly.every().hour.at(":02").do(eos.main,env)
 
     #define alert scheduler
     scheduler_alerts.every().hour.at(":00").do(cta45_ct.main,env)
