@@ -47,6 +47,47 @@ def get_mamc_yield_table(start,end):
     """
     return html
 
+#Shiftly-Dispense-Yield 
+def get_c3a_yield_table(start,end):
+    mos_con = helper_functions.get_sql_conn('mos_rpt2')
+    df = pd.DataFrame({})
+    while start < end:
+        start_next = start + timedelta(minutes=60)
+        query = f"""
+          SELECT
+                left(actor.name,4) as LINE,
+                        (Count((CASE WHEN thingdata.valuetext = 0 THEN 1 END))/(sum(thingdata.valuetext) + Count((CASE WHEN thingdata.valuetext = 0 THEN 1 END))))*100 AS YIELD
+                FROM sparq.thingdata
+                        JOIN sparq.thing ON thing.id = thingdata.thingid
+                        INNER JOIN sparq.actor ON actor.id = thingdata.actormodifiedby
+                        INNER JOIN sparq.parameter ON parameter.id = thingdata.parameterid
+                WHERE
+                        thingdata.created between '{start}' and '{end}'
+                        and thingdata.taskid in (select task.id from sparq.task where task.name in ('ClamshellClose001'))
+                        and thingdata.parameterid in (select parameter.id from sparq.parameter where parameter.name in ('IC Fail Count','NIC Fail Count','IC Timeout Count','NIC Timeout Count'))
+                        and actor.type = 'EQUIPMENT'
+                group by actor.name
+                order by LINE"""
+        df_sub = pd.read_sql(query,mos_con)
+        df = pd.concat([df,df_sub],axis=0)
+        start += timedelta(minutes=60)
+
+    mos_con.close()
+
+    bma1_dispense_yield = round(helper_functions.get_val(df,'3BM1','LINE','YIELD'),1)
+    bma2_dispense_yield = round(helper_functions.get_val(df,'3BM2','LINE','YIELD'),1)
+    bma3_dispense_yield = round(helper_functions.get_val(df,'3BM3','LINE','YIELD'),1)
+
+    html=f"""
+    <tr>
+        <td style="text-align:center"><b>C3A Dispense Yield</b></td>
+        <td style="text-align:center">{bma1_dispense_yield}%</td>
+        <td style="text-align:center">{bma2_dispense_yield}%</td>
+        <td style="text-align:center">{bma3_dispense_yield}%</td>
+    </tr>
+    """
+    return html
+
 def get_performance_table(start,end):
 
     plc_con = helper_functions.get_sql_conn('plc_db')
@@ -239,13 +280,15 @@ def main(env,eos=False):
     # cycle_time_table = get_cycle_time_table(start,end)
     performance_table = get_performance_table(start,end)
     mamc_yield_table = get_mamc_yield_table(start,end)
-    c3a_dispense_yield_table = yield123.get_C3A_Shift_yield_table(start,end)
-
+    if eos:
+        c3a_yield_table = get_c3a_yield_table(start,end)
 
     cycle_time_html = '<table>' + "<caption>Performance</caption>"  + performance_table + '</table>'
-    mamc_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + mamc_yield_table + '</table>'
+
     if eos:
-        c3a_dispense_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + c3a_dispense_yield_table + '</table>'
+        z2_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + mamc_yield_table + c3a_yield_table + '</table>'
+    else:
+        z2_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + mamc_yield_table + '</table>'
 
     #get webhook based on environment
     webhook_key = 'teams_webhook_BMA123_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
@@ -270,18 +313,12 @@ def main(env,eos=False):
     cycle_card = pymsteams.cardsection()
     cycle_card.text(cycle_time_html)
     yield_card = pymsteams.cardsection()
-    yield_card.text(mamc_yield_html)
-    if eos:
-        c3a_yield_card = pymsteams.cardsection()
-        c3a_yield_card.text(c3a_dispense_yield_html)
+    yield_card.text(z2_yield_html)
 
     teams_msg.addSection(cycle_card)
     teams_msg.addSection(yield_card)
-    if eos:
-        teams_msg.addSection(c3a_yield_card)
 
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
-    #SEND IT
     #SEND IT
     try:
         teams_msg.send()
