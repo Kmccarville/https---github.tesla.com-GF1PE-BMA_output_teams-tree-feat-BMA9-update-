@@ -179,7 +179,7 @@ def get_C3A_Shift_yield_table(start,end):
         query = f"""
           SELECT
                 left(actor.name,4) as LINE,
-                        (Count((CASE WHEN thingdata.valuetext = 0 THEN 1 END))/(sum(thingdata.valuetext) + Count((CASE WHEN thingdata.valuetext = 0 THEN 1 END)))) AS YIELD
+                        (Count((CASE WHEN thingdata.valuetext = 0 THEN 1 END))/(sum(thingdata.valuetext) + Count((CASE WHEN thingdata.valuetext = 0 THEN 1 END))))*100 AS YIELD
                 FROM sparq.thingdata
                         JOIN sparq.thing ON thing.id = thingdata.thingid
                         INNER JOIN sparq.actor ON actor.id = thingdata.actormodifiedby
