@@ -5,7 +5,6 @@ import logging
 from sqlalchemy import text
 import pandas as pd
 import pymsteams
-import pymysql
 import numpy as np
 
 def get_starve_block_table(start_time,end_time):
@@ -68,10 +67,9 @@ def get_blocked_table(start_time,end_time):
         """
     return html
 
-def get_mamc_fpy(start_time,end_time):
+def get_mamc_fpy(start_time,end_time,con):
     
     mamc_query = """SELECT 
-        NOW() as now,
         t.name serial,
         convert_tz(tp.completed,'UTC','US/Pacific') date,
         SUBSTRING(a.name,4,1) line,
@@ -96,7 +94,7 @@ def get_mamc_fpy(start_time,end_time):
             AND (nc.flowstepname in ('3BM4-34000','3BM4-40100','3BM5-34000','3BM5-40100') OR nc.flowstepname IS NULL)
         """
         
-    df_mamc = pd.read_sql(mamc_query, con=mos_con)
+    df_mamc = pd.read_sql(mamc_query, con=con)
     
     # line 4
     
@@ -142,7 +140,9 @@ def main(env,eos=False):
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
 
     #get fpy for mamc
-    get_mamc_fpy(start, end)
+    mamc_fpy = get_mamc_fpy(start, end, mos_con)
+    fpy_mamc_4 = mamc_fpy[0]
+    fpy_mamc_5 = mamc_fpy[1]
 
     mos_con.close()
 
