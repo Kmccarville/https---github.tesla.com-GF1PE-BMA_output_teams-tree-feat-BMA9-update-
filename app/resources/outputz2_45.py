@@ -73,7 +73,7 @@ def get_mamc_fpy(start_time,end_time,con):
         t.name serial,
         convert_tz(tp.completed,'UTC','US/Pacific') date,
         SUBSTRING(a.name,4,1) line,
-    	if(nc.description like '3BM%', SUBSTRING(nc.description, 12), nc.description) nc,
+    	if(nc.description like '3BM%%', SUBSTRING(nc.description, 12), nc.description) nc,
     	nc.flowstepname,
         case 
             when nc.description IS NULL then 'pass'
@@ -96,24 +96,30 @@ def get_mamc_fpy(start_time,end_time,con):
         
     df_mamc = pd.read_sql(mamc_query, con=con)
     
-    # line 4
-    
-    df_mamc_4 = df_mamc[df_mamc["line"]=="4"]
-    
-    tot_mamc_4 = len(pd.unique(df_mamc_4["serial"]))
-    pass_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="pass","serial"]))
-    fail_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="fail","serial"]))
-    
-    fpy_mamc_4 = np.around(100 * (pass_mamc_4 / tot_mamc_4),2)
-    
-    # line 5
-    
-    df_mamc_5 = df_mamc[df_mamc["line"]=="5"]
-    tot_mamc_5 = len(pd.unique(df_mamc_5["serial"]))
-    pass_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="pass","serial"]))
-    fail_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="fail","serial"]))
-    
-    fpy_mamc_5 = np.around(100 * (pass_mamc_5 / tot_mamc_5),2)
+    if len(df_mamc) > 0:
+        
+        # line 4
+        
+        df_mamc_4 = df_mamc[df_mamc["line"]=="4"]
+        
+        tot_mamc_4 = len(pd.unique(df_mamc_4["serial"]))
+        pass_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="pass","serial"]))
+        fail_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="fail","serial"]))
+        
+        fpy_mamc_4 = np.around(100 * (pass_mamc_4 / tot_mamc_4),2)
+        
+        # line 5
+        
+        df_mamc_5 = df_mamc[df_mamc["line"]=="5"]
+        tot_mamc_5 = len(pd.unique(df_mamc_5["serial"]))
+        pass_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="pass","serial"]))
+        fail_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="fail","serial"]))
+        
+        fpy_mamc_5 = np.around(100 * (pass_mamc_5 / tot_mamc_5),2)
+        
+    else:
+        fpy_mamc_4 = 0
+        fpy_mamc_5 = 0 
     
     return fpy_mamc_4, fpy_mamc_5
 
