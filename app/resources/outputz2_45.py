@@ -5,6 +5,8 @@ import logging
 from sqlalchemy import text
 import pandas as pd
 import pymsteams
+import pymysql
+import numpy as np
 
 def get_starve_block_table(start_time,end_time):
     seconds_between = (end_time - start_time).seconds
@@ -66,6 +68,57 @@ def get_blocked_table(start_time,end_time):
         """
     return html
 
+def get_mamc_fpy(start_time,end_time):
+    
+    mamc_query = """SELECT 
+        NOW() as now,
+        t.name serial,
+        convert_tz(tp.completed,'UTC','US/Pacific') date,
+        SUBSTRING(a.name,4,1) line,
+    	if(nc.description like '3BM%', SUBSTRING(nc.description, 12), nc.description) nc,
+    	nc.flowstepname,
+        case 
+            when nc.description IS NULL then 'pass'
+            when nc.description IS NOT NULL then 'fail'
+        end result
+    FROM thingpath tp FORCE INDEX (IX_THINGPATH_FLOWSTEPID_ISCURRENT_COMPLETED)
+        INNER JOIN
+            actor a ON a.id = tp.actorcreatedby
+        INNER JOIN
+            thing t ON t.id = tp.thingid
+        
+        LEFT JOIN
+            nc ON nc.thingid = t.id
+    WHERE
+        tp.completed >= """ + start_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
+        AND tp.completed < """ + end_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
+            AND tp.flowstepid IN (840678, 849852)
+            AND (nc.flowstepname in ('3BM4-34000','3BM4-40100','3BM5-34000','3BM5-40100') OR nc.flowstepname IS NULL)
+        """
+        
+    df_mamc = pd.read_sql(mamc_query, con=mos_con)
+    
+    # line 4
+    
+    df_mamc_4 = df_mamc[df_mamc["line"]=="4"]
+    
+    tot_mamc_4 = len(pd.unique(df_mamc_4["serial"]))
+    pass_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="pass","serial"]))
+    fail_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="fail","serial"]))
+    
+    fpy_mamc_4 = np.around(100 * (pass_mamc_4 / tot_mamc_4),2)
+    
+    # line 5
+    
+    df_mamc_5 = df_mamc[df_mamc["line"]=="5"]
+    tot_mamc_5 = len(pd.unique(df_mamc_5["serial"]))
+    pass_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="pass","serial"]))
+    fail_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="fail","serial"]))
+    
+    fpy_mamc_5 = np.around(100 * (pass_mamc_5 / tot_mamc_5),2)
+    
+    return fpy_mamc_4, fpy_mamc_5
+
 def main(env,eos=False):
     logging.info("Output Z2 45 start %s" % datetime.utcnow())
     lookback=12 if eos else 1
@@ -88,6 +141,9 @@ def main(env,eos=False):
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
 
+    #get fpy for mamc
+    get_mamc_fpy(start, end)
+
     mos_con.close()
 
     mamc_outputs = []
@@ -101,6 +157,8 @@ def main(env,eos=False):
 
     total_mamc5_output = helper_functions.get_output_val(df_output,f"3BM5-{MAMC_FLOWSTEP_END}")
     total_c3a5_output = helper_functions.get_output_val(df_output,f"3BM5-{C3A_FLOWSTEP_END}")
+    
+   
 
     #create bma header
     bma_header_html = """<tr>
@@ -140,6 +198,26 @@ def main(env,eos=False):
                     """
     tsm_html = "<table>" + "<caption>Performance</caption>" + tsm_header_html + mamc_starved_html + "</table>"
     
+    
+    #create yield header
+    mamc_fpy_header_html = """<tr>
+            <th style="text-align:center"></th>
+            <th style="text-align:center">BMA4</th>
+            <th style="text-align:center">BMA5</th>
+            </tr>
+     """
+
+    #create mamc output row
+    mamc_fpy_html = """<tr>
+             <td style="text-align:center"><strong>MAMC</strong></td>
+             <td style="text-align:center">{fpy_mamc_4:.1f}</td>
+             <td style="text-align:center">{fpy_mamc_5:.1f}</td>
+             </tr>
+     """
+
+    mamc_fpy_html = "<table>" + "<caption>FPY</caption>" + mamc_fpy_header_html + mamc_fpy_html + "</table>"
+
+    
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
@@ -160,8 +238,12 @@ def main(env,eos=False):
     tsm_card = pymsteams.cardsection()
     tsm_card.text(tsm_html)
 
+    mamc_fpy_card = pymsteams.cardsection()
+    mamc_fpy_card.text(mamc_fpy_html)
+
     teams_msg.addSection(summary_card)
     teams_msg.addSection(tsm_card)
+    teams_msg.addSection(mamc_fpy_card)
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
     #SEND IT
     try:
