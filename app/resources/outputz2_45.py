@@ -366,15 +366,15 @@ def main(env,eos=False):
              </tr>
      """
      
-     #create c3a nic output row
-     nic_fpy_html = f"""<tr>
-              <td style="text-align:center"><strong>NIC</strong></td>
-              <td style="text-align:center;{c3a_nic_tgt_4}">{fpy_c3a_4_nic}</td>
-              <td style="text-align:center;{c3a_nic_tgt_5}">{fpy_c3a_5_nic}</td>
-              </tr>
-      """
+    #create c3a nic output row
+    nic_fpy_html = f"""<tr>
+             <td style="text-align:center"><strong>NIC</strong></td>
+             <td style="text-align:center;{c3a_nic_tgt_4}">{fpy_c3a_4_nic}</td>
+             <td style="text-align:center;{c3a_nic_tgt_5}">{fpy_c3a_5_nic}</td>
+             </tr>
+     """
 
-     c3a_fpy_html = "<table>" + "<caption>C3A DISPENSE FPY</caption>" + c3a_fpy_header_html + ic_fpy_html + nic_fpy_html + "</table>"    
+    c3a_fpy_html = "<table>" + "<caption>C3A DISPENSE FPY</caption>" + c3a_fpy_header_html + ic_fpy_html + nic_fpy_html + "</table>"    
 
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
