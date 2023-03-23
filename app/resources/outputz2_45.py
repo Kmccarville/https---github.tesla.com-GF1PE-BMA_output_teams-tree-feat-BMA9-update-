@@ -102,24 +102,34 @@ def get_mamc_fpy(start_time,end_time,con):
         
         df_mamc_4 = df_mamc[df_mamc["line"]=="4"]
         
-        tot_mamc_4 = len(pd.unique(df_mamc_4["serial"]))
-        pass_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="pass","serial"]))
-        fail_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="fail","serial"]))
+        if len(df_mamc_4) > 0:
         
-        fpy_mamc_4 = np.around(100 * (pass_mamc_4 / tot_mamc_4),2)
+            tot_mamc_4 = len(pd.unique(df_mamc_4["serial"]))
+            pass_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="pass","serial"]))
+            fail_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="fail","serial"]))
+            
+            fpy_mamc_4 = str(np.around(100 * (pass_mamc_4 / tot_mamc_4),2)) + '%'
+        else:
+            fpy_mamc_4 = '0'
         
         # line 5
         
         df_mamc_5 = df_mamc[df_mamc["line"]=="5"]
-        tot_mamc_5 = len(pd.unique(df_mamc_5["serial"]))
-        pass_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="pass","serial"]))
-        fail_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="fail","serial"]))
         
-        fpy_mamc_5 = np.around(100 * (pass_mamc_5 / tot_mamc_5),2)
+        if len(df_mamc_5) > 0:
+            
+            tot_mamc_5 = len(pd.unique(df_mamc_5["serial"]))
+            pass_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="pass","serial"]))
+            fail_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="fail","serial"]))
+        
+            fpy_mamc_5 = str(np.around(100 * (pass_mamc_5 / tot_mamc_5),2)) + '%'
+        
+        else: 
+            fpy_mamc_5 = '0'
         
     else:
-        fpy_mamc_4 = 0
-        fpy_mamc_5 = 0 
+        fpy_mamc_4 = '0'
+        fpy_mamc_5 = '0' 
     
     return fpy_mamc_4, fpy_mamc_5
 
@@ -216,8 +226,8 @@ def main(env,eos=False):
     #create mamc output row
     mamc_fpy_html = """<tr>
              <td style="text-align:center"><strong>MAMC</strong></td>
-             <td style="text-align:center">{fpy_mamc_4:.1f}</td>
-             <td style="text-align:center">{fpy_mamc_5:.1f}</td>
+             <td style="text-align:center">{fpy_mamc_4}</td>
+             <td style="text-align:center">{fpy_mamc_5}</td>
              </tr>
      """
 
