@@ -164,7 +164,7 @@ def get_c3a_fpy(start_time,end_time,con):
     
     yield_tgt_c3a = 94.0
     
-    df_c3a = pd.read_sql(c3a_query, con=mos_con)
+    df_c3a = pd.read_sql(c3a_query, con=con)
     
     if len(df_c3a) > 0:
         
@@ -258,7 +258,7 @@ def main(env,eos=False):
     mamc_tgt_5 = mamc_fpy[3]
     
     #get fpy for c3a
-    c3a_fpy = get_mamc_fpy(start, end, mos_con)
+    c3a_fpy = get_c3a_fpy(start, end, mos_con)
     fpy_c3a_4_ic = c3a_fpy[0]
     fpy_c3a_5_ic = c3a_fpy[1]
     fpy_c3a_4_nic = c3a_fpy[2]
