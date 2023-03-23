@@ -136,14 +136,6 @@ def get_c3a_fpy(start_time,end_time,con):
 
     c3a_query = """SELECT
             t.name AS 'serial',
-        CASE
-            WHEN t.state = 'WIP' THEN 'DISPENSE FAULT'
-            WHEN t.state = 'MMS' THEN 'ATTACH FAULT'
-            WHEN t.state = 'CONSUMED' THEN 'PASS'
-            WHEN t.state = 'SCRAP' AND nc.description LIKE '%timed%' THEN 'TIMEOUT'
-            WHEN t.state = 'SCRAP' AND nc.description LIKE '%Issues%' THEN 'PROFILOMETER FAIL'
-            ELSE 'OTHER'
-                    END AS disposition,
         CASE 
             WHEN t.state = 'CONSUMED' THEN 'PASS'
             ELSE 'FAIL'
@@ -188,17 +180,17 @@ def get_c3a_fpy(start_time,end_time,con):
             fpy_c3a_4_ic = '0'
             c3a_ic_tgt_4 = "color:black:"
             
-         # c3a 4 nic
-         df_c3a_4_nic = df_c3a[(df_c3a["line"]=="4") & (df_c3a["assembly"]=="NIC")]
+        # c3a 4 nic
+        df_c3a_4_nic = df_c3a[(df_c3a["line"]=="4") & (df_c3a["assembly"]=="NIC")]
          
-         if len(df_c3a_4_nic) > 0:
-             tot_c3a_4_nic = len(pd.unique(df_c3a_4_nic["serial"]))
-             pass_c3a_4_nic = len(pd.unique(df_c3a_4_nic.loc[df_c3a_4_nic["result"]=="PASS","serial"]))
-             fpy_c3a_4_nic = str(np.around(100 * (pass_c3a_4_nic / tot_c3a_4_nic),2)) + '%'
-             c3a_nic_tgt_4 = "color:green;" if np.around(100 * (pass_c3a_4_nic_4 / tot_c3a_4_nic_4),2) >= yield_tgt_c3a else "color:red;"
-         else:
-             fpy_c3a_4_nic = '0'
-             c3a_nic_tgt_4 = "color:black:"
+        if len(df_c3a_4_nic) > 0:
+            tot_c3a_4_nic = len(pd.unique(df_c3a_4_nic["serial"]))
+            pass_c3a_4_nic = len(pd.unique(df_c3a_4_nic.loc[df_c3a_4_nic["result"]=="PASS","serial"]))
+            fpy_c3a_4_nic = str(np.around(100 * (pass_c3a_4_nic / tot_c3a_4_nic),2)) + '%'
+            c3a_nic_tgt_4 = "color:green;" if np.around(100 * (pass_c3a_4_nic_4 / tot_c3a_4_nic_4),2) >= yield_tgt_c3a else "color:red;"
+        else:
+            fpy_c3a_4_nic = '0'
+            c3a_nic_tgt_4 = "color:black:"
              
         # c3a 5 ic
         df_c3a_5_ic = df_c3a[(df_c3a["line"]=="5") & (df_c3a["assembly"]=="IC")]
@@ -212,17 +204,17 @@ def get_c3a_fpy(start_time,end_time,con):
             fpy_c3a_5_ic = '0'
             c3a_ic_tgt_5 = "color:black:"
             
-         # c3a 5 nic
-         df_c3a_5_nic = df_c3a[(df_c3a["line"]=="5") & (df_c3a["assembly"]=="NIC")]
+        # c3a 5 nic
+        df_c3a_5_nic = df_c3a[(df_c3a["line"]=="5") & (df_c3a["assembly"]=="NIC")]
          
-         if len(df_c3a_5_nic) > 0:
-             tot_c3a_5_nic = len(pd.unique(df_c3a_5_nic["serial"]))
-             pass_c3a_5_nic = len(pd.unique(df_c3a_5_nic.loc[df_c3a_5_nic["result"]=="PASS","serial"]))
-             fpy_c3a_5_nic = str(np.around(100 * (pass_c3a_5_nic / tot_c3a_5_nic),2)) + '%'
-             c3a_nic_tgt_5 = "color:green;" if np.around(100 * (pass_c3a_5_nic_5 / tot_c3a_5_nic_5),2) >= yield_tgt_c3a else "color:red;"
-         else:
-             fpy_c3a_5_nic = '0'
-             c3a_nic_tgt_5 = "color:black:"
+        if len(df_c3a_5_nic) > 0:
+            tot_c3a_5_nic = len(pd.unique(df_c3a_5_nic["serial"]))
+            pass_c3a_5_nic = len(pd.unique(df_c3a_5_nic.loc[df_c3a_5_nic["result"]=="PASS","serial"]))
+            fpy_c3a_5_nic = str(np.around(100 * (pass_c3a_5_nic / tot_c3a_5_nic),2)) + '%'
+            c3a_nic_tgt_5 = "color:green;" if np.around(100 * (pass_c3a_5_nic_5 / tot_c3a_5_nic_5),2) >= yield_tgt_c3a else "color:red;"
+        else:
+            fpy_c3a_5_nic = '0'
+            c3a_nic_tgt_5 = "color:black:"
              
     else:
         fpy_c3a_4_ic = '0'
