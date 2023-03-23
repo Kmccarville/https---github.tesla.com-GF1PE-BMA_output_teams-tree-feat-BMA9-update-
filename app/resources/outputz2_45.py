@@ -93,45 +93,42 @@ def get_mamc_fpy(start_time,end_time,con):
             AND tp.flowstepid IN (840678, 849852)
             AND (nc.flowstepname in ('3BM4-34000','3BM4-40100','3BM5-34000','3BM5-40100') OR nc.flowstepname IS NULL)
         """
-        
+    
+    yield_tgt = 97.0
+    
     df_mamc = pd.read_sql(mamc_query, con=con)
     
     if len(df_mamc) > 0:
-        
+       
         # line 4
-        
         df_mamc_4 = df_mamc[df_mamc["line"]=="4"]
-        
         if len(df_mamc_4) > 0:
-        
             tot_mamc_4 = len(pd.unique(df_mamc_4["serial"]))
             pass_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="pass","serial"]))
             fail_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="fail","serial"]))
-            
             fpy_mamc_4 = str(np.around(100 * (pass_mamc_4 / tot_mamc_4),2)) + '%'
+            tgt_4 = "color:green;" if np.around(100 * (pass_mamc_4 / tot_mamc_4),2) >= yield_tgt else "color:red;"
         else:
             fpy_mamc_4 = '0'
-        
-        # line 5
-        
-        df_mamc_5 = df_mamc[df_mamc["line"]=="5"]
-        
-        if len(df_mamc_5) > 0:
+            tgt_4 = "color:black:"
             
+        # line 5
+        df_mamc_5 = df_mamc[df_mamc["line"]=="5"]
+        if len(df_mamc_5) > 0:
             tot_mamc_5 = len(pd.unique(df_mamc_5["serial"]))
             pass_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="pass","serial"]))
             fail_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="fail","serial"]))
-        
             fpy_mamc_5 = str(np.around(100 * (pass_mamc_5 / tot_mamc_5),2)) + '%'
-        
+            tgt_5 = "color:green;" if np.around(100 * (pass_mamc_5 / tot_mamc_5),2) >= yield_tgt else "color:red;"
         else: 
             fpy_mamc_5 = '0'
-        
+            tgt_4 = "color:black:"
+            
     else:
         fpy_mamc_4 = '0'
         fpy_mamc_5 = '0' 
     
-    return fpy_mamc_4, fpy_mamc_5
+    return fpy_mamc_4, fpy_mamc_5, tgt_4, tgt_5
 
 def main(env,eos=False):
     logging.info("Output Z2 45 start %s" % datetime.utcnow())
@@ -159,6 +156,8 @@ def main(env,eos=False):
     mamc_fpy = get_mamc_fpy(start, end, mos_con)
     fpy_mamc_4 = mamc_fpy[0]
     fpy_mamc_5 = mamc_fpy[1]
+    tgt_4 = mamc_fpy[2]
+    tgt_5 = mamc_fpy[3]
 
     mos_con.close()
 
@@ -226,8 +225,8 @@ def main(env,eos=False):
     #create mamc output row
     mamc_fpy_html = f"""<tr>
              <td style="text-align:center"><strong>MAMC</strong></td>
-             <td style="text-align:center">{fpy_mamc_4}</td>
-             <td style="text-align:center">{fpy_mamc_5}</td>
+             <td style="text-align:center;{tgt_4}">{fpy_mamc_4}</td>
+             <td style="text-align:center;{tgt_5}">{fpy_mamc_5}</td>
              </tr>
      """
 
