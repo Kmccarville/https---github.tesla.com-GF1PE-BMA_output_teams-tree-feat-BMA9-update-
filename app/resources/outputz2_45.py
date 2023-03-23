@@ -224,7 +224,7 @@ def main(env,eos=False):
      """
 
     #create mamc output row
-    mamc_fpy_html = """<tr>
+    mamc_fpy_html = f"""<tr>
              <td style="text-align:center"><strong>MAMC</strong></td>
              <td style="text-align:center">{fpy_mamc_4}</td>
              <td style="text-align:center">{fpy_mamc_5}</td>
