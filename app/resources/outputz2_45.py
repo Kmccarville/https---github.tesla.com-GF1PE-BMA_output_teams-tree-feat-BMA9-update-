@@ -175,7 +175,7 @@ def get_c3a_fpy(start_time,end_time,con):
             tot_c3a_4_ic = len(pd.unique(df_c3a_4_ic["serial"]))
             pass_c3a_4_ic = len(pd.unique(df_c3a_4_ic.loc[df_c3a_4_ic["result"]=="PASS","serial"]))
             fpy_c3a_4_ic = str(np.around(100 * (pass_c3a_4_ic / tot_c3a_4_ic),2)) + '%'
-            c3a_ic_tgt_4 = "color:green;" if np.around(100 * (pass_c3a_4_ic_4 / tot_c3a_4_ic_4),2) >= yield_tgt_c3a else "color:red;"
+            c3a_ic_tgt_4 = "color:green;" if np.around(100 * (pass_c3a_4_ic / tot_c3a_4_ic),2) >= yield_tgt_c3a else "color:red;"
         else:
             fpy_c3a_4_ic = '0'
             c3a_ic_tgt_4 = "color:black:"
@@ -187,7 +187,7 @@ def get_c3a_fpy(start_time,end_time,con):
             tot_c3a_4_nic = len(pd.unique(df_c3a_4_nic["serial"]))
             pass_c3a_4_nic = len(pd.unique(df_c3a_4_nic.loc[df_c3a_4_nic["result"]=="PASS","serial"]))
             fpy_c3a_4_nic = str(np.around(100 * (pass_c3a_4_nic / tot_c3a_4_nic),2)) + '%'
-            c3a_nic_tgt_4 = "color:green;" if np.around(100 * (pass_c3a_4_nic_4 / tot_c3a_4_nic_4),2) >= yield_tgt_c3a else "color:red;"
+            c3a_nic_tgt_4 = "color:green;" if np.around(100 * (pass_c3a_4_nic / tot_c3a_4_nic),2) >= yield_tgt_c3a else "color:red;"
         else:
             fpy_c3a_4_nic = '0'
             c3a_nic_tgt_4 = "color:black:"
@@ -199,7 +199,7 @@ def get_c3a_fpy(start_time,end_time,con):
             tot_c3a_5_ic = len(pd.unique(df_c3a_5_ic["serial"]))
             pass_c3a_5_ic = len(pd.unique(df_c3a_5_ic.loc[df_c3a_5_ic["result"]=="PASS","serial"]))
             fpy_c3a_5_ic = str(np.around(100 * (pass_c3a_5_ic / tot_c3a_5_ic),2)) + '%'
-            c3a_ic_tgt_5 = "color:green;" if np.around(100 * (pass_c3a_5_ic_5 / tot_c3a_5_ic_5),2) >= yield_tgt_c3a else "color:red;"
+            c3a_ic_tgt_5 = "color:green;" if np.around(100 * (pass_c3a_5_ic / tot_c3a_5_ic),2) >= yield_tgt_c3a else "color:red;"
         else:
             fpy_c3a_5_ic = '0'
             c3a_ic_tgt_5 = "color:black:"
@@ -211,7 +211,7 @@ def get_c3a_fpy(start_time,end_time,con):
             tot_c3a_5_nic = len(pd.unique(df_c3a_5_nic["serial"]))
             pass_c3a_5_nic = len(pd.unique(df_c3a_5_nic.loc[df_c3a_5_nic["result"]=="PASS","serial"]))
             fpy_c3a_5_nic = str(np.around(100 * (pass_c3a_5_nic / tot_c3a_5_nic),2)) + '%'
-            c3a_nic_tgt_5 = "color:green;" if np.around(100 * (pass_c3a_5_nic_5 / tot_c3a_5_nic_5),2) >= yield_tgt_c3a else "color:red;"
+            c3a_nic_tgt_5 = "color:green;" if np.around(100 * (pass_c3a_5_nic / tot_c3a_5_nic),2) >= yield_tgt_c3a else "color:red;"
         else:
             fpy_c3a_5_nic = '0'
             c3a_nic_tgt_5 = "color:black:"
@@ -264,7 +264,7 @@ def main(env,eos=False):
     fpy_c3a_4_nic = c3a_fpy[2]
     fpy_c3a_5_nic = c3a_fpy[3]
     c3a_ic_tgt_4 = c3a_fpy[4]
-    c3a_nic_tgt_4 = c3a_fpy[5]
+    c3a_ic_tgt_5 = c3a_fpy[5]
     c3a_nic_tgt_4 = c3a_fpy[6]
     c3a_nic_tgt_5 = c3a_fpy[7]
     
