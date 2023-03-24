@@ -5,6 +5,7 @@ import logging
 from sqlalchemy import text
 import pandas as pd
 import pymsteams
+import numpy as np
 
 def get_starve_block_table(start_time,end_time):
     seconds_between = (end_time - start_time).seconds
@@ -66,6 +67,167 @@ def get_blocked_table(start_time,end_time):
         """
     return html
 
+def get_mamc_fpy(start_time,end_time,con):
+    
+    mamc_query = """SELECT 
+        t.name serial,
+        convert_tz(tp.completed,'UTC','US/Pacific') date,
+        SUBSTRING(a.name,4,1) line,
+    	if(nc.description like '3BM%%', SUBSTRING(nc.description, 12), nc.description) nc,
+    	nc.flowstepname,
+        case 
+            when nc.description IS NULL then 'pass'
+            when nc.description IS NOT NULL then 'fail'
+        end result
+    FROM thingpath tp FORCE INDEX (IX_THINGPATH_FLOWSTEPID_ISCURRENT_COMPLETED)
+        INNER JOIN
+            actor a ON a.id = tp.actorcreatedby
+        INNER JOIN
+            thing t ON t.id = tp.thingid
+        
+        LEFT JOIN
+            nc ON nc.thingid = t.id
+    WHERE
+        tp.completed >= """ + start_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
+        AND tp.completed < """ + end_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
+            AND tp.flowstepid IN (840678, 849852)
+            AND (nc.flowstepname in ('3BM4-34000','3BM4-40100','3BM5-34000','3BM5-40100') OR nc.flowstepname IS NULL)
+        """
+    
+    yield_tgt_mamc = 97.0
+    
+    df_mamc = pd.read_sql(mamc_query, con=con)
+    
+    if len(df_mamc) > 0:
+       
+        # line 4
+        df_mamc_4 = df_mamc[df_mamc["line"]=="4"]
+        if len(df_mamc_4) > 0:
+            tot_mamc_4 = len(pd.unique(df_mamc_4["serial"]))
+            pass_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="pass","serial"]))
+            fail_mamc_4 = len(pd.unique(df_mamc_4.loc[df_mamc_4["result"]=="fail","serial"]))
+            fpy_mamc_4 = str(np.around(100 * (pass_mamc_4 / tot_mamc_4),2)) + '%'
+            mamc_tgt_4 = "color:green;" if np.around(100 * (pass_mamc_4 / tot_mamc_4),2) >= yield_tgt_mamc else "color:red;"
+        else:
+            fpy_mamc_4 = '0'
+            mamc_tgt_4 = "color:black:"
+            
+        # line 5
+        df_mamc_5 = df_mamc[df_mamc["line"]=="5"]
+        if len(df_mamc_5) > 0:
+            tot_mamc_5 = len(pd.unique(df_mamc_5["serial"]))
+            pass_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="pass","serial"]))
+            fail_mamc_5 = len(pd.unique(df_mamc_5.loc[df_mamc_5["result"]=="fail","serial"]))
+            fpy_mamc_5 = str(np.around(100 * (pass_mamc_5 / tot_mamc_5),2)) + '%'
+            mamc_tgt_5 = "color:green;" if np.around(100 * (pass_mamc_5 / tot_mamc_5),2) >= yield_tgt_mamc else "color:red;"
+        else: 
+            fpy_mamc_5 = '0'
+            mamc_tgt_4 = "color:black:"
+            
+    else:
+        fpy_mamc_4 = '0'
+        fpy_mamc_5 = '0' 
+        mamc_tgt_4 = "color:black:"
+        mamc_tgt_5 = "color:black:"
+    
+    return fpy_mamc_4, fpy_mamc_5, mamc_tgt_4, mamc_tgt_5
+
+def get_c3a_fpy(start_time,end_time,con):
+
+    c3a_query = """SELECT
+            t.name AS 'serial',
+        CASE 
+            WHEN t.state = 'CONSUMED' THEN 'PASS'
+            ELSE 'FAIL'
+                    END AS result,
+        SUBSTRING(a.name,4,1) AS line,
+        SUBSTRING(a.name,13,2) AS lane,
+        CASE
+          WHEN SUBSTRING(a.name,6,2) = '41' THEN 'IC'
+          WHEN SUBSTRING(a.name,6,2) = '43' THEN 'NIC'
+        END AS assembly
+    FROM thingpath tp
+    INNER JOIN thing t
+        ON t.id = tp.thingid
+    INNER JOIN flowstep fs
+        ON fs.id = tp.flowstepid
+        AND fs.name IN ('3BM4-41100','3BM5-41100','3BM4-43100','3BM5-43100')
+    INNER JOIN actor a
+        ON a.id = tp.actorcreatedby
+    LEFT JOIN nc
+        ON nc.thingid = t.id
+        AND nc.flowstepname LIKE ('3BM%%NCM')
+    WHERE 
+        tp.completed >= """ + start_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
+        AND tp.completed < """ + end_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
+        """
+    
+    yield_tgt_c3a = 94.0
+    
+    df_c3a = pd.read_sql(c3a_query, con=con)
+    
+    if len(df_c3a) > 0:
+        
+        # c3a 4 ic
+        df_c3a_4_ic = df_c3a[(df_c3a["line"]=="4") & (df_c3a["assembly"]=="IC")]
+        
+        if len(df_c3a_4_ic) > 0:
+            tot_c3a_4_ic = len(pd.unique(df_c3a_4_ic["serial"]))
+            pass_c3a_4_ic = len(pd.unique(df_c3a_4_ic.loc[df_c3a_4_ic["result"]=="PASS","serial"]))
+            fpy_c3a_4_ic = str(np.around(100 * (pass_c3a_4_ic / tot_c3a_4_ic),2)) + '%'
+            c3a_ic_tgt_4 = "color:green;" if np.around(100 * (pass_c3a_4_ic / tot_c3a_4_ic),2) >= yield_tgt_c3a else "color:red;"
+        else:
+            fpy_c3a_4_ic = '0'
+            c3a_ic_tgt_4 = "color:black:"
+            
+        # c3a 4 nic
+        df_c3a_4_nic = df_c3a[(df_c3a["line"]=="4") & (df_c3a["assembly"]=="NIC")]
+         
+        if len(df_c3a_4_nic) > 0:
+            tot_c3a_4_nic = len(pd.unique(df_c3a_4_nic["serial"]))
+            pass_c3a_4_nic = len(pd.unique(df_c3a_4_nic.loc[df_c3a_4_nic["result"]=="PASS","serial"]))
+            fpy_c3a_4_nic = str(np.around(100 * (pass_c3a_4_nic / tot_c3a_4_nic),2)) + '%'
+            c3a_nic_tgt_4 = "color:green;" if np.around(100 * (pass_c3a_4_nic / tot_c3a_4_nic),2) >= yield_tgt_c3a else "color:red;"
+        else:
+            fpy_c3a_4_nic = '0'
+            c3a_nic_tgt_4 = "color:black:"
+             
+        # c3a 5 ic
+        df_c3a_5_ic = df_c3a[(df_c3a["line"]=="5") & (df_c3a["assembly"]=="IC")]
+        
+        if len(df_c3a_5_ic) > 0:
+            tot_c3a_5_ic = len(pd.unique(df_c3a_5_ic["serial"]))
+            pass_c3a_5_ic = len(pd.unique(df_c3a_5_ic.loc[df_c3a_5_ic["result"]=="PASS","serial"]))
+            fpy_c3a_5_ic = str(np.around(100 * (pass_c3a_5_ic / tot_c3a_5_ic),2)) + '%'
+            c3a_ic_tgt_5 = "color:green;" if np.around(100 * (pass_c3a_5_ic / tot_c3a_5_ic),2) >= yield_tgt_c3a else "color:red;"
+        else:
+            fpy_c3a_5_ic = '0'
+            c3a_ic_tgt_5 = "color:black:"
+            
+        # c3a 5 nic
+        df_c3a_5_nic = df_c3a[(df_c3a["line"]=="5") & (df_c3a["assembly"]=="NIC")]
+         
+        if len(df_c3a_5_nic) > 0:
+            tot_c3a_5_nic = len(pd.unique(df_c3a_5_nic["serial"]))
+            pass_c3a_5_nic = len(pd.unique(df_c3a_5_nic.loc[df_c3a_5_nic["result"]=="PASS","serial"]))
+            fpy_c3a_5_nic = str(np.around(100 * (pass_c3a_5_nic / tot_c3a_5_nic),2)) + '%'
+            c3a_nic_tgt_5 = "color:green;" if np.around(100 * (pass_c3a_5_nic / tot_c3a_5_nic),2) >= yield_tgt_c3a else "color:red;"
+        else:
+            fpy_c3a_5_nic = '0'
+            c3a_nic_tgt_5 = "color:black:"
+             
+    else:
+        fpy_c3a_4_ic = '0'
+        fpy_c3a_5_ic = '0'
+        fpy_c3a_4_nic= '0' 
+        fpy_c3a_5_nic = '0'
+        c3a_ic_tgt_4 = "color:black:"
+        c3a_ic_tgt_5 = "color:black:"
+        c3a_nic_tgt_4 = "color:black:"
+        c3a_nic_tgt_5 = "color:black:"
+
+    return fpy_c3a_4_ic, fpy_c3a_5_ic, fpy_c3a_4_nic, fpy_c3a_5_nic, c3a_ic_tgt_4, c3a_ic_tgt_5, c3a_nic_tgt_4, c3a_nic_tgt_5
+
 def main(env,eos=False):
     logging.info("Output Z2 45 start %s" % datetime.utcnow())
     lookback=12 if eos else 1
@@ -88,6 +250,25 @@ def main(env,eos=False):
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
 
+    #get fpy for mamc
+    mamc_fpy = get_mamc_fpy(start, end, mos_con)
+    fpy_mamc_4 = mamc_fpy[0]
+    fpy_mamc_5 = mamc_fpy[1]
+    mamc_tgt_4 = mamc_fpy[2]
+    mamc_tgt_5 = mamc_fpy[3]
+    
+    #get fpy for c3a
+    c3a_fpy = get_c3a_fpy(start, end, mos_con)
+    fpy_c3a_4_ic = c3a_fpy[0]
+    fpy_c3a_5_ic = c3a_fpy[1]
+    fpy_c3a_4_nic = c3a_fpy[2]
+    fpy_c3a_5_nic = c3a_fpy[3]
+    c3a_ic_tgt_4 = c3a_fpy[4]
+    c3a_ic_tgt_5 = c3a_fpy[5]
+    c3a_nic_tgt_4 = c3a_fpy[6]
+    c3a_nic_tgt_5 = c3a_fpy[7]
+    
+
     mos_con.close()
 
     mamc_outputs = []
@@ -101,6 +282,8 @@ def main(env,eos=False):
 
     total_mamc5_output = helper_functions.get_output_val(df_output,f"3BM5-{MAMC_FLOWSTEP_END}")
     total_c3a5_output = helper_functions.get_output_val(df_output,f"3BM5-{C3A_FLOWSTEP_END}")
+    
+   
 
     #create bma header
     bma_header_html = """<tr>
@@ -140,6 +323,51 @@ def main(env,eos=False):
                     """
     tsm_html = "<table>" + "<caption>Performance</caption>" + tsm_header_html + mamc_starved_html + "</table>"
     
+    
+    #create yield header
+    mamc_fpy_header_html = """<tr>
+            <th style="text-align:center"></th>
+            <th style="text-align:center">BMA4</th>
+            <th style="text-align:center">BMA5</th>
+            </tr>
+     """
+
+    #create mamc output row
+    mamc_fpy_html = f"""<tr>
+             <td style="text-align:center"><strong>MAMC</strong></td>
+             <td style="text-align:center;{mamc_tgt_4}">{fpy_mamc_4}</td>
+             <td style="text-align:center;{mamc_tgt_5}">{fpy_mamc_5}</td>
+             </tr>
+     """
+
+    mamc_fpy_html = "<table>" + "<caption>MAMC FPY</caption>" + mamc_fpy_header_html + mamc_fpy_html + "</table>"
+
+    #create c3a yield header
+    c3a_fpy_header_html = """<tr>
+            <th style="text-align:center"></th>
+            <th style="text-align:center">BMA4</th>
+            <th style="text-align:center">BMA5</th>
+            </tr>
+     """
+
+    #create c3a ic output row
+    ic_fpy_html = f"""<tr>
+             <td style="text-align:center"><strong>IC</strong></td>
+             <td style="text-align:center;{c3a_ic_tgt_4}">{fpy_c3a_4_ic}</td>
+             <td style="text-align:center;{c3a_ic_tgt_5}">{fpy_c3a_5_ic}</td>
+             </tr>
+     """
+     
+    #create c3a nic output row
+    nic_fpy_html = f"""<tr>
+             <td style="text-align:center"><strong>NIC</strong></td>
+             <td style="text-align:center;{c3a_nic_tgt_4}">{fpy_c3a_4_nic}</td>
+             <td style="text-align:center;{c3a_nic_tgt_5}">{fpy_c3a_5_nic}</td>
+             </tr>
+     """
+
+    c3a_fpy_html = "<table>" + "<caption>C3A DISPENSE FPY</caption>" + c3a_fpy_header_html + ic_fpy_html + nic_fpy_html + "</table>"    
+
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
@@ -160,8 +388,16 @@ def main(env,eos=False):
     tsm_card = pymsteams.cardsection()
     tsm_card.text(tsm_html)
 
+    mamc_fpy_card = pymsteams.cardsection()
+    mamc_fpy_card.text(mamc_fpy_html)
+    
+    c3a_fpy_card = pymsteams.cardsection()
+    c3a_fpy_card.text(c3a_fpy_html)
+
     teams_msg.addSection(summary_card)
     teams_msg.addSection(tsm_card)
+    teams_msg.addSection(mamc_fpy_card)
+    teams_msg.addSection(c3a_fpy_card)
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
     #SEND IT
     try:
