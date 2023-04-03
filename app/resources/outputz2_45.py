@@ -260,13 +260,13 @@ def main(env,eos=False):
 
     #get fpy for mamc
     mamc_fpy = get_mamc_fpy(start, end, mos_con)
-    fpy_mamc_4, fpy_mamc_5, mamc_tgt_4, mamc_tgt_5 = mamc_fpy()
+    fpy_mamc_4, fpy_mamc_5, mamc_tgt_4, mamc_tgt_5 = mamc_fpy
 
     
     #get fpy for c3a
     c3a_fpy = get_c3a_fpy(start, end, mos_con)
     
-    fpy_c3a_4_ic, fpy_c3a_5_ic, fpy_c3a_4_nic, fpy_c3a_5_nic, c3a_ic_tgt_4, c3a_ic_tgt_5, c3a_nic_tgt_4, c3a_nic_tgt_5 = c3a_fpy()
+    fpy_c3a_4_ic, fpy_c3a_5_ic, fpy_c3a_4_nic, fpy_c3a_5_nic, c3a_ic_tgt_4, c3a_ic_tgt_5, c3a_nic_tgt_4, c3a_nic_tgt_5 = c3a_fpy
 
 
     mos_con.close()
