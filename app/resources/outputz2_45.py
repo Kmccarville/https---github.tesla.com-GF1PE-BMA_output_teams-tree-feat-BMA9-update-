@@ -125,7 +125,7 @@ def get_mamc_fpy(start_time,end_time,con):
             mamc_tgt_5 = "color:green;" if np.around(100 * (pass_mamc_5 / tot_mamc_5),2) >= yield_tgt_mamc else "color:red;"
         else: 
             fpy_mamc_5 = '0'
-            mamc_tgt_4 = "color:black:"
+            mamc_tgt_5 = "color:black:"
             
     else:
         fpy_mamc_4 = '0'
