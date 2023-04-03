@@ -98,6 +98,9 @@ def get_mamc_fpy(start_time,end_time,con):
     
     df_mamc = pd.read_sql(mamc_query, con=con)
     
+    mamc_tgt_4 = "color:black:"
+    mamc_tgt_5 = "color:black:"
+    
     if len(df_mamc) > 0:
        
         # line 4
@@ -165,6 +168,11 @@ def get_c3a_fpy(start_time,end_time,con):
     yield_tgt_c3a = 94.0
     
     df_c3a = pd.read_sql(c3a_query, con=con)
+    
+    c3a_ic_tgt_4 = "color:black:"
+    c3a_ic_tgt_5 = "color:black:"
+    c3a_nic_tgt_4 = "color:black:"
+    c3a_nic_tgt_5 = "color:black:"
     
     if len(df_c3a) > 0:
         
@@ -252,22 +260,14 @@ def main(env,eos=False):
 
     #get fpy for mamc
     mamc_fpy = get_mamc_fpy(start, end, mos_con)
-    fpy_mamc_4 = mamc_fpy[0]
-    fpy_mamc_5 = mamc_fpy[1]
-    mamc_tgt_4 = mamc_fpy[2]
-    mamc_tgt_5 = mamc_fpy[3]
+    fpy_mamc_4, fpy_mamc_5, mamc_tgt_4, mamc_tgt_5 = mamc_fpy()
+
     
     #get fpy for c3a
     c3a_fpy = get_c3a_fpy(start, end, mos_con)
-    fpy_c3a_4_ic = c3a_fpy[0]
-    fpy_c3a_5_ic = c3a_fpy[1]
-    fpy_c3a_4_nic = c3a_fpy[2]
-    fpy_c3a_5_nic = c3a_fpy[3]
-    c3a_ic_tgt_4 = c3a_fpy[4]
-    c3a_ic_tgt_5 = c3a_fpy[5]
-    c3a_nic_tgt_4 = c3a_fpy[6]
-    c3a_nic_tgt_5 = c3a_fpy[7]
     
+    fpy_c3a_4_ic, fpy_c3a_5_ic, fpy_c3a_4_nic, fpy_c3a_5_nic, c3a_ic_tgt_4, c3a_ic_tgt_5, c3a_nic_tgt_4, c3a_nic_tgt_5 = c3a_fpy()
+
 
     mos_con.close()
 
