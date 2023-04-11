@@ -157,16 +157,16 @@ from
         ON a.id = tp.actormodifiedby
     left join
     nc on nc.thingid = t.id
-    and nc.createdby like ('3BM%')
+    and nc.createdby like ('3BM%%')
 where
 	tp.flowstepid in (select id from flowstep where name in ('3BM4-43200','3BM5-43200', '3BM4-41200','3BM5-41200'))
     and tp.completed >= """+start_time.strftime("'%Y-%m-%d %H:%M:%S'")+"""
         AND tp.completed < """+end_time.strftime("'%Y-%m-%d %H:%M:%S'")+"""
         """
     
-    yield_tgt_c3a = 94.0
+    yield_tgt_c3a = 96.0
     
-    df_c3a = pd.read_sql(text(c3a_query), con=con)
+    df_c3a = pd.read_sql(c3a_query, con=con)
     
     c3a_ic_tgt_4 = "color:black:"
     c3a_ic_tgt_5 = "color:black:"
