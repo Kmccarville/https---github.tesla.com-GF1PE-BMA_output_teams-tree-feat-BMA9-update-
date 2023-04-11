@@ -138,22 +138,22 @@ def get_mamc_fpy(start_time,end_time,con):
 def get_c3a_fpy(start_time,end_time,con):
 
     c3a_query = """Select 
-	SUBSTRING(a.name,4,1) AS line,
-	SUBSTRING(a.name,13,2) AS lane,
-	CASE
-		WHEN SUBSTRING(a.name,6,2) = '41' THEN 'IC'
-		WHEN SUBSTRING(a.name,6,2) = '43' THEN 'NIC'
-	END AS assembly,
-	t.name as serial,
-	case 
+	 t.name AS 'serial',
+        case 
 		when nc.description IS NULL then 'pass'
 		when nc.description IS NOT NULL then 'fail'
-	end  as result
+	end  as resultt,
+        SUBSTRING(a.name,4,1) AS line,
+        SUBSTRING(a.name,13,2) AS lane,
+        CASE
+          WHEN SUBSTRING(a.name,6,2) = '41' THEN 'IC'
+          WHEN SUBSTRING(a.name,6,2) = '43' THEN 'NIC'
+        END AS assembly
 from
 	thingpath tp force index (ix_thingpath_flowstepid_iscurrent_completed)
     inner join 
     thing t on t.id = tp.thingid
-    INNER JOIN actor a
+     INNER JOIN actor a
         ON a.id = tp.actormodifiedby
     left join
     nc on nc.thingid = t.id
