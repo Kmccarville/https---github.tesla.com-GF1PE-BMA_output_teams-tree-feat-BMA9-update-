@@ -138,7 +138,7 @@ def get_mamc_fpy(start_time,end_time,con):
 def get_c3a_fpy(start_time,end_time,con):
 
     c3a_query = """Select 
-	 t.name AS 'serial',
+	 tp.thingid AS 'serial',
         case 
 		when nc.description IS NULL then 'PASS'
 		when nc.description IS NOT NULL then 'FAIL'
@@ -150,16 +150,17 @@ def get_c3a_fpy(start_time,end_time,con):
           WHEN SUBSTRING(a.name,6,2) = '43' THEN 'NIC'
         END AS assembly
 from
-	thingpath tp
-    inner join 
-    thing t on t.id = tp.thingid
+	thingpath tp 
      INNER JOIN actor a
         ON a.id = tp.actormodifiedby
     left join
-    nc on nc.thingid = t.id
+    nc on nc.thingid = tp.thingid
     and nc.createdby like ('3BM%%')
 where
-	tp.flowstepid in (select id from flowstep where name in ('3BM4-43200','3BM5-43200', '3BM4-41200','3BM5-41200'))
+	tp.flowstepid in (817280,
+						819346,
+                        845623,
+                        1017879)
     and tp.completed >= """+start_time.strftime("'%Y-%m-%d %H:%M:%S'")+"""
         AND tp.completed < """+end_time.strftime("'%Y-%m-%d %H:%M:%S'")+"""
         """
