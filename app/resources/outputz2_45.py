@@ -69,29 +69,27 @@ def get_blocked_table(start_time,end_time):
 
 def get_mamc_fpy(start_time,end_time,con):
     
-    mamc_query = """SELECT 
-        t.name serial,
-        convert_tz(tp.completed,'UTC','US/Pacific') date,
+    mamc_query = """select
+	tp.thingid as serial,
         SUBSTRING(a.name,4,1) line,
-    	if(nc.description like '3BM%%', SUBSTRING(nc.description, 12), nc.description) nc,
-    	nc.flowstepname,
         case 
             when nc.description IS NULL then 'pass'
             when nc.description IS NOT NULL then 'fail'
         end result
-    FROM thingpath tp FORCE INDEX (IX_THINGPATH_FLOWSTEPID_ISCURRENT_COMPLETED)
+    FROM 
+		thingpath tp 
         INNER JOIN
             actor a ON a.id = tp.actorcreatedby
-        INNER JOIN
-            thing t ON t.id = tp.thingid
+        #INNER JOIN
+         #   thing t ON t.id = tp.thingid
         
         LEFT JOIN
-            nc ON nc.thingid = t.id
+            nc ON nc.thingid = tp.thingid
+            AND (nc.flowstepname in ('3BM4-34000','3BM4-40100','3BM5-34000','3BM5-40100') OR nc.flowstepname IS NULL)
     WHERE
         tp.completed >= """ + start_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
         AND tp.completed < """ + end_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
             AND tp.flowstepid IN (840678, 849852)
-            AND (nc.flowstepname in ('3BM4-34000','3BM4-40100','3BM5-34000','3BM5-40100') OR nc.flowstepname IS NULL)
         """
     
     yield_tgt_mamc = 97.0
