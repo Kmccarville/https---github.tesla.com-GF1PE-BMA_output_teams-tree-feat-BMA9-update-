@@ -137,37 +137,36 @@ def get_mamc_fpy(start_time,end_time,con):
 
 def get_c3a_fpy(start_time,end_time,con):
 
-    c3a_query = """SELECT
-            t.name AS 'serial',
-        CASE 
-            WHEN t.state = 'CONSUMED' THEN 'PASS'
-            ELSE 'FAIL'
-                    END AS result,
+    c3a_query = """Select 
+	 t.name AS 'serial',
+        case 
+		when nc.description IS NULL then 'PASS'
+		when nc.description IS NOT NULL then 'FAIL'
+	end  as result,
         SUBSTRING(a.name,4,1) AS line,
         SUBSTRING(a.name,13,2) AS lane,
         CASE
           WHEN SUBSTRING(a.name,6,2) = '41' THEN 'IC'
           WHEN SUBSTRING(a.name,6,2) = '43' THEN 'NIC'
         END AS assembly
-    FROM thingpath tp
-    INNER JOIN thing t
-        ON t.id = tp.thingid
-    INNER JOIN flowstep fs
-        ON fs.id = tp.flowstepid
-        AND fs.name IN ('3BM4-41100','3BM5-41100','3BM4-43100','3BM5-43100')
-    INNER JOIN actor a
-        ON a.id = tp.actorcreatedby
-    LEFT JOIN nc
-        ON nc.thingid = t.id
-        AND nc.flowstepname LIKE ('3BM%%NCM')
-    WHERE 
-        tp.completed >= """ + start_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
-        AND tp.completed < """ + end_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
+from
+	thingpath tp force index (ix_thingpath_flowstepid_iscurrent_completed)
+    inner join 
+    thing t on t.id = tp.thingid
+     INNER JOIN actor a
+        ON a.id = tp.actormodifiedby
+    left join
+    nc on nc.thingid = t.id
+    and nc.createdby like ('3BM%')
+where
+	tp.flowstepid in (select id from flowstep where name in ('3BM4-43200','3BM5-43200', '3BM4-41200','3BM5-41200'))
+    and tp.completed >= """+start_time.strftime("'%Y-%m-%d %H:%M:%S'")+"""
+        AND tp.completed < """+end_time.strftime("'%Y-%m-%d %H:%M:%S'")+"""
         """
     
     yield_tgt_c3a = 94.0
     
-    df_c3a = pd.read_sql(c3a_query, con=con)
+    df_c3a = pd.read_sql(text(c3a_query), con=con)
     
     c3a_ic_tgt_4 = "color:black:"
     c3a_ic_tgt_5 = "color:black:"
