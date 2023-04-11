@@ -69,29 +69,27 @@ def get_blocked_table(start_time,end_time):
 
 def get_mamc_fpy(start_time,end_time,con):
     
-    mamc_query = """SELECT 
-        t.name serial,
-        convert_tz(tp.completed,'UTC','US/Pacific') date,
+    mamc_query = """select
+	tp.thingid as serial,
         SUBSTRING(a.name,4,1) line,
-    	if(nc.description like '3BM%%', SUBSTRING(nc.description, 12), nc.description) nc,
-    	nc.flowstepname,
         case 
             when nc.description IS NULL then 'pass'
             when nc.description IS NOT NULL then 'fail'
         end result
-    FROM thingpath tp FORCE INDEX (IX_THINGPATH_FLOWSTEPID_ISCURRENT_COMPLETED)
+    FROM 
+		thingpath tp 
         INNER JOIN
             actor a ON a.id = tp.actorcreatedby
-        INNER JOIN
-            thing t ON t.id = tp.thingid
+        #INNER JOIN
+         #   thing t ON t.id = tp.thingid
         
         LEFT JOIN
-            nc ON nc.thingid = t.id
+            nc ON nc.thingid = tp.thingid
+            AND (nc.flowstepname in ('3BM4-34000','3BM4-40100','3BM5-34000','3BM5-40100') OR nc.flowstepname IS NULL)
     WHERE
         tp.completed >= """ + start_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
         AND tp.completed < """ + end_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
             AND tp.flowstepid IN (840678, 849852)
-            AND (nc.flowstepname in ('3BM4-34000','3BM4-40100','3BM5-34000','3BM5-40100') OR nc.flowstepname IS NULL)
         """
     
     yield_tgt_mamc = 97.0
@@ -137,35 +135,35 @@ def get_mamc_fpy(start_time,end_time,con):
 
 def get_c3a_fpy(start_time,end_time,con):
 
-    c3a_query = """SELECT
-            t.name AS 'serial',
-        CASE 
-            WHEN t.state = 'CONSUMED' THEN 'PASS'
-            ELSE 'FAIL'
-                    END AS result,
+    c3a_query = """Select 
+	 tp.thingid AS 'serial',
+        case 
+		when nc.description IS NULL then 'PASS'
+		when nc.description IS NOT NULL then 'FAIL'
+	end  as result,
         SUBSTRING(a.name,4,1) AS line,
         SUBSTRING(a.name,13,2) AS lane,
         CASE
           WHEN SUBSTRING(a.name,6,2) = '41' THEN 'IC'
           WHEN SUBSTRING(a.name,6,2) = '43' THEN 'NIC'
         END AS assembly
-    FROM thingpath tp
-    INNER JOIN thing t
-        ON t.id = tp.thingid
-    INNER JOIN flowstep fs
-        ON fs.id = tp.flowstepid
-        AND fs.name IN ('3BM4-41100','3BM5-41100','3BM4-43100','3BM5-43100')
-    INNER JOIN actor a
-        ON a.id = tp.actorcreatedby
-    LEFT JOIN nc
-        ON nc.thingid = t.id
-        AND nc.flowstepname LIKE ('3BM%%NCM')
-    WHERE 
-        tp.completed >= """ + start_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
-        AND tp.completed < """ + end_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
+from
+	thingpath tp 
+     INNER JOIN actor a
+        ON a.id = tp.actormodifiedby
+    left join
+    nc on nc.thingid = tp.thingid
+    and nc.createdby like ('3BM%%')
+where
+	tp.flowstepid in (817280,
+						819346,
+                        845623,
+                        1017879)
+    and tp.completed >= """+start_time.strftime("'%Y-%m-%d %H:%M:%S'")+"""
+        AND tp.completed < """+end_time.strftime("'%Y-%m-%d %H:%M:%S'")+"""
         """
     
-    yield_tgt_c3a = 94.0
+    yield_tgt_c3a = 96.0
     
     df_c3a = pd.read_sql(c3a_query, con=con)
     

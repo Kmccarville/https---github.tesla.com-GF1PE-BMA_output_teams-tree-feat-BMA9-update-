@@ -14,8 +14,8 @@ def get_mamc_ncs(db,start,end):
         from thingpath tp
         inner join nc on nc.thingid = tp.thingid
         where tp.completed between '{start}' and '{end}'
-        and tp.flowstepid = 1023527
-        and nc.detectedatstepid = '268859'
+        and tp.flowstepid in ('1038276','1038270','1038275','1038277','1038274','1038271')
+        and nc.detectedatstepid in ('277978','277974','277976','277979','277980')
         and tp.iscurrent = 0
     """
     df = pd.read_sql(query,db)
@@ -39,8 +39,8 @@ def main(env,eos=False):
 
     #define globals
     NORMAL_DIVISOR = 4
-    MAMC_FLOWSTEP = 'MBM-25000'
-    MAMC_LINE = 'MMAM'
+    MAMC_FLOWSTEP = '3BM8-29500'
+    MAMC_LINE = '3BM8'
     C3A_FLOWSTEP = '3BM8-44000'
     C3A_LINE = '3BM8'
 
