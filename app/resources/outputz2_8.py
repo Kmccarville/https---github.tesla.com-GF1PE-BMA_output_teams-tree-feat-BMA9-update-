@@ -15,7 +15,7 @@ def get_mamc_ncs(db,start,end):
         inner join nc on nc.thingid = tp.thingid
         where tp.completed between '{start}' and '{end}'
         and tp.flowstepid in ('1038276','1038270','1038275','1038277','1038274','1038271')
-        and nc.detectedatstepid in in ('277978','277974','277976','277979','277980')
+        and nc.detectedatstepid in ('277978','277974','277976','277979','277980')
         and tp.iscurrent = 0
     """
     df = pd.read_sql(query,db)
