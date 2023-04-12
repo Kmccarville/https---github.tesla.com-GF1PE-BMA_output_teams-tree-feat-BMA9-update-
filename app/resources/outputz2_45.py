@@ -155,7 +155,7 @@ from
     thing t on t.id = tp.thingid
     left join
     nc on nc.thingid = tp.thingid
-    and nc.flowstepname like ('3BM%NCM')
+    and nc.flowstepname like ('3BM%%NCM')
 where
 	tp.flowstepid in (817279,
                         819345,
