@@ -139,10 +139,10 @@ def get_c3a_fpy(start_time,end_time,con):
 
     c3a_query = """Select 
 	 tp.thingid AS 'serial',
-        case 
-		when nc.description IS NULL then 'PASS'
-		when nc.description IS NOT NULL then 'FAIL'
-	end  as result,
+    (CASE
+        WHEN t.state = 'CONSUMED' THEN 'PASS'
+        ELSE 'FAIL'
+	END) AS disposition,
         SUBSTRING(a.name,4,1) AS line,
         SUBSTRING(a.name,13,2) AS lane,
         CASE
@@ -153,16 +153,19 @@ from
 	thingpath tp 
      INNER JOIN actor a
         ON a.id = tp.actormodifiedby
+	inner join
+    thing t on t.id = tp.thingid
     left join
     nc on nc.thingid = tp.thingid
-    and nc.createdby like ('3BM%%')
+    and nc.flowstepname like ('3BM%NCM')
 where
-	tp.flowstepid in (817280,
-						819346,
-                        845623,
-                        1017879)
-    and tp.completed >= """+start_time.strftime("'%Y-%m-%d %H:%M:%S'")+"""
-        AND tp.completed < """+end_time.strftime("'%Y-%m-%d %H:%M:%S'")+"""
+	tp.flowstepid in (817279,
+                        819345,
+                        845622,
+                        1017878
+                        )
+    and tp.completed >= """ + start_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
+        AND tp.completed < """ + end_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
         """
     
     yield_tgt_c3a = 96.0
