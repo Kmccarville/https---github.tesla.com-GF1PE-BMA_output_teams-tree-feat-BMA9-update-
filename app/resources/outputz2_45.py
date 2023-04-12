@@ -140,7 +140,7 @@ def get_c3a_fpy(start_time,end_time,con):
     (CASE
         WHEN t.state = 'CONSUMED' THEN 'PASS'
         ELSE 'FAIL'
-	END) AS disposition,
+	END) AS result,
         SUBSTRING(a.name,4,1) AS line,
         SUBSTRING(a.name,13,2) AS lane,
         CASE
