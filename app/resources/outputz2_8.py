@@ -41,19 +41,22 @@ def main(env,eos=False):
     #define globals
     NORMAL_DIVISOR = 4
     MAMC_FLOWSTEP = '3BM8-29500'
+    MAMC_FLOWSTEP2 = '3BM8-29600'
     MAMC_LINE = '3BM8'
     C3A_FLOWSTEP = '3BM8-44000'
     C3A_LINE = '3BM8'
 
     #create flowstep list
-    flowsteps = [MAMC_FLOWSTEP,C3A_FLOWSTEP]
+    flowsteps = [MAMC_FLOWSTEP,C3A_FLOWSTEP,MAMC_FLOWSTEP2]
     #create mos connection
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     #get output for flowsteps
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
 
 
-    mamc_output_good = helper_functions.get_output_val(df_output, MAMC_FLOWSTEP,MAMC_LINE)
+    mamc_output_good1 = helper_functions.get_output_val(df_output, MAMC_FLOWSTEP,MAMC_LINE)
+    mamc_output_good2 = helper_functions.get_output_val(df_output, MAMC_FLOWSTEP2,MAMC_LINE)
+    mamc_output_good = mamc_output_good1 + mamc_output_good2
 
     mamc_output_ncs = get_mamc_ncs(mos_con,start, end)
     c3a_outputs = helper_functions.get_output_val(df_output,C3A_FLOWSTEP,C3A_LINE)
