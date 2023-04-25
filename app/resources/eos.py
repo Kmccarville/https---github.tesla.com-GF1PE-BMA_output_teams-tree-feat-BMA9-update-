@@ -37,7 +37,7 @@ def eos_report(env,do_24=False):
     DF_FLOWSTEP = pd.DataFrame({
                                     'LINE' : ['3BM1','3BM2','3BM3','3BM4','3BM5','3BM8'],
                                     'CTA'  : ['3BM-20000','3BM-20000','3BM-20000','3BM4-25000','3BM5-25000',''],
-                                    'MAMC'  : ['3BM-29500','3BM-29500','3BM-29500','3BM4-34000','3BM5-34000','MBM-25000'],
+                                    'MAMC'  : ['3BM-29500','3BM-29500','3BM-29500','3BM4-34000','3BM5-34000','3BM8-29500'],
                                     'MAMC_296'  : ['3BM-29600','3BM-29600','3BM-29600','','',''],
                                     'C3A'  : ['3BM-40001','3BM-40001','3BM-40001','3BM4-45000','3BM5-45000','3BM8-44000'],
                                     'ZONE3'  : ['3BM-57000','3BM-57000','3BM-57000','3BM-57000','3BM-57000',''],
@@ -75,11 +75,7 @@ def eos_report(env,do_24=False):
         z3_flowstep = DF_FLOWSTEP.query(f"LINE=='{line}'").iloc[0]['ZONE3']
 
         cta_outputs.append(helper_functions.get_output_val(df_output,cta_flowstep,line))
-        #special case for 3BM8 mamc
-        if line == '3BM8':
-            mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,'MMAM'))
-        else:
-            mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,line))
+        mamc_outputs.append(helper_functions.get_output_val(df_output,mamc_flowstep,line))
         mamc_296_outputs.append(helper_functions.get_output_val(df_output,mamc_296_flowstep,line))
         c3a_outputs.append(helper_functions.get_output_val(df_output,c3a_flowstep,line))
         z3_outputs.append(helper_functions.get_output_val(df_output,z3_flowstep,line))
