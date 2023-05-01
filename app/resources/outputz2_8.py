@@ -16,7 +16,6 @@ def get_mamc_ncs(db,start,end):
         where tp.completed between '{start}' and '{end}'
         and tp.flowstepid in ('1038276','1038270','1038275','1038277','1038274','1038271','1019245','1019264')
         and nc.detectedatstepid in ('277978','277974','277976','277979')
-        and nc.description <> '3BM8-29500:NMAMC Leak Test - Short'
         and tp.iscurrent = 0
     """
     df = pd.read_sql(query,db)
