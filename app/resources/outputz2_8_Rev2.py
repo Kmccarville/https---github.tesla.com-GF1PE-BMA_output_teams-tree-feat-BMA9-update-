@@ -223,10 +223,10 @@ def main(env,eos=False):
         c3a_outputs.append(helper_functions.get_output_val(df_output,C3A_FLOWSTEP,line))
 
     mamc_outputs = np.add(mamc_295_outputs, mamc_296_outputs)
+    c3a_outputs = np.add(c3a_outputs)
 
     total_mamc_output = helper_functions.get_output_val(df_output,MAMC_295_FLOWSTEP) + helper_functions.get_output_val(df_output,MAMC_296_FLOWSTEP)
     total_c3a_output = helper_functions.get_output_val(df_output,C3A_FLOWSTEP)
-
     #create bma header
     bma_header_html = f"""<tr>
             <th style="text-align:center"></th>
@@ -244,7 +244,6 @@ def main(env,eos=False):
     c3a_output_html = f"""<tr>
             <td style="text-align:center"><strong>C3A</strong></td>
             <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.2f}</td>
-            <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.2f}</td>
             <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.2f}</strong></td>
             """
 
