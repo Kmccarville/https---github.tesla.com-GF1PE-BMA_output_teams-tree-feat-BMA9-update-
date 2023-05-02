@@ -162,7 +162,7 @@ def get_performance_table(start,end):
             <td style="text-align:center">{auto_close_bma8_percent}%</td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>Sidemount</b></td>
+            <td style="text-align:left"><b>PF Return</b></td>
             <td style="text-align:center">{pf_return_ct_bma8}</td>
             <td>||</td>
         </tr>
