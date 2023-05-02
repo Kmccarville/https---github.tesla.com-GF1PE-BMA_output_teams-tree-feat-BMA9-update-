@@ -108,43 +108,32 @@ def get_performance_table(start,end):
 
     plc_con = helper_functions.get_sql_conn('plc_db')
     seconds_between = (end - start).seconds
-    AUTO_CLOSER_PATHS = [
-                        '[_3BM08_28000_30001]BMA8 EquipmentReport/ST29000_Closer_EquipmentReporting_HMI'
-                        ]
+    AUTO_CLOSER_PATHS = ['[_3BM08_28000_30001]BMA8 EquipmentReport/ST29000_Closer_EquipmentReporting_HMI']
 
     auto_close_df = helper_functions.query_tsm_state(plc_con,start, end, AUTO_CLOSER_PATHS, 'Starved')
     #get percentage (divide by seconds in between start and end and multiply by 100%)
     auto_close_bma8_percent = round(helper_functions.get_val(auto_close_df,'3BM8','LINE','Duration')/seconds_between*100,1)
 
-    SIDEMOUNT_CT_PATHS = [
-                        '[_3BM08_28000_30001]BMA8 EquipmentReport/ST28300_SideMountInstall_EQReport_HMI'
-                        ]
+    PF_RETURN_PATHS = ['[_3BM08_40000_49000]BMA8 Equipment Reporting/ST49000_PFLoadRB_EquipmentReporting_HMI']
+    PF_RETURN_LOW_LIMIT = 38
+    PF_RETURN_HIGH_LIMIT = 165
 
-    SIDEMOUNT_LOW_LIMIT = 38
-    SIDEMOUNT_HIGH_LIMIT = 165
-
-    sidemount_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,SIDEMOUNT_CT_PATHS,SIDEMOUNT_LOW_LIMIT,SIDEMOUNT_HIGH_LIMIT)
-    sidemount_ct_bma8 = round(helper_functions.get_val(sidemount_df,'3BM8','LINE','CT_SEC'),1)
+    pf_return_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,PF_RETURN_PATHS,PF_RETURN_LOW_LIMIT,PF_RETURN_HIGH_LIMIT)
+    pf_return_ct_bma8 = round(helper_functions.get_val(pf_return_df,'3BM8','LINE','CT_SEC'),1)
     
-    QIS_CT_PATHS = [
-                        '[_3BM08_28000_30001]BMA8 EquipmentReport/ST29400_QIS_EquipmentReporting_HMI'
-                        ]
-
+    QIS_CT_PATHS = ['[_3BM08_28000_30001]Eqt_3BM08_29400_QIS/StateControl/StateControlHMI']
     QIS_LOW_LIMIT = 41
     QIS_HIGH_LIMIT = 98
 
     qis_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,QIS_CT_PATHS,QIS_LOW_LIMIT,QIS_HIGH_LIMIT)
     qis_ct_bma8 = round(helper_functions.get_val(qis_df,'3BM8','LINE','CT_SEC'),1)
 
-    TESTER_CT_PATHS = [
-                        '[_3BM08_28000_30001]BMA8 EquipmentReport/ST29500_Tester_EquipmentReporting_HMI'
-                        ]
-
-    TESTER_LOW_LIMIT = 36
+    TESTER_CT_PATHS = ['[_3BM08_28000_30001]Eqt_3BM08_29500_Tester/StateControl/StateControl_HMI']
+    TESTER_LOW_LIMIT = 30
     TESTER_HIGH_LIMIT = 95
 
     tester_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,TESTER_CT_PATHS,TESTER_LOW_LIMIT,TESTER_HIGH_LIMIT)
-    tester_ct_bma8 = round(helper_functions.get_val(tester_df,'3BM1','LINE','CT_SEC'),1)
+    tester_ct_bma8 = round(helper_functions.get_val(tester_df,'3BM8','LINE','CT_SEC'),1)
 
 
     plc_con.close()
@@ -174,7 +163,7 @@ def get_performance_table(start,end):
         </tr>
         <tr>
             <td style="text-align:left"><b>Sidemount</b></td>
-            <td style="text-align:center">{sidemount_ct_bma8}</td>
+            <td style="text-align:center">{pf_return_ct_bma8}</td>
             <td>||</td>
         </tr>
         <tr>
@@ -261,15 +250,9 @@ def main(env,eos=False):
     # cycle_time_table = get_cycle_time_table(start,end)
     performance_table = get_performance_table(start,end)
     mamc_yield_table = get_mamc_yield_table(start,end)
-    if eos:
-        c3a_yield_table = get_c3a_yield_table(start,end)
-
+    c3a_yield_table = get_c3a_yield_table(start,end)
     cycle_time_html = '<table>' + "<caption>Performance</caption>"  + performance_table + '</table>'
-
-    if eos:
-        z2_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + mamc_yield_table + c3a_yield_table + '</table>'
-    else:
-        z2_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + mamc_yield_table + '</table>'
+    z2_yield_html = '<table>' + "<caption>Yield</caption>" + header_html + mamc_yield_table + c3a_yield_table + '</table>'
 
     #get webhook based on environment
     webhook_key = 'teams_webhook_BMA8_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
