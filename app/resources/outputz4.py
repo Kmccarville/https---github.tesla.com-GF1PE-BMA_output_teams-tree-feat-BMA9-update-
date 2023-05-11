@@ -126,7 +126,7 @@ def getDirFeedData(MC1_UPH, MC2_UPH):
     DF_Data = [] 
     return_obj = {} 
     
-    for query in range(len(Query)): 
+    for query in range(len(Query)):
         
         response = requests.get( 
                                 url='https://splunkapi.teslamotors.com/services/search/jobs/export', 
@@ -143,21 +143,25 @@ def getDirFeedData(MC1_UPH, MC2_UPH):
             splunk_text = StringIO(response.text) # convert csv string into a StringIO to be processed by pandas 
             df = pd.read_csv(splunk_text) 
             directfeed = df['container'][0] #splunk search return only one value 
-            DF_Data.append(directfeed) 
+            DF_Data.append(directfeed)
+            
         else: 
             DF_Data.append(-1) 
-        
+    try:
         MC1_DF = int(DF_Data[0])
-        MC2_DF = int(DF_Data[1]) 
+        MC2_DF = int(DF_Data[1])
+    except:
+        MC1_DF = -1
+        MC2_DF = -1
         
-        return_obj['MC1_DF'] = MC1_DF 
-        return_obj['MC2_DF'] = MC2_DF
-        return_obj['Total_DF'] = MC1_DF + MC2_DF 
-        return_obj['MC1_DF_Rate'] = round((MC1_DF/MC1_UPH)*100,1) 
-        return_obj['MC2_DF_Rate'] = round((MC2_DF/MC2_UPH)*100,1) 
-        return_obj['Total_DF_Rate'] = round(((MC1_DF + MC2_DF) / (MC1_UPH + MC2_UPH))*100,1) 
-        
-        return return_obj
+    return_obj['MC1_DF'] = MC1_DF 
+    return_obj['MC2_DF'] = MC2_DF
+    return_obj['Total_DF'] = MC1_DF + MC2_DF 
+    return_obj['MC1_DF_Rate'] = round((MC1_DF/MC1_UPH)*100,1) 
+    return_obj['MC2_DF_Rate'] = round((MC2_DF/MC2_UPH)*100,1) 
+    return_obj['Total_DF_Rate'] = round(((MC1_DF + MC2_DF) / (MC1_UPH + MC2_UPH))*100,1) 
+    
+    return return_obj
 
 def main(env, eos=False):
     logging.info("Z4 start %s" % datetime.utcnow())
@@ -276,25 +280,25 @@ def main(env, eos=False):
                 <th style="text-align:right"></th>
                 <th style="text-align:center">UPH</th>
                 <th style="text-align:center">DF Count</th>
-                <th style="text-align:center">DF Rate</th>
+                <th style="text-align:center">DF Rate (%)</th>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC1</strong></td>
                 <td <td style="text-align:left">{mc1_output/4:.1f}</td>
-                <td <td style="text-align:left">{mc1_df_count:.1f}</td>
-                <td <td style="text-align:left">{mc1_df_rate:.1f}</td>
+                <td <td style="text-align:center">{mc1_df_count:.1f}</td>
+                <td <td style="text-align:center">{mc1_df_rate:.1f}</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC2</strong></td>
                 <td style="text-align:left">{mc2_output/4:.1f}</td>
-                <td <td style="text-align:left">{mc2_df_count:.1f}</td>
-                <td <td style="text-align:left">{mc2_df_rate:.1f}</td>
+                <td <td style="text-align:center">{mc2_df_count:.1f}</td>
+                <td <td style="text-align:center">{mc2_df_rate:.1f}</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>TOTAL</strong></td>
                 <td style="text-align:left"><b>{mic_total/4:.1f}</b></td>
-                <td <td style="text-align:left">{mc_total_df_count:.1f}</td>
-                <td <td style="text-align:left">{mc_total_df_rate:.1f}</td>
+                <td <td style="text-align:center">{mc_total_df_count:.1f}</td>
+                <td <td style="text-align:center">{mc_total_df_rate:.1f}</td>
             </tr>
             </table>"""
     na_html = "---"
