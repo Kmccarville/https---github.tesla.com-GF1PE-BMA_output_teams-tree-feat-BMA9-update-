@@ -373,11 +373,11 @@ def main(env, eos=False):
     #SEND IT
     try:
         teams_msg.send()
-    except:
+    except TimeoutError:
         logging.info("Webhook timed out, retry once")
         try:
             teams_msg.send()
-        except:
+        except TimeoutError:
             logging.info("Webhook timeded out twice -- pass to next area")
             pass
 
