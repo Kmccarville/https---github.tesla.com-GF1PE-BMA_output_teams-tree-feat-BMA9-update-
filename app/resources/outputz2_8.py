@@ -25,6 +25,31 @@ def get_mamc_ncs(db,start,end):
         ncs = 0
     return ncs
 
+def get_mamc_ncs_table(db,start,end):
+    query=f"""
+        select nc.description as NCGroup, count(distinct nc.thingid) as NCs
+        from thingpath tp
+        inner join nc on nc.thingid = tp.thingid
+        where tp.completed between '{start}' and '{end}'
+        and tp.flowstepid in ('1038276','1038270','1038275','1038277','1038274','1038271','1019245','1019264')
+        and nc.detectedatstepid in ('277978','277974','277976','277979')
+        and tp.iscurrent = 0
+        group by 1
+        order by 2 desc
+    """
+    df = pd.read_sql(query,db)
+    if len(df) > 0:
+        ncs_group_table = df.get_value(0,'NCGroup')
+        ncs_table = df.get_value(1,'NCs')
+    else:
+        ncs_table = 0
+    return ncs_table
+
+
+
+
+
+
 def main(env,eos=False):
     #define start and end time for the hour
     lookback=12 if eos else 1
@@ -80,6 +105,17 @@ def main(env,eos=False):
             <td style="text-align:left">{c3a_outputs/NORMAL_DIVISOR:.2f}</td>
             </tr>
     """
+
+    NC_Table_html = f"""<tr>
+        <th style="text-align:center"></th>
+        <th style="text-align:center">BMA1</th>
+        <th style="text-align:center">BMA2</th>
+        <th style="text-align:center">BMA3</th>
+        <th style="text-align:center">TOTAL</th>
+        </tr>
+        """
+
+
 
     #create full bma html with the above htmls
     output_html = '<table>' + bma_header_html + mamc_output_html + c3a_output_html + '</table>'
