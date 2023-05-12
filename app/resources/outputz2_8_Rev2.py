@@ -63,20 +63,20 @@ def get_c3a_yield_table(start,end):
                 a.name AS line,
                 CONVERT_TZ(tp.completed, 'UTC', 'US/Pacific') AS PST_Datetime,
                 MIN(RIGHT(nc.name,1)) AS nc_id
-            FROM thingpath tp
-            INNER JOIN thing t
+            FROM sparq.thingpath tp
+            INNER JOIN sparq.thing t
                 ON t.id = tp.thingid
-            INNER JOIN thingpath tpc
+            INNER JOIN sparq.thingpath tpc
                 ON tpc.thingid = t.id
                 AND tpc.iscurrent = 1
-            INNER JOIN flowstep fs
+            INNER JOIN sparq.flowstep fs
                 ON fs.id = tp.flowstepid
                 AND fs.name IN ('3BM8-40000','3BM8-42000')
-            INNER JOIN flowstep fsc
+            INNER JOIN sparq.flowstep fsc
                 ON fsc.id = tpc.flowstepid
-            INNER JOIN actor a
+            INNER JOIN sparq.actor a
                 ON a.id = tp.actorcreatedby
-            LEFT JOIN nc
+            LEFT JOIN sparq.nc
                 ON nc.thingid = t.id
                 AND nc.flowstepname LIKE ('3BM8%%')
             WHERE tp.completed BETWEEN '{start}' AND '{start_next}'
