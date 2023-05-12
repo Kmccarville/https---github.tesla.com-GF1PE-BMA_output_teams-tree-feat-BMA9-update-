@@ -6,6 +6,9 @@ import logging
 from sqlalchemy import text
 import pandas as pd
 import pymsteams
+import requests
+from io import StringIO
+from requests.auth import HTTPBasicAuth
 
 def get_mc1_pallets(db,lookback):
     percent = '%'
@@ -99,6 +102,66 @@ def get_starved_table(db, start, end):
         """
     return html
 
+def getDirFeedData(MC1_UPH, MC2_UPH): 
+    #...................................................#
+    # function take MC1 & MC2 hrly UPH                  #
+    # Returns object with MTR supplied in DF & Rate (%) #
+    #...................................................#
+
+    # initiate params
+    start = datetime.now() 
+    end = start - timedelta(hours=1) 
+    start = str(start) 
+    end = str(end) 
+    splunk_start = start.replace(' ','T') + '.000-07:00' # can use start and end to run splnk query on specific time frame
+    splunk_end = end.replace(' ','T') + '.000-07:00' 
+    
+    creds = helper_functions.get_pw_json("sa_splunk")
+    user = creds['user']
+    pw = creds['password']
+    MC1_query = f"""search index=mes sourcetype="ignition:custom:json:log" logger_name="GFNV_MC1_DirectFeed" | fields- _raw | spath input=message | where DirectFeedAction="True" | stats c(container) as container""" 
+    MC2_query = f"""search index=mes sourcetype="ignition:custom:json:log" logger_name="GFNV_MC2_DirectFeed" | fields- _raw | spath input=message | where directfeed="True" | stats c(container) as container""" 
+    
+    Query = [MC1_query,MC2_query] 
+    DF_Data = [] 
+    return_obj = {} 
+    
+    for query in range(len(Query)):
+        
+        response = requests.get( 
+                                url='https://splunkapi.teslamotors.com/services/search/jobs/export', 
+                                auth= HTTPBasicAuth(user, pw), 
+                                params={ 'search': Query[query], 
+                                        'adhoc_search_level': 'fast',  # [ verbose | fast | smart ] 
+                                        'auto_cancel': 0, # If specified, the job automatically cancels after this many seconds of inactivity. (0 means never auto-cancel)
+                                        'earliest_time': '-1h', 
+                                        #'latest_time': splunk_end,
+                                        'output_mode': 'csv' # (atom | csv | json | json_cols | json_rows | raw | xml) 
+                                        }
+                                ) 
+        if response.text: 
+            splunk_text = StringIO(response.text) # convert csv string into a StringIO to be processed by pandas 
+            df = pd.read_csv(splunk_text) 
+            directfeed = df['container'][0] #splunk search return only one value 
+            DF_Data.append(directfeed)
+            
+        else: 
+            DF_Data.append(-1) 
+    try:
+        MC1_DF = int(DF_Data[0])
+        MC2_DF = int(DF_Data[1])
+    except:
+        MC1_DF = -1
+        MC2_DF = -1
+        
+    return_obj['MC1_DF'] = MC1_DF 
+    return_obj['MC2_DF'] = MC2_DF
+    return_obj['Total_DF'] = MC1_DF + MC2_DF 
+    return_obj['MC1_DF_Rate'] = round((MC1_DF/MC1_UPH)*100,1) 
+    return_obj['MC2_DF_Rate'] = round((MC2_DF/MC2_UPH)*100,1) 
+    return_obj['Total_DF_Rate'] = round(((MC1_DF + MC2_DF) / (MC1_UPH + MC2_UPH))*100,1) 
+    
+    return return_obj
 
 def main(env, eos=False):
     logging.info("Z4 start %s" % datetime.utcnow())
@@ -121,6 +184,14 @@ def main(env, eos=False):
     mc1_output = helper_functions.get_output_val(df_output, MC1_FLOWSTEP)
     mc2_output = helper_functions.get_output_val(df_output, MC2_FLOWSTEP)
     mic_total = mc1_output + mc2_output
+
+    directfeed = getDirFeedData(mc1_output/4,mc2_output/4)
+    mc1_df_count = directfeed['MC1_DF']
+    mc2_df_count = directfeed['MC2_DF']
+    mc1_df_rate = directfeed['MC1_DF_Rate']
+    mc2_df_rate = directfeed['MC2_DF_Rate']    
+    mc_total_df_count = directfeed['Total_DF']
+    mc_total_df_rate = directfeed['Total_DF_Rate']
 
     # setup query constants
     MC1_PALLET_LOOKBACK = 2 #HOURS
@@ -208,18 +279,26 @@ def main(env, eos=False):
             <tr>
                 <th style="text-align:right"></th>
                 <th style="text-align:center">UPH</th>
+                <th style="text-align:center">DF Count</th>
+                <th style="text-align:center">DF Rate (%)</th>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC1</strong></td>
                 <td <td style="text-align:left">{mc1_output/4:.1f}</td>
+                <td <td style="text-align:center">{mc1_df_count:.1f}</td>
+                <td <td style="text-align:center">{mc1_df_rate:.1f}</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC2</strong></td>
                 <td style="text-align:left">{mc2_output/4:.1f}</td>
+                <td <td style="text-align:center">{mc2_df_count:.1f}</td>
+                <td <td style="text-align:center">{mc2_df_rate:.1f}</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>TOTAL</strong></td>
                 <td style="text-align:left"><b>{mic_total/4:.1f}</b></td>
+                <td <td style="text-align:center">{mc_total_df_count:.1f}</td>
+                <td <td style="text-align:center">{mc_total_df_rate:.1f}</td>
             </tr>
             </table>"""
     na_html = "---"
@@ -298,10 +377,11 @@ def main(env, eos=False):
     #SEND IT
     try:
         teams_msg.send()
-    except Timeout:
+    except TimeoutError:
         logging.info("Webhook timed out, retry once")
         try:
             teams_msg.send()
-        except Timeout:
+        except TimeoutError:
             logging.info("Webhook timeded out twice -- pass to next area")
             pass
+
