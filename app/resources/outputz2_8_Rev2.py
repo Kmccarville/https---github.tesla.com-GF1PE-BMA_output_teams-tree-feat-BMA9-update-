@@ -91,8 +91,8 @@ def get_c3a_yield_table(start,end):
 
     mos_con.close()
 
-    bma8_ic_dispense_yield = round(helper_functions.get_val(df,'3BM8-40000-01','LINE','YIELD'),1)
-    bma8_nic_dispense_yield = round(helper_functions.get_val(df,'3BM8-42000-01','LINE','YIELD'),1)
+    bma8_ic_dispense_yield = round(helper_functions.get_val(df,'IC Dispense','LINE','YIELD'),1)
+    bma8_nic_dispense_yield = round(helper_functions.get_val(df,'NIC Dispense','LINE','YIELD'),1)
 
     html=f"""
     <tr>
@@ -162,7 +162,7 @@ def get_performance_table(start,end):
             <td style="text-align:center">{auto_close_bma8_percent}%</td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>PF Return</b></td>
+            <td style="text-align:left"><b>Pallet Return</b></td>
             <td style="text-align:center">{p_return_ct_bma8}</td>
             <td>||</td>
         </tr>
