@@ -81,7 +81,7 @@ def get_c3a_yield_table(start,end):
                 AND nc.flowstepname LIKE ('3BM8%%')
             WHERE tp.completed BETWEEN '{start}' AND '{start_next}'
             GROUP BY 1,2,3,4,5,6,7) a
-            LEFT JOIN nc
+            LEFT JOIN sparq.nc
                 ON nc.thingid = a.thingid
                 AND RIGHT(nc.name,1) = a.nc_id
                 group by 1"""
