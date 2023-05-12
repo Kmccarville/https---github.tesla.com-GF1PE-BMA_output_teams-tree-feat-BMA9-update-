@@ -108,18 +108,18 @@ def get_performance_table(start,end):
 
     plc_con = helper_functions.get_sql_conn('plc_db')
     seconds_between = (end - start).seconds
-    AUTO_CLOSER_PATHS = ['[_3BM08_28000_30001]BMA8 EquipmentReport/ST29000_Closer_EquipmentReporting_HMI']
+    AUTO_CLOSER_PATHS = ['[_3BM08_28000_30001]Eqt_3BM08_29000_Closer/StateControl/StateControlHMI']
 
     auto_close_df = helper_functions.query_tsm_state(plc_con,start, end, AUTO_CLOSER_PATHS, 'Starved')
     #get percentage (divide by seconds in between start and end and multiply by 100%)
     auto_close_bma8_percent = round(helper_functions.get_val(auto_close_df,'3BM8','LINE','Duration')/seconds_between*100,1)
 
-    PF_RETURN_PATHS = ['[_3BM08_40000_49000]BMA8 Equipment Reporting/ST49000_PFLoadRB_EquipmentReporting_HMI']
-    PF_RETURN_LOW_LIMIT = 38
-    PF_RETURN_HIGH_LIMIT = 165
+    P_RETURN_PATHS = ['[_3BM08_28000_30001]Eqt_3BM08_28000_PalletReturn/StateControl/StateControlHMI']
+    P_RETURN_LOW_LIMIT = 38
+    P_RETURN_HIGH_LIMIT = 165
 
-    pf_return_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,PF_RETURN_PATHS,PF_RETURN_LOW_LIMIT,PF_RETURN_HIGH_LIMIT)
-    pf_return_ct_bma8 = round(helper_functions.get_val(pf_return_df,'3BM8','LINE','CT_SEC'),1)
+    p_return_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,P_RETURN_PATHS,P_RETURN_LOW_LIMIT,P_RETURN_HIGH_LIMIT)
+    p_return_ct_bma8 = round(helper_functions.get_val(p_return_df,'3BM8','LINE','CT_SEC'),1)
     
     QIS_CT_PATHS = ['[_3BM08_28000_30001]Eqt_3BM08_29400_QIS/StateControl/StateControlHMI']
     QIS_LOW_LIMIT = 41
@@ -162,8 +162,8 @@ def get_performance_table(start,end):
             <td style="text-align:center">{auto_close_bma8_percent}%</td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>Sidemount</b></td>
-            <td style="text-align:center">{pf_return_ct_bma8}</td>
+            <td style="text-align:left"><b>PF Return</b></td>
+            <td style="text-align:center">{p_return_ct_bma8}</td>
             <td>||</td>
         </tr>
         <tr>
