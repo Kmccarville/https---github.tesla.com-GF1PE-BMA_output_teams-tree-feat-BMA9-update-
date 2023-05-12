@@ -80,6 +80,8 @@ def main(env,eos=False):
 
     mamc_output_ncs = get_mamc_ncs(mos_con,start, end)
     c3a_outputs = helper_functions.get_output_val(df_output,C3A_FLOWSTEP,C3A_LINE)
+    
+    NC_Table_html = get_mamc_ncs_table(mos_con,start,end)
 
     mos_con.close()
 
@@ -101,8 +103,6 @@ def main(env,eos=False):
             <td style="text-align:left">{c3a_outputs/NORMAL_DIVISOR:.2f}</td>
             </tr>
     """
-
-    NC_Table_html = get_mamc_ncs_table(mos_con,start,end)
 
     #create full bma html with the above htmls
     output_html = '<table>' + bma_header_html + mamc_output_html + c3a_output_html + + NC_Table_html +'</table>'
