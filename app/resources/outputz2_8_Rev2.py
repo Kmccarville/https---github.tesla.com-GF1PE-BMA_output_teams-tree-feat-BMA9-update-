@@ -51,9 +51,9 @@ def get_c3a_yield_table(start,end):
         start_next = start + timedelta(minutes=60)
         query = f"""
           SELECT 
-            CASE when a.line = '3BM8-40000-01' then 'IC Dispense'
-            when a.line = '3BM8-42000-01' then 'NIC Dispense' else a.line end as LINE,
-            ((count(distinct a.thingid) - count(distinct nc.thingid))/count(distinct a.thingid)*100) as YIELD
+            CASE when t1.line = '3BM8-40000-01' then 'IC Dispense'
+            when t1.line = '3BM8-42000-01' then 'NIC Dispense' else t1.line end as LINE,
+            ((count(distinct t1.thingid) - count(distinct nc.thingid))/count(distinct t1.thingid)*100) as YIELD
             FROM (SELECT
                 t.id AS thingid,
                 t.name AS 'serial',
@@ -80,10 +80,10 @@ def get_c3a_yield_table(start,end):
                 ON nc.thingid = t.id
                 AND nc.flowstepname LIKE ('3BM8%%')
             WHERE tp.completed BETWEEN '{start}' AND '{start_next}'
-            GROUP BY 1,2,3,4,5,6,7) a
+            GROUP BY 1,2,3,4,5,6,7) t1
             LEFT JOIN sparq.nc
-                ON nc.thingid = a.thingid
-                AND RIGHT(nc.name,1) = a.nc_id
+                ON nc.thingid = t1.thingid
+                AND RIGHT(nc.name,1) = t1.nc_id
                 group by 1"""
         df_sub = pd.read_sql(query,mos_con)
         df = pd.concat([df,df_sub],axis=0)
