@@ -38,7 +38,7 @@ def get_mamc_ncs_table(db,start,end):
         order by 2 desc
     """
     df = pd.read_sql(query,db)
-    ncs_table = df.to_html()
+    ncs_table = df.to_html(index=False,justify='center')
     return ncs_table
 
 def main(env,eos=False):
