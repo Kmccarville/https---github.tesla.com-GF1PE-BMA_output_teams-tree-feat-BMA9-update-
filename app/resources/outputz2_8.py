@@ -38,11 +38,7 @@ def get_mamc_ncs_table(db,start,end):
         order by 2 desc
     """
     df = pd.read_sql(query,db)
-    if len(df) > 0:
-        ncs_group_table = df.get_value(0,'NCGroup')
-        ncs_table = df.get_value(1,'NCs')
-    else:
-        ncs_table = 0
+    ncs_table = df.to_html()
     return ncs_table
 
 
@@ -106,19 +102,10 @@ def main(env,eos=False):
             </tr>
     """
 
-    NC_Table_html = f"""<tr>
-        <th style="text-align:center"></th>
-        <th style="text-align:center">BMA1</th>
-        <th style="text-align:center">BMA2</th>
-        <th style="text-align:center">BMA3</th>
-        <th style="text-align:center">TOTAL</th>
-        </tr>
-        """
-
-
+    NC_Table_html = get_mamc_ncs_table(mos_con,start,end)
 
     #create full bma html with the above htmls
-    output_html = '<table>' + bma_header_html + mamc_output_html + c3a_output_html + '</table>'
+    output_html = '<table>' + bma_header_html + mamc_output_html + c3a_output_html + + NC_Table_html +'</table>'
 
     #get webhook based on environment
     webhook_key = 'teams_webhook_BMA8_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
