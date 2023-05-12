@@ -28,8 +28,8 @@ def get_mamc_ncs(db,start,end):
 def get_mamc_ncs_table(db,start,end):
     query=f"""
         select nc.description as NCGroup, count(distinct nc.thingid) as NCs
-        from thingpath tp
-        inner join nc on nc.thingid = tp.thingid
+        from sparq.thingpath tp
+        inner join sparq.nc on nc.thingid = tp.thingid
         where tp.completed between '{start}' and '{end}'
         and tp.flowstepid in ('1038276','1038270','1038275','1038277','1038274','1038271','1019245','1019264')
         and nc.detectedatstepid in ('277978','277974','277976','277979')
@@ -40,11 +40,6 @@ def get_mamc_ncs_table(db,start,end):
     df = pd.read_sql(query,db)
     ncs_table = df.to_html()
     return ncs_table
-
-
-
-
-
 
 def main(env,eos=False):
     #define start and end time for the hour
@@ -105,7 +100,7 @@ def main(env,eos=False):
     """
 
     #create full bma html with the above htmls
-    output_html = '<table>' + bma_header_html + mamc_output_html + c3a_output_html + + NC_Table_html +'</table>'
+    output_html = '<table>' + bma_header_html + mamc_output_html + c3a_output_html + NC_Table_html + '</table>'
 
     #get webhook based on environment
     webhook_key = 'teams_webhook_BMA8_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
