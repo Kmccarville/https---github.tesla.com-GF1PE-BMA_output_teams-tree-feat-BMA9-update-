@@ -78,7 +78,7 @@ def get_c3a_yield_table(start,end):
                 ON a.id = tp.actorcreatedby
             LEFT JOIN nc
                 ON nc.thingid = t.id
-                AND nc.flowstepname LIKE ('3BM8%')
+                AND nc.flowstepname LIKE ('3BM8%%')
             WHERE tp.completed BETWEEN '{start}' AND '{start_next}'
             GROUP BY 1,2,3,4,5,6,7) a
             LEFT JOIN nc
