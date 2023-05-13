@@ -177,7 +177,8 @@ def query_tsm_cycle_time(db,start,end,paths,low_limit,high_limit):
     path_list = '(' + path_list.strip(',') + ')'
     query = f"""
                 SELECT 
-                    left(e.name,4) as LINE,
+                CASE when left(e.name,5) = '3BM08' then '3BM8'
+                   else left(e.name,4) end as LINE,
                     AVG(ch.elapsed_time) as CT_SEC
                 FROM
                     rno_eqtstatushistory_batterymodule.equipment e 

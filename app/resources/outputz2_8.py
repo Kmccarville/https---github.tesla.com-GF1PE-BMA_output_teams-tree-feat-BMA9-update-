@@ -16,7 +16,6 @@ def get_mamc_ncs(db,start,end):
         where tp.completed between '{start}' and '{end}'
         and tp.flowstepid in ('1038276','1038270','1038275','1038277','1038274','1038271','1019245','1019264')
         and nc.detectedatstepid in ('277978','277974','277976','277979')
-        and nc.description <> '3BM8-29500:NMAMC Leak Test - Short'
         and tp.iscurrent = 0
     """
     df = pd.read_sql(query,db)
@@ -25,6 +24,22 @@ def get_mamc_ncs(db,start,end):
     else:
         ncs = 0
     return ncs
+
+def get_mamc_ncs_table(db,start,end):
+    query=f"""
+        select nc.description as NCGroup, count(distinct nc.thingid) as NCs
+        from sparq.thingpath tp
+        inner join sparq.nc on nc.thingid = tp.thingid
+        where tp.completed between '{start}' and '{end}'
+        and tp.flowstepid in ('1038276','1038270','1038275','1038277','1038274','1038271','1019245','1019264')
+        and nc.detectedatstepid in ('277978','277974','277976','277979')
+        and tp.iscurrent = 0
+        group by 1
+        order by 2 desc
+    """
+    df = pd.read_sql(query,db)
+    ncs_table = df.to_html(index=False,justify='center')
+    return ncs_table
 
 def main(env,eos=False):
     #define start and end time for the hour
@@ -60,6 +75,8 @@ def main(env,eos=False):
 
     mamc_output_ncs = get_mamc_ncs(mos_con,start, end)
     c3a_outputs = helper_functions.get_output_val(df_output,C3A_FLOWSTEP,C3A_LINE)
+    
+    NC_Table_html = get_mamc_ncs_table(mos_con,start,end)
 
     mos_con.close()
 
@@ -83,7 +100,7 @@ def main(env,eos=False):
     """
 
     #create full bma html with the above htmls
-    output_html = '<table>' + bma_header_html + mamc_output_html + c3a_output_html + '</table>'
+    output_html = '<table>' + bma_header_html + mamc_output_html + c3a_output_html + NC_Table_html + '</table>'
 
     #get webhook based on environment
     webhook_key = 'teams_webhook_BMA8_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'

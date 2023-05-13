@@ -2,10 +2,15 @@ from common import helper_functions
 
 from datetime import datetime
 from datetime import timedelta
+from pytz import timezone
+import pytz
 import logging
 from sqlalchemy import text
 import pandas as pd
 import pymsteams
+import requests
+from io import StringIO
+from requests.auth import HTTPBasicAuth
 
 def get_mc1_pallets(db,lookback):
     percent = '%'
@@ -99,6 +104,73 @@ def get_starved_table(db, start, end):
         """
     return html
 
+def getDirFeedData(line, uph, eos): 
+    #...................................................#
+    # function take MC1 & MC2 hrly UPH                  #
+    # Returns object with MTR supplied in DF & Rate (%) #
+    #...................................................#
+    lookback = 12 if eos else 1
+  
+    #eval start & end tstamp for query
+    now = datetime.now(tz=pytz.utc)
+    now = now.astimezone(timezone('US/Pacific'))
+    now_sub1hr = now + timedelta(hours = -lookback)
+    
+    start = now_sub1hr.replace(minute = 00, second = 00, microsecond = 00)
+    end = start + timedelta(hours = lookback)
+    splunk_start = str(start)
+    splunk_end = str(end)
+    splunk_start = splunk_start.replace(' ','T') #+ '.000-07:00'
+    splunk_end = splunk_end.replace(' ','T') #+ '.000-07:00'
+
+    creds = helper_functions.get_pw_json("sa_splunk")
+    user = creds['user']
+    pw = creds['password']
+    mc1_query = f"""search index=mes sourcetype="ignition:custom:json:log" logger_name="GFNV_MC1_DirectFeed" | fields- _raw | spath input=message | where DirectFeedAction="True" | stats c(container) as container"""
+    mc2_query= f"""search index=mes sourcetype="ignition:custom:json:log" logger_name="GFNV_MC2_DirectFeed" |spath input=message |eval df_reason=case(directfeed="True","SUCCESS",mtr_qty_good=="true" AND proj_delta_good=="false" AND type_good=="false", "WRONG_PART", mtr_qty_good=="false", "MC2_FULL") |stats count(eval(directfeed="True")) as SUCCESS, count(eval(mtr_qty_good=="true" AND proj_delta_good=="false" AND type_good=="false")) as WRONG_PART, count(eval(mtr_qty_good=="false")) as MC2_FULL"""
+    
+    if line == 'MC1': query = mc1_query 
+    else: query = mc2_query
+
+    return_obj = {}
+
+    response = requests.get( 
+                            url='https://splunkapi.teslamotors.com/services/search/jobs/export', 
+                            auth=   HTTPBasicAuth(user, pw),
+                            params={ 
+                                    'search': query, 
+                                    'adhoc_search_level': 'fast', # [ verbose | fast | smart ] 
+                                    'auto_cancel': 0, # If specified, the job automatically cancels after this many seconds of inactivity. (0 means never auto-cancel) 
+                                    'earliest_time': splunk_start, 
+                                    'latest_time': splunk_end, 
+                                    'output_mode': 'csv' # (atom | csv | json | json_cols | json_rows | raw | xml) 
+                                    } 
+                            ) 
+    
+    if response.text: 
+        splunk_text = StringIO(response.text) # convert csv string into a StringIO to be processed by pandas 
+        df = pd.read_csv(splunk_text)
+        if line == 'MC1':
+            directfeed = int(df['container'][0])  #splunk search return only one value
+            bad_part = 0
+            not_ready = 0
+            df_performance = 0
+        else:
+            directfeed = int(df['SUCCESS'][0])
+            bad_part = int(df['WRONG_PART'][0])
+            not_ready = int(df['MC2_FULL'][0])
+            df_performance = round((directfeed/(directfeed + bad_part + not_ready)) * 100 ,0)
+    else:
+        logging.info("Z4 Directfeed data pull - Splunk API failed")
+    
+    
+    return_obj['DirectFeed'] = directfeed
+    return_obj['BadPart'] = bad_part
+    return_obj['NotReady'] = not_ready
+    return_obj['Rate'] = round((directfeed/(uph/4))*100,0)
+    return_obj['DF_Performance'] = df_performance
+  
+    return return_obj
 
 def main(env, eos=False):
     logging.info("Z4 start %s" % datetime.utcnow())
@@ -121,6 +193,24 @@ def main(env, eos=False):
     mc1_output = helper_functions.get_output_val(df_output, MC1_FLOWSTEP)
     mc2_output = helper_functions.get_output_val(df_output, MC2_FLOWSTEP)
     mic_total = mc1_output + mc2_output
+
+ 
+    #direct feed stats - start
+    mc1_dirfeed = getDirFeedData('MC1', mc1_output, eos)
+    mc1_df_count = mc1_dirfeed['DirectFeed']
+    mc1_df_rate = mc1_dirfeed['Rate']
+
+    mc2_dirfeed = getDirFeedData('MC2', mc2_output, eos)
+    mc2_df_count = mc2_dirfeed['DirectFeed']
+    mc2_df_rate = mc2_dirfeed['Rate']
+    mc2_df_notready = mc2_dirfeed['NotReady']
+    mc2_df_badpart = mc2_dirfeed['BadPart']
+    mc2_df_performance = mc2_dirfeed['DF_Performance']
+  
+    total_df_count = mc1_df_count + mc2_df_count
+    total_mc_uph = (mc1_output + mc2_output)/4
+    total_df_rate = round(((mc1_df_count + mc2_df_count)/(total_mc_uph))*100 ,0)
+    #direct feed stats - end
 
     # setup query constants
     MC1_PALLET_LOOKBACK = 2 #HOURS
@@ -208,18 +298,34 @@ def main(env, eos=False):
             <tr>
                 <th style="text-align:right"></th>
                 <th style="text-align:center">UPH</th>
+                <th style="text-align:center">DF Count</th>
+                <th style="text-align:center">DF Rate (%)</th>
+                <th style="text-align:center">DF Bad Part</th>
+                <th style="text-align:center">DF Not Ready</th>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC1</strong></td>
                 <td <td style="text-align:left">{mc1_output/4:.1f}</td>
+                <td <td style="text-align:center">{mc1_df_count:.1f}</td>
+                <td <td style="text-align:center">---</td>
+                <td <td style="text-align:center">---</td>
+                <td <td style="text-align:center">---</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC2</strong></td>
                 <td style="text-align:left">{mc2_output/4:.1f}</td>
+                <td <td style="text-align:center">{mc2_df_count:.1f}</td>
+                <td <td style="text-align:center">{mc2_df_performance:.1f}</td>
+                <td <td style="text-align:center">{mc2_df_badpart:.1f}</td>
+                <td <td style="text-align:center">{mc2_df_notready:.1f}</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>TOTAL</strong></td>
                 <td style="text-align:left"><b>{mic_total/4:.1f}</b></td>
+                <td <td style="text-align:center"><b>{total_df_count:.1f}</b></td>
+                <td <td style="text-align:center"><b>---</b></td>
+                <td <td style="text-align:center">---</td>
+                <td <td style="text-align:center">---</td>
             </tr>
             </table>"""
     na_html = "---"
@@ -298,10 +404,11 @@ def main(env, eos=False):
     #SEND IT
     try:
         teams_msg.send()
-    except Timeout:
+    except TimeoutError:
         logging.info("Webhook timed out, retry once")
         try:
             teams_msg.send()
-        except Timeout:
+        except TimeoutError:
             logging.info("Webhook timeded out twice -- pass to next area")
             pass
+

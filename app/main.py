@@ -10,6 +10,7 @@ from resources import outputz1
 from resources import outputz2_123
 from resources import outputz2_45
 from resources import outputz2_8
+from resources import outputz2_8_Rev2
 from resources import outputz3
 from resources import outputz4
 from resources import close_nc_check
@@ -36,6 +37,7 @@ if __name__ == '__main__':
     scheduler_hourly.every().hour.at(":00").do(outputz2_8.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz3.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz4.main,env)
+#     scheduler_hourly.every().hour.at(":00").do(outputz2_8_Rev2.main,env)
     scheduler_hourly.every().hour.at(":00").do(yield123.main,env)
     scheduler_hourly.every().hour.at(":00").do(close_nc_check.main,env)
     scheduler_hourly.every().hour.at(":02").do(eos.main,env)
