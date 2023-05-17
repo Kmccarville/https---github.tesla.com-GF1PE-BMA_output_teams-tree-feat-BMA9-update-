@@ -159,7 +159,10 @@ def getDirFeedData(line, uph, eos):
             directfeed = int(df['SUCCESS'][0])
             bad_part = int(df['WRONG_PART'][0])
             not_ready = int(df['MC2_FULL'][0])
-            df_performance = round((directfeed/(directfeed + bad_part + not_ready)) * 100 ,0)
+            try:
+                df_performance = round((directfeed/(directfeed + bad_part + not_ready)) * 100 ,0)
+            except:
+                df_performance = 0
     else:
         logging.info("Z4 Directfeed data pull - Splunk API failed")
     
@@ -167,7 +170,10 @@ def getDirFeedData(line, uph, eos):
     return_obj['DirectFeed'] = directfeed
     return_obj['BadPart'] = bad_part
     return_obj['NotReady'] = not_ready
-    return_obj['Rate'] = round((directfeed/(uph/4))*100,0)
+    try:
+        return_obj['Rate'] = round((directfeed/(uph/4))*100,0)
+    except:
+         return_obj['Rate'] = 0   
     return_obj['DF_Performance'] = df_performance
   
     return return_obj
@@ -209,7 +215,7 @@ def main(env, eos=False):
   
     total_df_count = mc1_df_count + mc2_df_count
     total_mc_uph = (mc1_output + mc2_output)/4
-    total_df_rate = round(((mc1_df_count + mc2_df_count)/(total_mc_uph))*100 ,0)
+    #total_df_rate = round(((mc1_df_count + mc2_df_count)/(total_mc_uph))*100 ,0)
     #direct feed stats - end
 
     # setup query constants
