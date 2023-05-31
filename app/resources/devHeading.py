@@ -12,17 +12,8 @@ import os
 branchName=os.getenv('ENVVAR1')
 commit=os.getenv('ENVVAR2')
 
-def main(env,eos=False):
-    #define start and end time for the hour
-    lookback=12 if eos else 1
-    now=datetime.utcnow()
-    logging.info("Output Z2 8 start %s" % datetime.utcnow())
-    now_sub1hr=now+timedelta(hours=-lookback)
-    start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
-    end=start+timedelta(hours=lookback)
-
-    logging.info(str(start))
-    logging.info(str(end))
+def main():
+    logging.info("Send Dev Heading")
 
     #create bma header
     header_html = f"""<tr>
@@ -53,7 +44,7 @@ def main(env,eos=False):
 
     #start end of shift message
     teams_msg = pymsteams.connectorcard(webhook)
-    title = 'BMA Output Dev Triggered'
+    title = 'BMA Output Teams Build Triggered'
     teams_msg.title(title)
     teams_msg.summary('summary')
     TESLA_RED = '#cc0000'
