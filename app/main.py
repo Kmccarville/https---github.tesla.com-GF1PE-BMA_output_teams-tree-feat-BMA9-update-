@@ -5,6 +5,7 @@ import os
 
 from common import helper_functions
 
+from resources import devHeading
 from resources import yield123
 from resources import outputz1
 from resources import outputz2_123
@@ -23,9 +24,12 @@ logging.info("main_active")
 
 if __name__ == '__main__':
 
+    branchName=os.getenv('ENVVAR1')
+    commit=os.getenv('ENVVAR2')
     env=os.getenv('ENVVAR3')
     logging.info("Code is running...better go catch it!")
     logging.info("Environment: %s", env)
+
 
     scheduler_hourly = schedule.Scheduler()
     scheduler_alerts = schedule.Scheduler()
@@ -46,12 +50,18 @@ if __name__ == '__main__':
     scheduler_alerts.every().hour.at(":00").do(cta45_ct.main,env)
 
     if env == "dev":
+        logging.info("BranchName: %s", branchName)
+        logging.info("CommitHash: %s", commit)
+        logging.info("Send Dev Heading")
+        devHeading.main()
         logging.info("Run all command executed")
         scheduler_hourly.run_all(delay_seconds=10)
         scheduler_alerts.run_all(delay_seconds=10)
-        logging.info("Run all command complete")
-
-    logging.info("Hourly run schedule initiated")
-    while 1:
-        scheduler_hourly.run_pending()
-        scheduler_alerts.run_pending()
+        devHeading.main(start=False)
+        logging.info("Run all command complete. Quiting Program")
+        quit()
+    else:
+        logging.info("Hourly run schedule initiated")
+        while 1:
+            scheduler_hourly.run_pending()
+            scheduler_alerts.run_pending()
