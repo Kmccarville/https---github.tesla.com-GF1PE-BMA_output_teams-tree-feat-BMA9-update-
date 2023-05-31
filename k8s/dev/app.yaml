@@ -4,21 +4,18 @@ metadata:
   name: $k8sAppName-env
   namespace: $k8sNamespace
 data:
-  ENVVAR1: $k8sAppNameg@tesla.com
-  ENVVAR2: dev-k8s
-  ENVVAR3: dev
+  ENVVAR1: $branchName
+  ENVVAR2: $commitHash
+  ENVVAR3: $environment
   SECRET: /app/secrets/credentials
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: batch/v1
+kind: Job
 metadata:
   name: $k8sAppName
   namespace: $k8sNamespace
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: $k8sAppName
+  ttlSecondsAfterFinished: 100
   template:
     metadata:
       labels:
@@ -37,8 +34,8 @@ spec:
             cpu: 2
             memory: 2Gi
           requests:
-            cpu: 100m
-            memory: 512Mi
+            cpu: 200m #update allcoation here based on app size 100-200m is usually good
+            memory: 512Mi #update allcoation here based on app size 512Mi is usually good
         envFrom:
         - configMapRef:
             name: $k8sAppName-env
@@ -48,3 +45,4 @@ spec:
           secretName: $k8sSecretName
       imagePullSecrets:
       - name: gf1pe-docker-registry-creds
+      restartPolicy: Never
