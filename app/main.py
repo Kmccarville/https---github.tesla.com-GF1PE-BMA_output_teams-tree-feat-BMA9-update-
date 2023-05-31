@@ -21,11 +21,16 @@ from resources.alerts import cta45_ct
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
 
+def run_all_once()
+    outputz1.main(env)
 if __name__ == '__main__':
 
+    branchName=os.getenv('ENVVAR1')
+    commit=os.getenv('ENVVAR2')
     env=os.getenv('ENVVAR3')
     logging.info("Code is running...better go catch it!")
     logging.info("Environment: %s", env)
+
 
     scheduler_hourly = schedule.Scheduler()
     scheduler_alerts = schedule.Scheduler()
@@ -46,12 +51,15 @@ if __name__ == '__main__':
     scheduler_alerts.every().hour.at(":00").do(cta45_ct.main,env)
 
     if env == "dev":
+        logging.info("BranchName: %s", branchName)
+        logging.info("CommitHash: %s", commit)
         logging.info("Run all command executed")
         scheduler_hourly.run_all(delay_seconds=10)
         scheduler_alerts.run_all(delay_seconds=10)
-        logging.info("Run all command complete")
-
-    logging.info("Hourly run schedule initiated")
-    while 1:
-        scheduler_hourly.run_pending()
-        scheduler_alerts.run_pending()
+        logging.info("Run all command complete. Quiting Program")
+        quit()
+    else:
+        logging.info("Hourly run schedule initiated")
+        while 1:
+            scheduler_hourly.run_pending()
+            scheduler_alerts.run_pending()
