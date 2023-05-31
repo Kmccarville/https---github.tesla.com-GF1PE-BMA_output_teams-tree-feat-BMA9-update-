@@ -21,8 +21,6 @@ from resources.alerts import cta45_ct
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
 
-def run_all_once()
-    outputz1.main(env)
 if __name__ == '__main__':
 
     branchName=os.getenv('ENVVAR1')
