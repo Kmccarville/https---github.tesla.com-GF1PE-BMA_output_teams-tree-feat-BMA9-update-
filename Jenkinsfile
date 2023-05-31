@@ -1,2 +1,2 @@
-@Library('gf1pe-jenkins-library@master') import org.gf1pe.*
+@Library('gf1pe-jenkins-library@job-deploy-library') import org.gf1pe.*
 jobDockerK8s()
