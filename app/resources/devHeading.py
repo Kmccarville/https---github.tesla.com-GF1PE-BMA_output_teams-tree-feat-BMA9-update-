@@ -12,7 +12,7 @@ import os
 branchName=os.getenv('ENVVAR1')
 commit=os.getenv('ENVVAR2')
 
-def main():
+def main(start=True):
     logging.info("Send Dev Heading")
 
     #create bma header
@@ -44,7 +44,7 @@ def main():
 
     #start end of shift message
     teams_msg = pymsteams.connectorcard(webhook)
-    title = 'BMA Output Teams Build Triggered'
+    title = 'BMA Output Teams Build Triggered' if start==True else "BMA Output Teams Build Completed Successfully"
     teams_msg.title(title)
     teams_msg.summary('summary')
     TESLA_RED = '#cc0000'
