@@ -5,6 +5,7 @@ import os
 
 from common import helper_functions
 
+from resources import devHeading
 from resources import yield123
 from resources import outputz1
 from resources import outputz2_123
@@ -51,6 +52,8 @@ if __name__ == '__main__':
     if env == "dev":
         logging.info("BranchName: %s", branchName)
         logging.info("CommitHash: %s", commit)
+        logging.info("Send Dev Heading")
+        devHeading.main()
         logging.info("Run all command executed")
         scheduler_hourly.run_all(delay_seconds=10)
         scheduler_alerts.run_all(delay_seconds=10)
