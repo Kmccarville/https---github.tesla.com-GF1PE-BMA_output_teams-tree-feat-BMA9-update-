@@ -1,4 +1,6 @@
 import json
+import time
+import traceback
 import sqlalchemy
 from urllib.parse import quote
 from datetime import timedelta
@@ -6,6 +8,16 @@ import pandas as pd
 import pytz
 from datetime import datetime
 import pymsteams
+import logging
+
+#email sender libs
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email.utils import COMMASPACE, formatdate
+from email import encoders
+
 
 def file_reader(FilePath):
     with open(FilePath,"r") as f:
@@ -17,7 +29,7 @@ try:
         pw_json = json.load(f)
         f.close()
 except:
-    with open('app\local_creds.py') as f:
+    with open('app\local_creds.json') as f:
         pw_json = json.load(f)
         pw_json = pw_json['credentials']
         f.close()
@@ -217,3 +229,59 @@ def send_alert(webhook_key,title,df,caption="",link_title="",link_button=""):
     if link_title != "" and link_button != "":
         teams_msg.addLinkButton(link_title,link_button)
     teams_msg.send()
+
+def send_mail(send_from, send_to, subject, message,
+              files=[], filenames=[],
+              server='smtp-int.teslamotors.com', port=25):
+    """Compose and send email with provided info and attachments.
+    Args:
+        send_from (str): from name
+        send_to (list[str]): to name(s)
+        subject (str): message title
+        message (str): message body
+        files (list[var]): list of files
+        filenames (list[str]): list of filenames
+        server (str): mail server host name
+        port (int): port number (587 or 25)
+    """
+    msg = MIMEMultipart()
+    msg['From'] = send_from
+    msg['To'] = COMMASPACE.join(send_to)
+    msg['Date'] = formatdate(localtime=True)
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(message))
+
+    for attachment,name in zip(files,filenames):
+        part = MIMEBase('application', "octet-stream")
+        timestr = time.strftime('%Y%m%d-%H%M%S')
+        part.set_payload(attachment.getvalue())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition',
+                        f'attachment; filename={name}')
+        msg.attach(part)
+    try:
+        smtp = smtplib.SMTP(server, port)
+        smtp.sendmail(send_from, send_to, msg.as_string())
+        smtp.quit()
+    except smtplib.SMTPException as e:
+        logging.error(str(e))
+
+def e_handler(e):
+    '''
+    Error Handler: Send email with traceback logging
+    '''
+    trace = traceback.format_exc()
+    send_from = 'bma-pybot-alerts@tesla.com'
+    send_to = ['mberlied@tesla.com']
+    subject = '[ERROR] BMA Teams Pybot Firing'
+
+    message = f'''
+            Exception Summary : {e}
+            Traceback Error: 
+                {trace}
+            '''
+    try:
+        send_mail(send_from,send_to,subject,message)
+    except Exception:
+        logging.exception("failed to send exception email")
