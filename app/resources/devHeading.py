@@ -59,10 +59,9 @@ def main(start=True):
     #SEND IT
     try:
         teams_msg.send()
-    except TimeoutError:
-        logging.info("Webhook timed out, retry once")
+    except pymsteams.TeamsWebhookException:
+        logging.warn("Webhook timed out, retry once")
         try:
             teams_msg.send()
-        except TimeoutError:
-            logging.info("Webhook timeded out twice -- pass to next area")
-            pass
+        except pymsteams.TeamsWebhookException:
+            logging.exception("Webhook timed out twice -- pass to next area")

@@ -83,4 +83,11 @@ def main(env):
         #SEND IT
         teams_msg.addLinkButton("Quality Tech Schedule", "https://confluence.teslamotors.com/pages/viewpage.action?spaceKey=GIG&title=Quality+Tech+Rosters")
         #SEND IT
-        teams_msg.send()
+        try:
+            teams_msg.send()
+        except pymsteams.TeamsWebhookException:
+            logging.warn("Webhook timed out, retry once")
+            try:
+                teams_msg.send()
+            except pymsteams.TeamsWebhookException:
+                logging.exception("Webhook timed out twice -- pass to next area")
