@@ -231,4 +231,11 @@ def eos_report(env,do_24=False):
     eos_msg.addSection(z3_card)
     eos_msg.addSection(z4_card)
     #SEND IT
-    eos_msg.send()
+    try:
+        eos_msg.send()
+    except pymsteams.TeamsWebhookException:
+        logging.warn("Webhook timed out, retry once")
+        try:
+            eos_msg.send()
+        except pymsteams.TeamsWebhookException:
+            logging.exception("Webhook timed out twice -- pass to next area")

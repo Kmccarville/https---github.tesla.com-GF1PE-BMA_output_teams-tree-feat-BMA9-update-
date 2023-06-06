@@ -128,10 +128,17 @@ def main(env,eos=False):
     hourly_msg.addSection(hourly_card)
     #add a link to the confluence page
     hourly_msg.addLinkButton("Link to OCAP", "https://confluence.teslamotors.com/display/PRODENG/Dispense+-+Out+of+Control+Action+Plan")
-    hourly_msg.send()
+        #SEND IT
+    try:
+        hourly_msg.send()
+    except pymsteams.TeamsWebhookException:
+        logging.warn("Webhook timed out, retry once")
+        try:
+            hourly_msg.send()
+        except pymsteams.TeamsWebhookException:
+            logging.exception("Webhook timed out twice -- pass to next area")
     
     mos_con.close()
-
 
 
 #pull yield

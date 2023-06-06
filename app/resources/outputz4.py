@@ -12,6 +12,8 @@ import requests
 from io import StringIO
 from requests.auth import HTTPBasicAuth
 
+import traceback
+
 def get_mc1_pallets(db,lookback):
     percent = '%'
     query = f"""
@@ -378,9 +380,11 @@ def main(env, eos=False):
     starved_html = "<table>" + "<caption><u>MTR Starvation</u></caption>" + starve_table + "</table>"
 
     # get webhook based on environment
+
     webhook_key = 'teams_webhook_Zone4_Updates' if env == 'prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
+
 
     # start end of shift message
     teams_msg = pymsteams.connectorcard(webhook)
@@ -410,11 +414,10 @@ def main(env, eos=False):
     #SEND IT
     try:
         teams_msg.send()
-    except TimeoutError:
-        logging.info("Webhook timed out, retry once")
+    except pymsteams.TeamsWebhookException:
+        logging.warn("Webhook timed out, retry once")
         try:
             teams_msg.send()
-        except TimeoutError:
-            logging.info("Webhook timeded out twice -- pass to next area")
-            pass
-
+        except pymsteams.TeamsWebhookException:
+            logging.exception("Webhook timed out twice -- pass to next area")
+            # helper_functions.e_handler(e)
