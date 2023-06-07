@@ -18,6 +18,7 @@ from resources import close_nc_check
 from resources import eos
 
 from resources.alerts import cta45_ct
+from resources.alerts import cta123_fixtures
 
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
@@ -48,6 +49,7 @@ if __name__ == '__main__':
 
     #define alert scheduler
     scheduler_alerts.every().hour.at(":00").do(cta45_ct.main,env)
+    scheduler_alerts.every().hour.at(":00").do(cta123_fixtures.main,env)
 
     if env == "dev":
         logging.info("BranchName: %s", branchName)
