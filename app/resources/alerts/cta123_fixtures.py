@@ -62,7 +62,7 @@ def main(env):
 
         df_puck = get_puck_table()
         df_fixt = get_fixture_table()
-        goal= {'LINE': 'GOAL','PUCKS': 5000,'FIXTURES': 185}
+        goal= {'LINE': 'GOAL','PUCKS': 5200,'FIXTURES': 185}
         
         df = pd.concat([df_puck,df_fixt['FIXTURES']],axis=1)
         df = df.append(goal,ignore_index=True)
