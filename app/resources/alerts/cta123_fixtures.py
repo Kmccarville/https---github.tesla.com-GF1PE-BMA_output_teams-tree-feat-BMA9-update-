@@ -49,7 +49,6 @@ def get_fixture_table():
     plc_con.close()
     d = {'LINE': ['3BM1','3BM2','3BM3'],'FIXTURES': count}
     df = pd.DataFrame(data=d)
-
     return df
 
 def main(env):
