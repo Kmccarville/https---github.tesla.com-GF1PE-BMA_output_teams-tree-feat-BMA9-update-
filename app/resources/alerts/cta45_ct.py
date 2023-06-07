@@ -12,7 +12,7 @@ def main(env):
 
     #only run this script at hours 0,3,9,12,15,21
     pst_now = helper_functions.convert_from_utc_to_pst(now)
-    if pst_now.hour%3 == 0 and pst_now.hour not in [6,18]:
+    if (pst_now.hour%3 == 0 and pst_now.hour not in [6,18]) or env=='dev':
         logging.info("CTA45 Alert %s" % datetime.utcnow())
         now_sub3=now+timedelta(hours=-lookback)
         start=now_sub3.replace(minute=00,second=00,microsecond=00)
