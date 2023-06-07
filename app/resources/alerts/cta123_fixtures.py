@@ -56,13 +56,13 @@ def main(env):
     now=datetime.utcnow()
     pst_now = helper_functions.convert_from_utc_to_pst(now)
     #only run this script at hours 1,4,7,10,13,16,19,22
-    if pst_now.hour%3 == 1:
+    if pst_now.hour%3 == 1 or env=='dev':
         logging.info("CTA123 Puck-Fixture Alert %s" % datetime.utcnow())
         now_sub3=now+timedelta(hours=-lookback)
 
         df_puck = get_puck_table()
         df_fixt = get_fixture_table()
-        goal= {'LINE': 'GOAL','PUCKS': 5000,'FIXTURES': 185}
+        goal= {'LINE': 'GOAL','PUCKS': 5200,'FIXTURES': 185}
         
         df = pd.concat([df_puck,df_fixt['FIXTURES']],axis=1)
         df = df.append(goal,ignore_index=True)
