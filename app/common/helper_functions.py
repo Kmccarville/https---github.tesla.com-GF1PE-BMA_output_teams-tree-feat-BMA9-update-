@@ -228,7 +228,14 @@ def send_alert(webhook_key,title,df,caption="",link_title="",link_button=""):
 
     if link_title != "" and link_button != "":
         teams_msg.addLinkButton(link_title,link_button)
-    teams_msg.send()
+    try:
+        teams_msg.send()
+    except pymsteams.TeamsWebhookException:
+        logging.warn("Webhook timed out, retry once")
+        try:
+            teams_msg.send()
+        except pymsteams.TeamsWebhookException:
+            logging.exception("Webhook timed out twice -- pass to next area")
 
 def send_mail(send_from, send_to, subject, message,
               files=[], filenames=[],
