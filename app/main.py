@@ -55,7 +55,7 @@ if __name__ == '__main__':
     scheduler_alerts.every().hour.at(":00").do(cta123_fixtures.main,env)
 
     #define passdown scheduler
-    scheduler_alerts.every().day.at("07:30", "US/Pacific").do(cta123_eqt_email,'prod')
+    scheduler_alerts.every().day.at("07:30", "US/Pacific").do(cta123_eqt_email.main,'prod')
 
     if env == "dev":
         logging.info("BranchName: %s", branchName)
