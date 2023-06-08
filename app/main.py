@@ -56,7 +56,7 @@ if __name__ == '__main__':
     scheduler_alerts.every().hour.at(":00").do(cta123_fixtures.main,env)
 
     #define passdown scheduler
-    scheduler_passdown.every().day.at("07:30", timezone("US/Pacific")).do(cta123_eqt_email.main,'prod')
+    scheduler_passdown.every().day.at("07:30", timezone("US/Pacific")).do(cta123_eqt_email.main,env)
 
     if env == "dev":
         logging.info("BranchName: %s", branchName)
@@ -73,6 +73,6 @@ if __name__ == '__main__':
     else:
         logging.info("Hourly run schedule initiated")
         while 1:
-            # scheduler_hourly.run_pending()
-            # scheduler_alerts.run_pending()
+            scheduler_hourly.run_pending()
+            scheduler_alerts.run_pending()
             scheduler_passdown.run_pending()

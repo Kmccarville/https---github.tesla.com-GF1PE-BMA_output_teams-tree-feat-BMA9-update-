@@ -51,7 +51,6 @@ def main(env):
 
         df = get_bypassed_table()
         df = df[['LOCATION','EQUIPMENT','HOURS DOWN']]
-        print(df)
 
         message = """\
             <html>
