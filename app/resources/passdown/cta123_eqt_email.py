@@ -69,8 +69,10 @@ def main(env):
         # html = df.to_html(index=False,border=0,justify='left',bold_rows=True)
 
         send_from = 'bma-pybot-passdown@tesla.com'
-        # send_to = ['BMA123-Z1@tesla.com','jkortz@tesla.com', 'mrojasangeles@tesla.com', 'jnorth@tesla.com', 'wfields@tesla.com', 'meavitia@tesla.com', 'jaclewis@tesla.com' 'mberlied@tesla.com','joespino@tesla.com','tikim@tesla.com']
-        send_to = ['mberlied@tesla.com']
+        send_to = ['BMA123-Z1@tesla.com',
+                   'mberlied@tesla.com',
+                   'joespino@tesla.com',
+                   'tikim@tesla.com']
         subject = 'ACTA123 Bypassed Equipment Report'
 
         try:
