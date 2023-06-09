@@ -72,7 +72,7 @@ if __name__ == '__main__':
         quit()
     else:
         logging.info("Hourly run schedule initiated")
-        while 1:
+        while True:
             scheduler_hourly.run_pending()
             scheduler_alerts.run_pending()
             scheduler_passdown.run_pending()
