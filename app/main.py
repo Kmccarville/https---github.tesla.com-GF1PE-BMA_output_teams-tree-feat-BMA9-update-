@@ -2,6 +2,7 @@ import time
 import schedule
 import logging 
 import os
+from pytz import timezone
 
 from common import helper_functions
 
@@ -20,6 +21,8 @@ from resources import eos
 from resources.alerts import cta45_ct
 from resources.alerts import cta123_fixtures
 
+from resources.passdown import cta123_eqt_email
+
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
 
@@ -34,6 +37,7 @@ if __name__ == '__main__':
 
     scheduler_hourly = schedule.Scheduler()
     scheduler_alerts = schedule.Scheduler()
+    scheduler_passdown = schedule.Scheduler()
 
     #define hourly scheduler
     scheduler_hourly.every().hour.at(":00").do(outputz1.main,env)
@@ -51,6 +55,9 @@ if __name__ == '__main__':
     scheduler_alerts.every().hour.at(":00").do(cta45_ct.main,env)
     scheduler_alerts.every().hour.at(":00").do(cta123_fixtures.main,env)
 
+    #define passdown scheduler
+    scheduler_passdown.every().day.at("07:30", timezone("US/Pacific")).do(cta123_eqt_email.main,env)
+
     if env == "dev":
         logging.info("BranchName: %s", branchName)
         logging.info("CommitHash: %s", commit)
@@ -59,6 +66,7 @@ if __name__ == '__main__':
         logging.info("Run all command executed")
         scheduler_hourly.run_all(delay_seconds=10)
         scheduler_alerts.run_all(delay_seconds=10)
+        scheduler_passdown.run_all(delay_seconds=10)
         devHeading.main(start=False)
         logging.info("Run all command complete. Quiting Program")
         quit()
@@ -67,3 +75,4 @@ if __name__ == '__main__':
         while 1:
             scheduler_hourly.run_pending()
             scheduler_alerts.run_pending()
+            scheduler_passdown.run_pending()

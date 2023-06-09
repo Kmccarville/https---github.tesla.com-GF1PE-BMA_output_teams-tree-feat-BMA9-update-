@@ -237,7 +237,7 @@ def send_alert(webhook_key,title,df,caption="",link_title="",link_button=""):
         except pymsteams.TeamsWebhookException:
             logging.exception("Webhook timed out twice -- pass to next area")
 
-def send_mail(send_from, send_to, subject, message,
+def send_mail(send_from, send_to, subject, message, format='',
               files=[], filenames=[],
               server='smtp-int.teslamotors.com', port=25):
     """Compose and send email with provided info and attachments.
@@ -257,7 +257,10 @@ def send_mail(send_from, send_to, subject, message,
     msg['Date'] = formatdate(localtime=True)
     msg['Subject'] = subject
 
-    msg.attach(MIMEText(message))
+    if format == None:
+        msg.attach(MIMEText(message))
+    else:
+        msg.attach(MIMEText(message,format))
 
     for attachment,name in zip(files,filenames):
         part = MIMEBase('application', "octet-stream")
