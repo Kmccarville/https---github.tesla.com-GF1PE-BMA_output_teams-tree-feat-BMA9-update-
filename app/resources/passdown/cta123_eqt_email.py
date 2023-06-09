@@ -45,9 +45,13 @@ def get_bypassed_table():
 
 def main(env):
     # Do not send an email on dev
-    if env =='prod':
+    now=datetime.utcnow()
+    pst_now = helper_functions.convert_from_utc_to_pst(now)
+    logging.info("CTA123 Bypass Eqt Email Main Triggered %s PST" % pst_now)
 
-        logging.info("CTA123 Bypass Eqt Email %s" % datetime.utcnow())
+    if env == 'prod':
+
+        logging.info("CTA123 Bypass Eqt Email In Prod %s UTC" % datetime.utcnow())
 
         df = get_bypassed_table()
         df = df[['LOCATION','EQUIPMENT','HOURS DOWN']]
