@@ -64,6 +64,7 @@ def get_cta_yield(db,lookback):
     return df
 
 def acta_records(lookback,cta1,cta2,cta3,webhook):
+    logging.info(f'Starting {lookback} hour ACTA records')
     # check for output records for 1 hour
     record_con = helper_functions.get_sql_conn('pedb',schema='records')
 
@@ -95,8 +96,8 @@ def acta_records(lookback,cta1,cta2,cta3,webhook):
                 shiftPrev = prevShiftArray[line]
                 datePrev = prevDateArray[line]
                 carsNew = carsets[line]
-                shiftNow = 'C'
-                #shiftNow = getShift()
+                shiftNow,date = helper_functions.get_shift_and_date()
+
                 logging.info(f'Starting Record Post for {lineName}')
 
                 html = f"""
@@ -115,7 +116,7 @@ def acta_records(lookback,cta1,cta2,cta3,webhook):
                         <tr>
                             <td style="text-align:right"><b>NEW RECORD</b></td>
                             <td style="text-align:center">{shiftNow}</td>
-                            <td style="text-align:center">{datetime.date}</td>
+                            <td style="text-align:center">{date}</td>
                             <td style="text-align:center">{carsNew:.1f}</td>
                         </tr>
                         """
@@ -368,5 +369,5 @@ def main(env,eos=False):
     webhook_key = 'teams_webhook_Zone1_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
-    logging.info('Starting 24 hour ACTA records')
+
     acta_records(lookback,cta1,cta2,cta3,webhook)
