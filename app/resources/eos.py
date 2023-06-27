@@ -239,3 +239,13 @@ def eos_report(env,do_24=False):
             eos_msg.send()
         except pymsteams.TeamsWebhookException:
             logging.exception("Webhook timed out twice -- pass to next area")
+
+    if do_24:
+        webhook_key = 'teams_webhook_Zone1_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
+        webhook_json = helper_functions.get_pw_json(webhook_key)
+        webhook = webhook_json['url']
+
+        cta1 = cta_outputs[0]/CTA_DIVISOR
+        cta2 = cta_outputs[1]/CTA_DIVISOR
+        cta3 = cta_outputs[2]/CTA_DIVISOR
+        outputz1.acta_records(24,cta1,cta2,cta3)

@@ -2,6 +2,7 @@ import json
 import time
 import traceback
 import sqlalchemy
+from sqlalchemy import text
 from urllib.parse import quote
 from datetime import timedelta
 import pandas as pd
@@ -61,6 +62,31 @@ def is_it_eos_or_24():
     it_is_eos = True if pst_now.hour in [6,18] else False
     it_is_24 = True if pst_now.hour==6 else False
     return it_is_eos,it_is_24
+
+def get_shift_and_date():
+    #this should take care of DST
+    pst = pytz.timezone('US/Pacific')
+    utc = pytz.timezone('UTC')
+    utc_now=utc.localize(datetime.utcnow())
+    pst_now = utc_now.astimezone(pst)
+
+    # move shift time to 0-11/12-23. Lookback always previous hour
+    shiftStart = pst_now+timedelta(hours=-7)
+    shiftDate = shiftStart.strftime('%Y-%m-%d')
+    shiftWeekNum = shiftStart.isocalendar()[1]
+    shiftDay = shiftStart.weekday()
+    shiftHour = shiftStart.hour
+    # Day: Sunday is 6 Monday is 0
+    if shiftDay in (6,0,1):
+        shift = 'A' if shiftHour in range(0,12) else 'C'
+    elif shiftDay in (3,4,5):
+        shift = 'B' if shiftHour in range(0,12) else 'D'
+    elif shiftDay == 2:
+        if shiftWeekNum%2 == 1:
+            shift = 'A' if shiftHour in range(0,12) else 'C'
+        else:
+            shift = 'B' if shiftHour in range(0,12) else 'D'
+    return shift,shiftDate
 
 #parse dataframes for line-based value
 def get_val(df,query_val,query_col,return_col):
@@ -203,6 +229,61 @@ def query_tsm_cycle_time(db,start,end,paths,low_limit,high_limit):
             """
     df = pd.read_sql(query,db)
     return df
+
+def evaluate_record(db,name,hours,carsets):
+    newRecord = False
+    prevShift = str()
+    prevDate = str()
+    prevRecord = 0
+    query = f"""
+        SELECT 
+            e.name,
+            r.id,
+            r.eqtid,
+            r.hours,
+            r.shift,
+            r.date,
+            r.carsets,
+            r.recorded
+        FROM
+            records.records r
+        INNER JOIN records.equipment e on e.id = r.eqtid
+        WHERE
+            e.name = '{name}'
+            AND r.hours = {hours}
+        ORDER BY 'carsets' DESC
+        LIMIT 1
+    """
+    df = pd.read_sql(text(query),db)
+    if len(df):
+        prevRecord = df.iloc[0]['carsets']
+        prevShift = df.iloc[0]['shift']
+        prevDate = df.iloc[0]['date']
+        logging.info(f'Found previous record: {name} | {prevShift} | {prevDate} {prevRecord}')
+        if carsets > prevRecord:
+            newRecord = True
+            shift,date = get_shift_and_date()
+            if hours == 24 and shift == 'C':
+                shift = 'AC'
+            if hours == 24 and shift == 'D':
+                shift = 'BD'
+            logging.info(f'New Record Achieved: {name} | {hours} | {carsets}')
+            try:
+                df_insert = pd.DataFrame({
+                                        'eqtid' : [df.iloc[0]['eqtid']],
+                                        'hours' : [hours],
+                                        'shift' : [shift],
+                                        'date' : [date],
+                                        'carsets' : [round(carsets,1)],
+                                        'recorded' : [datetime.now()]
+                                    })
+                df_insert.to_sql('records',db,'records',if_exists='append',index=False)
+                logging.info(f'Inserted new record to database')
+            except:
+                logging.exception("Failed to insert record to database")
+    else:
+        logging.error(f'No previous record found: {name} | {hours} | {carsets}')
+    return newRecord, prevShift, prevDate, prevRecord
 
 def convert_from_utc_to_pst(inp_time):
     pst = pytz.timezone('US/Pacific')

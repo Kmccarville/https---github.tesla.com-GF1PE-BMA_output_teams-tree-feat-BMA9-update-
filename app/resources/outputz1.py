@@ -63,6 +63,90 @@ def get_cta_yield(db,lookback):
     df = pd.read_sql(text(query), db)
     return df
 
+def acta_records(lookback,cta1,cta2,cta3,webhook):
+    logging.info(f'Starting {lookback} hour ACTA records')
+    # check for output records for 1 hour
+    record_con = helper_functions.get_sql_conn('pedb',schema='records')
+
+    line1 = cta1
+    line2 = cta2
+    line3 = cta3
+    line123 = line1 + line2 + line3
+    names = ['ACTA123','ACTA1','ACTA2','ACTA3']
+    carsets = [line123,line1,line2,line3]
+    newRecordArray = []
+    prevShiftArray = []
+    prevDateArray = []
+    prevRecordArray = []
+
+    for line in range(len(names)):
+        newRecord, prevShift, prevDate, prevRecord = helper_functions.evaluate_record(record_con,names[line],lookback,carsets[line])
+        newRecordArray.append(newRecord)
+        prevShiftArray.append(prevShift)
+        prevDateArray.append(prevDate)
+        prevRecordArray.append(prevRecord)
+
+    record_con.close()
+
+    if True in np.isin(True,newRecordArray):
+        for line in range(len(newRecordArray)):
+            if newRecordArray[line] == True:
+                lineName = names[line]
+                carsPrev = prevRecordArray[line]
+                shiftPrev = prevShiftArray[line]
+                datePrev = prevDateArray[line]
+                carsNew = carsets[line]
+                shiftNow,date = helper_functions.get_shift_and_date()
+
+                logging.info(f'Starting Record Post for {lineName}')
+
+                html = f"""
+                        <tr>
+                            <th style="text-align:center"><strong></strong></th>
+                            <th style="text-align:center"><strong>Shift</strong></th>
+                            <th style="text-align:center"><strong>Date</strong></th>
+                            <th style="text-align:center"><strong>Carsets</strong></th>
+                        </tr>
+                        <tr>
+                            <td style="text-align:right"><b>Prev Record</b></td>
+                            <td style="text-align:center">{shiftPrev}</td>
+                            <td style="text-align:center">{datePrev}</td>
+                            <td style="text-align:center">{carsPrev}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:right"><b>NEW RECORD</b></td>
+                            <td style="text-align:center">{shiftNow}</td>
+                            <td style="text-align:center">{date}</td>
+                            <td style="text-align:center">{carsNew:.1f}</td>
+                        </tr>
+                        """
+                output_html = '<table>' + html + '</table>'
+
+                #making the record teams message
+                record_msg = pymsteams.connectorcard(webhook)
+                title = f'NEW RECORD ACHEIVED FOR {lineName} | {lookback} HOUR'
+                record_msg.title(title)
+                record_msg.summary('summary')
+                TESLA_RED = '#cc0000'
+                msg_color = TESLA_RED
+                record_msg.color(msg_color)
+                #make a card with the hourly data
+                recordCard = pymsteams.cardsection()
+                recordCard.text(output_html)
+
+                record_msg.addSection(recordCard)
+                #SEND IT
+                try:
+                    record_msg.send()
+                except pymsteams.TeamsWebhookException:
+                    logging.warn("Webhook timed out, retry once")
+                    try:
+                        record_msg.send()
+                    except pymsteams.TeamsWebhookException:
+                        logging.exception("Webhook timed out twice -- pass to next area")
+    else:
+        logging.info('No Record to post about')
+
 def main(env,eos=False):
     logging.info("output Z1 start %s" % datetime.utcnow())
     lookback=12 if eos else 1
@@ -277,3 +361,13 @@ def main(env,eos=False):
             teams_msg.send()
         except pymsteams.TeamsWebhookException:
             logging.exception("Webhook timed out twice -- pass to next area")
+
+    # do records
+    cta1 = np.sum(cta1_outputs)/CTA_DIVISOR
+    cta2 = np.sum(cta2_outputs)/CTA_DIVISOR
+    cta3 = np.sum(cta3_outputs)/CTA_DIVISOR
+    webhook_key = 'teams_webhook_Zone1_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
+    webhook_json = helper_functions.get_pw_json(webhook_key)
+    webhook = webhook_json['url']
+
+    acta_records(lookback,cta1,cta2,cta3,webhook)
