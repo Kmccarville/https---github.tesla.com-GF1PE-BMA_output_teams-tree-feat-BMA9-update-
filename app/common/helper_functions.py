@@ -263,6 +263,10 @@ def evaluate_record(db,name,hours,carsets):
         if carsets < prevRecord:
             newRecord = True
             shift,date = get_shift_and_date()
+            if hours == 24 and shift == 'C':
+                shift = 'AC'
+            if hours == 24 and shift == 'D':
+                shift = 'BD'
             logging.info(f'New Record Achieved: {name} | {hours} | {carsets}')
             df_insert = pd.DataFrame({
                                     'eqtid' : [df.iloc[0]['eqtid']],
