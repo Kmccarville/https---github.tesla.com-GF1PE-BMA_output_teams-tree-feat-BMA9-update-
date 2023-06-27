@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     #define passdown scheduler
     scheduler_passdown.every().day.at("14:30").do(cta123_eqt_email.main,env)
-
+    scheduler_passdown.every().day.at("02:30").do(cta123_eqt_email.main,env)
     if env == "dev":
         logging.info("BranchName: %s", branchName)
         logging.info("CommitHash: %s", commit)
