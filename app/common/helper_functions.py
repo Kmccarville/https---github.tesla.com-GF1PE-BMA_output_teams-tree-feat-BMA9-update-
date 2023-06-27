@@ -280,7 +280,7 @@ def evaluate_record(db,name,hours,carsets):
                 df_insert.to_sql('records',db,'records',if_exists='append',index=False)
                 logging.info(f'Inserted new record to database')
             except:
-                logging.exception("Webhook timed out twice -- pass to next area")
+                logging.exception("Failed to insert record to database")
     else:
         logging.error(f'No previous record found: {name} | {hours} | {carsets}')
     return newRecord, prevShift, prevDate, prevRecord
