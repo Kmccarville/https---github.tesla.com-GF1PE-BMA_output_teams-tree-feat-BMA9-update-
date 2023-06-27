@@ -260,7 +260,7 @@ def evaluate_record(db,name,hours,carsets):
         prevShift = df.iloc[0]['shift']
         prevDate = df.iloc[0]['date']
         logging.info(f'Found previous record: {name} | {prevShift} | {prevDate} {prevRecord}')
-        if carsets > prevRecord:
+        if carsets < prevRecord:
             newRecord = True
             shift,date = get_shift_and_date()
             logging.info(f'New Record Achieved: {name} | {hours} | {carsets}')
