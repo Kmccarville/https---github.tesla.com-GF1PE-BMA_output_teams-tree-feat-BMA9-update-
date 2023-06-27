@@ -268,16 +268,19 @@ def evaluate_record(db,name,hours,carsets):
             if hours == 24 and shift == 'D':
                 shift = 'BD'
             logging.info(f'New Record Achieved: {name} | {hours} | {carsets}')
-            df_insert = pd.DataFrame({
-                                    'eqtid' : [df.iloc[0]['eqtid']],
-                                    'hours' : [hours],
-                                    'shift' : [shift],
-                                    'date' : [date],
-                                    'carsets' : [round(carsets,1)],
-                                    'recorded' : [datetime.now()]
-                                })
-            df_insert.to_sql('records',db,'records',if_exists='append',index=False)
-            logging.info(f'Inserted new record to database')
+            try:
+                df_insert = pd.DataFrame({
+                                        'eqtid' : [df.iloc[0]['eqtid']],
+                                        'hours' : [hours],
+                                        'shift' : [shift],
+                                        'date' : [date],
+                                        'carsets' : [round(carsets,1)],
+                                        'recorded' : [datetime.now()]
+                                    })
+                df_insert.to_sql('records',db,'records',if_exists='append',index=False)
+                logging.info(f'Inserted new record to database')
+            except:
+                logging.exception("Webhook timed out twice -- pass to next area")
     else:
         logging.error(f'No previous record found: {name} | {hours} | {carsets}')
     return newRecord, prevShift, prevDate, prevRecord
