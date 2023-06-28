@@ -51,6 +51,24 @@ def get_fixture_table():
     df = pd.DataFrame(data=d)
     return df
 
+def get_reject_fixture_table():
+    query = f"""
+        SELECT 
+            LEFT(line_id, 4) AS 'LINE',
+            COUNT(*) AS '-90s'
+        FROM
+            gf1_asrs_management.asrs_record
+        WHERE
+            LINE_ID LIKE 'CTA_%'
+            AND PALLET_TYPE <= - 90
+            AND POSITION_STATUS = 'FULL'
+        GROUP BY 1 ASC
+        """
+    asrs_con = helper_functions.get_sql_conn('gf1_pallet_management',schema='gf1_asrs_management')
+    df = pd.read_sql(text(query), asrs_con)
+    asrs_con.close()
+    return df
+
 def main(env):
     lookback=3
     now=datetime.utcnow()
@@ -62,9 +80,10 @@ def main(env):
 
         df_puck = get_puck_table()
         df_fixt = get_fixture_table()
-        goal= {'LINE': 'GOAL','PUCKS': 5200,'FIXTURES': 185}
+        df_rej_fixt = get_reject_fixture_table()
+        goal= {'LINE': 'GOAL','PUCKS': 5200,'FIXTURES': 185,'-90s': '--'}
         
-        df = pd.concat([df_puck,df_fixt['FIXTURES']],axis=1)
+        df = pd.concat([df_puck,df_fixt['FIXTURES'],df_rej_fixt['-90s']],axis=1)
         df = df.append(goal,ignore_index=True)
         
         webhook_key = 'teams_webhook_Zone1_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
