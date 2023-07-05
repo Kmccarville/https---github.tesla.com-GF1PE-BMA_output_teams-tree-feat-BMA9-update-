@@ -162,9 +162,10 @@ def main(env,eos=False):
     CTA123_FLOWSTEP = '3BM-20000'
     CTA4_FLOWSTEP = '3BM4-25000'
     CTA5_FLOWSTEP = '3BM5-25000'
+    CTA8_FLOWSTEP = '3BM8-25000'
     #create line arrays
-    LINES = ['3BM1','3BM2','3BM3','3BM4','3BM5']
-    FLOWSTEPS = [CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA4_FLOWSTEP,CTA5_FLOWSTEP]
+    LINES = ['3BM1','3BM2','3BM3','3BM4','3BM5','3BM8']
+    FLOWSTEPS = [CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA8_FLOWSTEP]
 
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,FLOWSTEPS)
@@ -181,6 +182,8 @@ def main(env,eos=False):
     cta4_yield = []
     cta5_outputs = []
     cta5_yield = []
+    cta8_outputs = []
+    cta8_yield = []
 
     for line in range(NUM_LINES):
         cta_outputs.append(helper_functions.get_output_val(df_output,FLOWSTEPS[line],LINES[line]))
@@ -192,10 +195,12 @@ def main(env,eos=False):
         cta3_outputs.append(helper_functions.get_output_val(df_output, CTA123_FLOWSTEP,'3BM3',actor=f"3BM3-20000-{lane_num}"))
         cta4_outputs.append(helper_functions.get_output_val(df_output, CTA4_FLOWSTEP,'3BM4',actor=f"3BM4-20000-{lane_num}"))
         cta5_outputs.append(helper_functions.get_output_val(df_output,CTA5_FLOWSTEP,'3BM5',actor=f"3BM5-20000-{lane_num}"))
+        cta8_outputs.append(helper_functions.get_output_val(df_output,CTA8_FLOWSTEP,'3BM8',actor=f"3BM8-20000-{lane_num}"))
         if eos:
             cta4_yield.append(helper_functions.get_val(df_cta_yield, f"3BM4-20000-{lane_num}",'LINE','YIELD'))
             cta5_yield.append(helper_functions.get_val(df_cta_yield, f"3BM5-20000-{lane_num}",'LINE','YIELD'))
-    cta_total = np.sum(cta1_outputs) + np.sum(cta2_outputs) + np.sum(cta3_outputs) + np.sum(cta4_outputs) + np.sum(cta5_outputs)
+            cta8_yield.append(helper_functions.get_val(df_cta_yield, f"3BM8-20000-{lane_num}",'LINE','YIELD'))
+    cta_total = np.sum(cta1_outputs) + np.sum(cta2_outputs) + np.sum(cta3_outputs) + np.sum(cta4_outputs) + np.sum(cta5_outputs) + np.sum(cta8_outputs)
 
     #create html outp9ut
     header_html = """<tr>
@@ -218,36 +223,49 @@ def main(env,eos=False):
                 """
     cta2_html = f"""
                 <tr>
-                   <td style="text-align:right"><strong>CTA2</strong></td>
-                   <td style="text-align:center"><strong>{np.sum(cta2_outputs)/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:right"><strong>CTA2</strong></td>
+                    <td style="text-align:center"><strong>{np.sum(cta2_outputs)/CTA_DIVISOR:.1f}</td>
                 """
     cta3_html = f"""
                 <tr>
-                   <td style="text-align:right"><strong>CTA3</strong></td>
-                   <td style="text-align:center"><strong>{np.sum(cta3_outputs)/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:right"><strong>CTA3</strong></td>
+                    <td style="text-align:center"><strong>{np.sum(cta3_outputs)/CTA_DIVISOR:.1f}</td>
                 """
     cta4_html = f"""
                 <tr>
-                   <td style="text-align:right"><strong>CTA4</strong></td>
-                   <td style="text-align:center"><strong>{np.sum(cta4_outputs)/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:right"><strong>CTA4</strong></td>
+                    <td style="text-align:center"><strong>{np.sum(cta4_outputs)/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:center">---</td>
                 """
     cta4_yield_html = f"""
                 <tr>
-                   <td style="text-align:right">YIELD %</strong></td>
-                   <td style="text-align:center">---</td>
+                    <td style="text-align:right">YIELD %</strong></td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
                 """
     cta5_html = f"""
             <tr>
-            <td style="text-align:right"><strong>CTA5</strong></td>
-            <td style="text-align:center"><strong>{np.sum(cta5_outputs)/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center">---</td>
+                <td style="text-align:right"><strong>CTA5</strong></td>
+                <td style="text-align:center"><strong>{np.sum(cta5_outputs)/CTA_DIVISOR:.1f}</td>
+                <td style="text-align:center">---</td>
             """
     cta5_yield_html = f"""
             <tr>
-            <td style="text-align:right">YIELD %</strong></td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
+                <td style="text-align:right">YIELD %</strong></td>
+                <td style="text-align:center">---</td>
+                <td style="text-align:center">---</td>
             """
+    cta8_html = f"""
+            <tr>
+                <td style="text-align:right"><strong>CTA8</strong></td>
+                <td style="text-align:center"><strong>{np.sum(cta8_outputs)/CTA_DIVISOR:.1f}</td>
+            """
+    cta8_yield_html = f"""
+            <tr>
+                <td style="text-align:right">YIELD %</strong></td>
+                <td style="text-align:center">---</td>
+            """
+
     zone1_combined = f"""
             <tr>
             <td style="text-align:right"><strong>ZONE1</strong></td>
@@ -268,22 +286,40 @@ def main(env,eos=False):
             cta3_html += f"""
                         <td style="text-align:center">{cta3_outputs[i]/CTA_DIVISOR:.1f}</td>
                         """
-            cta4_html += f"""
-                        <td style="text-align:center">{cta4_outputs[i]/CTA_DIVISOR:.1f}</td>
-                        """
-            if eos:
-                cta4_yield_html += f"""
-                            <td style="text-align:center;{color_str}">{cta4_yield[i]}</td>
-                            """
             #cta5 - ignore first index
             if i > 0:
                 color_str = ""
+                cta4_html += f"""
+                            <td style="text-align:center">{cta4_outputs[i]/CTA_DIVISOR:.1f}</td>
+                            """
                 cta5_html += f"""
                             <td style="text-align:center">{cta5_outputs[i]/CTA_DIVISOR:.1f}</td>
                             """
                 if eos:
+                    cta4_yield_html += f"""
+                                <td style="text-align:center;{color_str}">{cta4_yield[i]}</td>
+                                """
                     cta5_yield_html += f"""
                                 <td style="text-align:center;{color_str}">{cta5_yield[i]}</td>
+                                """
+            #cta8 has 2 lanes
+            if i < 2:
+                color_str = ""
+                cta8_html += f"""
+                            <td style="text-align:center">{cta8_outputs[i]/CTA_DIVISOR:.1f}</td>
+                            """
+                if eos:
+                    cta8_yield_html += f"""
+                                <td style="text-align:center;{color_str}">{cta8_yield[i]}</td>
+                                """
+            else:
+                color_str = ""
+                cta8_html += f"""
+                            <td style="text-align:center">---</td>
+                            """
+                if eos:
+                    cta8_yield_html += f"""
+                                <td style="text-align:center;{color_str}">---</td>
                                 """
         else:
             cta1_html += nolane_html
@@ -295,6 +331,7 @@ def main(env,eos=False):
             cta5_html += f"""
                         <td style="text-align:center;{color_str}">{cta5_outputs[i]/CTA_DIVISOR:.1f}</td>
                         """
+            cta8_html += nolane_html
             if eos:
                 cta4_yield_html += f"""
                             <td style="text-align:center;{color_str}">{cta4_yield[i]}</td>
@@ -302,6 +339,10 @@ def main(env,eos=False):
                 cta5_yield_html += f"""
                             <td style="text-align:center;{color_str}">{cta5_yield[i]}</td>
                             """
+                cta8_yield_html += f"""
+                            <td style="text-align:center;{color_str}">---</td>
+                            """
+
     #finish table
     cta1_html += "</tr>"
     cta2_html += "</tr>"
@@ -309,12 +350,14 @@ def main(env,eos=False):
     cta4_html += "</tr>"
     cta4_yield_html += "</tr>"
     cta5_html += "</tr>"
-    cta4_yield_html += "</tr>"
+    cta5_yield_html += "</tr>"
+    cta8_html += "</tr>"
+    cta8_yield_html += "</tr>"
 
     if eos:
-        cta_html = '<table>' + header_html + cta1_html + cta2_html + cta3_html + cta4_html + cta4_yield_html + cta5_html + cta5_yield_html + zone1_combined + '</table>'
+        cta_html = '<table>' + header_html + cta1_html + cta2_html + cta3_html + cta4_html + cta4_yield_html + cta5_html + cta5_yield_html + cta8_html + cta8_yield_html + zone1_combined + '</table>'
     else:
-        cta_html = '<table>' + header_html + cta1_html + cta2_html + cta3_html + cta4_html + cta5_html + zone1_combined + '</table>'
+        cta_html = '<table>' + header_html + cta1_html + cta2_html + cta3_html + cta4_html + cta5_html + cta8_html + zone1_combined + '</table>'
 
     mamc_starved_html = get_starve_block_table(start,end)
 
