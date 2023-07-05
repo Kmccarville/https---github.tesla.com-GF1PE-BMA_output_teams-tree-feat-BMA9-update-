@@ -50,14 +50,14 @@ def get_cta_yield(db,lookback):
         (
             SELECT *
             FROM nc
-            WHERE processname IN ('3bm4-bandolier', '3bm5-bandolier')
-            AND flowstepname not IN ('3bm4-25500', '3bm5-25500')
-            AND stepname IN ('3bm4-22000', '3bm4-24000', '3bm4-25000', '3bm5-22000', '3bm5-24000', '3bm5-25000')
+            WHERE processname IN ('3bm4-bandolier', '3bm5-bandolier', '3bm8-bandolier')
+            AND flowstepname not IN ('3bm4-25500', '3bm5-25500','3bm8-25500' )
+            AND stepname IN ('3bm4-22000', '3bm4-24000', '3bm4-25000', '3bm5-22000', '3bm5-24000', '3bm5-25000' , '3bm8-25000')
         ) AS nc
         ON nc.thingid = tp.thingid
         WHERE tp.completed > NOW() - INTERVAL {lookback} HOUR
         AND tp.iscurrent = 0
-        AND tp.flowstepid IN (891483, 891496)
+        AND tp.flowstepid IN (891483, 891496, 1054858)
         GROUP BY 1
         ORDER BY 1 ASC    """
     df = pd.read_sql(text(query), db)
