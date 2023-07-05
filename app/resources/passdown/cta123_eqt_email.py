@@ -71,7 +71,6 @@ def main(env):
         send_from = 'bma-pybot-passdown@tesla.com'
         send_to = ['BMA123-Z1@tesla.com',
                    'mberlied@tesla.com',
-                   'joespino@tesla.com',
                    'tikim@tesla.com']
         subject = 'ACTA123 Bypassed Equipment Report'
 
