@@ -57,39 +57,21 @@ def get_fixture_table():
     df = pd.read_sql(text(query), mos_con)
     df = df.astype(str)
     # replace mos parameter to common abbreviation
-    df = df.replace('IC Clamshell Carrier','IC')
-    df = df.replace('NIC Clamshell Carrier','NIC')
-    df = df.replace('NMAMC Pallet ID','NP')
-    df = df.replace('Picture Frame RFID','PF')
+    df = df.replace('IC Clamshell Carrier','IC Carrier')
+    df = df.replace('NIC Clamshell Carrier','NIC Carrier')
+    df = df.replace('NMAMC Pallet ID','Nested Pallet')
+    df = df.replace('Picture Frame RFID','Picture Frame')
     # pivot df for each line and reindex
     df = df.pivot(index='Type',columns='Line',values='Count')
     df = df.replace(np.nan,'---')
     df = df.reset_index()
     df = df.rename_axis(None,axis=1)
     # custom sort
-    df['Type'] = pd.Categorical(df['Type'],['IC','NIC','PF','NP'])
+    df['Type'] = pd.Categorical(df['Type'],['IC Carrier','NIC Carrier','Picture Frame','Nested Pallet'])
     df = df.sort_values('Type')
 
     print(df)
     mos_con.close()
-    return df
-
-def get_reject_fixture_table():
-    query = f"""
-        SELECT 
-            LEFT(line_id, 4) AS 'LINE',
-            COUNT(*) AS '-90s'
-        FROM
-            gf1_asrs_management.asrs_record
-        WHERE
-            LINE_ID LIKE 'CTA_%'
-            AND PALLET_TYPE <= - 90
-            AND POSITION_STATUS = 'FULL'
-        GROUP BY 1 ASC
-        """
-    asrs_con = helper_functions.get_sql_conn('gf1_pallet_management',schema='gf1_asrs_management')
-    df = pd.read_sql(text(query), asrs_con)
-    asrs_con.close()
     return df
 
 def main(env):
