@@ -82,7 +82,7 @@ def main(env):
     pst_now = helper_functions.convert_from_utc_to_pst(now)
     #only run this script at hours 1,4,7,10,13,16,19,22
 
-    if pst_now.hour%3 == 1 or env=='dev' or True:
+    if pst_now.hour%3 == 1 or env=='dev':
 
         logging.info("CTA123 Puck-Fixture Alert %s" % datetime.utcnow())
 
