@@ -101,7 +101,7 @@ def main(env):
         logging.info("CTA123 Puck-Fixture Alert %s" % datetime.utcnow())
 
         df = get_fixture_table()
-        webhook_key = 'teams_webhook_Zone1_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
+        webhook_key = 'teams_webhook_Zone2_123_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
         title = 'BMA123 Z2 Fixture Count'
         caption = 'Active Last 3 Hours'
         helper_functions.send_alert(webhook_key,title,df,caption)

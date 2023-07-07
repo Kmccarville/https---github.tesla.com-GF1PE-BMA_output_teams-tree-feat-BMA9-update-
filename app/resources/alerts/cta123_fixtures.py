@@ -86,7 +86,7 @@ def main(env):
         df = pd.concat([df_puck,df_fixt['FIXTURES'],df_rej_fixt['-90s']],axis=1)
         df = df.append(goal,ignore_index=True)
         
-        webhook_key = 'teams_webhook_Zone2_123_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
+        webhook_key = 'teams_webhook_Zone1_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
         title = 'CTA123 Puck and Fixture Count'
         caption = ''
         helper_functions.send_alert(webhook_key,title,df,caption)
