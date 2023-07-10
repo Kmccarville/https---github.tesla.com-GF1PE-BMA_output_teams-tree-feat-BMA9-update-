@@ -249,3 +249,8 @@ def eos_report(env,do_24=False):
         cta2 = cta_outputs[1]/CTA_DIVISOR
         cta3 = cta_outputs[2]/CTA_DIVISOR
         outputz1.acta_records(24,cta1,cta2,cta3)
+
+        c3a1 = c3a_outputs[0]/NORMAL_DIVISOR
+        c3a2 = c3a_outputs[1]/NORMAL_DIVISOR
+        c3a3 = c3a_outputs[2]/NORMAL_DIVISOR
+        outputz1.acta_records(24,c3a1,c3a2,c3a3)
