@@ -251,7 +251,7 @@ def evaluate_record(db,name,hours,carsets):
         WHERE
             e.name = '{name}'
             AND r.hours = {hours}
-        ORDER BY 'carsets' DESC
+        ORDER BY carsets DESC
         LIMIT 1
     """
     df = pd.read_sql(text(query),db)
