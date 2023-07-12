@@ -308,7 +308,7 @@ def mttr_to_html(df):
         """
     return html
 
-def get_starved_table(db,start,end):
+def get_starved_blocked_table(db,start,end):
     INGRESS_PATHS = [
                     '[3BM01_50000_00]01/_OEE_Reporting/TSMs/InputStation',
                     '[3BM02_50000_00]02/_OEE_Reporting/TSMs/InputStation',
@@ -328,7 +328,8 @@ def get_starved_table(db,start,end):
     seconds_between = (end - start).seconds
 
     ing_df = helper_functions.query_tsm_state(db,start, end, INGRESS_PATHS, 'Starved')
-    po_df = helper_functions.query_tsm_state(db,start, end, PO_PATHS, 'Starved',1)   
+    po_df = helper_functions.query_tsm_state(db,start, end, PO_PATHS, 'Starved',1)
+    po_bd_df = helper_functions.query_tsm_state(db,start, end, PO_PATHS, 'Blocked',1)
 
     ing1_starved = round(helper_functions.get_val(ing_df,'3BM1','LINE','Duration')/seconds_between*100,1)
     ing2_starved = round(helper_functions.get_val(ing_df,'3BM2','LINE','Duration')/seconds_between*100,1)
@@ -342,6 +343,12 @@ def get_starved_table(db,start,end):
     po4_starved = round(helper_functions.get_val(po_df,'3BM4','LINE','Duration')/seconds_between*100,1)
     po5_starved = round(helper_functions.get_val(po_df,'3BM5','LINE','Duration')/seconds_between*100,1)
 
+    po1_blocked = round(helper_functions.get_val(po_bd_df,'3BM1','LINE','Duration')/seconds_between*100,1)
+    po2_blocked = round(helper_functions.get_val(po_bd_df,'3BM2','LINE','Duration')/seconds_between*100,1)
+    po3_blocked = round(helper_functions.get_val(po_bd_df,'3BM3','LINE','Duration')/seconds_between*100,1)
+    po4_blocked = round(helper_functions.get_val(po_bd_df,'3BM4','LINE','Duration')/seconds_between*100,1)
+    po5_blocked = round(helper_functions.get_val(po_bd_df,'3BM5','LINE','Duration')/seconds_between*100,1)
+
     html=f"""
         <tr>
             <td></td>
@@ -352,7 +359,7 @@ def get_starved_table(db,start,end):
             <th style="text-align:center"><strong>3BM5</strong></th>
         </tr>
         <tr>
-            <td style="text-align:left"><b>Ingress</b></td>
+            <td style="text-align:left"><b>Ingress Starve</b></td>
             <td style="text-align:center">{ing1_starved}%</td>
             <td style="text-align:center">{ing2_starved}%</td>
             <td style="text-align:center">{ing3_starved}%</td>
@@ -360,43 +367,15 @@ def get_starved_table(db,start,end):
             <td style="text-align:center">{ing5_starved}%</td>
         </tr>
         <tr>
-            <td style="text-align:left"><b>PO MTRs</b></td>
+            <td style="text-align:left"><b>PO Starve</b></td>
             <td style="text-align:center">{po1_starved}%</td>
             <td style="text-align:center">{po2_starved}%</td>
             <td style="text-align:center">{po3_starved}%</td>
             <td style="text-align:center">{po4_starved}%</td>
             <td style="text-align:center">{po5_starved}%</td>
         </tr>
-        """
-    return html
-
-def get_blocked_PO_table(db,start,end):
-    PO_PATHS = [
-                '[3BM01_50000_00]01/_OEE_Reporting/TSMs/Packout1_Packout',
-                '[3BM02_50000_00]02/_OEE_Reporting/TSMs/Packout1_Packout',
-                '[3BM03_50000_00]03/_OEE_Reporting/TSMs/Packout1_Packout',
-                '[3BM04_57000_01]_OEE_Reporting/TSMs/Main',
-                '[3BM04_50000]3BM05_57000/_OEE_Reporting/Packout_MTR']
-
-    seconds_between = (end - start).seconds
-
-    po_bd_df = helper_functions.query_tsm_state(db,start, end, PO_PATHS, 'Blocked',1)   
-
-    po1_blocked = round(helper_functions.get_val(po_bd_df,'3BM1','LINE','Duration')/seconds_between*100,1)
-    po2_blocked = round(helper_functions.get_val(po_bd_df,'3BM2','LINE','Duration')/seconds_between*100,1)
-    po3_blocked = round(helper_functions.get_val(po_bd_df,'3BM3','LINE','Duration')/seconds_between*100,1)
-    po4_blocked = round(helper_functions.get_val(po_bd_df,'3BM4','LINE','Duration')/seconds_between*100,1)
-    po5_blocked = round(helper_functions.get_val(po_bd_df,'3BM5','LINE','Duration')/seconds_between*100,1)
-
-    html=f"""
         <tr>
-            <th style="text-align:center"><strong>3BM1</strong></th>
-            <th style="text-align:center"><strong>3BM2</strong></th>
-            <th style="text-align:center"><strong>3BM3</strong></th>
-            <th style="text-align:center"><strong>3BM4</strong></th>
-            <th style="text-align:center"><strong>3BM5</strong></th>
-        </tr>
-        <tr>
+            <td style="text-align:left"><b>PO Blocked</b></td>
             <td style="text-align:center">{po1_blocked}%</td>
             <td style="text-align:center">{po2_blocked}%</td>
             <td style="text-align:center">{po3_blocked}%</td>
@@ -442,8 +421,7 @@ def main(env,eos=False):
     ict_con = helper_functions.get_sql_conn('interconnect_eng')
 
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
-    starve_table = get_starved_table(plc_con,start,end)
-    blocked_table = get_blocked_PO_table(plc_con,start,end)
+    starved_blocked_table = get_starved_blocked_table(plc_con,start,end)
     mttr_df = get_mttr_df(env,eos,ict_con,start,end)
 
     #get empty bonder spots
@@ -501,8 +479,7 @@ def main(env,eos=False):
 
 
     output_html = "<table>" + "<caption>Throughput</caption>" + output_table + "</table>"
-    starved_html = "<table>" + "<caption>Starvation %</caption>" + starve_table + "</table>"
-    blocked_html = "<table>" + "<caption>Blocked %</caption>" + blocked_table + "</table>"
+    starved_blocked_html = "<table>" + "<caption>Performance %</caption>" + starved_blocked_table + "</table>"
 
     if len(mttr_df):
         mttr_table = mttr_to_html(mttr_df)
@@ -530,13 +507,9 @@ def main(env,eos=False):
     output_card.text(output_html)
     teams_msg.addSection(output_card)
     #make a card with starvation data
-    starved_card = pymsteams.cardsection()
-    starved_card.text(starved_html)
-    teams_msg.addSection(starved_card)
-    #make a card with blocked data
-    blocked_card = pymsteams.cardsection()
-    blocked_card.text(blocked_html)
-    teams_msg.addSection(blocked_card)
+    starved_blocked_card = pymsteams.cardsection()
+    starved_blocked_card.text(starved_blocked_html)
+    teams_msg.addSection(starved_blocked_card)
     #make a card with starvation data
     wb_card = pymsteams.cardsection()
     wb_card.text(wb_html)
