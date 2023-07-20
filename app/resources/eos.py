@@ -36,7 +36,7 @@ def eos_report(env,do_24=False):
     #define all flowsteps to be used
     DF_FLOWSTEP = pd.DataFrame({
                                     'LINE' : ['3BM1','3BM2','3BM3','3BM4','3BM5','3BM8'],
-                                    'CTA'  : ['3BM-20000','3BM-20000','3BM-20000','3BM4-25000','3BM5-25000',''],
+                                    'CTA'  : ['3BM-20000','3BM-20000','3BM-20000','3BM4-25000','3BM5-25000','3BM8-25000'],
                                     'MAMC'  : ['3BM-29500','3BM-29500','3BM-29500','3BM4-34000','3BM5-34000','3BM8-29500'],
                                     'MAMC_296'  : ['3BM-29600','3BM-29600','3BM-29600','','',''],
                                     'C3A'  : ['3BM-40001','3BM-40001','3BM-40001','3BM4-45000','3BM5-45000','3BM8-44000'],
@@ -89,6 +89,7 @@ def eos_report(env,do_24=False):
     cta123_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['CTA']
     cta4_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM4'").iloc[0]['CTA']
     cta5_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM5'").iloc[0]['CTA']
+    cta8_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM8'").iloc[0]['CTA']
 
     mamc123_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['MAMC']
     mamc123_296_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['MAMC_296']
@@ -107,13 +108,11 @@ def eos_report(env,do_24=False):
 
     mamc_outputs = np.add(mamc_outputs,mamc_296_outputs)
 
-    total_cta_ouput = helper_functions.get_output_val(df_output,cta123_flowstep) + helper_functions.get_output_val(df_output,cta4_flowstep) + helper_functions.get_output_val(df_output,cta5_flowstep)
+    total_cta_ouput = helper_functions.get_output_val(df_output,cta123_flowstep) + helper_functions.get_output_val(df_output,cta4_flowstep) + helper_functions.get_output_val(df_output,cta5_flowstep) + helper_functions.get_output_val(df_output,cta8_flowstep)
     total_mamc_ouput = helper_functions.get_output_val(df_output,mamc123_flowstep) + helper_functions.get_output_val(df_output,mamc123_296_flowstep) + helper_functions.get_output_val(df_output,mamc4_flowstep) + helper_functions.get_output_val(df_output,mamc5_flowstep) + helper_functions.get_output_val(df_output,mamc8_flowstep)
     total_c3a_output = helper_functions.get_output_val(df_output,c3a123_flowstep) + helper_functions.get_output_val(df_output,c3a4_flowstep) + helper_functions.get_output_val(df_output,c3a5_flowstep) + helper_functions.get_output_val(df_output,c3a8_flowstep)
     total_z3_output = helper_functions.get_output_val(df_output,z3_flowstep)
     total_z4_output = helper_functions.get_output_val(df_output,z4_mc1_flowstep) + helper_functions.get_output_val(df_output,z4_mc2_flowstep) 
-
-    blank_bma8_str = """<td style="text-align:center">----</td>"""
 
     #create bma header
     bma_header_html = f"""<tr>
@@ -136,7 +135,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[3]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[4]/CTA_DIVISOR:.1f}</td>
-            {blank_bma8_str}
+            <td style="text-align:center">{cta_outputs[5]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{total_cta_ouput/CTA_DIVISOR:.1f}</strong></td>
             </tr>
             """
