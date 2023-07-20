@@ -89,6 +89,7 @@ def eos_report(env,do_24=False):
     cta123_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['CTA']
     cta4_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM4'").iloc[0]['CTA']
     cta5_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM5'").iloc[0]['CTA']
+    cta8_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM8'").iloc[0]['CTA']
 
     mamc123_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['MAMC']
     mamc123_296_flowstep = DF_FLOWSTEP.query(f"LINE=='3BM1'").iloc[0]['MAMC_296']
@@ -107,7 +108,7 @@ def eos_report(env,do_24=False):
 
     mamc_outputs = np.add(mamc_outputs,mamc_296_outputs)
 
-    total_cta_ouput = helper_functions.get_output_val(df_output,cta123_flowstep) + helper_functions.get_output_val(df_output,cta4_flowstep) + helper_functions.get_output_val(df_output,cta5_flowstep)
+    total_cta_ouput = helper_functions.get_output_val(df_output,cta123_flowstep) + helper_functions.get_output_val(df_output,cta4_flowstep) + helper_functions.get_output_val(df_output,cta5_flowstep) + helper_functions.get_output_val(df_output,cta8_flowstep)
     total_mamc_ouput = helper_functions.get_output_val(df_output,mamc123_flowstep) + helper_functions.get_output_val(df_output,mamc123_296_flowstep) + helper_functions.get_output_val(df_output,mamc4_flowstep) + helper_functions.get_output_val(df_output,mamc5_flowstep) + helper_functions.get_output_val(df_output,mamc8_flowstep)
     total_c3a_output = helper_functions.get_output_val(df_output,c3a123_flowstep) + helper_functions.get_output_val(df_output,c3a4_flowstep) + helper_functions.get_output_val(df_output,c3a5_flowstep) + helper_functions.get_output_val(df_output,c3a8_flowstep)
     total_z3_output = helper_functions.get_output_val(df_output,z3_flowstep)
