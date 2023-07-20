@@ -36,7 +36,7 @@ def eos_report(env,do_24=False):
     #define all flowsteps to be used
     DF_FLOWSTEP = pd.DataFrame({
                                     'LINE' : ['3BM1','3BM2','3BM3','3BM4','3BM5','3BM8'],
-                                    'CTA'  : ['3BM-20000','3BM-20000','3BM-20000','3BM4-25000','3BM5-25000',''],
+                                    'CTA'  : ['3BM-20000','3BM-20000','3BM-20000','3BM4-25000','3BM5-25000','3BM8-25000'],
                                     'MAMC'  : ['3BM-29500','3BM-29500','3BM-29500','3BM4-34000','3BM5-34000','3BM8-29500'],
                                     'MAMC_296'  : ['3BM-29600','3BM-29600','3BM-29600','','',''],
                                     'C3A'  : ['3BM-40001','3BM-40001','3BM-40001','3BM4-45000','3BM5-45000','3BM8-44000'],
@@ -113,8 +113,6 @@ def eos_report(env,do_24=False):
     total_z3_output = helper_functions.get_output_val(df_output,z3_flowstep)
     total_z4_output = helper_functions.get_output_val(df_output,z4_mc1_flowstep) + helper_functions.get_output_val(df_output,z4_mc2_flowstep) 
 
-    blank_bma8_str = """<td style="text-align:center">----</td>"""
-
     #create bma header
     bma_header_html = f"""<tr>
             <th style="text-align:center"></th>
@@ -136,7 +134,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[3]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[4]/CTA_DIVISOR:.1f}</td>
-            {blank_bma8_str}
+            <td style="text-align:center">{cta_outputs[5]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{total_cta_ouput/CTA_DIVISOR:.1f}</strong></td>
             </tr>
             """
