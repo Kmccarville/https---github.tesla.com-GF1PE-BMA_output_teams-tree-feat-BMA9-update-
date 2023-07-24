@@ -85,7 +85,7 @@ def get_fixture_table():
     df['TYPE'] = pd.Categorical(df['TYPE'],['IC Carrier','NIC Carrier','Picture Frame','Nested Pallet'])
     df = df.sort_values('TYPE')
     # define goal column
-    goals = [27,27,62,8]
+    goals = [27,27,65,8]
     df['GOAL'] = goals
 
     return df
