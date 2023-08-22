@@ -16,7 +16,7 @@ import traceback
 
 def main(env):
     it_is_eos,it_is_24 = helper_functions.is_it_eos_or_24()
-    if it_is_eos:
+    if it_is_eos or env == 'dev':
         logging.info('Running End of Shift Report')
         outputz1.main(env,eos=True)
         outputz2_123.main(env,eos=True)
@@ -25,7 +25,7 @@ def main(env):
         outputz3.main(env,eos=True)
         outputz4.main(env,eos=True)
         eos_report(env)
-        if it_is_24:
+        if it_is_24 or env == 'dev':
             eos_report(env,do_24=True)
 
 def eos_report(env,do_24=False):
@@ -130,7 +130,7 @@ def eos_report(env,do_24=False):
     #create cta output row
     cta_html = f"""<tr>
             <td style="text-align:center"><strong>ZONE1 CTA</strong></td>
-            <td style="text-align:center">{cta_outputs[0]/CTA_DIVISOR:.1f}</td>
+            <td style="text-align:center">---</td>
             <td style="text-align:center">{cta_outputs[1]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[2]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[3]/CTA_DIVISOR:.1f}</td>
