@@ -63,17 +63,18 @@ def get_cta_yield(db,lookback):
     df = pd.read_sql(text(query), db)
     return df
 
-def acta_records(lookback,cta1,cta2,cta3,webhook):
+def cta_records(lookback,cta2,cta3,cta4,cta5,cta8,webhook):
     logging.info(f'Starting {lookback} hour ACTA records')
     # check for output records for 1 hour
     record_con = helper_functions.get_sql_conn('pedb',schema='records')
 
-    line1 = cta1
     line2 = cta2
     line3 = cta3
-    line123 = line1 + line2 + line3
-    names = ['ACTA123','ACTA1','ACTA2','ACTA3']
-    carsets = [line123,line1,line2,line3]
+    line4 = cta4
+    line5 = cta5
+    line8 = cta8
+    names = ['ACTA2','ACTA3','CTA4','CTA5','CTA8']
+    carsets = [line2,line3,line4,line5,line8]
     newRecordArray = []
     prevShiftArray = []
     prevDateArray = []
@@ -164,7 +165,7 @@ def main(env,eos=False):
     CTA5_FLOWSTEP = '3BM5-25000'
     CTA8_FLOWSTEP = '3BM8-25000'
     #create line arrays
-    LINES = ['3BM1','3BM2','3BM3','3BM4','3BM5','3BM8']
+    LINES = ['3BM2','3BM3','3BM4','3BM5','3BM8']
     FLOWSTEPS = [CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA8_FLOWSTEP]
 
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
@@ -190,7 +191,6 @@ def main(env,eos=False):
 
     for lane in range(1,NUM_LANES + 1):
         lane_num = str(lane).zfill(2)
-        cta1_outputs.append(helper_functions.get_output_val(df_output, CTA123_FLOWSTEP,'3BM1',actor=f"3BM1-20000-{lane_num}"))
         cta2_outputs.append(helper_functions.get_output_val(df_output, CTA123_FLOWSTEP,'3BM2',actor=f"3BM2-20000-{lane_num}"))
         cta3_outputs.append(helper_functions.get_output_val(df_output, CTA123_FLOWSTEP,'3BM3',actor=f"3BM3-20000-{lane_num}"))
         cta4_outputs.append(helper_functions.get_output_val(df_output, CTA4_FLOWSTEP,'3BM4',actor=f"3BM4-20000-{lane_num}"))
@@ -200,7 +200,7 @@ def main(env,eos=False):
             cta4_yield.append(helper_functions.get_val(df_cta_yield, f"3BM4-20000-{lane_num}",'LINE','YIELD'))
             cta5_yield.append(helper_functions.get_val(df_cta_yield, f"3BM5-20000-{lane_num}",'LINE','YIELD'))
             cta8_yield.append(helper_functions.get_val(df_cta_yield, f"3BM8-20000-{lane_num}",'LINE','YIELD'))
-    cta_total = np.sum(cta1_outputs) + np.sum(cta2_outputs) + np.sum(cta3_outputs) + np.sum(cta4_outputs) + np.sum(cta5_outputs) + np.sum(cta8_outputs)
+    cta_total = np.sum(cta2_outputs) + np.sum(cta3_outputs) + np.sum(cta4_outputs) + np.sum(cta5_outputs) + np.sum(cta8_outputs)
 
     #create html outp9ut
     header_html = """<tr>
@@ -216,11 +216,6 @@ def main(env,eos=False):
                         <th style="text-align:center">Ln8</th>
                         </tr>
                     """
-    cta1_html = f"""
-                <tr>
-                    <td style="text-align:right"><strong>CTA1</strong></td>
-                    <td style="text-align:center"><strong>{np.sum(cta1_outputs)/CTA_DIVISOR:.1f}</td>
-                """
     cta2_html = f"""
                 <tr>
                     <td style="text-align:right"><strong>CTA2</strong></td>
@@ -274,12 +269,9 @@ def main(env,eos=False):
 
     nolane_html = f"""<td style="text-align:center">---</td>"""
 
-    for i,val in enumerate(cta1_outputs):
+    for i,val in enumerate(cta3_outputs):
         if i in range(4):
             color_str = ""
-            cta1_html += f"""
-                        <td style="text-align:center">{cta1_outputs[i]/CTA_DIVISOR:.1f}</td>
-                        """
             cta2_html += f"""
                         <td style="text-align:center">{cta2_outputs[i]/CTA_DIVISOR:.1f}</td>
                         """
@@ -322,7 +314,6 @@ def main(env,eos=False):
                                 <td style="text-align:center;{color_str}">---</td>
                                 """
         else:
-            cta1_html += nolane_html
             cta2_html += nolane_html
             cta3_html += nolane_html
             cta4_html += f"""
@@ -344,7 +335,6 @@ def main(env,eos=False):
                             """
 
     #finish table
-    cta1_html += "</tr>"
     cta2_html += "</tr>"
     cta3_html += "</tr>"
     cta4_html += "</tr>"
@@ -355,9 +345,9 @@ def main(env,eos=False):
     cta8_yield_html += "</tr>"
 
     if eos:
-        cta_html = '<table>' + header_html + cta1_html + cta2_html + cta3_html + cta4_html + cta4_yield_html + cta5_html + cta5_yield_html + cta8_html + cta8_yield_html + zone1_combined + '</table>'
+        cta_html = '<table>' + header_html +cta2_html + cta3_html + cta4_html + cta4_yield_html + cta5_html + cta5_yield_html + cta8_html + cta8_yield_html + zone1_combined + '</table>'
     else:
-        cta_html = '<table>' + header_html + cta1_html + cta2_html + cta3_html + cta4_html + cta5_html + cta8_html + zone1_combined + '</table>'
+        cta_html = '<table>' + header_html + cta2_html + cta3_html + cta4_html + cta5_html + cta8_html + zone1_combined + '</table>'
 
     mamc_starved_html = get_starve_block_table(start,end)
 
@@ -406,11 +396,13 @@ def main(env,eos=False):
             logging.exception("Webhook timed out twice -- pass to next area")
 
     # do records
-    cta1 = np.sum(cta1_outputs)/CTA_DIVISOR
     cta2 = np.sum(cta2_outputs)/CTA_DIVISOR
     cta3 = np.sum(cta3_outputs)/CTA_DIVISOR
+    cta4 = np.sum(cta4_outputs)/CTA_DIVISOR
+    cta5 = np.sum(cta5_outputs)/CTA_DIVISOR
+    cta8 = np.sum(cta8_outputs)/CTA_DIVISOR
     webhook_key = 'teams_webhook_Zone1_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
 
-    acta_records(lookback,cta1,cta2,cta3,webhook)
+    cta_records(lookback,cta2,cta3,cta4,cta5,cta8,webhook)
