@@ -31,7 +31,8 @@ def get_bypassed_table():
                 FROM
                     rno_eqtstatushistory_batterymodule.equipment e
                 WHERE
-                    e.source_tagpath LIKE '%bypass%')
+                    e.source_tagpath LIKE '%bypass%'
+                    and e.name NOT LIKE '3BM1%')
                 AND sh.state = 1
                 AND ISNULL(sh.end_time)
         GROUP BY 1
@@ -49,13 +50,12 @@ def main(env):
     pst_now = helper_functions.convert_from_utc_to_pst(now)
     logging.info("CTA123 Bypass Eqt Email Main Triggered %s PST" % pst_now)
 
-    if env == 'prod':
+    logging.info("CTA123 Bypass Eqt Email In Prod %s UTC" % datetime.utcnow())
 
-        logging.info("CTA123 Bypass Eqt Email In Prod %s UTC" % datetime.utcnow())
+    df = get_bypassed_table()
+    df = df[['LOCATION','EQUIPMENT','HOURS DOWN']]
 
-        df = get_bypassed_table()
-        df = df[['LOCATION','EQUIPMENT','HOURS DOWN']]
-
+    if len(df.index):
         message = """\
             <html>
             <head style="font-size:20px;"><strong>ACTA123 CURRENT BYPASSED EQUIPMENT</strong></head>
@@ -65,18 +65,29 @@ def main(env):
             </body>
             </html>
             """.format(df.to_html(index=False,justify='left',bold_rows=True))
+    else:
+                message = """\
+            <html>
+            <head style="font-size:20px;"><strong>ACTA123 CURRENT BYPASSED EQUIPMENT</strong></head>
+            <br></br>
+            <body>
+                There are no bypasses active in ACTA123
+            </body>
+            </html>
+            """.format(df.to_html(index=False,justify='left',bold_rows=True))
 
-        # html = df.to_html(index=False,border=0,justify='left',bold_rows=True)
-
+    if env == 'prod':
         send_from = 'bma-pybot-passdown@tesla.com'
         send_to = ['BMA123-Z1@tesla.com',
-                   'mberlied@tesla.com',
+                   'BMA123-Z2-PE@tesla.com',
                    'tikim@tesla.com']
         subject = 'ACTA123 Bypassed Equipment Report'
-
-        try:
-            helper_functions.send_mail(send_from,send_to,subject,message,'html')
-        except Exception:
-            logging.exception("failed to send exception email")
     else:
-        pass
+        send_from = 'bma-pybot-passdown-dev@tesla.com'
+        send_to = ['mberlied@tesla.com']
+        subject = 'ACTA123 Bypassed Equipment Report (Dev)'
+
+    try:
+        helper_functions.send_mail(send_from,send_to,subject,message,'html')
+    except Exception:
+        logging.exception("failed to send exception email")
