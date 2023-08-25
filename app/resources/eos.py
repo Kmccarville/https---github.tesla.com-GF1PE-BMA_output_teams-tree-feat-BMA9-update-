@@ -244,7 +244,6 @@ def eos_report(env,do_24=False):
         webhook_key = 'teams_webhook_Zone1_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
         webhook_json = helper_functions.get_pw_json(webhook_key)
         webhook = webhook_json['url']
-
         cta1 = cta_outputs[0]/CTA_DIVISOR
         cta2 = cta_outputs[1]/CTA_DIVISOR
         cta3 = cta_outputs[2]/CTA_DIVISOR
@@ -252,12 +251,19 @@ def eos_report(env,do_24=False):
         cta5 = cta_outputs[4]/CTA_DIVISOR
         cta8 = cta_outputs[5]/CTA_DIVISOR
         outputz1.cta_records(24,cta1,cta2,cta3,cta4,cta5,cta8,webhook)
+
         # C3A123 24hr records
         webhook_key = 'teams_webhook_Zone2_123_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
         webhook_json = helper_functions.get_pw_json(webhook_key)
         webhook = webhook_json['url']
-
         c3a1 = c3a_outputs[0]/NORMAL_DIVISOR
         c3a2 = c3a_outputs[1]/NORMAL_DIVISOR
         c3a3 = c3a_outputs[2]/NORMAL_DIVISOR
         outputz2_123.ac3a_records(24,c3a1,c3a2,c3a3,webhook)
+
+        # C3A8 24hr records
+        c3a8 = c3a_outputs[5]/NORMAL_DIVISOR
+        webhook_key = 'teams_webhook_BMA8_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
+        webhook_json = helper_functions.get_pw_json(webhook_key)
+        webhook = webhook_json['url']
+        outputz2_8.bma8_records(lookback,c3a8,webhook)
