@@ -27,7 +27,7 @@ def get_puck_table():
     return df
 
 def get_fixture_table():
-    tables = [44,46,41]
+    tables = [46,41]
     count = []
     plc_con = helper_functions.get_sql_conn('plc_db',schema='rno_ia_taghistory_batterymodule')
     df = pd.DataFrame()
@@ -47,7 +47,7 @@ def get_fixture_table():
         df = pd.read_sql(text(query), plc_con)
         count.append(df.get_value(0,'intvalue'))
     plc_con.close()
-    d = {'LINE': ['3BM1','3BM2','3BM3'],'FIXTURES': count}
+    d = {'LINE': ['3BM2','3BM3'],'FIXTURES': count}
     df = pd.DataFrame(data=d)
     return df
 
