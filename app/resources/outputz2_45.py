@@ -89,7 +89,7 @@ def get_mamc_fpy(start_time,end_time,con):
     WHERE
         tp.completed >= """ + start_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
         AND tp.completed < """ + end_time.strftime("'%Y-%m-%d %H:%M:%S'") + """
-            AND tp.flowstepid IN (840678, 849852)
+            AND tp.flowstepid IN (840678, 849852,1073321,1074507)
         """
     
     yield_tgt_mamc = 97.0
