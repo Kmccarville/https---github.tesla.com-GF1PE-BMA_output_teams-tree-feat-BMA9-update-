@@ -131,7 +131,7 @@ def get_starve_by_operator(start_time,end_time):
         """
 
 
-    return '<table>' + "<caption>ST025 Cell Load Starved by Operator</caption>" +header_html+html + "</table>'
+    return "<table>" + "<caption>ST025 Cell Load Starved by Operator</caption>" +header_html+html + "</table>"
 
 def get_cta_yield(db,lookback):
     query = f"""
