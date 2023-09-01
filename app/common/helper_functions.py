@@ -166,7 +166,6 @@ def query_tsm_state(db,start, end, paths, s_or_b, reason=0):
     tsm_query = f"""
     SELECT 
     LINE,
-    EQPT_NAME,
     SUM(timestampdiff(SECOND,start_date_time,end_date_time)) as Duration
     FROM
     (
