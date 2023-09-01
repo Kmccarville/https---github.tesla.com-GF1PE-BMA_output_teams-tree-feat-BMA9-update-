@@ -448,7 +448,7 @@ def main(env,eos=False):
     else:
         cta_html = '<table>' + header_html + cta2_html + cta3_html + cta4_html + cta5_html + cta8_html + zone1_combined + '</table>'
 
-    op_starved_html = get_starve_by_operator(start,start)
+    op_starved_html = get_starve_by_operator(start,end)
     mamc_starved_html = get_starve_block_table(start,end)
     
     tsm_header_html = """
