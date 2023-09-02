@@ -61,26 +61,8 @@ def get_starve_by_operator(start_time,end_time):
 
     plc_con.close()
 
-    #get percentage (divide by seconds in between start and end and multiply by 100%)
-    cta42_starved_by_op = round(helper_functions.get_val(df,'3BM4-20000-02_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    cta43_starved_by_op = round(helper_functions.get_val(df,'3BM4-20000-03_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    cta44_starved_by_op = round(helper_functions.get_val(df,'3BM4-20000-04_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    cta45_starved_by_op = round(helper_functions.get_val(df,'3BM4-20000-05_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    cta46_starved_by_op = round(helper_functions.get_val(df,'3BM4-20000-06_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    cta47_starved_by_op = round(helper_functions.get_val(df,'3BM4-20000-07_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    cta48_starved_by_op = round(helper_functions.get_val(df,'3BM4-20000-08_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
+    STARVED_THREHSOLD = 15
 
-    cta52_starved_by_op = round(helper_functions.get_val(df,'3BM5-20000-02_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    cta53_starved_by_op = round(helper_functions.get_val(df,'3BM5-20000-03_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    cta54_starved_by_op = round(helper_functions.get_val(df,'3BM5-20000-04_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    cta55_starved_by_op = round(helper_functions.get_val(df,'3BM5-20000-05_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    cta56_starved_by_op = round(helper_functions.get_val(df,'3BM5-20000-06_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    cta57_starved_by_op = round(helper_functions.get_val(df,'3BM5-20000-07_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    cta58_starved_by_op = round(helper_functions.get_val(df,'3BM5-20000-08_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-
-    cta81_starved_by_op = round(helper_functions.get_val(df,'3BM8-20000-01_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    cta82_starved_by_op = round(helper_functions.get_val(df,'3BM8-20000-02_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
-    
     header_html = """<tr>
                         <th style="text-align:center"></th>
                         <th style="text-align:center">Ln1</th>
@@ -94,44 +76,60 @@ def get_starve_by_operator(start_time,end_time):
                         </tr>
                     """
     
-    html=f"""
-        <tr>
-            <td style="text-align:right"><strong>CTA4</strong></td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">{cta42_starved_by_op}%</td>
-            <td style="text-align:center">{cta43_starved_by_op}%</td>
-            <td style="text-align:center">{cta44_starved_by_op}%</td>
-            <td style="text-align:center">{cta45_starved_by_op}%</td>
-            <td style="text-align:center">{cta46_starved_by_op}%</td>
-            <td style="text-align:center">{cta47_starved_by_op}%</td>
-            <td style="text-align:center">{cta48_starved_by_op}%</td>
-        </tr>
-        <tr>
-            <td style="text-align:right"><strong>CTA5</strong></td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">{cta52_starved_by_op}%</td>
-            <td style="text-align:center">{cta53_starved_by_op}%</td>
-            <td style="text-align:center">{cta54_starved_by_op}%</td>
-            <td style="text-align:center">{cta55_starved_by_op}%</td>
-            <td style="text-align:center">{cta56_starved_by_op}%</td>
-            <td style="text-align:center">{cta57_starved_by_op}%</td>
-            <td style="text-align:center">{cta58_starved_by_op}%</td>
-        </tr>
-        <tr>
-            <td style="text-align:right"><strong>CTA8</strong></td>
-            <td style="text-align:center">{cta81_starved_by_op}%</td>
-            <td style="text-align:center">{cta82_starved_by_op}%</td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
-        </tr>
-        """
+    #form cta4 html
+    cta4_html = f"""
+                    <tr>
+                        <td style="text-align:right"><strong>CTA4</strong></td>
+                        <td style="text-align:center">---</td>
+                    </tr>
+                    """
+    
+    for lane in range(2,9):
+        starved_by_op = round(helper_functions.get_val(df,f'3BM4-20000-0{lane}_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
+        color_text = "color:red" if starved_by_op > STARVED_THREHSOLD else ""
+        cta4_html += f"""<td style="text-align:center;{color_text}">{starved_by_op}%</td>"""
+    
+    cta4_html += "</tr>"
 
+    #form cta5 html
+    cta5_html = f"""
+                    <tr>
+                        <td style="text-align:right"><strong>CTA5</strong></td>
+                        <td style="text-align:center">---</td>
+                    </tr>
+                    """
 
-    return "<table>" + "<caption>ST025 Cell Load Starved by Operator</caption>" +header_html+html + "</table>"
+    for lane in range(2,9):
+        starved_by_op = round(helper_functions.get_val(df,f'3BM5-20000-0{lane}_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
+        color_text = "color:red" if starved_by_op > STARVED_THREHSOLD else ""
+        cta5_html += f"""<td style="text-align:center;{color_text}">{starved_by_op}%</td>"""
+    
+    cta5_html += "</tr>"
+
+    #form cta8 html
+    cta8_html = f"""
+                    <tr>
+                        <td style="text-align:right"><strong>CTA5</strong></td>
+                    </tr>
+                    """
+
+    for lane in range(1,3):
+        starved_by_op = round(helper_functions.get_val(df,f'3BM8-20000-0{lane}_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
+        color_text = "color:red" if starved_by_op > STARVED_THREHSOLD else ""
+        cta8_html += f"""<td style="text-align:center;{color_text}">{starved_by_op}%</td>"""
+    
+    cta8_html +=  """
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                </tr>
+                """
+
+    html = cta4_html + cta5_html + cta8_html
+    return "<table>" + f"<caption>ST025 Cell Load Starved by Operator (Goal < {STARVED_THREHSOLD}%)</caption>" +header_html+html + "</table>"
 
 def get_cta_yield(db,lookback):
     query = f"""
