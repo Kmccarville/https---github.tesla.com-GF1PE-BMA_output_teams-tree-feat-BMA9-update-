@@ -81,7 +81,6 @@ def get_starve_by_operator(start_time,end_time):
                     <tr>
                         <td style="text-align:right"><strong>CTA4</strong></td>
                         <td style="text-align:center">---</td>
-                    </tr>
                     """
     
     for lane in range(2,9):
@@ -96,7 +95,6 @@ def get_starve_by_operator(start_time,end_time):
                     <tr>
                         <td style="text-align:right"><strong>CTA5</strong></td>
                         <td style="text-align:center">---</td>
-                    </tr>
                     """
 
     for lane in range(2,9):
@@ -110,7 +108,6 @@ def get_starve_by_operator(start_time,end_time):
     cta8_html = f"""
                     <tr>
                         <td style="text-align:right"><strong>CTA5</strong></td>
-                    </tr>
                     """
 
     for lane in range(1,3):
