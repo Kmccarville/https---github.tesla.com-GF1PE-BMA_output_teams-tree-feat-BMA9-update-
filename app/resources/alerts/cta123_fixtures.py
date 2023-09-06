@@ -16,7 +16,7 @@ def get_puck_table():
         FROM
             PUCK_HIST
         WHERE
-            EQUIPMENT LIKE '3BM_-10%'
+            (EQUIPMENT LIKE '3BM2-10%' OR EQUIPMENT LIKE '3BM3-10%')
                 AND logged > NOW() - INTERVAL 12 HOUR
         GROUP BY 1
         ORDER BY LINE ASC
