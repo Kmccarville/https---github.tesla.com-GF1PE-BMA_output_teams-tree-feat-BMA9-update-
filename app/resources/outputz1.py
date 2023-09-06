@@ -107,7 +107,7 @@ def get_starve_by_operator(start_time,end_time):
     #form cta8 html
     cta8_html = f"""
                     <tr>
-                        <td style="text-align:right"><strong>CTA5</strong></td>
+                        <td style="text-align:right"><strong>CTA8</strong></td>
                     """
 
     for lane in range(1,3):
