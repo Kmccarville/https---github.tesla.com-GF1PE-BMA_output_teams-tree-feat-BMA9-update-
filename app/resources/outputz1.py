@@ -34,6 +34,100 @@ def get_starve_block_table(start_time,end_time):
 
     return html
 
+def get_starve_by_operator(start_time,end_time):
+    seconds_between = (end_time - start_time).seconds
+    CELL_LOAD_PATHS = [
+                    '[TSL053_CTR025_02]OEE_Reporting/TSM_CellLoad',
+                    '[TSL053_CTR025_03]OEE_Reporting/TSM_CellLoad',
+                    '[TSL053_CTR025_04]OEE_Reporting/TSM_CellLoad',
+                    '[TSL053_CTR025_05]OEE_Reporting/TSM_CellLoad',
+                    '[TSL053_CTR025_06]OEE_Reporting/TSM_CellLoad',
+                    '[TSL053_CTR025_07]OEE_Reporting/TSM_CellLoad',
+                    '[TSL053_CTR025_08]OEE_Reporting/TSM_CellLoad',
+                    '[TSL063_CTR025_02]OEE_Reporting/TSM_CellLoad',
+                    '[TSL063_CTR025_03]OEE_Reporting/TSM_CellLoad',
+                    '[TSL063_CTR025_04]OEE_Reporting/TSM_CellLoad',
+                    '[TSL063_CTR025_05]OEE_Reporting/TSM_CellLoad',
+                    '[TSL063_CTR025_06]OEE_Reporting/TSM_CellLoad',
+                    '[TSL063_CTR025_07]OEE_Reporting/TSM_CellLoad',
+                    '[TSL063_CTR025_08]OEE_Reporting/TSM_CellLoad',
+                    '[GFNV_CTA_008_00225_01]OEE_Reporting/TSM_CellLoad',
+                    '[GFNV_CTA_008_00225_02]OEE_Reporting/TSM_CellLoad'
+                    ]
+
+    plc_con = helper_functions.get_sql_conn('plc_db')
+    #get sterve blocked starve data for each tagpath set
+    df = helper_functions.query_tsm_state_by_lane(plc_con,start_time, end_time, CELL_LOAD_PATHS, 'Starved',reason=1)
+
+    plc_con.close()
+
+    STARVED_THREHSOLD = 15
+
+    header_html = """<tr>
+                        <th style="text-align:center"></th>
+                        <th style="text-align:center">Ln1</th>
+                        <th style="text-align:center">Ln2</th>
+                        <th style="text-align:center">Ln3</th>
+                        <th style="text-align:center">Ln4</th>
+                        <th style="text-align:center">Ln5</th>
+                        <th style="text-align:center">Ln6</th>
+                        <th style="text-align:center">Ln7</th>
+                        <th style="text-align:center">Ln8</th>
+                        </tr>
+                    """
+    
+    #form cta4 html
+    cta4_html = f"""
+                    <tr>
+                        <td style="text-align:right"><strong>CTA4</strong></td>
+                        <td style="text-align:center">---</td>
+                    """
+    
+    for lane in range(2,9):
+        starved_by_op = round(helper_functions.get_val(df,f'3BM4-20000-0{lane}_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
+        color_text = "color:red" if starved_by_op > STARVED_THREHSOLD else ""
+        cta4_html += f"""<td style="text-align:center;{color_text}">{starved_by_op}%</td>"""
+    
+    cta4_html += "</tr>"
+
+    #form cta5 html
+    cta5_html = f"""
+                    <tr>
+                        <td style="text-align:right"><strong>CTA5</strong></td>
+                        <td style="text-align:center">---</td>
+                    """
+
+    for lane in range(2,9):
+        starved_by_op = round(helper_functions.get_val(df,f'3BM5-20000-0{lane}_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
+        color_text = "color:red" if starved_by_op > STARVED_THREHSOLD else ""
+        cta5_html += f"""<td style="text-align:center;{color_text}">{starved_by_op}%</td>"""
+    
+    cta5_html += "</tr>"
+
+    #form cta8 html
+    cta8_html = f"""
+                    <tr>
+                        <td style="text-align:right"><strong>CTA8</strong></td>
+                    """
+
+    for lane in range(1,3):
+        starved_by_op = round(helper_functions.get_val(df,f'3BM8-20000-0{lane}_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
+        color_text = "color:red" if starved_by_op > STARVED_THREHSOLD else ""
+        cta8_html += f"""<td style="text-align:center;{color_text}">{starved_by_op}%</td>"""
+    
+    cta8_html +=  """
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                </tr>
+                """
+
+    html = cta4_html + cta5_html + cta8_html
+    return "<table>" + f"<caption>ST025 Cell Load Starved by USH/Operator (Goal < {STARVED_THREHSOLD}%)</caption>" +header_html+html + "</table>"
+
 def get_cta_yield(db,lookback):
     query = f"""
         SELECT  
@@ -349,8 +443,9 @@ def main(env,eos=False):
     else:
         cta_html = '<table>' + header_html + cta2_html + cta3_html + cta4_html + cta5_html + cta8_html + zone1_combined + '</table>'
 
+    op_starved_html = get_starve_by_operator(start,end)
     mamc_starved_html = get_starve_block_table(start,end)
-
+    
     tsm_header_html = """
                         <tr>
                         <td></td>
@@ -377,12 +472,16 @@ def main(env,eos=False):
     #make a card with the hourly data
     output_card = pymsteams.cardsection()
     output_card.text(cta_html)
-
+    
+    operator_card = pymsteams.cardsection()
+    operator_card.text(op_starved_html)
+    
     tsm_card = pymsteams.cardsection()
     tsm_card.text(tsm_html)
 
     # teams_msg.addSection(summary_card)
     teams_msg.addSection(output_card)
+    teams_msg.addSection(operator_card)
     teams_msg.addSection(tsm_card)
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
     #SEND IT
