@@ -363,12 +363,10 @@ def main(env,eos=False):
                 <td style="text-align:center">---</td>
             """
     
-    zone_goal = sum((hourly_goal_dict.values()))
     zone1_combined = f"""
             <tr>
             <td style="text-align:right"><strong>ZONE1</strong></td>
             <td style="text-align:center"><strong>{cta_total/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center"><strong>{int(zone_goal)}</td>
             """
 
     nolane_html = f"""<td style="text-align:center">---</td>"""
