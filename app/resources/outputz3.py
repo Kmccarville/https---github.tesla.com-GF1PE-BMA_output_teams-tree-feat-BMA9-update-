@@ -447,6 +447,7 @@ def main(env,eos=False):
     output5 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM5')/NORMAL_DIVISOR,1)  
     total_output = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP)/NORMAL_DIVISOR,1)
 
+    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=3)
     output_table=f"""
                 <tr>
                     <td></td>
@@ -467,13 +468,12 @@ def main(env,eos=False):
                     <td style="text-align:center"><b>{total_output}</b></td>
                 </tr>
                 <tr>
-                    <td style="text-align:left"><b>Open Bonders</b></td>
-                    <td style="text-align:center">{l1_empty_spots}</td>
-                    <td style="text-align:center">{l2_empty_spots}</td>
-                    <td style="text-align:center">{l3_empty_spots}</td>
-                    <td style="text-align:center">{l4_empty_spots}</td>
-                    <td style="text-align:center">{l5_empty_spots}</td>
-                    <td style="text-align:center"><b>---</b></td>
+                    <td style="text-align:left"><b>Goal</b></td>
+                    <td style="text-align:center">{int(hourly_goal_dict['3BM1'])}</td>
+                    <td style="text-align:center">{int(hourly_goal_dict['3BM2'])}</td>
+                    <td style="text-align:center">{int(hourly_goal_dict['3BM3'])}</td>
+                    <td style="text-align:center">{int(hourly_goal_dict['3BM4'])}</td>
+                    <td style="text-align:center">{int(hourly_goal_dict['3BM5'])}</td>
                 </tr>
                 """
 
