@@ -436,20 +436,20 @@ def e_handler(e):
     except Exception:
         logging.exception("failed to send exception email")
         
-def get_zone_line_goals():
+def get_zone_line_goals(zone):
     prodeng_con = get_sql_conn('prodeng_ro')
-    query = """
+    query = f"""
             SELECT 
-            concat('Z',ZONE,'_',right(LINE,1)) as ZONE_LINE,
+            LINE,
             SHIFT_CARSET_GOAL/12 AS HOURLY_GOAL
             FROM gf1pe_bm_global._static_lines
             WHERE LINE is not null
-            AND ZONE in (1,2,3,4);
+            AND ZONE = {zone};
             """
             
     df = pd.read_sql(query,prodeng_con)
     hourly_dict = {}
     for row in df.itertuples(False,'Tuples'):
-        hourly_dict[row.ZONE_LINE] = row.HOURLY_GOAL
+        hourly_dict[row.LINE] = row.HOURLY_GOAL
         
     return hourly_dict
