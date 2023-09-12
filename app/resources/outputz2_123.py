@@ -391,7 +391,9 @@ def main(env,eos=False):
     #create mos connection
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
     #get output for flowsteps
-    df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)    
+    df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
+    
+    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=2)
 
     mos_con.close()
 
@@ -433,9 +435,16 @@ def main(env,eos=False):
             <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.2f}</td>
             <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.2f}</strong></td>
             """
+    
+    z2_goal_html = f"""<tr>
+        <td style="text-align:center"><strong>GOAL</strong></td>
+        <td style="text-align:center">{int(hourly_goal_dict['3BM1'])}</td>
+        <td style="text-align:center">{int(hourly_goal_dict['3BM2'])}</td>
+        <td style="text-align:center">{int(hourly_goal_dict['3BM3'])}</td>
+        """
 
     #create full bma html with the above htmls
-    bma_html = '<table>' + "<caption>Throughput</caption>" + bma_header_html + mamc_output_html + c3a_output_html + '</table>'
+    bma_html = '<table>' + "<caption>Throughput</caption>" + bma_header_html + mamc_output_html + c3a_output_html + z2_goal_html+ '</table>'
 
     #get cycle time html
     header_html = """
