@@ -159,6 +159,8 @@ def main(env,eos=False):
     c3a_outputs = helper_functions.get_output_val(df_output,C3A_FLOWSTEP,C3A_LINE)
     
     NC_Table_html = get_mamc_ncs_table(mos_con,start,end)
+    
+    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=2)
 
     mos_con.close()
 
@@ -178,6 +180,12 @@ def main(env,eos=False):
     c3a_output_html = f"""<tr>
             <td style="text-align:center"><strong>C3A</strong></td>
             <td style="text-align:left">{c3a_outputs/NORMAL_DIVISOR:.2f}</td>
+            </tr>
+    """
+    
+    goal_html = f"""<tr>
+            <td style="text-align:center"><strong>GOAL</strong></td>
+            <td style="text-align:left">{int(hourly_goal_dict['3BM8'])}</td>
             </tr>
     """
 
