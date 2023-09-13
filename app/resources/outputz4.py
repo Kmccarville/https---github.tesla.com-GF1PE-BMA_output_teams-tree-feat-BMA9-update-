@@ -315,25 +315,25 @@ def main(env, eos=False):
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC1</strong></td>
-                <td style="text-align:left">{mc1_output/4:.1f}</td>
-                <td style="text-align:left">{int(hourly_goal_dict['MC1'])}</td>
-                <td style="text-align:center">{mc1_df_count:.1f}</td>
+                <td style="text-align:center">{mc1_output/4:.1f}</td>
+                <td style="text-align:center">{int(hourly_goal_dict['MC1'])}</td>
+                <td style="text-align:center">{int(mc1_df_count)}</td>
                 <td style="text-align:center">---</td>
                 <td style="text-align:center">---</td>
                 <td style="text-align:center">---</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC2</strong></td>
-                <td style="text-align:left">{mc2_output/4:.1f}</td>
-                <td style="text-align:left">{int(hourly_goal_dict['MC2'])}</td>
-                <td style="text-align:center">{mc2_df_count:.1f}</td>
+                <td style="text-align:center">{mc2_output/4:.1f}</td>
+                <td style="text-align:center">{int(hourly_goal_dict['MC2'])}</td>
+                <td style="text-align:center">{int(mc2_df_count)}</td>
                 <td style="text-align:center">{mc2_df_performance:.1f}</td>
-                <td style="text-align:center">{mc2_df_badpart:.1f}</td>
-                <td style="text-align:center">{mc2_df_notready:.1f}</td>
+                <td style="text-align:center">{int(mc2_df_badpart)}</td>
+                <td style="text-align:center">{int(mc2_df_notready)}</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>TOTAL</strong></td>
-                <td style="text-align:left"><b>{mic_total/4:.1f}</b></td>
+                <td style="text-align:center"><b>{mic_total/4:.1f}</b></td>
                 <td style="text-align:center">---</td>
                 <td style="text-align:center"><b>{total_df_count:.1f}</b></td>
                 <td style="text-align:center"><b>---</b></td>
