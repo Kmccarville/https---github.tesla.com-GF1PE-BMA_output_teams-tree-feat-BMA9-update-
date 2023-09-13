@@ -258,6 +258,7 @@ def main(env,eos=False):
 
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
+    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=2)
 
     #get fpy for mamc
     mamc_fpy = get_mamc_fpy(start, end, mos_con)
@@ -310,8 +311,14 @@ def main(env,eos=False):
             <td style="text-align:center"><strong>{(total_c3a4_output + total_c3a5_output)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
     """
+    goal_html = f"""<tr>
+            <td style="text-align:center"><strong>GOAL</strong></td>
+            <td style="text-align:center">{int(hourly_goal_dict['3BM4'])}</td>
+            <td style="text-align:center">{int(hourly_goal_dict['3BM5'])}</td>
+            </tr>
+    """
     #create full bma html with the above htmls
-    bma_html = '<table>' + bma_header_html + mamc_output_html + c3a_output_html + '</table>'
+    bma_html = '<table>' + bma_header_html + mamc_output_html + c3a_output_html + goal_html + '</table>'
 
     mamc_starved_html = get_starve_block_table(start,end)
     tsm_header_html = """

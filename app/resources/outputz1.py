@@ -261,6 +261,8 @@ def main(env,eos=False):
     #create line arrays
     LINES = ['3BM2','3BM3','3BM4','3BM5','3BM8']
     FLOWSTEPS = [CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA8_FLOWSTEP]
+    
+    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=1)
 
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,FLOWSTEPS)
@@ -300,6 +302,7 @@ def main(env,eos=False):
     header_html = """<tr>
                         <th style="text-align:center"></th>
                         <th style="text-align:center">TOTAL</th>
+                        <th style="text-align:center">GOAL</th>
                         <th style="text-align:center">Ln1</th>
                         <th style="text-align:center">Ln2</th>
                         <th style="text-align:center">Ln3</th>
@@ -314,16 +317,19 @@ def main(env,eos=False):
                 <tr>
                     <td style="text-align:right"><strong>CTA2</strong></td>
                     <td style="text-align:center"><strong>{np.sum(cta2_outputs)/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:center"><strong>{int(hourly_goal_dict['3BM2'])}</td>
                 """
     cta3_html = f"""
                 <tr>
                     <td style="text-align:right"><strong>CTA3</strong></td>
                     <td style="text-align:center"><strong>{np.sum(cta3_outputs)/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:center"><strong>{int(hourly_goal_dict['3BM3'])}</td>
                 """
     cta4_html = f"""
                 <tr>
                     <td style="text-align:right"><strong>CTA4</strong></td>
                     <td style="text-align:center"><strong>{np.sum(cta4_outputs)/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:center"><strong>{int(hourly_goal_dict['3BM4'])}</td>
                     <td style="text-align:center">---</td>
                 """
     cta4_yield_html = f"""
@@ -336,6 +342,7 @@ def main(env,eos=False):
             <tr>
                 <td style="text-align:right"><strong>CTA5</strong></td>
                 <td style="text-align:center"><strong>{np.sum(cta5_outputs)/CTA_DIVISOR:.1f}</td>
+                <td style="text-align:center"><strong>{int(hourly_goal_dict['3BM5'])}</td>
                 <td style="text-align:center">---</td>
             """
     cta5_yield_html = f"""
@@ -348,13 +355,14 @@ def main(env,eos=False):
             <tr>
                 <td style="text-align:right"><strong>CTA8</strong></td>
                 <td style="text-align:center"><strong>{np.sum(cta8_outputs)/CTA_DIVISOR:.1f}</td>
+                <td style="text-align:center"><strong>{int(hourly_goal_dict['3BM8'])}</td>
             """
     cta8_yield_html = f"""
             <tr>
                 <td style="text-align:right">YIELD %</strong></td>
                 <td style="text-align:center">---</td>
             """
-
+    
     zone1_combined = f"""
             <tr>
             <td style="text-align:right"><strong>ZONE1</strong></td>
