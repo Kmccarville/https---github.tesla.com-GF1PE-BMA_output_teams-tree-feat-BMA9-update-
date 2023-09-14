@@ -1,52 +1,11 @@
+from common import helper_functions 
 import pandas as pd
 from urllib.parse import quote
 import sqlalchemy
 import pymysql
 import pymsteams
 
-def getMOS_Crds():
-    obj = { "db": "sparq",
-                 "host": "mosdb-rpt2.db.ie.tslans.net",
-                "password": "aN[ArMsPwWEVhMh4S",
-                "port": "3307",
-                "schema": "sparq",
-                "user": "sa-mosdb-m3bppe"
-            }
-    return obj
-
-
-def sendTeamsMessage(message):
-   url = "https://teslamotorsinc.webhook.office.com/webhookb2/b2ec31db-df85-4ad3-8439-cec233bde55f@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/480e3c8ca5114e3aae7530cf995e5557/eed4c4c5-7e42-4f3c-8e39-e69a6fda4754"
-   title = 'AGV Spur Update'
-   summary = "Hourly Update"
-   color='#cc0000'
-   teams_msg = pymsteams.connectorcard(url)
-   teams_msg.title(title)
-   teams_msg.summary(summary)
-   teams_msg.color(color)
-   
-   # create cards for each major html
-   output_card = pymsteams.cardsection()
-   output_card.text(message)
-   teams_msg.addSection(output_card)
-
-   # SEND text to Teams
-   teams_msg.send()
-
-def get_sql_conn(schema=None):
-    cred = getMOS_Crds()
-    # Pull database credentials
-    user = cred['user']
-    password = quote(cred['password'])
-    hostname = cred['host']
-    port = cred['port']
-    schema = cred['schema']
-
-    schema_str = f"/{schema}" if schema else ""
-    # Define database connection
-    engine = sqlalchemy.create_engine(f'mysql+pymysql://{user}:{password}@{hostname}:{port}{schema_str}')
-    # Return connection to engine
-    return engine.connect()
+mos_con = helper_functions.get_sql_conn('mos_rpt2')
 
 query = f"""SELECT 
     pi.id AS Pick_item,
@@ -137,3 +96,21 @@ table, th, td {{
 </tr>
 </table>"""
 sendTeamsMessage(message)
+
+def sendTeamsMessage(message):
+   url = "https://teslamotorsinc.webhook.office.com/webhookb2/b2ec31db-df85-4ad3-8439-cec233bde55f@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/480e3c8ca5114e3aae7530cf995e5557/eed4c4c5-7e42-4f3c-8e39-e69a6fda4754"
+   title = 'AGV Spur Update'
+   summary = "Hourly Update"
+   color='#cc0000'
+   teams_msg = pymsteams.connectorcard(url)
+   teams_msg.title(title)
+   teams_msg.summary(summary)
+   teams_msg.color(color)
+   
+   # create cards for each major html
+   output_card = pymsteams.cardsection()
+   output_card.text(message)
+   teams_msg.addSection(output_card)
+
+   # SEND text to Teams
+   teams_msg.send()
