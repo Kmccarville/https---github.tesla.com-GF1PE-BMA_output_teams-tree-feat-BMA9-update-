@@ -262,7 +262,7 @@ def main(env,eos=False):
     LINES = ['3BM2','3BM3','3BM4','3BM5','3BM8']
     FLOWSTEPS = [CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA8_FLOWSTEP]
     
-    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=1)
+    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=1,hours=lookback)
 
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,FLOWSTEPS)

@@ -436,12 +436,12 @@ def e_handler(e):
     except Exception:
         logging.exception("failed to send exception email")
         
-def get_zone_line_goals(zone):
+def get_zone_line_goals(zone,hours):
     prodeng_con = get_sql_conn('prodeng_ro')
     query = f"""
             SELECT 
             LINE,
-            SHIFT_CARSET_GOAL/12 AS HOURLY_GOAL
+            SHIFT_CARSET_GOAL/12*{hours} AS HOURLY_GOAL
             FROM gf1pe_bm_global._static_lines
             WHERE LINE is not null
             AND ZONE = {zone};

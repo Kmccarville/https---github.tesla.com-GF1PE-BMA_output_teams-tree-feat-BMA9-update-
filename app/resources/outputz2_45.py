@@ -258,7 +258,7 @@ def main(env,eos=False):
 
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
-    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=2)
+    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=2,hours=lookback)
 
     #get fpy for mamc
     mamc_fpy = get_mamc_fpy(start, end, mos_con)

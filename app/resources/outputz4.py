@@ -300,7 +300,7 @@ def main(env, eos=False):
     plc_con.close()
     pr_con.close()
 
-    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=4)
+    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=4,hours=lookback)
     # Setup teams output table
     title = 'Zone 4 Hourly Update'
     html = f"""<table>

@@ -447,7 +447,7 @@ def main(env,eos=False):
     output5 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM5')/NORMAL_DIVISOR,1)  
     total_output = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP)/NORMAL_DIVISOR,1)
 
-    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=3)
+    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=3,hours=lookback)
     output_table=f"""
                 <tr>
                     <td></td>
