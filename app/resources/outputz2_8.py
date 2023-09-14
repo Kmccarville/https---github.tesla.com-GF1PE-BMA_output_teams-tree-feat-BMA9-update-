@@ -160,7 +160,7 @@ def main(env,eos=False):
     
     NC_Table_html = get_mamc_ncs_table(mos_con,start,end)
     
-    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=2)
+    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=2,hours=lookback)
 
     mos_con.close()
 

@@ -393,7 +393,7 @@ def main(env,eos=False):
     #get output for flowsteps
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
     
-    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=2)
+    hourly_goal_dict = helper_functions.get_zone_line_goals(zone=2,hours=lookback)
 
     mos_con.close()
 
