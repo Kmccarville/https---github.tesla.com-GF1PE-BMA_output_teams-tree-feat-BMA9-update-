@@ -21,6 +21,7 @@ from resources import eos
 from resources.alerts import cta45_ct
 from resources.alerts import cta123_fixtures
 from resources.alerts import z2_fixtures
+from resources.alerts import bma123_hipot
 
 from resources.passdown import cta123_eqt_email
 
