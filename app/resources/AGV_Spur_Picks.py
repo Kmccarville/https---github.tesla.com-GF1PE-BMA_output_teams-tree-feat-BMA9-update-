@@ -46,11 +46,13 @@ WHERE
     df = pd.read_sql(query,db)
     db.close()
 
-    Manual_pack = df['Route'].value_counts()['Manual Infeed Through ASRS to Pack Line 2']
+    #Manual_pack = df['Route'].value_counts()['Manual Infeed Through ASRS to Pack Line 2']
+    Manual_pack = (df['Route'] == 'Manual Infeed Through ASRS to Pack Line 2').sum()
     BP6_PickItems1 = (df['Route'] == 'Module ASRS to Pack Line 2(BP6)').sum()
     BP6_PickItems2 = (df['Route'] == 'Module ASRS to Pack Line 2').sum()
     BP6_PickItems = BP6_PickItems1 + BP6_PickItems2
-    Lift_A_Spur = df['Route'].value_counts()['Module Rack Empty Return from Config to AGV Spur']
+    Lift_A_Spur = (df['Route'] == 'Module Rack Empty Return from Config to AGV Spur').sum()
+    #Lift_A_Spur = df['Route'].value_counts()['Module Rack Empty Return from Config to AGV Spur']
     Total_Counts = len(df)
     
     if Lift_A_Spur >= 20:
