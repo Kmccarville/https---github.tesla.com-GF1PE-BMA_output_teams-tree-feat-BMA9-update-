@@ -62,7 +62,7 @@ def get_hipot_table():
     df = df.reset_index()
     df = df.rename_axis(None,axis=1)
     # custom sort
-    df['LINE'] = pd.Categorical(df['LINE'],['NMAMC ACW Hipot Bandolier 1', 'NMAMC ACW Hipot Bandolier 2', 'NMAMC ACW Hipot Bandolier 3', 'NMAMC ACW Hipot Bandolier 4', 'NMAMC ACW Hipot Bandolier 5', 'NMAMC ACW Hipot Bandolier 6', 'NMAMC ACW Hipot Bandolier 7','NMAMC DCW Hipot Bandolier 1', 'NMAMC DCW Hipot Bandolier 2', 'NMAMC DCW Hipot Bandolier 3', 'NMAMC DCW Hipot Bandolier 4', 'NMAMC DCW Hipot Bandolier 5', 'NMAMC DCW Hipot Bandolier 6', 'NMAMC DCW Hipot Bandolier 7',])
+    df['LINE'] = pd.Categorical(df['LINE'],['3BM1', '3BM2', '3BM3', '3BM8'])
     df = df.sort_values('LINE')
     # define goal column
     #goals = [27,27,65,8]
