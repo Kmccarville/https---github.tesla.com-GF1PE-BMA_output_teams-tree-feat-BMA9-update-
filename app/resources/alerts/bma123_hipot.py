@@ -28,7 +28,7 @@ def get_hipot_table():
             JOIN parameter ON parameter.id = thingdata.parameterid
 
         WHERE
-	        thingdata.created between '{start}' and '{end}'
+	        thingdata.created >= NOW() - INTERVAL 3 HOUR
 		        and thingdata.taskid in (select task.id from task where task.name in ('NMAMC Hipot','SAMAMC Hipot','MAMC Hipot'))
 		        and parameter.name not like '%Voltage'
 		        and actor.type = 'EQUIPMENT'
