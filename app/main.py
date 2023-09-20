@@ -17,7 +17,7 @@ from resources import outputz3
 from resources import outputz4
 from resources import close_nc_check
 from resources import eos
-
+from resources import AGV_Spur_Picks
 from resources.alerts import cta45_ct
 from resources.alerts import cta123_fixtures
 from resources.alerts import z2_fixtures
@@ -51,6 +51,7 @@ if __name__ == '__main__':
     scheduler_hourly.every().hour.at(":00").do(yield123.main,env)
     scheduler_hourly.every().hour.at(":00").do(close_nc_check.main,env)
     scheduler_hourly.every().hour.at(":02").do(eos.main,env)
+    scheduler_hourly.every().hour.at(":00").do(AGV_Spur_Picks.main,env)
 
     #define alert scheduler
     scheduler_alerts.every().hour.at(":00").do(cta123_fixtures.main,env)
