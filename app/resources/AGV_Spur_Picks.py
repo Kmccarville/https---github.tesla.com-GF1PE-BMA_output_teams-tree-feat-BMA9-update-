@@ -100,7 +100,7 @@ WHERE
                 </table>"""
     
     webhook = 'teams_webhook_AGV_NCM_Spur_Update' if env == 'prod' else 'teams_webhook_DEV_Updates'
-    creds = helper_functions.get_pw_json('AGV_NCM_Spur_Update')
+    creds = helper_functions.get_pw_json('teams_webhook_AGV_NCM_Spur_Update')
     webhookURL = creds['url'] 
     msg_title = 'AGV Spur Update'
     msg_summary = "Hourly Update"
