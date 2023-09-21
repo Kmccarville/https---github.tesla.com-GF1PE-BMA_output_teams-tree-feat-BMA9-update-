@@ -51,8 +51,10 @@ WHERE
     BP6_PickItems1 = (df['Route'] == 'Module ASRS to Pack Line 2(BP6)').sum()
     BP6_PickItems2 = (df['Route'] == 'Module ASRS to Pack Line 2').sum()
     BP6_PickItems = BP6_PickItems1 + BP6_PickItems2
-    Lift_A_Spur = (df['Route'] == 'Module Rack Empty Return from Config to AGV Spur').sum()
+    Lift_A_Spur1 = (df['Route'] == 'Module Rack Empty Return from Config to AGV Spur').sum()
+    Lift_A_Spur2 = (df['Route'] == 'Module Rack Empty Return from Storage to AGV Spur').sum()
     #Lift_A_Spur = df['Route'].value_counts()['Module Rack Empty Return from Config to AGV Spur']
+    Lift_A_Spur = Lift_A_Spur1 + Lift_A_Spur2
     Total_Counts = len(df)
     
     if Lift_A_Spur >= 20:
