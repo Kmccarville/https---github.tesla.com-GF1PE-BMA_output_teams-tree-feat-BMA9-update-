@@ -64,17 +64,16 @@ def get_hipot_table():
     # custom sort
     df['LINE'] = pd.Categorical(df['LINE'],['BMA 1', 'BMA 2', 'BMA 3', 'BMA 8'])
     df = df.sort_values('LINE')
-    # define goal column
-    #goals = [27,27,65,8]
-    #df['GOAL'] = goals
 
+    if (df > 3).any().any():
+        df = []
+        
     return df
 
 def main(env):
     lookback=3
     now=datetime.utcnow()
     pst_now = helper_functions.convert_from_utc_to_pst(now)
-    #only run this script at hours 1,4,7,10,13,16,19,22
 
     if pst_now.hour%3 == 1 or env=='dev':
 
