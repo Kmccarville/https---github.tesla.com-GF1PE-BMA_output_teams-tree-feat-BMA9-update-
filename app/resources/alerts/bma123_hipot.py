@@ -76,7 +76,7 @@ def main(env):
         logging.info("BMA123 Hipot Alert %s" % datetime.utcnow())
 
         df = get_hipot_table()
-        if (df > 0).any().any():
+        if (df > -1).any().any():
             webhook_key = 'teams_webhook_BMA123_OCAP_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
             title = 'BMA123 Z2 Hipot Alert'
             caption = 'Count Last 3 Hours'
