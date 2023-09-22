@@ -65,23 +65,20 @@ def get_hipot_table():
     df['LINE'] = pd.Categorical(df['LINE'],['BMA 1', 'BMA 2', 'BMA 3', 'BMA 8'])
     df = df.sort_values('LINE')
 
-    if (df > 3).any().any():
-        df = []
-        
     return df
 
 def main(env):
     lookback=3
     now=datetime.utcnow()
     pst_now = helper_functions.convert_from_utc_to_pst(now)
-
     if pst_now.hour%3 == 1 or env=='dev':
 
         logging.info("BMA123 Hipot Alert %s" % datetime.utcnow())
 
         df = get_hipot_table()
-        webhook_key = 'teams_webhook_BMA123_OCAP_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
-        title = 'BMA123 Z2 Hipot Alert'
-        caption = 'Count Last 3 Hours'
-        helper_functions.send_alert(webhook_key,title,df,caption)
-        logging.info("Sent Alert for BMA123")
+        if (df > 0).any().any():
+            webhook_key = 'teams_webhook_BMA123_OCAP_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
+            title = 'BMA123 Z2 Hipot Alert'
+            caption = 'Count Last 3 Hours'
+            helper_functions.send_alert(webhook_key,title,df,caption)
+            logging.info("Sent Alert for BMA123")
