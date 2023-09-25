@@ -56,6 +56,7 @@ def get_hipot_table():
     df = df.replace('NMAMC DCW Hipot Bandolier 6','DCW6')
     df = df.replace('NMAMC DCW Hipot Bandolier 7','DCW7')
 
+
     # pivot df for each LINE and reindex
     df = df.pivot(index='LINE',columns='PARAMETER',values='BAD')
     #df = df.replace(np.nan,'---')
@@ -64,6 +65,8 @@ def get_hipot_table():
     # custom sort
     df['LINE'] = pd.Categorical(df['LINE'],['BMA 1', 'BMA 2', 'BMA 3', 'BMA 8'])
     df = df.sort_values('LINE')
+
+    df[['ACW1', 'ACW2','ACW3', 'ACW4','ACW5', 'ACW6','ACW7', 'DCW1','DCW2', 'DCW3', 'DCW4', 'DCW5', 'DCW6', 'DCW7']] = df[['ACW1', 'ACW2','ACW3', 'ACW4','ACW5', 'ACW6','ACW7', 'DCW1','DCW2', 'DCW3', 'DCW4', 'DCW5', 'DCW6', 'DCW7']].apply(pd.to_numeric, errors='coerce')
 
     return df
 
