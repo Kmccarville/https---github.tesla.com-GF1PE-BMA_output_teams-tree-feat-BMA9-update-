@@ -38,9 +38,6 @@ def get_hipot_table():
     # get df
     df = pd.read_sql(text(query), mos_con)
     df = df.astype({"PARAMETER": str, "LINE": str, "GOOD": int, "BAD": int, "YIELD": int})
-
-
-
     mos_con.close()
     # replace mos parameter to common abbreviation
     df = df.replace('NMAMC ACW Hipot Bandolier 1','ACW1')
@@ -69,9 +66,6 @@ def get_hipot_table():
     df['LINE'] = pd.Categorical(df['LINE'],['BMA 1', 'BMA 2', 'BMA 3', 'BMA 8'])
     df = df.sort_values('LINE')
 
-    #df[['ACW1', 'ACW2', 'ACW3', 'ACW4', 'ACW5', 'ACW6', 'ACW7', 'DCW1', 'DCW2', 'DCW3', 'DCW4', 'DCW5', 'DCW6', 'DCW7']] = df[['ACW1', 'ACW2','ACW3', 'ACW4','ACW5', 'ACW6','ACW7', 'DCW1','DCW2', 'DCW3', 'DCW4', 'DCW5', 'DCW6', 'DCW7']].apply(pd.to_numeric, errors='coerce')
-    #df[['BAD']] = df[['BAD']].apply(pd.to_numeric, errors='coerce')
-
     return df
 
 def main(env):
@@ -86,7 +80,7 @@ def main(env):
         webhook_key = 'teams_webhook_BMA123_OCAP_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
         title = 'BMA123 Z2 Hipot Alert'
         caption = 'Count Last 3 Hours'
-        if (df > -1).any().any():
+        if (df.loc[:,"BAD"] >= 0).any().any():
             helper_functions.send_alert(webhook_key,title,df,caption)
             logging.info("Sent Alert for BMA123")
         else: logging.info("Alert not sent for BMA123")
