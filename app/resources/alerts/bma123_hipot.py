@@ -66,7 +66,7 @@ def get_hipot_table():
     df['LINE'] = pd.Categorical(df['LINE'],['BMA 1', 'BMA 2', 'BMA 3', 'BMA 8'])
     df = df.sort_values('LINE')
 
-    df[['ACW1', 'ACW2','ACW3', 'ACW4','ACW5', 'ACW6','ACW7', 'DCW1','DCW2', 'DCW3', 'DCW4', 'DCW5', 'DCW6', 'DCW7']] = df[['ACW1', 'ACW2','ACW3', 'ACW4','ACW5', 'ACW6','ACW7', 'DCW1','DCW2', 'DCW3', 'DCW4', 'DCW5', 'DCW6', 'DCW7']].apply(pd.to_numeric, errors='coerce')
+    df[['ACW1', 'ACW2', 'ACW3', 'ACW4', 'ACW5', 'ACW6', 'ACW7', 'DCW1', 'DCW2', 'DCW3', 'DCW4', 'DCW5', 'DCW6', 'DCW7']] = df[['ACW1', 'ACW2','ACW3', 'ACW4','ACW5', 'ACW6','ACW7', 'DCW1','DCW2', 'DCW3', 'DCW4', 'DCW5', 'DCW6', 'DCW7']].apply(pd.to_numeric, errors='coerce')
 
     return df
 
@@ -74,7 +74,7 @@ def main(env):
     lookback=3
     now=datetime.utcnow()
     pst_now = helper_functions.convert_from_utc_to_pst(now)
-    if pst_now.hour%3 == 1 or env=='dev':
+    if pst_now.hour%1 == 1 or env=='dev':
 
         logging.info("BMA123 Hipot Alert %s" % datetime.utcnow())
 
@@ -82,7 +82,7 @@ def main(env):
         webhook_key = 'teams_webhook_BMA123_OCAP_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
         title = 'BMA123 Z2 Hipot Alert'
         caption = 'Count Last 3 Hours'
-        if (df > 0).any().any():
+        if (df > -1).any().any():
             helper_functions.send_alert(webhook_key,title,df,caption)
             logging.info("Sent Alert for BMA123")
         else: logging.info("Alert not sent for BMA123")
