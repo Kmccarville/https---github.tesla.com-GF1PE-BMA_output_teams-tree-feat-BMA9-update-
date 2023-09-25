@@ -37,7 +37,10 @@ def get_hipot_table():
             """
     # get df
     df = pd.read_sql(text(query), mos_con)
-    df = df.astype(str)
+    df = df.astype({"PARAMETER": str, "LINE": str, "GOOD": int, "BAD": int, "YIELD": int})
+
+
+
     mos_con.close()
     # replace mos parameter to common abbreviation
     df = df.replace('NMAMC ACW Hipot Bandolier 1','ACW1')
@@ -67,7 +70,7 @@ def get_hipot_table():
     df = df.sort_values('LINE')
 
     #df[['ACW1', 'ACW2', 'ACW3', 'ACW4', 'ACW5', 'ACW6', 'ACW7', 'DCW1', 'DCW2', 'DCW3', 'DCW4', 'DCW5', 'DCW6', 'DCW7']] = df[['ACW1', 'ACW2','ACW3', 'ACW4','ACW5', 'ACW6','ACW7', 'DCW1','DCW2', 'DCW3', 'DCW4', 'DCW5', 'DCW6', 'DCW7']].apply(pd.to_numeric, errors='coerce')
-    df[['BAD']] = df[['BAD']].apply(pd.to_numeric, errors='coerce')
+    #df[['BAD']] = df[['BAD']].apply(pd.to_numeric, errors='coerce')
 
     return df
 
