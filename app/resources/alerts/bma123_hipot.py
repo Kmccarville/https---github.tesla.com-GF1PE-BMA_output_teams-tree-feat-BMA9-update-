@@ -65,7 +65,10 @@ def get_hipot_table():
     df['LINE'] = pd.Categorical(df['LINE'],['BMA 1', 'BMA 2', 'BMA 3', 'BMA 8'])
     df = df.sort_values('LINE')
 
-    return df
+    if (df > 2).any().any():
+        return df
+
+    else: return None
 
 def main(env):
     lookback=3
