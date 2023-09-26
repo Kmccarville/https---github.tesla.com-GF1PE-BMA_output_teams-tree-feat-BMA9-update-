@@ -28,7 +28,7 @@ def get_hipot_table():
             JOIN parameter ON parameter.id = thingdata.parameterid
 
         WHERE
-	        thingdata.created >= NOW() - INTERVAL 3 HOUR
+	        thingdata.created >= NOW() - INTERVAL 1 HOUR
 		        and thingdata.taskid in (select task.id from task where task.name in ('NMAMC Hipot','SAMAMC Hipot','MAMC Hipot'))
 		        and parameter.name not like '%Voltage'
 		        and actor.type = 'EQUIPMENT'
@@ -69,7 +69,7 @@ def get_hipot_table():
     return df
 
 def main(env):
-    lookback=3
+    lookback=1
     now=datetime.utcnow()
     pst_now = helper_functions.convert_from_utc_to_pst(now)
     if pst_now.hour%1 == 1 or env=='dev':
@@ -79,8 +79,8 @@ def main(env):
         df = get_hipot_table()
         webhook_key = 'teams_webhook_BMA123_OCAP_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
         title = 'BMA123 Z2 Hipot Alert'
-        caption = 'Count Last 3 Hours'
-        if (df.loc[:,"BAD"] >= 0).any().any():
+        caption = 'Count of failed bandoliers'
+        if (df.loc[:,'ACW1':] >= 0).any().any():
             helper_functions.send_alert(webhook_key,title,df,caption)
             logging.info("Sent Alert for BMA123")
         else: logging.info("Alert not sent for BMA123")
