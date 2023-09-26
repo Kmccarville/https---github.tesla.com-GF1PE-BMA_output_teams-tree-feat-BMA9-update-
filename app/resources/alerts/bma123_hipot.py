@@ -80,8 +80,9 @@ def main(env):
         webhook_key = 'teams_webhook_BMA123_OCAP_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
         title = 'ALERT: BMA123 Z2 Hipot OOS'
         caption = 'Cout of Failed Bandoliers by Channel, 1 Hour'
+        link_title = "Link to OCAP"
         link_button = "https://confluence.teslamotors.com/pages/viewpage.action?spaceKey=PRODENG&title=Nested+OCAP+Troubleshoot+Guide&preview=/603675295/744753488/Nested%20HiPot%20OCAP%20Troubleshoot%20Guide%20-%20Flowchart.png"
         if (df.loc[:,'ACW1':] >= 0).any().any():
-            helper_functions.send_alert(webhook_key,title,df,caption,link_button)
+            helper_functions.send_alert(webhook_key,title,df,caption,link_title,link_button)
             logging.info("Sent Alert for BMA123")
         else: logging.info("Alert not sent for BMA123")
