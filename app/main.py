@@ -21,6 +21,7 @@ from resources import AGV_Spur_Picks
 from resources.alerts import cta45_ct
 from resources.alerts import cta123_fixtures
 from resources.alerts import z2_fixtures
+from resources.alerts import bma123_hipot
 
 from resources.passdown import cta123_eqt_email
 
@@ -56,6 +57,7 @@ if __name__ == '__main__':
     #define alert scheduler
     scheduler_alerts.every().hour.at(":00").do(cta123_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
+    scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
 
     #define passdown scheduler
     scheduler_passdown.every().day.at("14:30").do(cta123_eqt_email.main,env)
