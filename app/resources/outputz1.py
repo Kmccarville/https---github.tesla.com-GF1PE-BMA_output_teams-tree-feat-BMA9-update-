@@ -338,6 +338,7 @@ def main(env,eos=False):
                     <td style="text-align:right">YIELD %</strong></td>
                     <td style="text-align:center">---</td>
                     <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
                 """
     cta5_html = f"""
             <tr>
@@ -350,6 +351,8 @@ def main(env,eos=False):
     cta5_yield_html = f"""
             <tr>
                 <td style="text-align:right">YIELD %</strong></td>
+                <td style="text-align:center">---</td>
+                <td style="text-align:center">---</td>
                 <td style="text-align:center">---</td>
                 <td style="text-align:center">---</td>
             """
