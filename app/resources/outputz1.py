@@ -95,9 +95,10 @@ def get_starve_by_operator(start_time,end_time):
                     <tr>
                         <td style="text-align:right"><strong>CTA5</strong></td>
                         <td style="text-align:center">---</td>
+                        <td style="text-align:center">---</td>
                     """
 
-    for lane in range(2,9):
+    for lane in range(3,9):
         starved_by_op = round(helper_functions.get_val(df,f'3BM5-20000-0{lane}_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
         color_text = "color:red" if starved_by_op > STARVED_THREHSOLD else ""
         cta5_html += f"""<td style="text-align:center;{color_text}">{starved_by_op}%</td>"""
@@ -344,6 +345,7 @@ def main(env,eos=False):
                 <td style="text-align:center"><strong>{np.sum(cta5_outputs)/CTA_DIVISOR:.1f}</td>
                 <td style="text-align:center"><strong>{int(hourly_goal_dict['3BM5'])}</td>
                 <td style="text-align:center">---</td>
+                <td style="text-align:center">---</td>
             """
     cta5_yield_html = f"""
             <tr>
@@ -380,22 +382,24 @@ def main(env,eos=False):
             cta3_html += f"""
                         <td style="text-align:center">{cta3_outputs[i]/CTA_DIVISOR:.1f}</td>
                         """
-            #cta5 - ignore first index
             if i > 0:
                 color_str = ""
                 cta4_html += f"""
                             <td style="text-align:center">{cta4_outputs[i]/CTA_DIVISOR:.1f}</td>
                             """
-                cta5_html += f"""
-                            <td style="text-align:center">{cta5_outputs[i]/CTA_DIVISOR:.1f}</td>
-                            """
+                # skip 5.2
+                if i > 1:
+                    cta5_html += f"""
+                                <td style="text-align:center">{cta5_outputs[i]/CTA_DIVISOR:.1f}</td>
+                                """
                 if eos:
                     cta4_yield_html += f"""
                                 <td style="text-align:center;{color_str}">{cta4_yield[i]}</td>
                                 """
-                    cta5_yield_html += f"""
-                                <td style="text-align:center;{color_str}">{cta5_yield[i]}</td>
-                                """
+                    if i > 1:
+                        cta5_yield_html += f"""
+                                    <td style="text-align:center;{color_str}">{cta5_yield[i]}</td>
+                                    """
             #cta8 has 2 lanes
             if i < 2:
                 color_str = ""
