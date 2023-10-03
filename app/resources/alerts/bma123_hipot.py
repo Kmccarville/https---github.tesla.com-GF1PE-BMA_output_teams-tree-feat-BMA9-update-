@@ -72,7 +72,7 @@ def main(env):
     lookback=1
     now=datetime.utcnow()
     pst_now = helper_functions.convert_from_utc_to_pst(now)
-    if pst_now.hour%1 == 1 or env=='dev':
+    if pst_now.hour%1 == 0 or env=='dev':
 
         logging.info("BMA123 Hipot Alert %s" % datetime.utcnow())
 
