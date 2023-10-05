@@ -58,6 +58,7 @@ if __name__ == '__main__':
     scheduler_alerts.every().hour.at(":00").do(cta123_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
+    scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
 
     #define passdown scheduler
     scheduler_passdown.every().day.at("14:30").do(cta123_eqt_email.main,env)
