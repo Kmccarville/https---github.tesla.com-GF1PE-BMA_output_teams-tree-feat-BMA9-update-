@@ -59,7 +59,7 @@ def main(env):
     caption = 'Count of Failed Clamshells, 1 Hour Interval'
     link_title = "Link to OCAP"
     link_button = "https://confluence.teslamotors.com/display/PRODENG/Dispense+-+Out+of+Control+Action+Plan"
-    if (df.loc[:,'IC Fail Count':] >= 5).any().any():
+    if (df.loc[:,'IC Fail Count':] >= 0).any().any():
         helper_functions.send_alert(webhook_key,title,df,caption,link_title,link_button)
         logging.info("Sent Alert for BMA123")
     else: logging.info("Alert not sent for BMA123")
