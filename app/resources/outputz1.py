@@ -303,7 +303,7 @@ def main(env,eos=False):
             cta5_yield.append(helper_functions.get_val(df_cta_yield, f"3BM5-20000-{lane_num}",'LINE','YIELD'))
             cta6_yield.append(helper_functions.get_val(df_cta_yield, f"3BM6-20000-{lane_num}",'LINE','YIELD'))
             cta8_yield.append(helper_functions.get_val(df_cta_yield, f"3BM8-20000-{lane_num}",'LINE','YIELD'))
-    cta_total = np.sum(cta2_outputs) + np.sum(cta3_outputs) + np.sum(cta4_outputs) + np.sum(cta5_outputs) + np.sum(cta8_outputs)
+    cta_total = np.sum(cta2_outputs) + np.sum(cta3_outputs) + np.sum(cta4_outputs) + np.sum(cta5_outputs) + np.sum(cta6_outputs) + np.sum(cta8_outputs)
 
     #create html outp9ut
     header_html = """<tr>
