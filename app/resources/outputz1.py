@@ -51,6 +51,7 @@ def get_starve_by_operator(start_time,end_time):
                     '[TSL063_CTR025_06]OEE_Reporting/TSM_CellLoad',
                     '[TSL063_CTR025_07]OEE_Reporting/TSM_CellLoad',
                     '[TSL063_CTR025_08]OEE_Reporting/TSM_CellLoad',
+                    '[GFNV_CTA_006_00225_01]OEE_Reporting/TSM_CellLoad',
                     '[GFNV_CTA_008_00225_01]OEE_Reporting/TSM_CellLoad',
                     '[GFNV_CTA_008_00225_02]OEE_Reporting/TSM_CellLoad'
                     ]
@@ -106,6 +107,27 @@ def get_starve_by_operator(start_time,end_time):
     
     cta5_html += "</tr>"
 
+    #form cta6 html
+    cta6_html = f"""
+                    <tr>
+                        <td style="text-align:right"><strong>CTA6</strong></td>
+                    """
+
+    for lane in range(1,2):
+        starved_by_op = round(helper_functions.get_val(df,f'3BM6-20000-0{lane}_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
+        color_text = "color:red" if starved_by_op > STARVED_THREHSOLD else ""
+        cta6_html += f"""<td style="text-align:center;{color_text}">{starved_by_op}%</td>"""
+    
+    cta6_html +=  """
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
+                </tr>
+                """
+
     #form cta8 html
     cta8_html = f"""
                     <tr>
@@ -124,10 +146,11 @@ def get_starve_by_operator(start_time,end_time):
                     <td style="text-align:center">---</td>
                     <td style="text-align:center">---</td>
                     <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
                 </tr>
                 """
 
-    html = cta4_html + cta5_html + cta8_html
+    html = cta4_html + cta5_html + cta6_html + cta8_html
     return "<table>" + f"<caption>ST025 Cell Load Starved by USH/Operator (Goal < {STARVED_THREHSOLD}%)</caption>" +header_html+html + "</table>"
 
 def get_cta_yield(db,lookback):
