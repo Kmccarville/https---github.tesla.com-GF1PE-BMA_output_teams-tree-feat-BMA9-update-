@@ -36,7 +36,7 @@ def eos_report(env,do_24=False):
     #define all flowsteps to be used
     DF_FLOWSTEP = pd.DataFrame({
                                     'LINE' : ['3BM1','3BM2','3BM3','3BM4','3BM5','3BM6','3BM8'],
-                                    'CTA'  : ['3BM-20000','3BM-20000','3BM-20000','3BM4-25000','3BM5-25000','','3BM8-25000'],
+                                    'CTA'  : ['3BM-20000','3BM-20000','3BM-20000','3BM4-25000','3BM5-25000','3BM6-25000','3BM8-25000'],
                                     'MAMC'  : ['3BM-29500','3BM-29500','3BM-29500','3BM4-34000','3BM5-34000','','3BM8-29500'],
                                     'MAMC_296'  : ['3BM-29600','3BM-29600','3BM-29600','','','',''],
                                     'C3A'  : ['3BM-40001','3BM-40001','3BM-40001','3BM4-45000','3BM5-45000','','3BM8-44000'],
@@ -150,7 +150,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[3]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[4]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{mamc_outputs[5]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">---</td>
             <td style="text-align:center">{mamc_outputs[6]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{(total_mamc_ouput)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
@@ -163,7 +163,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[3]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[4]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{c3a_outputs[5]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">---</td>
             <td style="text-align:center">{c3a_outputs[6]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
@@ -249,14 +249,13 @@ def eos_report(env,do_24=False):
         webhook_key = 'teams_webhook_Zone1_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
         webhook_json = helper_functions.get_pw_json(webhook_key)
         webhook = webhook_json['url']
-        cta1 = cta_outputs[0]/CTA_DIVISOR
         cta2 = cta_outputs[1]/CTA_DIVISOR
         cta3 = cta_outputs[2]/CTA_DIVISOR
         cta4 = cta_outputs[3]/CTA_DIVISOR
         cta5 = cta_outputs[4]/CTA_DIVISOR
         cta6 = cta_outputs[5]/CTA_DIVISOR
         cta8 = cta_outputs[6]/CTA_DIVISOR
-        outputz1.cta_records(24,cta1,cta2,cta3,cta4,cta5,cta8,webhook)
+        outputz1.cta_records(24,cta2,cta3,cta4,cta5,cta8,webhook)
 
         # C3A123 24hr records
         webhook_key = 'teams_webhook_Zone2_123_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
