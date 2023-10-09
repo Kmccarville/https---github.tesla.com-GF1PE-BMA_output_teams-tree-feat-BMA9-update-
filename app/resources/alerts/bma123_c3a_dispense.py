@@ -34,15 +34,18 @@ def get_dispense_table():
     df = df.astype({"PARAMETER": str, "LINE": str, "GOOD": int, "BAD": int, "YIELD": int})
     mos_con.close()
 
+    #rename line to common abbreviation
+    df = df.replace('3BM1','BMA 1')
+    df = df.replace('3BM2','BMA 2')
+    df = df.replace('3BM3','BMA 3')
 
-    # pivot df for each LINE and reindex
-    df = df.pivot(index='LINE',columns='PARAMETER',values= ['GOOD', 'BAD', 'YIELD'])
-    #df = df.replace(np.nan,'---')
-    df = df.reset_index()
-    df = df.rename_axis(None,axis=1)
-    # custom sort
-    df['LINE'] = pd.Categorical(df['LINE'],['BMA 1', 'BMA 2', 'BMA 3'])
-    df = df.sort_values('LINE')
+    df['YIELD'] = df['YIELD']*100
+    df = df.round({'YIELD': 2})
+    df = df.astype({"YIELD": str})
+    df.loc[df['YIELD'] == '100.0', 'YIELD'] = '100'
+    df['YIELD'] = df['YIELD'] + ' %'
+
+    df = df.sort_values(['LINE', 'PARAMETER'])
 
     return df
 
@@ -59,7 +62,7 @@ def main(env):
     caption = 'Count of Failed Clamshells, 1 Hour Interval'
     link_title = "Link to OCAP"
     link_button = "https://confluence.teslamotors.com/display/PRODENG/Dispense+-+Out+of+Control+Action+Plan"
-    if (df.loc[:,'IC Fail Count':] >= 0).any().any():
+    if (df.loc[:,'BAD':'BAD'] >= 0).any().any():
         helper_functions.send_alert(webhook_key,title,df,caption,link_title,link_button)
         logging.info("Sent Alert for BMA123")
     else: logging.info("Alert not sent for BMA123")
