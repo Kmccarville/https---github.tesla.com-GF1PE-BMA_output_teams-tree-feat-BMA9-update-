@@ -31,7 +31,7 @@ def get_dispense_table():
             """
     # get df
     df = pd.read_sql(text(query), mos_con)
-    df = df.astype({"PARAMETER": str, "LINE": str, "GOOD": int, "BAD": int, "YIELD": int})
+    df = df.astype({"PARAMETER": str, "LINE": str, "GOOD": int, "BAD": int, "YIELD": float})
     mos_con.close()
 
     #rename line to common abbreviation
