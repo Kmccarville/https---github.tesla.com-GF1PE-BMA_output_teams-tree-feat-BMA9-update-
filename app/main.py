@@ -7,7 +7,6 @@ from pytz import timezone
 from common import helper_functions
 
 from resources import devHeading
-from resources import yield123
 from resources import outputz1
 from resources import outputz2_123
 from resources import outputz2_45
@@ -50,7 +49,6 @@ if __name__ == '__main__':
     scheduler_hourly.every().hour.at(":00").do(outputz3.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz4.main,env)
 #     scheduler_hourly.every().hour.at(":00").do(outputz2_8_Rev2.main,env)
-    scheduler_hourly.every().hour.at(":00").do(yield123.main,env)
     scheduler_hourly.every().hour.at(":00").do(close_nc_check.main,env)
     scheduler_hourly.every().hour.at(":02").do(eos.main,env)
     scheduler_hourly.every().hour.at(":00").do(AGV_Spur_Picks.main,env)
