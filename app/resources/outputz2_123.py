@@ -122,7 +122,7 @@ def get_performance_table(start,end):
     C3A_Egress_Blocked_Paths = [
                             '[3BM01_40000_00]C3A2/Sta100_Mdl_Module_Outlet_Conv/TSMs/StateControl_Moduleoutlet',
                             '[3BM02_40000_00]C3A2/Sta100_Mdl_Module_Outlet_Conv/TSMs/StateControl_Moduleoutlet',
-                            '[3BM03_40000_00]C3A2/Sta100_Mdl_Module_Outlet_Conv/TSMs/StateControl_Moduleoutlet
+                            '[3BM03_40000_00]C3A2/Sta100_Mdl_Module_Outlet_Conv/TSMs/StateControl_Moduleoutlet'
                                 ]   
     C3A_Egress_Blocked_df = helper_functions.query_tsm_state_by_lane(plc_con,start, end, C3A_Egress_Blocked_Paths, 'Blocked')
     #get percentage (divide by seconds in between start and end and multiply by 100%)
