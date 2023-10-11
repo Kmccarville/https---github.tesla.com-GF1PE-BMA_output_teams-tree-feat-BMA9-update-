@@ -117,7 +117,19 @@ def get_performance_table(start,end):
     bando_ct_bma1 = round(helper_functions.get_val(bando_df,'3BM1','LINE','CT_SEC'),1)
     bando_ct_bma2 = round(helper_functions.get_val(bando_df,'3BM2','LINE','CT_SEC'),1)
     bando_ct_bma3 = round(helper_functions.get_val(bando_df,'3BM3','LINE','CT_SEC'),1)
-
+    
+    
+    C3A_Egress_Blocked_Paths = [
+                            '[3BM01_40000_00]C3A2/Sta100_Mdl_Module_Outlet_Conv/TSMs/StateControl_Moduleoutlet',
+                            '[3BM02_40000_00]C3A2/Sta100_Mdl_Module_Outlet_Conv/TSMs/StateControl_Moduleoutlet',
+                            '[3BM03_40000_00]C3A2/Sta100_Mdl_Module_Outlet_Conv/TSMs/StateControl_Moduleoutlet
+                                ]   
+    C3A_Egress_Blocked_df = helper_functions.query_tsm_state_by_lane(plc_con,start, end, C3A_Egress_Blocked_Paths, 'Blocked')
+    #get percentage (divide by seconds in between start and end and multiply by 100%)
+    EgressBlock_bma1_percent = round(helper_functions.get_val(C3A_Egress_Blocked_df,'3BM1','LINE','Duration')/seconds_between*100,1)
+    EgressBlock_bma2_percent = round(helper_functions.get_val(C3A_Egress_Blocked_df,'3BM2','LINE','Duration')/seconds_between*100,1)
+    EgressBlock_bma3_percent = round(helper_functions.get_val(C3A_Egress_Blocked_df,'3BM3','LINE','Duration')/seconds_between*100,1)
+    
     SIDEMOUNT_CT_PATHS = [
                         '[3BM1_29500_01]ManualStationReporting/SidemountInstall/StateControl',
                         '[3BM2_29500_01]ManualStationReporting/SidemountInstall/StateControl',
@@ -178,6 +190,13 @@ def get_performance_table(start,end):
             <td style="text-align:center">{auto_close_bma1_percent}%</td>
             <td style="text-align:center">{auto_close_bma2_percent}%</td>
             <td style="text-align:center">{auto_close_bma3_percent}%</td>
+        </tr>
+       <tr>
+            <td style="text-align:left"><b>C3A Egress Blocked State (Seconds per hour)</b></td>
+            <td style="text-align:center">{EgressBlock_bma1_percent}</td>
+            <td style="text-align:center">{EgressBlock_bma2_percent}</td>
+            <td style="text-align:center">{EgressBlock_bma3_percent}</td>
+            <td>||</td>
         </tr>
         <tr>
             <td style="text-align:left"><b>Sidemount</b></td>
