@@ -204,7 +204,7 @@ def get_performance_table(start,end):
             <td style="text-align:center">{qis_ct_bma2}</td>
             <td style="text-align:center">{qis_ct_bma3}</td>
             <td>||</td>
-           <td style="text-align:right">C3A Egress</td>
+           <td style="text-align:left">C3A Egress</td>
             <td style="text-align:center">{EgressBlock_bma1_percent}%</td>
             <td style="text-align:center">{EgressBlock_bma2_percent}%</td>
             <td style="text-align:center">{EgressBlock_bma3_percent}%</td>
