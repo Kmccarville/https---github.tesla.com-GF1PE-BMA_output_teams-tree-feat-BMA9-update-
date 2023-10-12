@@ -185,6 +185,7 @@ def get_performance_table(start,end):
             <td style="text-align:center">{bando_ct_bma1}</td>
             <td style="text-align:center">{bando_ct_bma2}</td>
             <td style="text-align:center">{bando_ct_bma3}</td>
+            <td>||</td>
             <td style="text-align:right"><b>Auto Closer</b></td>
             <td style="text-align:center">{auto_close_bma1_percent}%</td>
             <td style="text-align:center">{auto_close_bma2_percent}%</td>
