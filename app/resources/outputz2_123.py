@@ -174,7 +174,6 @@ def get_performance_table(start,end):
             <th style="text-align:center"><strong>BMA2</strong></th>
             <th style="text-align:center"><strong>BMA3</strong></th>
             <td></td>
-            <td></td>
             <th style="text-align:left">Starved %</th>
             <th style="text-align:center"><strong>BMA1</strong></th>
             <th style="text-align:center"><strong>BMA2</strong></th>
@@ -186,7 +185,7 @@ def get_performance_table(start,end):
             <td style="text-align:center">{bando_ct_bma2}</td>
             <td style="text-align:center">{bando_ct_bma3}</td>
             <td>||</td>
-            <td style="text-align:right"><b>Auto Closer</b></td>
+            <td style="text-align:right">Auto Closer</td>
             <td style="text-align:center">{auto_close_bma1_percent}%</td>
             <td style="text-align:center">{auto_close_bma2_percent}%</td>
             <td style="text-align:center">{auto_close_bma3_percent}%</td>
@@ -205,7 +204,7 @@ def get_performance_table(start,end):
             <td style="text-align:center">{qis_ct_bma2}</td>
             <td style="text-align:center">{qis_ct_bma3}</td>
             <td>||</td>
-            <td style="text-align:right">C3A Egress</td>
+           <td style="text-align:right">C3A Egress</td>
             <td style="text-align:center">{EgressBlock_bma1_percent}%</td>
             <td style="text-align:center">{EgressBlock_bma2_percent}%</td>
             <td style="text-align:center">{EgressBlock_bma3_percent}%</td>
