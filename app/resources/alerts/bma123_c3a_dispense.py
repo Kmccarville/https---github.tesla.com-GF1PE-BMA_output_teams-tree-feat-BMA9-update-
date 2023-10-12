@@ -59,10 +59,10 @@ def main(env):
     df = get_dispense_table()
     webhook_key = 'teams_webhook_BMA123_OCAP_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
     title = 'ALERT: BMA123 C3A Dispense'
-    caption = 'Count of Failed Clamshells, 1 Hour Interval'
+    caption = '1 Hour Interval, Perform OCAP Where Fail Count >= 3'
     link_title = "Link to OCAP"
     link_button = "https://confluence.teslamotors.com/display/PRODENG/Dispense+-+Out+of+Control+Action+Plan"
-    if (df.loc[:,'BAD':'BAD'] >= 0).any().any():
+    if (df.loc[:,'BAD':'BAD'] >= 3).any().any():
         helper_functions.send_alert(webhook_key,title,df,caption,link_title,link_button)
         logging.info("Sent Alert for BMA123")
     else: logging.info("Alert not sent for BMA123")
