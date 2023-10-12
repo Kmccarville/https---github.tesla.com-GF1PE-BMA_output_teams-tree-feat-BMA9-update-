@@ -197,7 +197,7 @@ def get_performance_table(start,end):
             <td style="text-align:center">{sidemount_ct_bma2}</td>
             <td style="text-align:center">{sidemount_ct_bma3}</td>
             <td>||</td>
-            <td style="text-align:right"><b>Blocked %</b></td>
+            <td style="text-align:left"><b>Blocked %</b></td>
         </tr>
            
         <tr>
