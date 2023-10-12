@@ -24,7 +24,7 @@ def get_dispense_table():
         WHERE
     	    thingdata.created >= now() - interval 1 hour
     	    and thingdata.taskid in (select task.id from sparq.task where task.name in ('ClamshellClose001'))
-            and thingdata.parameterid in (select parameter.id from sparq.parameter where parameter.name in ('IC Fail Count','NIC Fail Count','IC Timeout Count','NIC Timeout Count'))
+            and thingdata.parameterid in (select parameter.id from sparq.parameter where parameter.name in ('IC Fail Count','NIC Fail Count'))
     	    and actor.type = 'EQUIPMENT'
         group by parameter.name, actor.name
         order by LINE
