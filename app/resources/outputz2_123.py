@@ -191,18 +191,18 @@ def get_performance_table(start,end):
             <td style="text-align:center">{auto_close_bma2_percent}%</td>
             <td style="text-align:center">{auto_close_bma3_percent}%</td>
         </tr>
-       <tr>
-            <td style="text-align:left"><b>C3A Egress Blocked State (Seconds per hour)</b></td>
-            <td style="text-align:center">{EgressBlock_bma1_percent}</td>
-            <td style="text-align:center">{EgressBlock_bma2_percent}</td>
-            <td style="text-align:center">{EgressBlock_bma3_percent}</td>
-            <td>||</td>
-        </tr>
         <tr>
             <td style="text-align:left"><b>Sidemount</b></td>
             <td style="text-align:center">{sidemount_ct_bma1}</td>
             <td style="text-align:center">{sidemount_ct_bma2}</td>
             <td style="text-align:center">{sidemount_ct_bma3}</td>
+            <td>||</td>
+        </tr>
+           <tr>
+            <td style="text-align:right"><b>C3A Egress Blocked State</b></td>
+            <td style="text-align:center">{EgressBlock_bma1_percent}%</td>
+            <td style="text-align:center">{EgressBlock_bma2_percent}%</td>
+            <td style="text-align:center">{EgressBlock_bma3_percent}%</td>
             <td>||</td>
         </tr>
         <tr>
