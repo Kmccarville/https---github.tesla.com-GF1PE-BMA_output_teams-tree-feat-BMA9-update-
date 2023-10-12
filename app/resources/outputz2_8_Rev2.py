@@ -1,5 +1,4 @@
 from common import helper_functions
-from resources import yield123
 
 from datetime import datetime
 from datetime import timedelta

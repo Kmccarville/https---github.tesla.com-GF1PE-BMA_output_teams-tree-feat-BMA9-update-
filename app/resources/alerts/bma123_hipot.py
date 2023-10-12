@@ -79,7 +79,7 @@ def main(env):
         df = get_hipot_table()
         webhook_key = 'teams_webhook_BMA123_OCAP_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
         title = 'ALERT: BMA123 Z2 Hipot'
-        caption = 'Count of Failed Bandoliers by Channel, 1 Hour Interval'
+        caption = '1 Hour Interval, Perform OCAP Where Fail Count >= 2'
         link_title = "Link to OCAP"
         link_button = "https://confluence.teslamotors.com/pages/viewpage.action?spaceKey=PRODENG&title=Nested+OCAP+Troubleshoot+Guide&preview=/603675295/744753488/Nested%20HiPot%20OCAP%20Troubleshoot%20Guide%20-%20Flowchart.png"
         if (df.loc[:,'ACW1':] >= 2).any().any():
