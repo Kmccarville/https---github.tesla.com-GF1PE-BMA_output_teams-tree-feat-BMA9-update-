@@ -38,6 +38,10 @@ def get_dispense_table():
     df = df.replace('3BM1','BMA 1')
     df = df.replace('3BM2','BMA 2')
     df = df.replace('3BM3','BMA 3')
+    
+    df = df.replace('IC Fail Count','IC')
+    df = df.replace('NIC Fail Count','NIC')
+
 
     df['YIELD'] = df['YIELD']*100
     df = df.round({'YIELD': 2})
