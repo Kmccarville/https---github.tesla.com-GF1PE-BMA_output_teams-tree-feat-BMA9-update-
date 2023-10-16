@@ -144,9 +144,9 @@ def get_performance_table(start,end):
     sidemount_ct_bma3 = round(helper_functions.get_val(sidemount_df,'3BM3','LINE','CT_SEC'),1)
     
     QIS_CT_PATHS = [
-                        '[3BM1_29500_01]ManualStationReporting/QIS/StateControl',
-                        '[3BM2_29500_01]ManualStationReporting/QIS/StateControl',
-                        '[3BM3_29500_01]ManualStationReporting/QIS/StateControl'
+                        '[3BM1_29500_01]EquipmentReporting/QualityInspection_EquipmentReportHMI/HMI/outHistCycleTime',
+                        '[3BM2_29500_01]EquipmentReporting/QualityInspection_EquipmentReportHMI/HMI/outHistCycleTime',
+                        '[3BM3_29500_01]EquipmentReporting/QualityInspection_EquipmentReportHMI/HMI/outHistCycleTime'
                         ]
 
     QIS_LOW_LIMIT = 41
