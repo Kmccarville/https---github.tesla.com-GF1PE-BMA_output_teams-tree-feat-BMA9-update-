@@ -118,9 +118,9 @@ def get_C3Abuffer_count(db,line):
     query = f"""
           SELECT  
           left(provider, 5), intvalue as buffer_count, convert_tz(from_unixtime(sql19.t_stamp/1000), 'UTC', 'US/Pacific') - interval 6 hour, intvalue from {table} tag_table
-           left join sqlth_te te on tag_table.tagid = te.id
-            left join sqlth_scinfo sc on te.scid = sc.id
-            left join sqlth_drv drv on sc.drvid = drv.id
+           left join rno_ia_taghistory_batterymodule.sqlth_te te on tag_table.tagid = te.id
+            left join rno_ia_taghistory_batterymodule.sqlth_scinfo sc on te.scid = sc.id
+            left join rno_ia_taghistory_batterymodule.sqlth_drv drv on sc.drvid = drv.id
              where tagpath like  'c3a2/Sta100_Mdl_C3ARack/Devices/Rack Data/stsRackLoadedCount'
              and tag_table.t_stamp > unix_timestamp(date_add(convert_tz(now(), 'UTC', 'US/Pacific'), interval -3 hour))
              order by 3 desc
