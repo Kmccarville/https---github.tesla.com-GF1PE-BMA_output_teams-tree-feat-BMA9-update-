@@ -125,9 +125,8 @@ def get_C3Abuffer_count(db,line):
              order by 3 desc
             limit 1
             """
-    db = helper_functions.get_sql_conn('ignition_prod_reporting')
     df= pd.read_sql(query,db)
-    return df.iloc[0][1]
+    return df['buffer_count'].sum()
     
 #small helper function to get output by line/flowstep and divides to get carset value
 def get_output_val(df,flowstep,line=None,actor=None):
