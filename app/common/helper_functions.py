@@ -117,7 +117,7 @@ def get_C3Abuffer_count(db,line):
         table = 'rno_ia_taghistory_batterymodule.sqlth_59_data'
     query = f"""
           SELECT  
-          left(provider, 5), intvalue as buffer_count, convert_tz(from_unixtime(sql19.t_stamp/1000), 'UTC', 'US/Pacific') - interval 6 hour, intvalue from {table} tag_table
+          left(provider, 5), intvalue as buffer_count, convert_tz(from_unixtime(t_stamp/1000), 'UTC', 'US/Pacific') - interval 6 hour, intvalue from {table} tag_table
            left join rno_ia_taghistory_batterymodule.sqlth_te te on tag_table.tagid = te.id
             left join rno_ia_taghistory_batterymodule.sqlth_scinfo sc on te.scid = sc.id
             left join rno_ia_taghistory_batterymodule.sqlth_drv drv on sc.drvid = drv.id
