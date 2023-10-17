@@ -422,6 +422,10 @@ def main(env,eos=False):
 
     mamc_outputs = np.add(mamc_295_outputs, mamc_296_outputs)
 
+    C3A_Buffer_Outputs = []
+    for line in LINES:
+        C3A_Buffer_Outputs.append(helper_functions.get_C3Abuffer_count(df,line))
+        
     total_mamc_output = helper_functions.get_output_val(df_output,MAMC_295_FLOWSTEP) + helper_functions.get_output_val(df_output,MAMC_296_FLOWSTEP)
     total_c3a_output = helper_functions.get_output_val(df_output,C3A_FLOWSTEP)
 
@@ -458,7 +462,14 @@ def main(env,eos=False):
         <td style="text-align:center">{int(hourly_goal_dict['3BM3'])}</td>
         """
 
-    #create full bma html with the above htmls
+    c3a_buffer_ct_html = f"""<tr>
+        <td style="text-align:center"><strong>C3A Buffer Count</strong></td>
+        <td style="text-align:center">{int(C3A_Buffer_Outputs[0])}</td>
+        <td style="text-align:center">{int(C3A_Buffer_Outputs[1])}</td>
+        <td style="text-align:center">{int(C3A_Buffer_Outputs[2])}</td>
+        """
+
+#create full bma html with the above htmls
     bma_html = '<table>' + "<caption>Throughput</caption>" + bma_header_html + mamc_output_html + c3a_output_html + z2_goal_html+ '</table>'
 
     #get cycle time html
