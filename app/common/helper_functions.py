@@ -108,6 +108,7 @@ def get_val_2(df,query_val,query_col,query_val2,query_col2,return_col):
 
 #mackenzie october16
 def get_C3Abuffer_count(db,line):
+    logging.info(line)
     if line == '3BM1':
         table = 'rno_ia_taghistory_batterymodule.sqlth_339_data'
     elif line == '3BM2':
