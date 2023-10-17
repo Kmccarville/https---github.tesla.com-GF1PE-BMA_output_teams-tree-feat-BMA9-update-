@@ -421,11 +421,11 @@ def main(env,eos=False):
         c3a_outputs.append(helper_functions.get_output_val(df_output,C3A_FLOWSTEP,line))
 
     mamc_outputs = np.add(mamc_295_outputs, mamc_296_outputs)
-
+    ignition_conn = helper_functions.get_sql_conn('ignition_prod_reporting')
     C3A_Buffer_Outputs = []
     for line in LINES:
-        C3A_Buffer_Outputs.append(helper_functions.get_C3Abuffer_count(df,line))
-        
+        C3A_Buffer_Outputs.append(helper_functions.get_C3Abuffer_count(ignition_conn,line))
+    ignition_conn.close() 
     total_mamc_output = helper_functions.get_output_val(df_output,MAMC_295_FLOWSTEP) + helper_functions.get_output_val(df_output,MAMC_296_FLOWSTEP)
     total_c3a_output = helper_functions.get_output_val(df_output,C3A_FLOWSTEP)
 
