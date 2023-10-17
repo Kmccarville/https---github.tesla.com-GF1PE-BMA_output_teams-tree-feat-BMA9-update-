@@ -108,11 +108,11 @@ def get_val_2(df,query_val,query_col,query_val2,query_col2,return_col):
 
 #mackenzie october16
 def get_C3Abuffer_count(db,line):
-   if line == '3bm1':
+    if line == '3bm1':
         table = 'rno_ia_taghistory_batterymodule.sqlth_339_data'
-   elif line == '3bm2':
+    elif line == '3bm2':
         table = 'rno_ia_taghistory_batterymodule.sqlth_17_data'
-   elif line == '3bm3':
+    elif line == '3bm3':
         table = 'rno_ia_taghistory_batterymodule.sqlth_59_data'
         query = f"""
           SELECT  
