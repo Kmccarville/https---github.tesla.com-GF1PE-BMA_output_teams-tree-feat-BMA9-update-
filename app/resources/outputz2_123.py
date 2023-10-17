@@ -470,7 +470,7 @@ def main(env,eos=False):
         """
 
 #create full bma html with the above htmls
-    bma_html = '<table>' + "<caption>Throughput</caption>" + bma_header_html + mamc_output_html + c3a_output_html + z2_goal_html+ '</table>'
+    bma_html = '<table>' + "<caption>Throughput</caption>" + bma_header_html + mamc_output_html + c3a_output_html + z2_goal_html+ c3a_buffer_ct_html +'</table>'
 
     #get cycle time html
     header_html = """
