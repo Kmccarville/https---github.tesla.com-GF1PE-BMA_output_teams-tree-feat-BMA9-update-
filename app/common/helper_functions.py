@@ -108,14 +108,13 @@ def get_val_2(df,query_val,query_col,query_val2,query_col2,return_col):
 
 #mackenzie october16
 def get_C3Abuffer_count(db,line):
-    if line == '3bm1':
+   if line == '3bm1':
         table = 'rno_ia_taghistory_batterymodule.sqlth_339_data'
-    elif line == '3bm2':
+   elif line == '3bm2':
         table = 'rno_ia_taghistory_batterymodule.sqlth_17_data'
-    elif line == '3bm3':
+   elif line == '3bm3':
         table = 'rno_ia_taghistory_batterymodule.sqlth_59_data'
-
-    query = f"""
+        query = f"""
           SELECT  
           left(provider, 5), intvalue as buffer_count, convert_tz(from_unixtime(sql19.t_stamp/1000), 'UTC', 'US/Pacific') - interval 6 hour, intvalue from {table} tag_table
            left join sqlth_te te on tag_table.tagid = te.id
@@ -126,9 +125,9 @@ def get_C3Abuffer_count(db,line):
              order by 3 desc
             limit 1
             """
-      db = helper_functions.get_sql_conn('ignition_prod_reporting')
-     df= pd.read_sql(query,db)
-     return df.iloc[0][1]
+    db = helper_functions.get_sql_conn('ignition_prod_reporting')
+    df= pd.read_sql(query,db)
+    return df.iloc[0][1]
     
 #small helper function to get output by line/flowstep and divides to get carset value
 def get_output_val(df,flowstep,line=None,actor=None):
