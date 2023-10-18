@@ -52,6 +52,7 @@ def get_starve_by_operator(start_time,end_time):
                     '[TSL063_CTR025_07]OEE_Reporting/TSM_CellLoad',
                     '[TSL063_CTR025_08]OEE_Reporting/TSM_CellLoad',
                     '[GFNV_CTA_006_00225_01]OEE_Reporting/TSM_CellLoad',
+                    '[GFNV_CTA_006_00225_02]OEE_Reporting/TSM_CellLoad',
                     '[GFNV_CTA_008_00225_01]OEE_Reporting/TSM_CellLoad',
                     '[GFNV_CTA_008_00225_02]OEE_Reporting/TSM_CellLoad'
                     ]
@@ -113,7 +114,7 @@ def get_starve_by_operator(start_time,end_time):
                         <td style="text-align:right"><strong>CTA6</strong></td>
                     """
 
-    for lane in range(1,2):
+    for lane in range(1,3):
         starved_by_op = round(helper_functions.get_val(df,f'3BM6-20000-0{lane}_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
         color_text = "color:red" if starved_by_op > STARVED_THREHSOLD else ""
         cta6_html += f"""<td style="text-align:center;{color_text}">{starved_by_op}%</td>"""
@@ -286,7 +287,7 @@ def main(env,eos=False):
     CTA8_FLOWSTEP = '3BM8-25000'
     #create line arrays
     LINES = ['3BM2','3BM3','3BM4','3BM5','3BM6','3BM8']
-    FLOWSTEPS = [CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA6_FLOWSTEP,CTA8_FLOWSTEP]
+    FLOWSTEPS = [CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA6_FLOWSTEP,CTA8_FLOWSTEP]
     
     hourly_goal_dict = helper_functions.get_zone_line_goals(zone=1,hours=lookback)
 
