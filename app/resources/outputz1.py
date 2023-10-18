@@ -287,6 +287,7 @@ def main(env,eos=False):
     CTA8_FLOWSTEP = '3BM8-25000'
     #create line arrays
     LINES = ['3BM2','3BM3','3BM4','3BM5','3BM6','3BM8']
+    # changed from FLOWSTEPS = [CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA6_FLOWSTEP,CTA8_FLOWSTEP] on 10/18
     FLOWSTEPS = [CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA6_FLOWSTEP,CTA8_FLOWSTEP]
     
     hourly_goal_dict = helper_functions.get_zone_line_goals(zone=1,hours=lookback)
