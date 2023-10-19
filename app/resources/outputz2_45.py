@@ -15,19 +15,23 @@ def get_starve_block_table(start_time,end_time):
     MAMC_ST30_WALK_PATHS = ['[3BM4_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl','[_3BM5_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL01/StateControl']
     MAMC_ST30_FIXTURE_PATHS = ['[3BM4_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL10/StateControl','[_3BM5_33000_ModuleClose_NewVersion]Project/MDL00/State Machine Summary/MDL10/StateControl']
     C3A_ST70_ROBOT_PATHS = ['[3BM4_46000]Project/TSL055_ST070/MDL10/TSM/StateControl','[TSL065_ST070]Project/TSL065_ST070/MDL10/TSM/StateControl']
-
+    C3A_ST120_TOWER_PATHS = ['[TSL055_ST120]Project/MDL01/TSM/StateControl','[TSL065_ST120]Project/MDL01/TSM/StateControl']
     
+
     plc_con = helper_functions.get_sql_conn('plc_db')
 
     #get sterve blocked starve data for each tagpath set
     m_st10_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, MAMC_ST10_PATHS, 'Starved')
     c_st70_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, C3A_ST70_ROBOT_PATHS, 'Blocked',reason=2)
-
+    c_st120_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, C3A_ST120_TOWER_PATHS, 'Blocked',reason=1)
+    
     #get percentage (divide by seconds in between start and end and multiply by 100%)
     m_st10_bma4_percent = round(helper_functions.get_val(m_st10_df,'3BM4','LINE','Duration')/seconds_between*100,1)
     m_st10_bma5_percent = round(helper_functions.get_val(m_st10_df,'3BM5','LINE','Duration')/seconds_between*100,1)
     c_st70_bma4_percent = round(helper_functions.get_val(c_st70_df,'3BM4','LINE','Duration')/seconds_between*100,1)
     c_st70_bma5_percent = round(helper_functions.get_val(c_st70_df,'3BM5','LINE','Duration')/seconds_between*100,1)
+    c_st120_bma4_percent = round(helper_functions.get_val(c_st120_df,'3BM4','LINE','Duration')/seconds_between*100,1)
+    c_st120_bma5_percent = round(helper_functions.get_val(c_st120_df,'3BM5','LINE','Duration')/seconds_between*100,1)
 
     html=f"""
         <tr>
@@ -41,6 +45,12 @@ def get_starve_block_table(start_time,end_time):
             <td style="text-align:left">Blocked by Module Flip</td>
             <td style="text-align:center">{c_st70_bma4_percent}%</td>
             <td style="text-align:center">{c_st70_bma5_percent}%</td>
+        </tr>
+        <tr>
+            <td style="text-align:right"><b>C3A ST120</b></td>
+            <td style="text-align:left">Blocked by Z3</td>
+            <td style="text-align:center">{c_st120_bma4_percent}%</td>
+            <td style="text-align:center">{c_st120_bma5_percent}%</td>
         </tr>
         """
 
