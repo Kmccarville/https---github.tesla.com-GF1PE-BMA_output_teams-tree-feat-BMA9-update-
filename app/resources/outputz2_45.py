@@ -23,7 +23,7 @@ def get_starve_block_table(start_time,end_time):
     #get sterve blocked starve data for each tagpath set
     m_st10_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, MAMC_ST10_PATHS, 'Starved')
     c_st70_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, C3A_ST70_ROBOT_PATHS, 'Blocked',reason=2)
-    c_st120_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, C3A_ST120_TOWER_PATHS, 'Blocked',reason=2)
+    c_st120_df = helper_functions.query_tsm_state(plc_con,start_time, end_time, C3A_ST120_TOWER_PATHS, 'Blocked',reason=1)
     
     #get percentage (divide by seconds in between start and end and multiply by 100%)
     m_st10_bma4_percent = round(helper_functions.get_val(m_st10_df,'3BM4','LINE','Duration')/seconds_between*100,1)
