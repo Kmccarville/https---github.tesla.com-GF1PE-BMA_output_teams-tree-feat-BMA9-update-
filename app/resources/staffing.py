@@ -48,7 +48,7 @@ def main(env):
                           'Goal' : hc_goals
                       })
 
-  categories = ['Present','Absent','Call Out','Time Off','Unscheduled']
+  categories = ['Unscheduled','Present','Absent','Call Out','Time Off']
   for category in categories:
       df_sub = df.query(f"`{category}`==1")
       df_summary = df_sub.groupby("Assembly Line")[category].count()
