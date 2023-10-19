@@ -3,10 +3,12 @@ import sqlalchemy
 from urllib.parse import quote
 from datetime import datetime,timedelta
 import pytz
+import logging
 
 import common.helper_functions as helper_functions
 
 def main(env):
+  logging.info("Staffing Main Started")
   pst = pytz.timezone('US/Pacific')
   utc = pytz.timezone('UTC')
   rn = datetime.utcnow()
@@ -60,6 +62,7 @@ def main(env):
       df_all[category] = df_all[category].astype(int)
 
   webhook_key = 'teams_webhook_staffing' if env=='prod' else 'teams_webhook_DEV_Updates'
-  send_alert(webhook_key,'',df_all,caption="Battery Module Staffing Alert",link_title="LiveStaffing",link_button="https://bi.teslamotors.com/#/views/BatteryModuleLaborAnalytics/LiveStaffing?:iid=1")
+  helper_functions.send_alert(webhook_key,'',df_all,caption="Battery Module Staffing Alert",link_title="LiveStaffing",link_button="https://bi.teslamotors.com/#/views/BatteryModuleLaborAnalytics/LiveStaffing?:iid=1")
   # redden = lambda x: ['color:red']*len(x) if x.Present < x.Goal else ['']*len(x)
   # msg = df_all.style.apply(redden, axis=1).render()
+  logging.info("Staffing Main Finished")
