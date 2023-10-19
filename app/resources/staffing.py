@@ -37,10 +37,9 @@ def main(env):
                       'Module-BMA8-Zone1','Module-BMA8-Zone2',
                       'Module-Zone3-123','Module-Zone3-45',
                       'Module-Zone4-MC1','Module-Zone4-MC2',
-                      'Module-Zone-1-Bando-Rework',
-                      'Kitting&Fracking']
+                      'Module-NCM']
 
-  hc_goals = [20,36,32,33,8,12,21,21,19,24,39,14]
+  hc_goals = [20,36,32,33,8,12,21,21,19,24,51]
 
   hc_goals.insert(0,sum(hc_goals))
 
@@ -55,7 +54,7 @@ def main(env):
       df_summary = df_sub.groupby("Assembly Line")[category].count()
       df_summary.loc['Grand Total'] = len(df_sub)
       df_summary = df_summary.reset_index()
-      df_all = df_all.merge(df_summary,how='outer',on='Assembly Line')
+      df_all = df_all.merge(df_summary,how='left',on='Assembly Line')
 
   df_all.fillna(0,inplace=True)
   df_all['Goal'] = df_all['Goal'].astype(int)
@@ -68,7 +67,8 @@ def main(env):
   headers.insert(0,'Assembly Line')
   header_html = "<tr>"
   for header in headers:
-      header_html += f"""<th style="text-align:center">{header}</th>"""
+      align_type = 'left' if header=='Assembly Line' else 'center'
+      header_html += f"""<th style="text-align:{align_type}">{header}</th>"""
 
   header_html+="</tr>"
 
