@@ -451,7 +451,7 @@ def main(env,eos=False):
                                     <td style="text-align:center;{color_str}">{cta5_yield[i]}</td>
                                     """
             #cta6 has 1 lanes
-            if i < 1:
+            if i < 2:
                 color_str = ""
                 cta6_html += f"""
                             <td style="text-align:center">{cta6_outputs[i]/CTA_DIVISOR:.1f}</td>
