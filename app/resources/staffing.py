@@ -4,7 +4,7 @@ from urllib.parse import quote
 from datetime import datetime,timedelta
 import pytz
 
-from resources import helper_functions
+import common.helper_functions as helper_functions
 
 def main(env):
   pst = pytz.timezone('US/Pacific')
