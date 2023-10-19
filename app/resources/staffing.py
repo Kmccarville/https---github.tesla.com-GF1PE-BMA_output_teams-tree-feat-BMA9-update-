@@ -61,8 +61,60 @@ def main(env):
   for category in categories:
       df_all[category] = df_all[category].astype(int)
 
+  #forming the html
+  headers = categories
+  headers.insert(0,'Goal')
+  headers.insert(0,'Assembly Line')
+  header_html = "<tr>"
+  for header in headers:
+      header_html += f"""<th style="text-align:center">{header}</th>"""
+
+  header_html+="</tr>"
+
+  sub_html = ""
+  for index,row in df_all.iterrows():
+      color_text = "color:red" if row.Goal > row.Present else ""
+      sub_html +=  f"""
+              <tr>
+                  <td style="text-align:left">{row['Assembly Line']}</td>
+                  <td style="text-align:center">{row.Goal}</td>
+                  <td style="text-align:center">{row.Unscheduled}</td>
+                  <td style="text-align:center;{color_text}">{row.Present}</td>
+                  <td style="text-align:center">{row.Absent}</td>
+                  <td style="text-align:center">{row['Call Out']}</td>
+                  <td style="text-align:center">{row['Time Off']}</td>
+              </tr>
+              """
+
+  full_html = "<table>" + header_html + sub_html + "</table>"
+  
+  #webhook
   webhook_key = 'teams_webhook_staffing' if env=='prod' else 'teams_webhook_DEV_Updates'
-  helper_functions.send_alert(webhook_key,'',df_all,caption="Battery Module Staffing Alert",link_title="LiveStaffing",link_button="https://bi.teslamotors.com/#/views/BatteryModuleLaborAnalytics/LiveStaffing?:iid=1")
-  # redden = lambda x: ['color:red']*len(x) if x.Present < x.Goal else ['']*len(x)
-  # msg = df_all.style.apply(redden, axis=1).render()
+  webhook_json = helper_functions.get_pw_json(webhook_key)
+  webhook = webhook_json['url']
+
+  #making the teams message
+  teams_msg = pymsteams.connectorcard(webhook)
+  title = "Battery Module Staffing Report"
+  teams_msg.title(title)
+  teams_msg.summary('StaffingUpdate')
+  K8S_BLUE = '#3970e4'
+  TESLA_RED = '#cc0000'
+  msg_color = TESLA_RED
+  teams_msg.color(msg_color)
+  staff_card = pymsteams.cardsection()
+  staff_card.text(full_html)
+  teams_msg.addSection(staff_card)
+  teams_msg.addLinkButton("LiveStaffingDash", "https://bi.teslamotors.com/#/views/BatteryModuleLaborAnalytics/LiveStaffing?:iid=1")
+  
+  #SEND IT
+  try:
+      teams_msg.send()
+  except pymsteams.TeamsWebhookException:
+      logging.warn("Webhook timed out, retry once")
+      try:
+          teams_msg.send()
+      except pymsteams.TeamsWebhookException:
+          logging.exception("Webhook timed out twice -- pass to next area")
+
   logging.info("Staffing Main Finished")
