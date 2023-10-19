@@ -3,7 +3,8 @@ import sqlalchemy
 from urllib.parse import quote
 from datetime import datetime,timedelta
 import pytz
-import helper_functions
+
+from resources import helper_functions
 
 def main(env):
   pst = pytz.timezone('US/Pacific')
