@@ -60,10 +60,13 @@ def main(env):
   df_all['Goal'] = df_all['Goal'].astype(int)
   for category in categories:
       df_all[category] = df_all[category].astype(int)
-
+  
+  df_all.loc[:,'Attainment'] = df_all['Present']/df_all['Goal']*100
+  total_attainment = df_all['Present'].sum()/df_all['Goal'].sum()*100
   #forming the html
   headers = categories
   headers.insert(0,'Goal')
+  headers.insert(0,'Attainment')
   headers.insert(0,'Assembly Line')
   header_html = "<tr>"
   for header in headers:
@@ -71,16 +74,17 @@ def main(env):
       header_html += f"""<th style="text-align:{align_type}">{header}</th>"""
 
   header_html+="</tr>"
-
+  attainment_threshold = 95
   sub_html = ""
   for index,row in df_all.iterrows():
-      color_text = "color:red" if row.Goal > row.Present else ""
+      color_text = "color:red" if row.Attainment < attainment_threshold else "color:green"
       sub_html +=  f"""
               <tr>
                   <td style="text-align:left">{row['Assembly Line']}</td>
+                  <td style="text-align:center;{color_text}">{row.Attainment:.0f}%</td>
                   <td style="text-align:center">{row.Goal}</td>
                   <td style="text-align:center">{row.Unscheduled}</td>
-                  <td style="text-align:center;{color_text}">{row.Present}</td>
+                  <td style="text-align:center">{row.Present}</td>
                   <td style="text-align:center">{row.Absent}</td>
                   <td style="text-align:center">{row['Call Out']}</td>
                   <td style="text-align:center">{row['Time Off']}</td>
@@ -96,12 +100,13 @@ def main(env):
 
   #making the teams message
   teams_msg = pymsteams.connectorcard(webhook)
-  title = "Battery Module Staffing Report"
+  title = f"Battery Module SOS Staffing Report ({total_attainment:.0f} %)"
   teams_msg.title(title)
-  teams_msg.summary('StaffingUpdate')
+  teams_msg.summary('SOS-Staffing')
   K8S_BLUE = '#3970e4'
+  GREEN = '#3cb043'
   TESLA_RED = '#cc0000'
-  msg_color = TESLA_RED
+  msg_color = TESLA_RED if total_attainment < attainment_threshold else GREEN
   teams_msg.color(msg_color)
   staff_card = pymsteams.cardsection()
   staff_card.text(full_html)
