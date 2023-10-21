@@ -36,7 +36,7 @@ def main(env):
   query = "SELECT `Assembly Line`, `Goal` from gf1pe_bm_global._static_staffing_targets"
   df_all = pd.read_sql(query,prodeng_conn)
   prodeng_conn.close()
-  df_gt = pd.DataFrame({'Assembly Line' : ['Grand Total'], 'Goal' : [0]})
+  df_gt = pd.DataFrame({'Assembly Line' : ['Grand Total'], 'Goal' : [df_all['Goal'].sum()]})
   df_all = pd.concat([df_gt,df_all],axis=0)
 
   categories = ['Unscheduled','Present','Absent','Call Out','Time Off']
