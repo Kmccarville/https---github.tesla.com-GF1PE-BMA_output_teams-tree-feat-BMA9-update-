@@ -71,7 +71,7 @@ def main(env):
   headers.insert(0,'Goal')
   headers.insert(0,'Attainment')
   headers.insert(0,'Assembly Line')
-  headers.insert(len(headers),'Absent and Call Out %')
+  headers.insert(len(headers),'Absent&CallOut %')
   header_html = "<tr>"
   for header in headers:
       align_type = 'left' if header=='Assembly Line' else 'center'
@@ -92,7 +92,7 @@ def main(env):
                   <td style="text-align:center">{row.Absent}</td>
                   <td style="text-align:center">{row['Call Out']}</td>
                   <td style="text-align:center">{row['Time Off']}</td>
-                  <td style="text-align:center">{row['AbsentPercent']}</td>
+                  <td style="text-align:center">{row['AbsentPercent']:.0f}%</td>
               </tr>
               """
 
@@ -105,7 +105,7 @@ def main(env):
 
   #making the teams message
   teams_msg = pymsteams.connectorcard(webhook)
-  title = f"Battery Module SOS Staffing Report ({total_attainment:.0f} %)"
+  title = f"Battery Module SOS Staffing Report ({total_attainment:.0f}%)"
   teams_msg.title(title)
   teams_msg.summary('SOS-Staffing')
   K8S_BLUE = '#3970e4'
