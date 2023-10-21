@@ -30,23 +30,12 @@ def main(env):
   edw_con.close()
 
   df = df.query(f"`MH Shift Group` == '{the_shift}' and `Event Date`=='{pst_now_str}'")
-
-  assembly_lines = ['Grand Total',
-                    'Module-BMA123-Zone1','Module-BMA123-Zone2',
-                    'Module-BMA45-Zone1','Module-BMA45-Zone-2',
-                      'Module-BMA8-Zone1','Module-BMA8-Zone2',
-                      'Module-Zone3-123','Module-Zone3-45',
-                      'Module-Zone4-MC1','Module-Zone4-MC2',
-                      'Module-NCM']
-
-  hc_goals = [20,36,32,33,8,12,21,21,19,24,51]
-
-  hc_goals.insert(0,sum(hc_goals))
-
-  df_all = pd.DataFrame({
-                          'Assembly Line' : assembly_lines,
-                          'Goal' : hc_goals
-                      })
+  
+  #get staffing targets
+  prodeng_conn = helper_functions.get_sql_conn('prodeng_ro')
+  query = "SELECT `Assembly Line`, `Goal` from gf1pe_bm_global._static_staffing_targets"
+  df_all = pd.read_sql(query,prod_eng_con)
+  prodeng_conn.close()
 
   categories = ['Unscheduled','Present','Absent','Call Out','Time Off']
   for category in categories:
