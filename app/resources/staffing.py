@@ -34,7 +34,7 @@ def main(env):
   #get staffing targets
   prodeng_conn = helper_functions.get_sql_conn('prodeng_ro')
   query = "SELECT `Assembly Line`, `Goal` from gf1pe_bm_global._static_staffing_targets"
-  df_all = pd.read_sql(query,prod_eng_con)
+  df_all = pd.read_sql(query,prodeng_conn)
   prodeng_conn.close()
 
   categories = ['Unscheduled','Present','Absent','Call Out','Time Off']
