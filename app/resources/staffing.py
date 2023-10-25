@@ -54,7 +54,7 @@ def main(env):
   
   df_all.loc[:,'TOTAL'] = df_all['Present'] + df_all['Absent'] + df_all['Call Out'] + df_all['Unscheduled'] + df_all['Time Off']
   df_all.loc[:,'AbsentPercent'] = ((df_all['Absent'] + df_all['Call Out'])/df_all['TOTAL'])*100
-  df_all.loc[:,'Attainment'] = df_all['Present']/df_all['Goal']*100
+  df_all.loc[:,'Attainment'] = (df_all['Present'] + df_all['Unscheduled'])/df_all['Goal']*100
   df_total = df_all.query("`Assembly Line` == 'Grand Total'")
   total_attainment = df_total['Present'].sum()/df_total['Goal'].sum()*100
   #forming the html
