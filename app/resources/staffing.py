@@ -33,7 +33,7 @@ def main(env):
   
   #get staffing targets
   prodeng_conn = helper_functions.get_sql_conn('prodeng_ro')
-  query = "SELECT `Assembly Line`, `Goal` from gf1pe_bm_global._static_staffing_targets"
+  query = f"SELECT `Assembly Line`, `Goal` from gf1pe_bm_global._static_staffing_targets WHERE Shift='{the_shift}'"
   df_all = pd.read_sql(query,prodeng_conn)
   prodeng_conn.close()
   df_gt = pd.DataFrame({'Assembly Line' : ['Grand Total'], 'Goal' : [df_all['Goal'].sum()]})
