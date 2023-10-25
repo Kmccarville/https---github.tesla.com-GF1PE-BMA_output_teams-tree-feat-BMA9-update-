@@ -39,7 +39,7 @@ except:
 def get_pw_json(key):
     return pw_json[key]
 
-def get_sql_conn(key, schema=None):
+def get_sql_conn(key, schema=None, conn_type='mysql'):
     cred = get_pw_json(key)
     # Pull database credentials
     user = cred['user']
@@ -49,7 +49,7 @@ def get_sql_conn(key, schema=None):
 
     schema_str = f"/{schema}" if schema else ""
     # Define database connection
-    engine = sqlalchemy.create_engine(f'mysql+pymysql://{user}:{password}@{hostname}:{port}{schema_str}')
+    engine = sqlalchemy.create_engine(f'{conn_type}+py{conn_type}://{user}:{password}@{hostname}:{port}{schema_str}')
     # Return connection to engine
     return engine.connect()
 

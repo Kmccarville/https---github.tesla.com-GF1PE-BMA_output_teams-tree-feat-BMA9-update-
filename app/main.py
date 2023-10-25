@@ -17,6 +17,7 @@ from resources import outputz4
 from resources import close_nc_check
 from resources import eos
 from resources import AGV_Spur_Picks
+from resources import staffing
 from resources.alerts import cta45_ct
 from resources.alerts import cta123_fixtures
 from resources.alerts import z2_fixtures
@@ -29,18 +30,17 @@ logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
 
 if __name__ == '__main__':
-
+    
     branchName=os.getenv('ENVVAR1')
     commit=os.getenv('ENVVAR2')
     env=os.getenv('ENVVAR3')
     logging.info("Code is running...better go catch it!")
     logging.info("Environment: %s", env)
 
-
     scheduler_hourly = schedule.Scheduler()
     scheduler_alerts = schedule.Scheduler()
     scheduler_passdown = schedule.Scheduler()
-
+    
     #define hourly scheduler
     scheduler_hourly.every().hour.at(":00").do(outputz1.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz2_123.main,env)
@@ -48,7 +48,6 @@ if __name__ == '__main__':
     scheduler_hourly.every().hour.at(":00").do(outputz2_8.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz3.main,env)
     scheduler_hourly.every().hour.at(":00").do(outputz4.main,env)
-#     scheduler_hourly.every().hour.at(":00").do(outputz2_8_Rev2.main,env)
     scheduler_hourly.every().hour.at(":00").do(close_nc_check.main,env)
     scheduler_hourly.every().hour.at(":02").do(eos.main,env)
     scheduler_hourly.every().hour.at(":00").do(AGV_Spur_Picks.main,env)
@@ -62,6 +61,11 @@ if __name__ == '__main__':
     #define passdown scheduler
     scheduler_passdown.every().day.at("14:30").do(cta123_eqt_email.main,env)
     scheduler_passdown.every().day.at("02:30").do(cta123_eqt_email.main,env)
+    
+    #define staffing scheduler
+    scheduler_passdown.every().day.at("13:30").do(staffing.main,env)
+    scheduler_passdown.every().day.at("01:30").do(staffing.main,env)
+    
     if env == "dev":
         logging.info("BranchName: %s", branchName)
         logging.info("CommitHash: %s", commit)
@@ -76,6 +80,7 @@ if __name__ == '__main__':
         quit()
     else:
         logging.info("Hourly run schedule initiated")
+        
         while True:
             scheduler_hourly.run_pending()
             scheduler_alerts.run_pending()
