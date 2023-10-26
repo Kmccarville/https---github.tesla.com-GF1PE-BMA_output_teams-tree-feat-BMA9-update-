@@ -40,6 +40,7 @@ if __name__ == '__main__':
     scheduler_hourly = schedule.Scheduler()
     scheduler_alerts = schedule.Scheduler()
     scheduler_passdown = schedule.Scheduler()
+    scheduler_dev = schedule.Scheduler()
     
     #define hourly scheduler
     scheduler_hourly.every().hour.at(":00").do(outputz1.main,env)
@@ -72,9 +73,13 @@ if __name__ == '__main__':
         logging.info("Send Dev Heading")
         devHeading.main()
         logging.info("Run all command executed")
-        scheduler_hourly.run_all(delay_seconds=10)
-        scheduler_alerts.run_all(delay_seconds=10)
-        scheduler_passdown.run_all(delay_seconds=10)
+#         scheduler_hourly.run_all(delay_seconds=10)
+#         scheduler_alerts.run_all(delay_seconds=10)
+#         scheduler_passdown.run_all(delay_seconds=10)
+        scheduler_dev.every(15).minute().do(staffing.main,env)
+        while True
+            scheduler_dev.run_pending()
+            time.sleep(1)
         devHeading.main(start=False)
         logging.info("Run all command complete. Quiting Program")
         quit()
