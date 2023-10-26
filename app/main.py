@@ -76,7 +76,7 @@ if __name__ == '__main__':
 #         scheduler_hourly.run_all(delay_seconds=10)
 #         scheduler_alerts.run_all(delay_seconds=10)
 #         scheduler_passdown.run_all(delay_seconds=10)
-        scheduler_dev.every(15).minute().do(staffing.main,env)
+        scheduler_dev.every(15).minutes.do(staffing.main,env)
         while True
             scheduler_dev.run_pending()
             time.sleep(1)
