@@ -65,7 +65,7 @@ WHERE
         color_S = 'green'
          
     if Lift_B_Spur >= 20:
-        color_S = 'red'
+        color_LB = 'red'
     elif 10<= Lift_B_Spur <20: 
         color_LB = 'orange'
     else:
