@@ -63,8 +63,8 @@ if __name__ == '__main__':
     scheduler_passdown.every().day.at("02:30").do(cta123_eqt_email.main,env)
     
     #define staffing scheduler
-    scheduler_passdown.every().day.at("14:00").do(staffing.main,env)
-    scheduler_passdown.every().day.at("02:00").do(staffing.main,env)
+    scheduler_passdown.every().day.at("13:35").do(staffing.main,env)
+    scheduler_passdown.every().day.at("01:35").do(staffing.main,env)
     
     if env == "dev":
         logging.info("BranchName: %s", branchName)
