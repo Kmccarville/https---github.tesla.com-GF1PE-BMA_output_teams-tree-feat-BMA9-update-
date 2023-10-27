@@ -46,4 +46,4 @@ spec:
       imagePullSecrets:
       - name: gf1pe-docker-registry-creds
       restartPolicy: Never
-      activeDeadlineSeconds: 900
+      activeDeadlineSeconds: 11000
