@@ -75,8 +75,6 @@ if __name__ == '__main__':
         scheduler_hourly.run_all(delay_seconds=10)
         scheduler_alerts.run_all(delay_seconds=10)
         scheduler_passdown.run_all(delay_seconds=10)
-        AGV_Spur_Picks.main(env)
-        staffing.main(env)
         devHeading.main(start=False)
         logging.info("Run all command complete. Quiting Program")
         quit()
