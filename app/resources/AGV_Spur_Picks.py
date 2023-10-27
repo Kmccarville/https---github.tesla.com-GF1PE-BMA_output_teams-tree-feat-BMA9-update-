@@ -117,5 +117,5 @@ WHERE
     webhookURL = creds['url'] 
     msg_title = 'AGV Spur Update'
     msg_summary = "Hourly Update"
-    sendTeamsMessage(webhookURL,msg_title,msg_summary,message)
+    sendTeamsMessage(webhookURL,msg_title,msg_summary,message) 
 
