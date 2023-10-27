@@ -51,10 +51,10 @@ WHERE
     BP6_PickItems1 = (df['Route'] == 'Module ASRS to Pack Line 2(BP6)').sum()
     BP6_PickItems2 = (df['Route'] == 'Module ASRS to Pack Line 2').sum()
     BP6_PickItems = BP6_PickItems1 + BP6_PickItems2
-    Lift_A_Spur1 = (df['Route'] == 'Module Rack Empty Return from Config to AGV Spur').sum()
-    Lift_A_Spur2 = (df['Route'] == 'Module Rack Empty Return from Storage to AGV Spur').sum()
+    Lift_A_Spur = (df['Route'] == 'Module Rack Empty Return from Config to AGV Spur').sum()
+    Lift_B_Spur = (df['Route'] == 'Module Rack Empty Return from Storage to AGV Spur').sum()
     #Lift_A_Spur = df['Route'].value_counts()['Module Rack Empty Return from Config to AGV Spur']
-    Lift_A_Spur = Lift_A_Spur1 + Lift_A_Spur2
+    #Lift_A_Spur = Lift_A_Spur1 + Lift_A_Spur2
     Total_Counts = len(df)
     
     if Lift_A_Spur >= 20:
@@ -63,6 +63,13 @@ WHERE
         color_S = 'orange'
     else:
         color_S = 'green'
+         
+    if Lift_B_Spur >= 20:
+        color_LB = 'red'
+    elif 10<= Lift_B_Spur <20: 
+        color_LB = 'orange'
+    else:
+        color_LB = 'green'
 
     if Manual_pack >= 20:
         color_M = 'red'
@@ -88,6 +95,10 @@ WHERE
                     <td style="text-align:center; color:{color_S}">{Lift_A_Spur}</td>
                 </tr>
                 <tr>
+                    <td style="text-align:left"><strong>Lift B Picks</strong></td>
+                    <td style="text-align:center; color:{color_LB}">{Lift_B_Spur}</td>
+                </tr>
+                <tr>
                     <td style="text-align:left"><strong>Manual-BP6 Picks</strong></td>
                     <td style="text-align:center; color:{color_M}">{Manual_pack}</td>
                 </tr>
@@ -106,5 +117,5 @@ WHERE
     webhookURL = creds['url'] 
     msg_title = 'AGV Spur Update'
     msg_summary = "Hourly Update"
-    sendTeamsMessage(webhookURL,msg_title,msg_summary,message)
+    sendTeamsMessage(webhookURL,msg_title,msg_summary,message) 
 
