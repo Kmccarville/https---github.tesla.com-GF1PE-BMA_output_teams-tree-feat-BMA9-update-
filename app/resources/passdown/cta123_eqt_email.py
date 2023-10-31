@@ -32,7 +32,8 @@ def get_bypassed_table():
                     rno_eqtstatushistory_batterymodule.equipment e
                 WHERE
                     e.source_tagpath LIKE '%bypass%'
-                    and e.name NOT LIKE '3BM1%')
+                    and e.name NOT LIKE '3BM1%'
+                    and e.name NOT LIKE '3BM2%')
                 AND sh.state = 1
                 AND ISNULL(sh.end_time)
         GROUP BY 1
