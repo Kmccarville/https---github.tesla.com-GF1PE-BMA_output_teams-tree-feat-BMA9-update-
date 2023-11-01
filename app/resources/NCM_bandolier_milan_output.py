@@ -7,10 +7,6 @@ import pymysql
 import pymsteams
 
 def sendTeamsMessage(webhook, title, summary, message,color='#cc0000'):
-   #url = "https://teslamotorsinc.webhook.office.com/webhookb2/b2ec31db-df85-4ad3-8439-cec233bde55f@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/480e3c8ca5114e3aae7530cf995e5557/eed4c4c5-7e42-4f3c-8e39-e69a6fda4754"
-   #title = 'NCM - Milan Update'
-   #summary = "Bandolier NCM "
-   #color='#cc0000'
    teams_msg = pymsteams.connectorcard(webhook)
    teams_msg.title(title)
    teams_msg.summary(summary)
@@ -25,7 +21,7 @@ def sendTeamsMessage(webhook, title, summary, message,color='#cc0000'):
    teams_msg.send()
     
    def main(env):
-      query = f"""SELECT DISTINCT
+    query = f"""SELECT DISTINCT
     t.created 'Bando_Created',
     t.name 'Bando_Serial',
     CONVERT_TZ(tp.exited, 'UTC', 'US/Pacific') 'Transaction_Time',
@@ -49,7 +45,8 @@ WHERE
     df = pd.read_sql(query,db)
     db.close()
     u1=df['Bando_Serial'].nunique()
-      message = f"""
+     
+   message = f"""
                <html>
                    <tr>
                        <td <td> Milan Output for the day : </td>
@@ -61,6 +58,6 @@ WHERE
     webhook = 'teams_webhook_NCM_Bando_Milan_Update' if env == 'prod' else 'teams_webhook_DEV_Updates'
     creds = helper_functions.get_pw_json(webhook)
     webhookURL = creds['url'] 
-    msg_title = 'AGV Spur Update'
+    msg_title = 'NCM - Milan Update'
     msg_summary = "Daily Update"
     sendTeamsMessage(webhookURL,msg_title,msg_summary,message) 
