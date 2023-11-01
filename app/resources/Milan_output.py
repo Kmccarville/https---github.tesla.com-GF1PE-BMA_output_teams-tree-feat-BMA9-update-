@@ -62,5 +62,5 @@ WHERE
     creds = helper_functions.get_pw_json(webhook)
     webhookURL = creds['url'] 
     msg_title = 'AGV Spur Update'
-    msg_summary = "Hourly Update"
+    msg_summary = "Daily Update"
     sendTeamsMessage(webhookURL,msg_title,msg_summary,message) 
