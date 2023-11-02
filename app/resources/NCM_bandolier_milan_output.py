@@ -40,24 +40,24 @@ WHERE
 		AND DATE(tp.exited) = CURDATE()
 		AND tp.exitcompletioncode = 'PASS'
 		AND a.name = 'Bando-Rework-Milan-01'"""
-
+	
 	db = helper_functions.get_sql_conn('mos_rpt2',schema="sparq")
 	df = pd.read_sql(query,db)
 	db.close()
 	u1=df['Bando_Serial'].nunique()
-
-message = f"""
-		   <html>
-			   <tr>
-				   <td <td> Milan Output for the day : </td>
-				   <td <td style="color: #0000ff" > {u1}</td>
-				   <td <td> bandoliers </td>
-			   </tr>
-		   </html>"""
-
-webhook = 'teams_webhook_NCM_Bando_Milan_Update' if env == 'prod' else 'teams_webhook_DEV_Updates'
-creds = helper_functions.get_pw_json(webhook)
-webhookURL = creds['url'] 
-msg_title = 'NCM - Milan Update'
-msg_summary = "Daily Update"
+	
+	message = f"""
+				<html>
+					<tr>
+						<td <td> Milan Output for the day : </td>
+						<td <td style="color: #0000ff" > {u1}</td>
+						<td <td> bandoliers </td>
+					</tr>
+				</html>"""
+		
+	webhook = 'teams_webhook_NCM_Bando_Milan_Update' if env == 'prod' else 'teams_webhook_DEV_Updates'
+	creds = helper_functions.get_pw_json(webhook)
+	webhookURL = creds['url'] 
+	msg_title = 'NCM - Milan Update'
+	msg_summary = "Daily Update"
 	sendTeamsMessage(webhookURL,msg_title,msg_summary,message) 
