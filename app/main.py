@@ -17,6 +17,7 @@ from resources import outputz4
 from resources import close_nc_check
 from resources import eos
 from resources import AGV_Spur_Picks
+from resources import NCM_bandolier_milan_output
 from resources import staffing
 from resources.alerts import cta45_ct
 from resources.alerts import cta123_fixtures
@@ -57,6 +58,7 @@ if __name__ == '__main__':
     scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
+    scheduler_alerts.every().day.at("01:00").do(NCM_bandolier_milan_output.main,env)
 
     #define passdown scheduler
     scheduler_passdown.every().day.at("14:30").do(cta123_eqt_email.main,env)
@@ -70,6 +72,7 @@ if __name__ == '__main__':
         logging.info("BranchName: %s", branchName)
         logging.info("CommitHash: %s", commit)
         logging.info("Send Dev Heading")
+        NCM_bandolier_milan_output.main(env)
         devHeading.main()
         logging.info("Run all command executed")
         scheduler_hourly.run_all(delay_seconds=10)
