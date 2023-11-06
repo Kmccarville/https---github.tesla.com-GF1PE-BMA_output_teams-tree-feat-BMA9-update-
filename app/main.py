@@ -58,15 +58,15 @@ if __name__ == '__main__':
     scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
-    scheduler_alerts.every().day.at("01:00").do(NCM_bandolier_milan_output.main,env)
+    scheduler_alerts.every().day.at("02:00").do(NCM_bandolier_milan_output.main,env)
 
     #define passdown scheduler
-    scheduler_passdown.every().day.at("14:30").do(cta123_eqt_email.main,env)
-    scheduler_passdown.every().day.at("02:30").do(cta123_eqt_email.main,env)
+    scheduler_passdown.every().day.at("15:30").do(cta123_eqt_email.main,env)
+    scheduler_passdown.every().day.at("03:30").do(cta123_eqt_email.main,env)
     
     #define staffing scheduler
-    scheduler_passdown.every().day.at("13:35").do(staffing.main,env)
-    scheduler_passdown.every().day.at("01:35").do(staffing.main,env)
+    scheduler_passdown.every().day.at("14:35").do(staffing.main,env)
+    scheduler_passdown.every().day.at("02:35").do(staffing.main,env)
     
     if env == "dev":
         logging.info("BranchName: %s", branchName)
