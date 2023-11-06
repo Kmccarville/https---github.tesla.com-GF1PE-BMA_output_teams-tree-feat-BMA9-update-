@@ -5,6 +5,8 @@ from urllib.parse import quote
 import sqlalchemy
 import pymysql
 import pymsteams
+from datetime import datetime
+from datetime import timedelta
 
 def sendTeamsMessage(webhook, title, summary, message,color='#cc0000'):
 	teams_msg = pymsteams.connectorcard(webhook)
@@ -20,7 +22,13 @@ def sendTeamsMessage(webhook, title, summary, message,color='#cc0000'):
 	# SEND text to Teams
 	teams_msg.send()
 	
-def main(env):
+def main(env,eos=False):
+	lookback=12 if eos else 1
+    	now=datetime.utcnow()
+    	now_sub1hr=now+timedelta(hours=-lookback)
+    	start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
+    	end=start+timedelta(hours=lookback)
+	
 	query = f"""SELECT DISTINCT
 	t.created 'Bando_Created',
 	t.name 'Bando_Serial',
@@ -37,7 +45,7 @@ FROM
 WHERE
 	tp.flowstepname = '3BM-20104-NCM'
 		AND tp.iscurrent = 0
-		AND DATE(tp.exited) = CURDATE()
+		AND tp.exited > NOW() - INTERVAL {lookback} HOUR 
 		AND tp.exitcompletioncode = 'PASS'
 		AND a.name = 'Bando-Rework-Milan-01'"""
 	
