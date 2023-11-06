@@ -5,6 +5,7 @@ from resources import outputz2_45
 from resources import outputz2_8
 from resources import outputz3
 from resources import outputz4
+from resources import NCM_bandolier_milan_output
 
 import numpy as np
 import pandas as pd
