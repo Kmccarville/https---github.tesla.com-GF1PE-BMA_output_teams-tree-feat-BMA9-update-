@@ -183,7 +183,7 @@ def get_cta_yield(db,lookback):
     df = pd.read_sql(text(query), db)
     return df
 
-def cta_records(lookback,cta3,cta4,cta5,cta8,webhook):
+def cta_records(lookback,cta3,cta4,cta5,cta6,cta8,webhook):
     logging.info(f'Starting {lookback} hour ACTA records')
     # check for output records for 1 hour
     record_con = helper_functions.get_sql_conn('pedb',schema='records')
@@ -191,9 +191,10 @@ def cta_records(lookback,cta3,cta4,cta5,cta8,webhook):
     line3 = cta3
     line4 = cta4
     line5 = cta5
+    line6 = cta6
     line8 = cta8
-    names = ['ACTA3','CTA4','CTA5','CTA8']
-    carsets = [line3,line4,line5,line8]
+    names = ['ACTA3','CTA4','CTA5','CTA6','CTA8']
+    carsets = [line3,line4,line5,line6,line8]
     newRecordArray = []
     prevShiftArray = []
     prevDateArray = []
@@ -571,9 +572,10 @@ def main(env,eos=False):
     cta3 = np.sum(cta3_outputs)/CTA_DIVISOR
     cta4 = np.sum(cta4_outputs)/CTA_DIVISOR
     cta5 = np.sum(cta5_outputs)/CTA_DIVISOR
+    cta6 = np.sum(cta6_outputs)/CTA_DIVISOR
     cta8 = np.sum(cta8_outputs)/CTA_DIVISOR
     webhook_key = 'teams_webhook_Zone1_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
 
-    cta_records(lookback,cta3,cta4,cta5,cta8,webhook)
+    cta_records(lookback,cta3,cta4,cta5,cta6,cta8,webhook)

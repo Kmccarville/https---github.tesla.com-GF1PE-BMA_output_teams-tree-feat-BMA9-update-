@@ -255,7 +255,7 @@ def eos_report(env,do_24=False):
         cta5 = cta_outputs[4]/CTA_DIVISOR
         cta6 = cta_outputs[5]/CTA_DIVISOR
         cta8 = cta_outputs[6]/CTA_DIVISOR
-        outputz1.cta_records(24,cta2,cta3,cta4,cta5,cta8,webhook)
+        outputz1.cta_records(24,cta3,cta4,cta5,cta6,cta8,webhook)
 
         # C3A123 24hr records
         webhook_key = 'teams_webhook_Zone2_123_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
