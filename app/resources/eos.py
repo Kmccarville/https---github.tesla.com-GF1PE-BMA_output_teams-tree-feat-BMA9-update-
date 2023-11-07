@@ -5,6 +5,7 @@ from resources import outputz2_45
 from resources import outputz2_8
 from resources import outputz3
 from resources import outputz4
+from resources import NCM_bandolier_milan_output
 
 import numpy as np
 import pandas as pd
@@ -24,6 +25,7 @@ def main(env):
         outputz2_8.main(env,eos=True)
         outputz3.main(env,eos=True)
         outputz4.main(env,eos=True)
+        NCM_bandolier_milan_output.main(env,eos=True)
         eos_report(env)
         if it_is_24:
             eos_report(env,do_24=True)
