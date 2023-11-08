@@ -67,4 +67,4 @@ WHERE
     webhookURL = creds['url'] 
     msg_title = 'NCM - Milan Update'
     msg_summary = "Daily Update"
-    sendTeamsMessage(webhookURL,msg_title,msg_summary,message)  
+    sendTeamsMessage(webhookURL,msg_title,msg_summary,message)   
