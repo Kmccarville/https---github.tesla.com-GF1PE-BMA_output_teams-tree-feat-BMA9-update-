@@ -22,8 +22,8 @@ def sendTeamsMessage(webhook, title, summary, message,color='#cc0000'):
     # SEND text to Teams
     teams_msg.send()
     
-def main(env,eos=False):
-    lookback=12 if eos else 1
+def main(env):
+    lookback=12
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
@@ -67,4 +67,4 @@ WHERE
     webhookURL = creds['url'] 
     msg_title = 'NCM - Milan Update'
     msg_summary = "Daily Update"
-    sendTeamsMessage(webhookURL,msg_title,msg_summary,message)
+    sendTeamsMessage(webhookURL,msg_title,msg_summary,message)   
