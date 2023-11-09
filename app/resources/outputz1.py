@@ -353,6 +353,7 @@ def main(env,eos=False):
                     <td style="text-align:center"><strong>{np.sum(cta4_outputs)/CTA_DIVISOR:.1f}</td>
                     <td style="text-align:center"><strong>{int(hourly_goal_dict['3BM4'])}</td>
                     <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
                 """
     cta4_yield_html = f"""
                 <tr>
