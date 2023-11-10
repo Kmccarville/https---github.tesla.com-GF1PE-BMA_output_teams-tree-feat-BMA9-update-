@@ -37,7 +37,6 @@ def get_starve_block_table(start_time,end_time):
 def get_starve_by_operator(start_time,end_time):
     seconds_between = (end_time - start_time).seconds
     CELL_LOAD_PATHS = [
-                    '[TSL053_CTR025_02]OEE_Reporting/TSM_CellLoad',
                     '[TSL053_CTR025_03]OEE_Reporting/TSM_CellLoad',
                     '[TSL053_CTR025_04]OEE_Reporting/TSM_CellLoad',
                     '[TSL053_CTR025_05]OEE_Reporting/TSM_CellLoad',
@@ -83,9 +82,10 @@ def get_starve_by_operator(start_time,end_time):
                     <tr>
                         <td style="text-align:right"><strong>CTA4</strong></td>
                         <td style="text-align:center">---</td>
+                        <td style="text-align:center">---</td>
                     """
     
-    for lane in range(2,9):
+    for lane in range(3,9):
         starved_by_op = round(helper_functions.get_val(df,f'3BM4-20000-0{lane}_OEE','EQPT_NAME','Duration')/seconds_between*100,1)
         color_text = "color:red" if starved_by_op > STARVED_THREHSOLD else ""
         cta4_html += f"""<td style="text-align:center;{color_text}">{starved_by_op}%</td>"""
@@ -141,7 +141,6 @@ def get_starve_by_operator(start_time,end_time):
         cta8_html += f"""<td style="text-align:center;{color_text}">{starved_by_op}%</td>"""
     
     cta8_html +=  """
-                    <td style="text-align:center">---</td>
                     <td style="text-align:center">---</td>
                     <td style="text-align:center">---</td>
                     <td style="text-align:center">---</td>
@@ -354,6 +353,7 @@ def main(env,eos=False):
                     <td style="text-align:center"><strong>{np.sum(cta4_outputs)/CTA_DIVISOR:.1f}</td>
                     <td style="text-align:center"><strong>{int(hourly_goal_dict['3BM4'])}</td>
                     <td style="text-align:center">---</td>
+                    <td style="text-align:center">---</td>
                 """
     cta4_yield_html = f"""
                 <tr>
@@ -420,7 +420,7 @@ def main(env,eos=False):
             cta3_html += f"""
                         <td style="text-align:center">{cta3_outputs[i]/CTA_DIVISOR:.1f}</td>
                         """
-            if i > 0:
+            if i > 1:
                 color_str = ""
                 cta4_html += f"""
                             <td style="text-align:center">{cta4_outputs[i]/CTA_DIVISOR:.1f}</td>
