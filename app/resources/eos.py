@@ -25,7 +25,6 @@ def main(env):
         outputz2_8.main(env,eos=True)
         outputz3.main(env,eos=True)
         outputz4.main(env,eos=True)
-        NCM_bandolier_milan_output.main(env,eos=True)
         eos_report(env)
         if it_is_24:
             eos_report(env,do_24=True)
