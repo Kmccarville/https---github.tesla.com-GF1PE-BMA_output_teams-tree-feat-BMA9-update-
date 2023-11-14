@@ -7,107 +7,134 @@ from sqlalchemy import text
 import logging
 import pandas as pd
 import numpy as np
+import pymsteams
 
-def get_fixture_table():
+def get_contaminated_modules(threshold_count):
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     query = f"""
             SELECT 
-                LINE, TYPE, COUNT(DISTINCT (Carrier_ID)) AS 'Count'
+             distinct left(a.name,4), nc.thingname, t.created as thingCreated
             FROM
-                (SELECT DISTINCT
-                    td.valuetext AS 'Carrier_ID',
-                        CASE
-                            WHEN actor.name IN ('3BM1-40000-01') THEN 'LINE 1'
-                            WHEN actor.name IN ('3BM2-40000-01') THEN 'LINE 2'
-                            WHEN actor.name IN ('3BM3-40000-01') THEN 'LINE 3'
-                            WHEN actor.name IN ('MMAMC2.0-LINE3-B' , '3BM8-42000-01', '3BM8-44000-01') THEN 'LINE 8'
-                        END AS 'LINE',
-                        CASE
-                            WHEN parameter.name IN ('MMAMC Table ID') THEN 'NMAMC Pallet ID'
-                            WHEN task.name IN ('NIC_CARRIER') THEN 'NIC Clamshell Carrier'
-                            WHEN task.name IN ('IC_CARRIER') THEN 'IC Clamshell Carrier'
-                            ELSE parameter.name
-                        END AS 'TYPE'
-                FROM
-                    thingdata td
-                INNER JOIN thingpath ON thingpath.thingid = td.thingid
-                INNER JOIN parameter ON parameter.id = td.parameterid
-                INNER JOIN task ON task.id = parameter.taskid
-                INNER JOIN actor ON actor.id = thingpath.actormodifiedby
-                WHERE
-                    td.parameterid IN (SELECT 
-                            id
-                        FROM
-                            parameter
-                        WHERE
-                            name IN ('IC Clamshell Carrier' , 'Picture Frame RFID', 'NIC Clamshell Carrier', 'MMAMC Table ID', 'Carrier_ID'))
-                        AND actor.name IN ('3BM1-40000-01' , '3BM2-40000-01', '3BM3-40000-01', 'MMAMC2.0-LINE3-B')
-                        AND td.created > NOW() - INTERVAL 3 HOUR UNION SELECT DISTINCT
-                    td.valuetext AS 'Carrier_ID',
-                        CASE
-                            WHEN actor.name IN ('3BM1-29500-01' , '3BM1-29400-01') THEN 'LINE 1'
-                            WHEN actor.name IN ('3BM2-29500-01' , '3BM2-29400-01') THEN 'LINE 2'
-                            WHEN actor.name IN ('3BM3-29500-01' , '3BM3-29400-01') THEN 'LINE 3'
-                        END AS 'LINE',
-                        parameter.name AS 'TYPE'
-                FROM
-                    thingdata td
-                INNER JOIN thingpath ON thingpath.thingid = td.thingid
-                INNER JOIN parameter ON parameter.id = td.parameterid
-                INNER JOIN actor ON actor.id = thingpath.modifiedby
-                WHERE
-                    td.parameterid IN (SELECT 
-                            id
-                        FROM
-                            parameter
-                        WHERE
-                            name IN ('NMAMC Pallet ID'))
-                        AND actor.name IN ('3BM1-29400-01' , '3BM2-29400-01', '3BM3-29400-01')
-                        AND td.created > NOW() - INTERVAL 3 HOUR) sub
-            GROUP BY 1 , 2
-            ORDER BY 1 , 2
-            """
+                nc force index (ix_nc_processname_created)
+                inner join thing t
+                on t.id = nc.thingid
+                inner join actor a
+                on a.id = t.actorcreatedby
+            WHERE
+                nc.symptom = 'COSMETIC/DAMAGE'
+                    AND nc.subsymptom = 'CONTAMINATION/ DEBRIS'
+                    AND nc.processname = '3BM-Module'
+                    AND nc.created >= NOW() - INTERVAL 7 DAY
+                    and nc.description not like '%%max pull test%%'
+                    and (nc.description like '%%foreign%%' or nc.description like '%%fiber%%' or nc.description like '%%tape%%' or nc.description like '%%adhesive%%' or nc.description like '%%glove%%')"""
     # get df
-    df = pd.read_sql(text(query), mos_con)
-    df = df.astype(str)
+    
+    df = pd.read_sql(query,mos_con)
     mos_con.close()
-    # replace mos parameter to common abbreviation
-    df = df.replace('IC Clamshell Carrier','IC Carrier')
-    df = df.replace('NIC Clamshell Carrier','NIC Carrier')
-    df = df.replace('NMAMC Pallet ID','Nested Pallet')
-    df = df.replace('Picture Frame RFID','Picture Frame')
-    # pivot df for each LINE and reindex
-    df = df.pivot(index='TYPE',columns='LINE',values='Count')
-    df = df.replace(np.nan,'---')
-    df = df.reset_index()
-    df = df.rename_axis(None,axis=1)
-    # custom sort
-    df['TYPE'] = pd.Categorical(df['TYPE'],['IC Carrier','NIC Carrier','Picture Frame','Nested Pallet'])
-    df = df.sort_values('TYPE')
-    # define goal column
-    goals = [27,27,65,8]
-    df['GOAL'] = goals
+    # print(df)
 
-    return df
+    count_3BM1 = 0
+    tname_3BM1 = []
 
-def main(env):
-    lookback=3
-    now=datetime.utcnow()
-    pst_now = helper_functions.convert_from_utc_to_pst(now)
-    send_from = 'contamination_trial@tesla.com'
-    send_to = ['apuliyaneth@tesla.com']
-    subject = 'trial'
-    message = 'just trying'
-    helper_functions.send_mail(send_from, send_to, subject, message)
-    #only run this script at hours 1,4,7,10,13,16,19,22
+    count_3BM2 = 0
+    tname_3BM2 = []
 
-    # if pst_now.hour%3 == 1 or env'dev':
+    count_3BM3 = 0
+    tname_3BM3 = []
 
-    #     logging.info("CTA123 Puck-Fixture Alert %s" % datetime.utcnow())
+    count_3BM8 = 0
+    tname_3BM8 = []
 
-    #     df = get_fixture_table()
-    #     webhook_key = 'teams_webhook_Zone2_123_Alerts' if env=='prod' else 'teams_webhook_DEV_Updates'
-    #     title = 'BMA123 Z2 Fixture Count'
-    #     caption = 'Active Last 3 Hours'
-    #     helper_functions.send_alert(webhook_key,title,df,caption)
-    #     logging.info("Sent Alert for CTA123")
+    for row in df.iterrows():
+        if row[1][0] == '3BM1':
+            count_3BM1 = count_3BM1 + 1
+            tname_3BM1.append(row[1][1])
+
+        if row[1][0] == '3BM2':
+            count_3BM2 = count_3BM2 + 1
+            tname_3BM2.append(row[1][1])
+
+        if row[1][0] == '3BM3':
+            count_3BM3 = count_3BM3 + 1
+            tname_3BM3.append(row[1][1])
+        
+        if row[1][0] == '3BM8':
+            count_3BM8 = count_3BM8 + 1
+            tname_3BM8.append(row[1][1])
+
+    content_html = ""
+
+    if count_3BM1 > threshold_count:
+        for i in range(count_3BM1):
+            content_html +=f"""
+            <tr>
+                <td style="text-align:center">3BM1</td>
+                <td style="text-align:center">{tname_3BM1[i]}</td>
+            </tr>
+        """
+    if count_3BM2 > threshold_count:
+        for i in range(count_3BM2):
+            content_html +=f"""
+            <tr>
+                <td style="text-align:center">3BM2</td>
+                <td style="text-align:center">{tname_3BM2[i]}</td>
+            </tr>
+        """
+    if count_3BM3 > threshold_count:
+        for i in range(count_3BM3):
+            content_html +=f"""
+            <tr>
+                <td style="text-align:center">3BM3</td>
+                <td style="text-align:center">{tname_3BM3[i]}</td>
+            </tr>
+        """
+    if count_3BM8 > threshold_count:
+        for i in range(count_3BM8):
+            content_html +=f"""
+            <tr>
+                <td style="text-align:center">3BM8</td>
+                <td style="text-align:center">{tname_3BM8[i]}</td>
+            </tr>
+        """
+    return content_html
+
+def main(env, threshold_count = 1):
+
+    header_html = """
+                        <tr>
+                        <th style="text-align:center"><strong>LINE</strong></th>
+                        <th style="text-align:center"><strong>Thing Serial</strong></th>
+                        </tr>
+                    """
+    content_html = get_contaminated_modules(threshold_count)
+    if content_html != "":
+        message = "<table>" + "<caption>Line and List of Serials</caption>" + header_html + content_html + "</table>"
+        webhook_key = 'teams_webhook_Zone1_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
+        webhook_json = helper_functions.get_pw_json(webhook_key)
+        webhook = webhook_json['url']
+        
+        #making the hourly teams message
+        teams_msg = pymsteams.connectorcard(webhook)
+        title = 'FOD / Contamination Alert'
+        teams_msg.title(title)
+        teams_msg.summary('summary')
+        K8S_BLUE = '#3970e4'
+        TESLA_RED = '#cc0000'
+        msg_color = TESLA_RED #if eos else K8S_BLUE
+        teams_msg.color(msg_color)
+        #make a card with the hourly data
+        output_card = pymsteams.cardsection()
+        output_card.text(message)
+    
+        # teams_msg.addSection(summary_card)
+        teams_msg.addSection(output_card)
+        teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
+        #SEND IT
+        try:
+            teams_msg.send()
+        except pymsteams.TeamsWebhookException:
+            logging.warn("Webhook timed out, retry once")
+            try:
+                teams_msg.send()
+            except pymsteams.TeamsWebhookException:
+                logging.exception("Webhook timed out twice -- pass to next area")
