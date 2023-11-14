@@ -24,6 +24,7 @@ from resources.alerts import cta123_fixtures
 from resources.alerts import z2_fixtures
 from resources.alerts import bma123_hipot
 from resources.alerts import bma123_c3a_dispense
+from resources.alerts import z2_contamination
 
 from resources.passdown import cta123_eqt_email
 
@@ -55,9 +56,11 @@ if __name__ == '__main__':
 
     #define alert scheduler
     scheduler_alerts.every().hour.at(":00").do(cta123_fixtures.main,env)
+    scheduler_alerts.every().hour.at(":00").do(z2_contamination.main,env)
     scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
+    
     scheduler_alerts.every().day.at("02:00").do(NCM_bandolier_milan_output.main,env)
 
     #define passdown scheduler
