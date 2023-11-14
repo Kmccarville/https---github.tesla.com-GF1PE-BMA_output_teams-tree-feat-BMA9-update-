@@ -109,7 +109,7 @@ def main(env, threshold_count = 1):
     content_html = get_contaminated_modules(threshold_count)
     if content_html != "":
         message = "<table>" + "<caption>Line and List of Serials</caption>" + header_html + content_html + "</table>"
-        webhook_key = 'teams_webhook_Zone1_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
+        webhook_key = 'teams_webhook_BMA123_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
         webhook_json = helper_functions.get_pw_json(webhook_key)
         webhook = webhook_json['url']
         
