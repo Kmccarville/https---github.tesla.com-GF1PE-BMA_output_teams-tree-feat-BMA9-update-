@@ -24,7 +24,7 @@ def get_contaminated_modules(threshold_count):
                 nc.symptom = 'COSMETIC/DAMAGE'
                     AND nc.subsymptom = 'CONTAMINATION/ DEBRIS'
                     AND nc.processname = '3BM-Module'
-                    AND nc.created >= NOW() - INTERVAL 1 Hour
+                    AND nc.created >= NOW() - INTERVAL 7 day
                     and nc.description not like '%%max pull test%%'
                     and (nc.description like '%%foreign%%' or nc.description like '%%fiber%%' or nc.description like '%%tape%%' or nc.description like '%%adhesive%%' or nc.description like '%%glove%%')"""
     # get df
@@ -98,7 +98,7 @@ def get_contaminated_modules(threshold_count):
         """
     return content_html
 
-def main(env, threshold_count = 1):
+def main(env, threshold_count = 0):
 
     header_html = """
                         <tr>
@@ -109,7 +109,7 @@ def main(env, threshold_count = 1):
     content_html = get_contaminated_modules(threshold_count)
     if content_html != "":
         message = "<table>" + "<caption>Line and List of Serials</caption>" + header_html + content_html + "</table>"
-        webhook_key = 'teams_webhook_Zone1_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
+        webhook_key = 'teams_webhook_FOD_Alert' if env=='prod' else 'teams_webhook_DEV_Updates'
         webhook_json = helper_functions.get_pw_json(webhook_key)
         webhook = webhook_json['url']
         
