@@ -24,7 +24,7 @@ def get_contaminated_modules(threshold_count):
                 nc.symptom = 'COSMETIC/DAMAGE'
                     AND nc.subsymptom = 'CONTAMINATION/ DEBRIS'
                     AND nc.processname = '3BM-Module'
-                    AND nc.created >= NOW() - INTERVAL 1 Hour
+                    AND nc.created >= NOW() - INTERVAL 7 day
                     and nc.description not like '%%max pull test%%'
                     and (nc.description like '%%foreign%%' or nc.description like '%%fiber%%' or nc.description like '%%tape%%' or nc.description like '%%adhesive%%' or nc.description like '%%glove%%')"""
     # get df
@@ -109,9 +109,9 @@ def main(env, threshold_count = 0):
     content_html = get_contaminated_modules(threshold_count)
     if content_html != "":
         message = "<table>" + "<caption>Line and List of Serials</caption>" + header_html + content_html + "</table>"
-        webhook_key = 'teams_webhook_BMA123_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
+        webhook_key = 'teams_webhook_FOD_Alert' if env=='prod' else 'teams_webhook_DEV_Updates'
         webhook_json = helper_functions.get_pw_json(webhook_key)
-        webhook = webhook_json['https://teslamotorsinc.webhook.office.com/webhookb2/54f28a8e-1000-4e91-8013-4118066f542b@9026c5f4-86d0-4b9f-bd39-b7d4d0fb4674/IncomingWebhook/bdd07e4970c640b9b88b406f423ce60d/ee5aa1bc-2191-4554-9fd1-ab785e58c0d5']
+        webhook = webhook_json['url']
         
         #making the hourly teams message
         teams_msg = pymsteams.connectorcard(webhook)
