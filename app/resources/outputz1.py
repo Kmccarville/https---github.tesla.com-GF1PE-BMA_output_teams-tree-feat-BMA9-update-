@@ -182,18 +182,17 @@ def get_cta_yield(db,lookback):
     df = pd.read_sql(text(query), db)
     return df
 
-def cta_records(lookback,cta3,cta4,cta5,cta6,cta8,webhook):
+def cta_records(lookback,cta4,cta5,cta6,cta8,webhook):
     logging.info(f'Starting {lookback} hour ACTA records')
     # check for output records for 1 hour
     record_con = helper_functions.get_sql_conn('pedb',schema='records')
 
-    line3 = cta3
     line4 = cta4
     line5 = cta5
     line6 = cta6
     line8 = cta8
-    names = ['ACTA3','CTA4','CTA5','CTA6','CTA8']
-    carsets = [line3,line4,line5,line6,line8]
+    names = ['CTA4','CTA5','CTA6','CTA8']
+    carsets = [line4,line5,line6,line8]
     newRecordArray = []
     prevShiftArray = []
     prevDateArray = []
@@ -276,18 +275,17 @@ def main(env,eos=False):
     end=start+timedelta(hours=lookback)
 
     #define globals
-    NUM_LINES = 5
+    NUM_LINES = 4
     NUM_LANES = 8
     CTA_DIVISOR = 28
-    CTA123_FLOWSTEP = '3BM-20000'
     CTA4_FLOWSTEP = '3BM4-25000'
     CTA5_FLOWSTEP = '3BM5-25000'
     CTA6_FLOWSTEP = '3BM6-25000'
     CTA8_FLOWSTEP = '3BM8-25000'
     #create line arrays
-    LINES = ['3BM3','3BM4','3BM5','3BM6','3BM8']
+    LINES = ['3BM4','3BM5','3BM6','3BM8']
     # changed from FLOWSTEPS = [CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA6_FLOWSTEP,CTA8_FLOWSTEP] on 10/18
-    FLOWSTEPS = [CTA123_FLOWSTEP,CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA6_FLOWSTEP,CTA8_FLOWSTEP]
+    FLOWSTEPS = [CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA6_FLOWSTEP,CTA8_FLOWSTEP]
     
     hourly_goal_dict = helper_functions.get_zone_line_goals(zone=1,hours=lookback)
 
@@ -299,7 +297,6 @@ def main(env,eos=False):
     mos_con.close()
 
     cta_outputs = []
-    cta3_outputs = []
     cta4_outputs = []
     cta4_yield = []
     cta5_outputs = []
@@ -314,7 +311,6 @@ def main(env,eos=False):
 
     for lane in range(1,NUM_LANES + 1):
         lane_num = str(lane).zfill(2)
-        cta3_outputs.append(helper_functions.get_output_val(df_output, CTA123_FLOWSTEP,'3BM3',actor=f"3BM3-20000-{lane_num}"))
         cta4_outputs.append(helper_functions.get_output_val(df_output, CTA4_FLOWSTEP,'3BM4',actor=f"3BM4-20000-{lane_num}"))
         cta5_outputs.append(helper_functions.get_output_val(df_output,CTA5_FLOWSTEP,'3BM5',actor=f"3BM5-20000-{lane_num}"))
         cta6_outputs.append(helper_functions.get_output_val(df_output,CTA6_FLOWSTEP,'3BM6',actor=f"3BM6-20000-{lane_num}"))
@@ -324,7 +320,7 @@ def main(env,eos=False):
             cta5_yield.append(helper_functions.get_val(df_cta_yield, f"3BM5-20000-{lane_num}",'LINE','YIELD'))
             cta6_yield.append(helper_functions.get_val(df_cta_yield, f"3BM6-20000-{lane_num}",'LINE','YIELD'))
             cta8_yield.append(helper_functions.get_val(df_cta_yield, f"3BM8-20000-{lane_num}",'LINE','YIELD'))
-    cta_total = np.sum(cta3_outputs) + np.sum(cta4_outputs) + np.sum(cta5_outputs) + np.sum(cta6_outputs) + np.sum(cta8_outputs)
+    cta_total = np.sum(cta4_outputs) + np.sum(cta5_outputs) + np.sum(cta6_outputs) + np.sum(cta8_outputs)
 
     #create html outp9ut
     header_html = """<tr>
@@ -341,12 +337,6 @@ def main(env,eos=False):
                         <th style="text-align:center">Ln8</th>
                         </tr>
                     """
-    cta3_html = f"""
-                <tr>
-                    <td style="text-align:right"><strong>CTA3</strong></td>
-                    <td style="text-align:center"><strong>{np.sum(cta3_outputs)/CTA_DIVISOR:.1f}</td>
-                    <td style="text-align:center"><strong>{int(hourly_goal_dict['3BM3'])}</td>
-                """
     cta4_html = f"""
                 <tr>
                     <td style="text-align:right"><strong>CTA4</strong></td>
@@ -358,6 +348,7 @@ def main(env,eos=False):
     cta4_yield_html = f"""
                 <tr>
                     <td style="text-align:right">YIELD %</strong></td>
+                    <td style="text-align:center">---</td>
                     <td style="text-align:center">---</td>
                     <td style="text-align:center">---</td>
                     <td style="text-align:center">---</td>
@@ -414,12 +405,9 @@ def main(env,eos=False):
 
     nolane_html = f"""<td style="text-align:center">---</td>"""
 
-    for i,val in enumerate(cta3_outputs):
+    for i,val in enumerate(cta4_outputs):
         if i in range(4):
             color_str = ""
-            cta3_html += f"""
-                        <td style="text-align:center">{cta3_outputs[i]/CTA_DIVISOR:.1f}</td>
-                        """
             if i > 1:
                 color_str = ""
                 cta4_html += f"""
@@ -478,7 +466,6 @@ def main(env,eos=False):
                                 <td style="text-align:center;{color_str}">---</td>
                                 """
         else:
-            cta3_html += nolane_html
             cta4_html += f"""
                         <td style="text-align:center">{cta4_outputs[i]/CTA_DIVISOR:.1f}</td>
                         """
@@ -502,7 +489,6 @@ def main(env,eos=False):
                             """
 
     #finish table
-    cta3_html += "</tr>"
     cta4_html += "</tr>"
     cta4_yield_html += "</tr>"
     cta5_html += "</tr>"
@@ -513,9 +499,9 @@ def main(env,eos=False):
     cta8_yield_html += "</tr>"
 
     if eos:
-        cta_html = '<table>' + header_html + cta3_html + cta4_html + cta4_yield_html + cta5_html + cta5_yield_html + cta6_html + cta6_yield_html + cta8_html + cta8_yield_html + zone1_combined + '</table>'
+        cta_html = '<table>' + header_html +cta4_html + cta4_yield_html + cta5_html + cta5_yield_html + cta6_html + cta6_yield_html + cta8_html + cta8_yield_html + zone1_combined + '</table>'
     else:
-        cta_html = '<table>' + header_html + cta3_html + cta4_html + cta5_html + cta6_html + cta8_html + zone1_combined + '</table>'
+        cta_html = '<table>' + header_html + cta4_html + cta5_html + cta6_html + cta8_html + zone1_combined + '</table>'
 
     op_starved_html = get_starve_by_operator(start,end)
     mamc_starved_html = get_starve_block_table(start,end)
@@ -569,7 +555,6 @@ def main(env,eos=False):
             logging.exception("Webhook timed out twice -- pass to next area")
 
     # do records
-    cta3 = np.sum(cta3_outputs)/CTA_DIVISOR
     cta4 = np.sum(cta4_outputs)/CTA_DIVISOR
     cta5 = np.sum(cta5_outputs)/CTA_DIVISOR
     cta6 = np.sum(cta6_outputs)/CTA_DIVISOR
@@ -578,4 +563,4 @@ def main(env,eos=False):
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
 
-    cta_records(lookback,cta3,cta4,cta5,cta6,cta8,webhook)
+    cta_records(lookback,cta4,cta5,cta6,cta8,webhook)
