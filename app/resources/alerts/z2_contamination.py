@@ -24,7 +24,7 @@ def get_contaminated_modules(threshold_count):
                 nc.symptom = 'COSMETIC/DAMAGE'
                     AND nc.subsymptom = 'CONTAMINATION/ DEBRIS'
                     AND nc.processname = '3BM-Module'
-                    AND nc.created >= NOW() - INTERVAL 7 day
+                    AND nc.created >= NOW() - INTERVAL 1 HOUR
                     and nc.description not like '%%max pull test%%'
                     and (nc.description like '%%foreign%%' or nc.description like '%%fiber%%' or nc.description like '%%tape%%' or nc.description like '%%adhesive%%' or nc.description like '%%glove%%')"""
     # get df
@@ -98,7 +98,7 @@ def get_contaminated_modules(threshold_count):
         """
     return content_html
 
-def main(env, threshold_count = 0):
+def main(env, threshold_count = 1):
 
     header_html = """
                         <tr>
