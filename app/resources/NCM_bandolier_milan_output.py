@@ -55,7 +55,6 @@ WHERE
     u1=df['Bando_Serial'].nunique()
     
     if eos:
-        print("Shift")
         message = f"""<html>
             <tr>
                 <td <td> Milan Output for the shift : </td>
@@ -65,7 +64,6 @@ WHERE
         </html>"""
         sendTeamsMessage(message)
     else:
-        print("Hour")
         message = f"""<html>
             <tr>
                 <td <td> Milan Output for the past hour : </td>
