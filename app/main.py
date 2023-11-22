@@ -53,7 +53,7 @@ if __name__ == '__main__':
     scheduler_hourly.every().hour.at(":00").do(close_nc_check.main,env)
     scheduler_hourly.every().hour.at(":02").do(eos.main,env)
     scheduler_hourly.every().hour.at(":00").do(AGV_Spur_Picks.main,env)
-    scheduler_alerts.every().day.at("00:00").do(NCM_bandolier_milan_output.main,env)
+    scheduler_alerts.every().hour.at(":00").do(NCM_bandolier_milan_output.main,env)
 
     #define alert scheduler
     scheduler_alerts.every().hour.at(":00").do(cta123_fixtures.main,env)
