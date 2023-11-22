@@ -72,6 +72,7 @@ if __name__ == '__main__':
     scheduler_passdown.every().day.at("14:35").do(staffing.main,env)
     scheduler_passdown.every().day.at("02:35").do(staffing.main,env)
     
+    
     if env == "dev":
         logging.info("BranchName: %s", branchName)
         logging.info("CommitHash: %s", commit)
