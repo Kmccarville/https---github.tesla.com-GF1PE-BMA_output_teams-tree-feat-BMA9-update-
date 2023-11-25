@@ -55,18 +55,12 @@ if __name__ == '__main__':
     scheduler_hourly.every().hour.at(":00").do(AGV_Spur_Picks.main,env)
 
     #define alert scheduler
-    scheduler_alerts.every().hour.at(":00").do(cta123_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(z2_contamination.main,env)
     scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
-    
     scheduler_alerts.every().day.at("02:00").do(NCM_bandolier_milan_output.main,env)
 
-    #define passdown scheduler
-    scheduler_passdown.every().day.at("15:30").do(cta123_eqt_email.main,env)
-    scheduler_passdown.every().day.at("03:30").do(cta123_eqt_email.main,env)
-    
     #define staffing scheduler
     scheduler_passdown.every().day.at("14:35").do(staffing.main,env)
     scheduler_passdown.every().day.at("02:35").do(staffing.main,env)
