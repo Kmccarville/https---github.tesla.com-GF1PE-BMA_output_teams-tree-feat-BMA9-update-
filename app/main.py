@@ -55,7 +55,6 @@ if __name__ == '__main__':
     scheduler_hourly.every().hour.at(":00").do(AGV_Spur_Picks.main,env)
 
     #define alert scheduler
-    scheduler_alerts.every().hour.at(":00").do(cta123_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(z2_contamination.main,env)
     scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
