@@ -19,13 +19,13 @@ def main(env,local_run=False):
     it_is_eos,it_is_24 = helper_functions.is_it_eos_or_24()
     if it_is_eos or local_run:
         logging.info('Running End of Shift Report')
-        # outputz1.main(env,eos=True)
-        # outputz2_123.main(env,eos=True)
-        # outputz2_45.main(env,eos=True)
-        # outputz2_8.main(env,eos=True)
-        # outputz3.main(env,eos=True)
-        # outputz4.main(env,eos=True)
-        # eos_report(env)
+        outputz1.main(env,eos=True)
+        outputz2_123.main(env,eos=True)
+        outputz2_45.main(env,eos=True)
+        outputz2_8.main(env,eos=True)
+        outputz3.main(env,eos=True)
+        outputz4.main(env,eos=True)
+        eos_report(env)
         if it_is_24 or local_run:
             eos_report(env,do_24=True)
 
