@@ -19,13 +19,13 @@ def main(env,local_run=False):
     it_is_eos,it_is_24 = helper_functions.is_it_eos_or_24()
     if it_is_eos or local_run:
         logging.info('Running End of Shift Report')
-        outputz1.main(env,eos=True)
-        outputz2_123.main(env,eos=True)
-        outputz2_45.main(env,eos=True)
-        outputz2_8.main(env,eos=True)
-        outputz3.main(env,eos=True)
-        outputz4.main(env,eos=True)
-        eos_report(env)
+        # outputz1.main(env,eos=True)
+        # outputz2_123.main(env,eos=True)
+        # outputz2_45.main(env,eos=True)
+        # outputz2_8.main(env,eos=True)
+        # outputz3.main(env,eos=True)
+        # outputz4.main(env,eos=True)
+        # eos_report(env)
         if it_is_24 or local_run:
             eos_report(env,do_24=True)
 
@@ -36,13 +36,13 @@ def eos_report(env,do_24=False):
     CTA_DIVISOR = 28
     #define all flowsteps to be used
     DF_FLOWSTEP = pd.DataFrame({
-                                    'LINE' : ['3BM1','3BM2','3BM3','3BM4','3BM5','3BM6','3BM8'],
-                                    'CTA'  : ['','','','3BM4-25000','3BM5-25000','3BM6-25000','3BM8-25000'],
-                                    'MAMC'  : ['3BM-29500','3BM-29500','3BM-29500','3BM4-34000','3BM5-34000','','3BM8-29500'],
-                                    'MAMC_296'  : ['3BM-29600','3BM-29600','3BM-29600','','','',''],
-                                    'C3A'  : ['3BM-40001','3BM-40001','3BM-40001','3BM4-45000','3BM5-45000','','3BM8-44000'],
-                                    'ZONE3'  : ['3BM-57000','3BM-57000','3BM-57000','3BM-57000','3BM-57000','',''],
-                                    'ZONE4'  : ['MC1-30000','MC2-28000','','','','','']
+                                    'LINE' : ['3BM1','3BM2','3BM3','3BM4','3BM5','3BM6','3BM7','3BM8'],
+                                    'CTA'  : ['','','','3BM4-25000','3BM5-25000','3BM6-25000','3BM8-25000','3BM8-25000'],
+                                    'MAMC'  : ['3BM-29500','3BM-29500','3BM-29500','3BM4-34000','3BM5-34000','','','3BM8-29500'],
+                                    'MAMC_296'  : ['3BM-29600','3BM-29600','3BM-29600','','','','',''],
+                                    'C3A'  : ['3BM-40001','3BM-40001','3BM-40001','3BM4-45000','3BM5-45000','','','3BM8-44000'],
+                                    'ZONE3'  : ['3BM-57000','3BM-57000','3BM-57000','3BM-57000','3BM-57000','','',''],
+                                    'ZONE4'  : ['MC1-30000','MC2-28000','','','','','','']
                                     })
     #get start and end of shift times
     now=datetime.utcnow()
@@ -124,6 +124,7 @@ def eos_report(env,do_24=False):
             <th style="text-align:center">BMA4</th>
             <th style="text-align:center">BMA5</th>
             <th style="text-align:center">BMA6</th>
+            <th style="text-align:center">BMA7</th>
             <th style="text-align:center">BMA8</th>
             <th style="text-align:center">TOTAL</th>
             </tr>
@@ -139,6 +140,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{cta_outputs[4]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[5]/CTA_DIVISOR:.1f}</td>
             <td style="text-align:center">{cta_outputs[6]/CTA_DIVISOR:.1f}</td>
+            <td style="text-align:center">---</td>
             <td style="text-align:center"><strong>{total_cta_ouput/CTA_DIVISOR:.1f}</strong></td>
             </tr>
             """
@@ -150,6 +152,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[3]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{mamc_outputs[4]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">---</td>
             <td style="text-align:center">---</td>
             <td style="text-align:center">{mamc_outputs[6]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{(total_mamc_ouput)/NORMAL_DIVISOR:.1f}</strong></td>
@@ -163,6 +166,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[3]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">{c3a_outputs[4]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">---</td>
             <td style="text-align:center">---</td>
             <td style="text-align:center">{c3a_outputs[6]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.1f}</strong></td>
