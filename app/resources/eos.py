@@ -154,7 +154,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{mamc_outputs[4]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">---</td>
             <td style="text-align:center">---</td>
-            <td style="text-align:center">{mamc_outputs[6]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[7]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{(total_mamc_ouput)/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
             """
@@ -168,7 +168,7 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">{c3a_outputs[4]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center">---</td>
             <td style="text-align:center">---</td>
-            <td style="text-align:center">{c3a_outputs[6]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[7]/NORMAL_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.1f}</strong></td>
             </tr>
             """

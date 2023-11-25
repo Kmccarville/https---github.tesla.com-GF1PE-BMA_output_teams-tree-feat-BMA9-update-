@@ -541,7 +541,7 @@ def main(env,eos=False):
 
     # teams_msg.addSection(summary_card)
     teams_msg.addSection(output_card)
-    teams_msg.addSection(operator_card)
+    # teams_msg.addSection(operator_card) #remove operator card temp
     teams_msg.addSection(tsm_card)
     teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
     #SEND IT
