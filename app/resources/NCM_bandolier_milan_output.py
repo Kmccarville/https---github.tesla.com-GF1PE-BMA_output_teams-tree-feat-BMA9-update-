@@ -62,7 +62,7 @@ WHERE
                 <td <td> bandoliers </td>
             </tr>
         </html>"""
-        sendTeamsMessage(message)
+
     else:
         message = f"""<html>
             <tr>
@@ -71,7 +71,7 @@ WHERE
                 <td <td> bandoliers </td>
             </tr>
         </html>""" 
-        sendTeamsMessage(message)
+
         
     webhook = 'teams_webhook_NCM_Bando_Milan_Update' if env == 'prod' else 'teams_webhook_DEV_Updates'
     creds = helper_functions.get_pw_json(webhook)
