@@ -62,8 +62,6 @@ if __name__ == '__main__':
     scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
     
-    scheduler_alerts.every().day.at("02:00").do(NCM_bandolier_milan_output.main,env)
-
     #define passdown scheduler
     scheduler_passdown.every().day.at("15:30").do(cta123_eqt_email.main,env)
     scheduler_passdown.every().day.at("03:30").do(cta123_eqt_email.main,env)
@@ -77,7 +75,7 @@ if __name__ == '__main__':
         logging.info("BranchName: %s", branchName)
         logging.info("CommitHash: %s", commit)
         logging.info("Send Dev Heading")
-        NCM_bandolier_milan_output.main(env)
+        NCM_bandolier_milan_output.main(env,eos=True)
         devHeading.main()
         logging.info("Run all command executed")
         scheduler_hourly.run_all(delay_seconds=10)
