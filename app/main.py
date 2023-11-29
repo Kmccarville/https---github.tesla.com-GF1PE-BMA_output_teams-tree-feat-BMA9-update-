@@ -75,7 +75,6 @@ if __name__ == '__main__':
         logging.info("BranchName: %s", branchName)
         logging.info("CommitHash: %s", commit)
         logging.info("Send Dev Heading")
-        NCM_bandolier_milan_output.main(env,eos=True)
         devHeading.main()
         logging.info("Run all command executed")
         scheduler_hourly.run_all(delay_seconds=10)
