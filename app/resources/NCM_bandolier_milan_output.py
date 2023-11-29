@@ -22,8 +22,8 @@ def sendTeamsMessage(webhook, title, summary, message,color='#cc0000'):
     # SEND text to Teams
     teams_msg.send()
     
-def main(env):
-    lookback=12
+def main(env, eos=False):
+    lookback=12 if eos else 1
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
     start=now_sub1hr.replace(minute=00,second=00,microsecond=00)
@@ -54,13 +54,24 @@ WHERE
     db.close()
     u1=df['Bando_Serial'].nunique()
     
-    message = f"""<html>
+    if eos:
+        message = f"""<html>
             <tr>
-                <td <td> Milan Output for the day : </td>
+                <td <td> Milan Output for the shift : </td>
                 <td <td style="color: #0000ff" > {u1}</td>
                 <td <td> bandoliers </td>
             </tr>
-            </html>"""
+        </html>"""
+
+    else:
+        message = f"""<html>
+            <tr>
+                <td <td> Milan Output for the past hour : </td>
+                <td <td style="color: #0000ff" > {u1}</td>
+                <td <td> bandoliers </td>
+            </tr>
+        </html>""" 
+
         
     webhook = 'teams_webhook_NCM_Bando_Milan_Update' if env == 'prod' else 'teams_webhook_DEV_Updates'
     creds = helper_functions.get_pw_json(webhook)

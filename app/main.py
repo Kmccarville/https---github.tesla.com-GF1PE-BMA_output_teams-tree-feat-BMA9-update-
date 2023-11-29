@@ -53,13 +53,13 @@ if __name__ == '__main__':
     scheduler_hourly.every().hour.at(":00").do(close_nc_check.main,env)
     scheduler_hourly.every().hour.at(":02").do(eos.main,env)
     scheduler_hourly.every().hour.at(":00").do(AGV_Spur_Picks.main,env)
+    scheduler_alerts.every().hour.at(":00").do(NCM_bandolier_milan_output.main,env)
 
     #define alert scheduler
     scheduler_alerts.every().hour.at(":00").do(z2_contamination.main,env)
     scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
-    scheduler_alerts.every().day.at("02:00").do(NCM_bandolier_milan_output.main,env)
 
     #define staffing scheduler
     scheduler_passdown.every().day.at("14:35").do(staffing.main,env)
@@ -69,7 +69,6 @@ if __name__ == '__main__':
         logging.info("BranchName: %s", branchName)
         logging.info("CommitHash: %s", commit)
         logging.info("Send Dev Heading")
-        NCM_bandolier_milan_output.main(env)
         devHeading.main()
         logging.info("Run all command executed")
         scheduler_hourly.run_all(delay_seconds=10)
