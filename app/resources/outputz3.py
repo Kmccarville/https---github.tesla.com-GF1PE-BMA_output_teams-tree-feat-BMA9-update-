@@ -421,7 +421,7 @@ def get_bond_yield_table(db,start,end):
                     JOIN m3_wirebond.static_process_program k2 ON p.PROCESS_PROGRAM_ID=k2.ID
                     JOIN m3_bm_process_parameters.static_process_program k ON k2.PROCESS_PROGRAM=k.PROCESS_PROGRAM
                     JOIN m3_bm_process_parameters.static_cell_lookup l ON k.CELL_LOOKUP_ID=l.CELL_LOOKUP_ID AND p.WIRE_NUMBER=l.WIRE_NUMBER AND p.ZONE_NUMBER=l.ZONE_NUMBER
-                    WHERE p.DATE_TIME BETWEEN '{start}' AND '{end}'
+                    WHERE p.DATE_TIME BETWEEN convert_tz('{start}','GMT','US/Pacific') AND convert_tz('{end}','GMT','US/Pacific')
                     GROUP BY 1
                     ) a;
                     """
