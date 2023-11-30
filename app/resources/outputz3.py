@@ -401,6 +401,86 @@ def get_empty_bonders(db,tagpath):
     count = df.get_value(0,'intvalue')
     return count
 
+def get_bond_yield_table(db,start,end):
+    query = f"""
+            SELECT
+                LINE,
+                (POS_CELL_COUNT - POS_CELL_FAIL_COUNT)/POS_CELL_COUNT*100 as POS_CELL_YIELD,
+                (NEG_CELL_COUNT - NEG_CELL_FAIL_COUNT)/NEG_CELL_COUNT*100 as NEG_CELL_YIELD,
+                POS_CELL_COUNT + NEG_CELL_COUNT as NUM_BONDS
+                FROM
+                    (SELECT
+                        left(s.MACHINE_ID,4) as LINE,
+                        SUM(IF(l.POLARITY='POS' AND p.BOND_NUMBER=1, 1, 0)) AS POS_CELL_COUNT,
+                        SUM(IF(l.POLARITY='POS' AND p.BOND_NUMBER=1 AND BOND_STATUS=0, 1, 0)) AS POS_CELL_FAIL_COUNT,
+                        SUM(IF(l.POLARITY='NEG' AND p.BOND_NUMBER=1, 1, 0)) AS NEG_CELL_COUNT,
+                        SUM(IF(l.POLARITY='NEG' AND p.BOND_NUMBER=1 AND BOND_STATUS=0, 1, 0)) AS NEG_CELL_FAIL_COUNT
+                    FROM m3_wirebond.bond_uut u
+                    JOIN m3_bm_process_parameters.static_station s ON u.STATION_ID=s.STATION_ID
+                    JOIN m3_wirebond.bond_prop p ON u.ID=p.UUT_ID
+                    JOIN m3_wirebond.static_process_program k2 ON p.PROCESS_PROGRAM_ID=k2.ID
+                    JOIN m3_bm_process_parameters.static_process_program k ON k2.PROCESS_PROGRAM=k.PROCESS_PROGRAM
+                    JOIN m3_bm_process_parameters.static_cell_lookup l ON k.CELL_LOOKUP_ID=l.CELL_LOOKUP_ID AND p.WIRE_NUMBER=l.WIRE_NUMBER AND p.ZONE_NUMBER=l.ZONE_NUMBER
+                    WHERE p.DATE_TIME BETWEEN '{start}' AND '{end}'
+                    GROUP BY 1
+                    ) a;
+                    """
+    
+    df = pd.read_sql(query,db)
+    pos_cell_yield_1 = helper_functions.get_val(df,'3BM1','LINE','POS_CELL_YIELD')
+    pos_cell_yield_2 = helper_functions.get_val(df,'3BM2','LINE','POS_CELL_YIELD')
+    pos_cell_yield_3 = helper_functions.get_val(df,'3BM3','LINE','POS_CELL_YIELD')
+    pos_cell_yield_4 = helper_functions.get_val(df,'3BM4','LINE','POS_CELL_YIELD')
+    pos_cell_yield_5 = helper_functions.get_val(df,'3BM5','LINE','POS_CELL_YIELD')
+    
+    neg_cell_yield_1 = helper_functions.get_val(df,'3BM1','LINE','NEG_CELL_YIELD')
+    neg_cell_yield_2 = helper_functions.get_val(df,'3BM2','LINE','NEG_CELL_YIELD')
+    neg_cell_yield_3 = helper_functions.get_val(df,'3BM3','LINE','NEG_CELL_YIELD')
+    neg_cell_yield_4 = helper_functions.get_val(df,'3BM4','LINE','NEG_CELL_YIELD')
+    neg_cell_yield_5 = helper_functions.get_val(df,'3BM5','LINE','NEG_CELL_YIELD')
+    
+    bonds_1 = helper_functions.get_val(df,'3BM1','LINE','NUM_BONDS')
+    bonds_2 = helper_functions.get_val(df,'3BM2','LINE','NUM_BONDS')
+    bonds_3 = helper_functions.get_val(df,'3BM3','LINE','NUM_BONDS')
+    bonds_4 = helper_functions.get_val(df,'3BM4','LINE','NUM_BONDS')
+    bonds_5 = helper_functions.get_val(df,'3BM5','LINE','NUM_BONDS')
+
+    html=f"""
+        <tr>
+            <td></td>
+            <th style="text-align:center"><strong>3BM1</strong></th>
+            <th style="text-align:center"><strong>3BM2</strong></th>
+            <th style="text-align:center"><strong>3BM3</strong></th>
+            <th style="text-align:center"><strong>3BM4</strong></th>
+            <th style="text-align:center"><strong>3BM5</strong></th>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b>POS Cell Yield</b></td>
+            <td style="text-align:center">{pos_cell_yield_1:.4f}%</td>
+            <td style="text-align:center">{pos_cell_yield_2:.4f}%</td>
+            <td style="text-align:center">{pos_cell_yield_3:.4f}%</td>
+            <td style="text-align:center">{pos_cell_yield_4:.4f}%</td>
+            <td style="text-align:center">{pos_cell_yield_5:.4f}%</td>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b>NEG Cell Yield</b></td>
+            <td style="text-align:center">{neg_cell_yield_1:.4f}%</td>
+            <td style="text-align:center">{neg_cell_yield_2:.4f}%</td>
+            <td style="text-align:center">{neg_cell_yield_3:.4f}%</td>
+            <td style="text-align:center">{neg_cell_yield_4:.4f}%</td>
+            <td style="text-align:center">{neg_cell_yield_5:.4f}%</td>
+        </tr>
+        <tr>
+            <td style="text-align:left"><b># Bonds</b></td>
+            <td style="text-align:center">{bonds_1}</td>
+            <td style="text-align:center">{bonds_2}</td>
+            <td style="text-align:center">{bonds_3}</td>
+            <td style="text-align:center">{bonds_4}</td>
+            <td style="text-align:center">{bonds_5}</td>
+        </tr>
+        """
+    return html
+    
 def main(env,eos=False):
     #begin by defining timestamps
     lookback=12 if eos else 1
@@ -423,6 +503,7 @@ def main(env,eos=False):
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
     starved_blocked_table = get_starved_blocked_table(plc_con,start,end)
     mttr_df = get_mttr_df(env,eos,ict_con,start,end)
+    yield_table = get_bond_yield_table(ict_con,start,end)
 
     #get empty bonder spots
     L1_EMPTY_TAGPATH = '02/_Summary/line1free'
@@ -480,6 +561,7 @@ def main(env,eos=False):
 
     output_html = "<table>" + "<caption>Throughput</caption>" + output_table + "</table>"
     starved_blocked_html = "<table>" + "<caption>Performance %</caption>" + starved_blocked_table + "</table>"
+    yield_html = "<table>" + "<caption>Yield (99.97% Goal)</caption>" + yield_table + "</table>"
 
     if len(mttr_df):
         mttr_table = mttr_to_html(mttr_df)
@@ -506,11 +588,15 @@ def main(env,eos=False):
     output_card = pymsteams.cardsection()
     output_card.text(output_html)
     teams_msg.addSection(output_card)
+    #make a card with yield data
+    yield_card = pymsteams.cardsection()
+    yield_card.text(yield_html)
+    teams_msg.addSection(yield_card)
     #make a card with starvation data
     starved_blocked_card = pymsteams.cardsection()
     starved_blocked_card.text(starved_blocked_html)
     teams_msg.addSection(starved_blocked_card)
-    #make a card with starvation data
+    #make a card with mttr data
     wb_card = pymsteams.cardsection()
     wb_card.text(wb_html)
     teams_msg.addSection(wb_card)
