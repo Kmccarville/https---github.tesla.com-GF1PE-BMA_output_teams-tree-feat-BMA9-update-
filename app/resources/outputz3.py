@@ -402,14 +402,11 @@ def get_empty_bonders(db,tagpath):
     return count
 
 def get_bond_yield_table(db,start,end):
-    query = f"""
-            SELECT
-                LINE,
-                (POS_CELL_COUNT - POS_CELL_FAIL_COUNT)/POS_CELL_COUNT*100 as POS_CELL_YIELD,
-                (NEG_CELL_COUNT - NEG_CELL_FAIL_COUNT)/NEG_CELL_COUNT*100 as NEG_CELL_YIELD,
-                POS_CELL_COUNT + NEG_CELL_COUNT as NUM_BONDS
-                FROM
-                    (SELECT
+    df = pd.DataFrame({})
+    while start < end:
+        start_next = start + timedelta(minutes=60)
+        query = f"""
+                    SELECT
                         left(s.MACHINE_ID,4) as LINE,
                         SUM(IF(l.POLARITY='POS' AND p.BOND_NUMBER=1, 1, 0)) AS POS_CELL_COUNT,
                         SUM(IF(l.POLARITY='POS' AND p.BOND_NUMBER=1 AND BOND_STATUS=0, 1, 0)) AS POS_CELL_FAIL_COUNT,
@@ -421,29 +418,37 @@ def get_bond_yield_table(db,start,end):
                     JOIN m3_wirebond.static_process_program k2 ON p.PROCESS_PROGRAM_ID=k2.ID
                     JOIN m3_bm_process_parameters.static_process_program k ON k2.PROCESS_PROGRAM=k.PROCESS_PROGRAM
                     JOIN m3_bm_process_parameters.static_cell_lookup l ON k.CELL_LOOKUP_ID=l.CELL_LOOKUP_ID AND p.WIRE_NUMBER=l.WIRE_NUMBER AND p.ZONE_NUMBER=l.ZONE_NUMBER
-                    WHERE p.DATE_TIME BETWEEN convert_tz('{start}','GMT','US/Pacific') AND convert_tz('{end}','GMT','US/Pacific')
+                    WHERE p.DATE_TIME BETWEEN convert_tz('{start}','GMT','US/Pacific') AND convert_tz('{start_next}','GMT','US/Pacific')
                     GROUP BY 1
-                    ) a;
                     """
-    
-    df = pd.read_sql(query,db)
-    pos_cell_yield_1 = helper_functions.get_val(df,'3BM1','LINE','POS_CELL_YIELD')
-    pos_cell_yield_2 = helper_functions.get_val(df,'3BM2','LINE','POS_CELL_YIELD')
-    pos_cell_yield_3 = helper_functions.get_val(df,'3BM3','LINE','POS_CELL_YIELD')
-    pos_cell_yield_4 = helper_functions.get_val(df,'3BM4','LINE','POS_CELL_YIELD')
-    pos_cell_yield_5 = helper_functions.get_val(df,'3BM5','LINE','POS_CELL_YIELD')
-    
-    neg_cell_yield_1 = helper_functions.get_val(df,'3BM1','LINE','NEG_CELL_YIELD')
-    neg_cell_yield_2 = helper_functions.get_val(df,'3BM2','LINE','NEG_CELL_YIELD')
-    neg_cell_yield_3 = helper_functions.get_val(df,'3BM3','LINE','NEG_CELL_YIELD')
-    neg_cell_yield_4 = helper_functions.get_val(df,'3BM4','LINE','NEG_CELL_YIELD')
-    neg_cell_yield_5 = helper_functions.get_val(df,'3BM5','LINE','NEG_CELL_YIELD')
-    
-    bonds_1 = helper_functions.get_val(df,'3BM1','LINE','NUM_BONDS')
-    bonds_2 = helper_functions.get_val(df,'3BM2','LINE','NUM_BONDS')
-    bonds_3 = helper_functions.get_val(df,'3BM3','LINE','NUM_BONDS')
-    bonds_4 = helper_functions.get_val(df,'3BM4','LINE','NUM_BONDS')
-    bonds_5 = helper_functions.get_val(df,'3BM5','LINE','NUM_BONDS')
+
+        df_sub = pd.read_sql(query,db)
+        df = pd.concat([df,df_sub],axis=0)
+        start += timedelta(minutes=60)
+
+    df2 = df.groupby("LINE").sum(['POS_CELL_COUNT','POS_CELL_FAIL_COUNT','NEG_CELL_COUNT','NEG_CELL_FAIL_COUNT']).reset_index()
+    df2.loc[:,'NUM_BONDS'] = df2['POS_CELL_COUNT'] + df2['POS_CELL_FAIL_COUNT'] + df2['NEG_CELL_COUNT'] + df2['NEG_CELL_FAIL_COUNT']
+
+    df2.loc[:,'POS_CELL_YIELD'] = (df2['POS_CELL_COUNT']-df2['POS_CELL_FAIL_COUNT'])/df2['POS_CELL_COUNT']*100
+    df2.loc[:,'NEG_CELL_YIELD'] = (df2['NEG_CELL_COUNT']-df2['NEG_CELL_FAIL_COUNT'])/df2['NEG_CELL_COUNT']*100
+
+    pos_cell_yield_1 = get_val(df2,'3BM1','LINE','POS_CELL_YIELD')
+    pos_cell_yield_2 = get_val(df2,'3BM2','LINE','POS_CELL_YIELD')
+    pos_cell_yield_3 = get_val(df2,'3BM3','LINE','POS_CELL_YIELD')
+    pos_cell_yield_4 = get_val(df2,'3BM4','LINE','POS_CELL_YIELD')
+    pos_cell_yield_5 = get_val(df2,'3BM5','LINE','POS_CELL_YIELD')
+
+    neg_cell_yield_1 = get_val(df2,'3BM1','LINE','NEG_CELL_YIELD')
+    neg_cell_yield_2 = get_val(df2,'3BM2','LINE','NEG_CELL_YIELD')
+    neg_cell_yield_3 = get_val(df2,'3BM3','LINE','NEG_CELL_YIELD')
+    neg_cell_yield_4 = get_val(df2,'3BM4','LINE','NEG_CELL_YIELD')
+    neg_cell_yield_5 = get_val(df2,'3BM5','LINE','NEG_CELL_YIELD')
+
+    bonds_1 = get_val(df2,'3BM1','LINE','NUM_BONDS')
+    bonds_2 = get_val(df2,'3BM2','LINE','NUM_BONDS')
+    bonds_3 = get_val(df2,'3BM3','LINE','NUM_BONDS')
+    bonds_4 = get_val(df2,'3BM4','LINE','NUM_BONDS')
+    bonds_5 = get_val(df2,'3BM5','LINE','NUM_BONDS')
 
     html=f"""
         <tr>
