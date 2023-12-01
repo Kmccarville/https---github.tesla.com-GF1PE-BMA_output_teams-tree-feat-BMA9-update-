@@ -426,7 +426,7 @@ def get_bond_yield_table(db,start,end):
         df = pd.concat([df,df_sub],axis=0)
         start += timedelta(minutes=60)
 
-    df2 = df.groupby("LINE").sum(['POS_CELL_COUNT','POS_CELL_FAIL_COUNT','NEG_CELL_COUNT','NEG_CELL_FAIL_COUNT']).reset_index()
+    df2 = df.groupby("LINE").sum().reset_index()
     df2.loc[:,'NUM_BONDS'] = df2['POS_CELL_COUNT'] + df2['POS_CELL_FAIL_COUNT'] + df2['NEG_CELL_COUNT'] + df2['NEG_CELL_FAIL_COUNT']
 
     df2.loc[:,'POS_CELL_YIELD'] = (df2['POS_CELL_COUNT']-df2['POS_CELL_FAIL_COUNT'])/df2['POS_CELL_COUNT']*100
