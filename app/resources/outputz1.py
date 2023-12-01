@@ -314,7 +314,7 @@ def main(env,eos=False):
         cta4_outputs.append(helper_functions.get_output_val(df_output, CTA4_FLOWSTEP,'3BM4',actor=f"3BM4-20000-{lane_num}"))
         cta5_outputs.append(helper_functions.get_output_val(df_output,CTA5_FLOWSTEP,'3BM5',actor=f"3BM5-20000-{lane_num}"))
         cta6_outputs.append(helper_functions.get_output_val(df_output,CTA6_FLOWSTEP,'3BM6',actor=f"3BM6-20000-{lane_num}"))
-        cta7_outputs.append(helper_functions.get_output_val(df_output,CTA7_FLOWSTEP,'3BM8',actor=f"3BM8-20000-{lane_num}"))
+        cta7_outputs.append(helper_functions.get_output_val(df_output,CTA7_FLOWSTEP,'3BM7',actor=f"3BM7-20000-{lane_num}"))
         if eos:
             cta4_yield.append(helper_functions.get_val(df_cta_yield, f"3BM4-20000-{lane_num}",'LINE','YIELD'))
             cta5_yield.append(helper_functions.get_val(df_cta_yield, f"3BM5-20000-{lane_num}",'LINE','YIELD'))
