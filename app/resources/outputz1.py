@@ -176,7 +176,7 @@ def get_cta_yield(db,lookback):
         ON nc.thingid = tp.thingid
         WHERE tp.completed > NOW() - INTERVAL {lookback} HOUR
         AND tp.iscurrent = 0
-        AND tp.flowstepid IN (891483, 891496, 1038819,1054858)
+        AND tp.flowstepid IN (891483, 891496, 1038819,1091071)
         GROUP BY 1
         ORDER BY 1 ASC    """
     df = pd.read_sql(text(query), db)
@@ -190,9 +190,9 @@ def cta_records(lookback,cta4,cta5,cta6,cta7,webhook):
     line4 = cta4
     line5 = cta5
     line6 = cta6
-    line8 = cta7
-    names = ['CTA4','CTA5','CTA6','CTA8']
-    carsets = [line4,line5,line6,line8]
+    line7 = cta7
+    names = ['CTA4','CTA5','CTA6','CTA7']
+    carsets = [line4,line5,line6,line7]
     newRecordArray = []
     prevShiftArray = []
     prevDateArray = []
@@ -281,9 +281,10 @@ def main(env,eos=False):
     CTA4_FLOWSTEP = '3BM4-25000'
     CTA5_FLOWSTEP = '3BM5-25000'
     CTA6_FLOWSTEP = '3BM6-25000'
-    CTA7_FLOWSTEP = '3BM8-25000' #CTA7 remains on the CTA8 flow for now
+    CTA7_FLOWSTEP = '3BM7-25000'  
+    
     #create line arrays
-    LINES = ['3BM4','3BM5','3BM6','3BM8']
+    LINES = ['3BM4','3BM5','3BM6','3BM7']
     # changed from FLOWSTEPS = [CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA6_FLOWSTEP,CTA7_FLOWSTEP] on 10/18
     FLOWSTEPS = [CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA6_FLOWSTEP,CTA7_FLOWSTEP]
     
@@ -314,12 +315,12 @@ def main(env,eos=False):
         cta4_outputs.append(helper_functions.get_output_val(df_output, CTA4_FLOWSTEP,'3BM4',actor=f"3BM4-20000-{lane_num}"))
         cta5_outputs.append(helper_functions.get_output_val(df_output,CTA5_FLOWSTEP,'3BM5',actor=f"3BM5-20000-{lane_num}"))
         cta6_outputs.append(helper_functions.get_output_val(df_output,CTA6_FLOWSTEP,'3BM6',actor=f"3BM6-20000-{lane_num}"))
-        cta7_outputs.append(helper_functions.get_output_val(df_output,CTA7_FLOWSTEP,'3BM8',actor=f"3BM8-20000-{lane_num}"))
+        cta7_outputs.append(helper_functions.get_output_val(df_output,CTA7_FLOWSTEP,'3BM7',actor=f"3BM7-20000-{lane_num}"))
         if eos:
             cta4_yield.append(helper_functions.get_val(df_cta_yield, f"3BM4-20000-{lane_num}",'LINE','YIELD'))
             cta5_yield.append(helper_functions.get_val(df_cta_yield, f"3BM5-20000-{lane_num}",'LINE','YIELD'))
             cta6_yield.append(helper_functions.get_val(df_cta_yield, f"3BM6-20000-{lane_num}",'LINE','YIELD'))
-            cta7_yield.append(helper_functions.get_val(df_cta_yield, f"3BM8-20000-{lane_num}",'LINE','YIELD'))
+            cta7_yield.append(helper_functions.get_val(df_cta_yield, f"3BM7-20000-{lane_num}",'LINE','YIELD'))
     cta_total = np.sum(cta4_outputs) + np.sum(cta5_outputs) + np.sum(cta6_outputs) + np.sum(cta7_outputs)
 
     #create html outp9ut
