@@ -427,28 +427,28 @@ def get_bond_yield_table(db,start,end):
         start += timedelta(minutes=60)
 
     df2 = df.groupby("LINE").sum().reset_index()
-    df2.loc[:,'NUM_BONDS'] = df2['POS_CELL_COUNT'] + df2['POS_CELL_FAIL_COUNT'] + df2['NEG_CELL_COUNT'] + df2['NEG_CELL_FAIL_COUNT']
+    df2.loc[:,'NUM_BONDS'] = df2['POS_CELL_COUNT'] + df2['NEG_CELL_COUNT']
 
     df2.loc[:,'POS_CELL_YIELD'] = (df2['POS_CELL_COUNT']-df2['POS_CELL_FAIL_COUNT'])/df2['POS_CELL_COUNT']*100
     df2.loc[:,'NEG_CELL_YIELD'] = (df2['NEG_CELL_COUNT']-df2['NEG_CELL_FAIL_COUNT'])/df2['NEG_CELL_COUNT']*100
 
-    pos_cell_yield_1 = get_val(df2,'3BM1','LINE','POS_CELL_YIELD')
-    pos_cell_yield_2 = get_val(df2,'3BM2','LINE','POS_CELL_YIELD')
-    pos_cell_yield_3 = get_val(df2,'3BM3','LINE','POS_CELL_YIELD')
-    pos_cell_yield_4 = get_val(df2,'3BM4','LINE','POS_CELL_YIELD')
-    pos_cell_yield_5 = get_val(df2,'3BM5','LINE','POS_CELL_YIELD')
+    pos_cell_yield_1 = helper_functions.get_val(df2,'3BM1','LINE','POS_CELL_YIELD')
+    pos_cell_yield_2 = helper_functions.get_val(df2,'3BM2','LINE','POS_CELL_YIELD')
+    pos_cell_yield_3 = helper_functions.get_val(df2,'3BM3','LINE','POS_CELL_YIELD')
+    pos_cell_yield_4 = helper_functions.get_val(df2,'3BM4','LINE','POS_CELL_YIELD')
+    pos_cell_yield_5 = helper_functions.get_val(df2,'3BM5','LINE','POS_CELL_YIELD')
 
-    neg_cell_yield_1 = get_val(df2,'3BM1','LINE','NEG_CELL_YIELD')
-    neg_cell_yield_2 = get_val(df2,'3BM2','LINE','NEG_CELL_YIELD')
-    neg_cell_yield_3 = get_val(df2,'3BM3','LINE','NEG_CELL_YIELD')
-    neg_cell_yield_4 = get_val(df2,'3BM4','LINE','NEG_CELL_YIELD')
-    neg_cell_yield_5 = get_val(df2,'3BM5','LINE','NEG_CELL_YIELD')
+    neg_cell_yield_1 = helper_functions.get_val(df2,'3BM1','LINE','NEG_CELL_YIELD')
+    neg_cell_yield_2 = helper_functions.get_val(df2,'3BM2','LINE','NEG_CELL_YIELD')
+    neg_cell_yield_3 = helper_functions.get_val(df2,'3BM3','LINE','NEG_CELL_YIELD')
+    neg_cell_yield_4 = helper_functions.get_val(df2,'3BM4','LINE','NEG_CELL_YIELD')
+    neg_cell_yield_5 = helper_functions.get_val(df2,'3BM5','LINE','NEG_CELL_YIELD')
 
-    bonds_1 = get_val(df2,'3BM1','LINE','NUM_BONDS')
-    bonds_2 = get_val(df2,'3BM2','LINE','NUM_BONDS')
-    bonds_3 = get_val(df2,'3BM3','LINE','NUM_BONDS')
-    bonds_4 = get_val(df2,'3BM4','LINE','NUM_BONDS')
-    bonds_5 = get_val(df2,'3BM5','LINE','NUM_BONDS')
+    bonds_1 = helper_functions.get_val(df2,'3BM1','LINE','NUM_BONDS')
+    bonds_2 = helper_functions.get_val(df2,'3BM2','LINE','NUM_BONDS')
+    bonds_3 = helper_functions.get_val(df2,'3BM3','LINE','NUM_BONDS')
+    bonds_4 = helper_functions.get_val(df2,'3BM4','LINE','NUM_BONDS')
+    bonds_5 = helper_functions.get_val(df2,'3BM5','LINE','NUM_BONDS')
 
     html=f"""
         <tr>
@@ -477,11 +477,11 @@ def get_bond_yield_table(db,start,end):
         </tr>
         <tr>
             <td style="text-align:left"><b># Bonds</b></td>
-            <td style="text-align:center">{bonds_1}</td>
-            <td style="text-align:center">{bonds_2}</td>
-            <td style="text-align:center">{bonds_3}</td>
-            <td style="text-align:center">{bonds_4}</td>
-            <td style="text-align:center">{bonds_5}</td>
+            <td style="text-align:center">{bonds_1:.0f}</td>
+            <td style="text-align:center">{bonds_2:.0f}</td>
+            <td style="text-align:center">{bonds_3:.0f}</td>
+            <td style="text-align:center">{bonds_4:.0f}</td>
+            <td style="text-align:center">{bonds_5:.0f}</td>
         </tr>
         """
     return html
