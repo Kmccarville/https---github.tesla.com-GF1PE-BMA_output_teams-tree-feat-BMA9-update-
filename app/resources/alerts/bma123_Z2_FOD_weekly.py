@@ -9,8 +9,6 @@ import pandas as pd
 import numpy as np
 
 def get_bypassed_table():
-    LINE = [0]
-    count = []
     mos_con = helper_functions.get_sql_conn('mos_db')
     query = f"""
        SELECT 
@@ -44,13 +42,10 @@ def main(env):
 
     logging.info("BMA123 Zone2/Zone3 Weekly FOD Summary" % datetime.utcnow())
 
-    df = get_bypassed_table()
-    df = df[['LINE','EQUIPMENT','HOURS DOWN']]
-
     if len(df.index):
         message = """\
             <html>
-            <head style="font-size:20px;"><strong>ACTA123 CURRENT BYPASSED EQUIPMENT</strong></head>
+            <head style="font-size:20px;"><strong>>BMA123 Zone 2 Weekly FOD Summary</strong></head>
             <br></br>
             <body>
                 {0}
