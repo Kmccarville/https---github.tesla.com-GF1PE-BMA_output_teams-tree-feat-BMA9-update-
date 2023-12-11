@@ -65,9 +65,7 @@ def main(env):
 
     if env == 'prod':
         send_from = 'bma-pybot-passdown@tesla.com'
-        send_to = ['BMA123-Z1@tesla.com',
-                   'BMA123-Z2-PE@tesla.com',
-                   'matolliver@tesla.com',
+        send_to = ['matolliver@tesla.com',
                    'apuliyaneth@tesla.com']
         subject = 'BMA123_Zone2 Weekly FOD Summary'
     else:
