@@ -27,6 +27,7 @@ from resources.alerts import bma123_c3a_dispense
 # from resources.alerts import z2_contamination
 from resources.alerts import bma123_Z2_FOD_weekly
 
+
 from resources.passdown import cta123_eqt_email
 
 logging.basicConfig(level=logging.INFO)
