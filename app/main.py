@@ -32,6 +32,7 @@ from resources.passdown import cta123_eqt_email
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
 
+
 if __name__ == '__main__':
     
     branchName=os.getenv('ENVVAR1')
