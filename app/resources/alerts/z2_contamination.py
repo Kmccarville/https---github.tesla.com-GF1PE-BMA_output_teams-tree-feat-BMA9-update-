@@ -14,15 +14,7 @@ def get_contaminated_modules(threshold_count):
     query = f"""
     SELECT distinct
 
-             left(a.name,4) as 'MAMC Actor', 
-             -- nc.thingname, nc.state as 'NC State', 
---              nc.description as 'NC description', 
---              nc.createdby as 'NC CreatedBy', 
---              nc.detectedatstep as 'FOD caught at', 
---              nc.modified as 'NC modified', 
---              nca.disposition as 'NC Disposition', 
---              t.state as 'Module State', 
---              t.created as thingCreated,
+             left(a.name,4) as 'MAMC Actor',
              CASE
 		WHEN nc.description like '%%adhesive%%' THEN 'Adhesive'
         WHEN nc.description like '%%frax%%' THEN 'Fiberfrax'
