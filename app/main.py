@@ -61,10 +61,7 @@ if __name__ == '__main__':
     scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
-    try:
-        scheduler_alerts.every().hour.at(":20").do(bma123_Z2_FOD_weekly.main,env)
-    except:
-        check = 1
+
 
     #define staffing scheduler
     scheduler_passdown.every().day.at("14:35").do(staffing.main,env)
