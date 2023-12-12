@@ -54,32 +54,40 @@ def get_contaminated_modules(threshold_count):
 
     count_3BM1 = 0
     tname_3BM1 = []
+    concat_3BM1 = []
 
     count_3BM2 = 0
     tname_3BM2 = []
+    concat_3BM2 = []
 
     count_3BM3 = 0
     tname_3BM3 = []
+    concat_3BM3 = []
 
     count_3BM8 = 0
     tname_3BM8 = []
+    concat_3BM8 = []
 
     for row in df.iterrows():
         if row[1][0] == '3BM1':
             count_3BM1 = count_3BM1 + 1
             tname_3BM1.append(row[1][1])
+	    concat_3BM1.append(row[1][3])
 
         if row[1][0] == '3BM2':
             count_3BM2 = count_3BM2 + 1
             tname_3BM2.append(row[1][1])
+	    concat_3BM2.append(row[1][3])
 
         if row[1][0] == '3BM3':
             count_3BM3 = count_3BM3 + 1
             tname_3BM3.append(row[1][1])
+	    concat_3BM3.append(row[1][3])
         
         if row[1][0] == '3BM8':
             count_3BM8 = count_3BM8 + 1
             tname_3BM8.append(row[1][1])
+	    concat_3BM8.append(row[1][3])
 
     content_html = ""
 
@@ -89,6 +97,7 @@ def get_contaminated_modules(threshold_count):
             <tr>
                 <td style="text-align:center">3BM1</td>
                 <td style="text-align:center">{tname_3BM1[i]}</td>
+		<td style="text-align:center">{concat_3BM1[i]}</td>
             </tr>
         """
     if count_3BM2 > threshold_count:
@@ -97,6 +106,7 @@ def get_contaminated_modules(threshold_count):
             <tr>
                 <td style="text-align:center">3BM2</td>
                 <td style="text-align:center">{tname_3BM2[i]}</td>
+		<td style="text-align:center">{concat_3BM2[i]}</td>
             </tr>
         """
     if count_3BM3 > threshold_count:
@@ -105,6 +115,7 @@ def get_contaminated_modules(threshold_count):
             <tr>
                 <td style="text-align:center">3BM3</td>
                 <td style="text-align:center">{tname_3BM3[i]}</td>
+		<td style="text-align:center">{concat_3BM3[i]}</td>
             </tr>
         """
     if count_3BM8 > threshold_count:
@@ -113,6 +124,7 @@ def get_contaminated_modules(threshold_count):
             <tr>
                 <td style="text-align:center">3BM8</td>
                 <td style="text-align:center">{tname_3BM8[i]}</td>
+		<td style="text-align:center">{concat_3BM8[i]}</td>
             </tr>
         """
     return content_html
@@ -123,6 +135,7 @@ def main(env, threshold_count = 1):
                         <tr>
                         <th style="text-align:center"><strong>LINE</strong></th>
                         <th style="text-align:center"><strong>Thing Serial</strong></th>
+			<th style="text-align:center"><strong>Contaminant Category</strong></th>
                         </tr>
                     """
     content_html = get_contaminated_modules(threshold_count)
