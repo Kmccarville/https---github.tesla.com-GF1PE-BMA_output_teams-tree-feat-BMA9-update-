@@ -12,21 +12,40 @@ import pymsteams
 def get_contaminated_modules(threshold_count):
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     query = f"""
-            SELECT 
-             distinct left(a.name,4), nc.thingname, t.created as thingCreated
+    SELECT distinct
+
+             left(a.name,4) as 'MAMC Actor', 
+             -- nc.thingname, nc.state as 'NC State', 
+--              nc.description as 'NC description', 
+--              nc.createdby as 'NC CreatedBy', 
+--              nc.detectedatstep as 'FOD caught at', 
+--              nc.modified as 'NC modified', 
+--              nca.disposition as 'NC Disposition', 
+--              t.state as 'Module State', 
+--              t.created as thingCreated,
+             CASE
+		WHEN nc.description like '%%adhesive%%' THEN 'Adhesive'
+        WHEN nc.description like '%%frax%%' THEN 'Fiberfrax'
+        WHEN nc.description like '%%foreign%%' THEN 'Foreign Object'
+        WHEN nc.description like '%%tape%%' THEN 'Tape'
+        ELSE 'OTHER'
+	END AS 'FOD Category', count(nc.description) as 'Count of Modules'
             FROM
                 nc force index (ix_nc_processname_created)
                 inner join thing t
                 on t.id = nc.thingid
                 inner join actor a
                 on a.id = t.actorcreatedby
+                left join ncaction nca on nca.ncid = nc.id
             WHERE
                 nc.symptom = 'COSMETIC/DAMAGE'
                     AND nc.subsymptom = 'CONTAMINATION/ DEBRIS'
                     AND nc.processname = '3BM-Module'
-                    AND nc.created >= NOW() - INTERVAL 1 HOUR
+                    AND nc.created >= NOW() - INTERVAL 1 hour
                     and nc.description not like '%%max pull test%%'
-                    and (nc.description like '%%foreign%%' or nc.description like '%%fiber%%' or nc.description like '%%tape%%' or nc.description like '%%adhesive%%' or nc.description like '%%glove%%')"""
+                    and (nc.description like '%%foreign%%' or nc.description like '%%fiber%%' or nc.description like '%%tape%%' or nc.description like '%%adhesive%%' or nc.description like '%%glove%%')
+	Group by 1, 2
+            """
     # get df
     
     df = pd.read_sql(query,mos_con)
