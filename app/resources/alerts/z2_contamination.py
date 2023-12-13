@@ -13,30 +13,39 @@ def get_contaminated_modules(threshold_count):
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     query = f"""
     SELECT distinct
-
-             left(a.name,4) as 'MAMC Actor',
+             left(a.name,4) as 'MAMC Actor', 
+             t.name as 'Module Serial',
              CASE
 		WHEN nc.description like '%%adhesive%%' THEN 'Adhesive'
         WHEN nc.description like '%%frax%%' THEN 'Fiberfrax'
         WHEN nc.description like '%%foreign%%' THEN 'Foreign Object'
         WHEN nc.description like '%%tape%%' THEN 'Tape'
         ELSE 'OTHER'
-	END AS 'FOD Category', count(nc.description) as 'Count of Modules'
+	END AS 'FOD Category',
+			CASE
+		WHEN nc.state like '%%CLOSED%%' AND nca.disposition like '%%repair%%' then 'This module has been repaired for this defect.'
+        WHEN nc.state like '%%CLOSED%%' AND nca.disposition like '%%scrap%%' then 'This module has been scrapped for this defect.'
+        WHEN nc.state like '%%CLOSED%%' AND nca.disposition like 'NO PROBLEM FOUND' then 'This module has been released without rework.'
+        else 'Pending Review'
+	END AS 'NC Disposition'
+    
             FROM
                 nc force index (ix_nc_processname_created)
+              #  nc force index (ix_nc_processname_created)
                 inner join thing t
                 on t.id = nc.thingid
                 inner join actor a
                 on a.id = t.actorcreatedby
+                inner join thingpath tp
+                on tp.modified = t.modified
                 left join ncaction nca on nca.ncid = nc.id
             WHERE
                 nc.symptom = 'COSMETIC/DAMAGE'
                     AND nc.subsymptom = 'CONTAMINATION/ DEBRIS'
                     AND nc.processname = '3BM-Module'
-                    AND nc.created >= NOW() - INTERVAL 10 hour
+                    AND nc.created >= NOW() - INTERVAL 40 hour
                     and nc.description not like '%%max pull test%%'
                     and (nc.description like '%%foreign%%' or nc.description like '%%fiber%%' or nc.description like '%%tape%%' or nc.description like '%%adhesive%%' or nc.description like '%%glove%%')
-	Group by 1, 2
             """
     # get df
     
@@ -47,39 +56,48 @@ def get_contaminated_modules(threshold_count):
     count_3BM1 = 0
     tname_3BM1 = []
     concat_3BM1 = []
+    ncdispo_3BM1 = []
 
     count_3BM2 = 0
     tname_3BM2 = []
     concat_3BM2 = []
+    ncdispo_3BM2 = [] 
 
     count_3BM3 = 0
     tname_3BM3 = []
     concat_3BM3 = []
+    ncdispo_3BM3 = []
 
     count_3BM8 = 0
     tname_3BM8 = []
     concat_3BM8 = []
+    ncdispo_3BM8 = []
 
     for row in df.iterrows():
         if row[1][0] == '3BM1':
             count_3BM1 = count_3BM1 + 1
-            tname_3BM1.append(row[1][1])
-            concat_3BM1.append(row[1][2])
+            tname_3BM1.append(row[1][2])
+            concat_3BM1.append(row[1][3])
+            ncdispo_3BM1.append(row[1][4])
+
 
         elif row[1][0] == '3BM2':
             count_3BM2 = count_3BM2 + 1
-            tname_3BM2.append(row[1][1])
-            concat_3BM2.append(row[1][2])
+            tname_3BM2.append(row[1][2])
+            concat_3BM2.append(row[1][3])
+            ncdispo_3BM2.append(row[1][4])
 
         elif row[1][0] == '3BM3':
             count_3BM3 = count_3BM3 + 1
-            tname_3BM3.append(row[1][1])
-            concat_3BM3.append(row[1][2])
+            tname_3BM3.append(row[1][2])
+            concat_3BM3.append(row[1][3])
+            ncdispo_3BM3.append(row[1][4])
         
         elif row[1][0] == '3BM8':
             count_3BM8 = count_3BM8 + 1
-            tname_3BM8.append(row[1][1])
-            concat_3BM8.append(row[1][2])
+            tname_3BM8.append(row[1][2])
+            concat_3BM8.append(row[1][3])
+            ncdispo_3BM8.append(row[1][4])
 
     content_html = ""
 
@@ -90,6 +108,7 @@ def get_contaminated_modules(threshold_count):
                 <td style="text-align:center">3BM1</td>
                 <td style="text-align:center">{tname_3BM1[i]}</td>
 		<td style="text-align:center">{concat_3BM1[i]}</td>
+        <td style="text-align:center">{ncdispo_3BM1[i]}</td>
             </tr>
         """
     if count_3BM2 > threshold_count:
@@ -99,6 +118,7 @@ def get_contaminated_modules(threshold_count):
                 <td style="text-align:center">3BM2</td>
                 <td style="text-align:center">{tname_3BM2[i]}</td>
 		<td style="text-align:center">{concat_3BM2[i]}</td>
+        <td style="text-align:center">{ncdispo_3BM2[i]}</td>
             </tr>
         """
     if count_3BM3 > threshold_count:
@@ -108,6 +128,7 @@ def get_contaminated_modules(threshold_count):
                 <td style="text-align:center">3BM3</td>
                 <td style="text-align:center">{tname_3BM3[i]}</td>
 		<td style="text-align:center">{concat_3BM3[i]}</td>
+        <td style="text-align:center">{ncdispo_3BM3[i]}</td>
             </tr>
         """
     if count_3BM8 > threshold_count:
@@ -117,6 +138,7 @@ def get_contaminated_modules(threshold_count):
                 <td style="text-align:center">3BM8</td>
                 <td style="text-align:center">{tname_3BM8[i]}</td>
 		<td style="text-align:center">{concat_3BM8[i]}</td>
+        <td style="text-align:center">{ncdispo_3BM8[i]}</td>
             </tr>
         """
     return content_html
@@ -128,6 +150,7 @@ def main(env, threshold_count = 1):
                         <th style="text-align:center"><strong>LINE</strong></th>
                         <th style="text-align:center"><strong>Thing Serial</strong></th>
 			<th style="text-align:center"><strong>Contaminant Category</strong></th>
+            <th style="text-align:center"><strong>NC Disposition</strong></th>
                         </tr>
                     """
     content_html = get_contaminated_modules(threshold_count)
