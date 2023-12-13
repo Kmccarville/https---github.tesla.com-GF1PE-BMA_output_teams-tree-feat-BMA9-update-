@@ -47,27 +47,27 @@ if __name__ == '__main__':
     scheduler_passdown = schedule.Scheduler()
     
     #define hourly scheduler
-    scheduler_hourly.every().hour.at(":00").do(outputz1.main,env)
-    scheduler_hourly.every().hour.at(":00").do(outputz2_123.main,env)
-    scheduler_hourly.every().hour.at(":00").do(outputz2_45.main,env)
-    scheduler_hourly.every().hour.at(":00").do(outputz2_8.main,env)
-    scheduler_hourly.every().hour.at(":00").do(outputz3.main,env)
-    scheduler_hourly.every().hour.at(":00").do(outputz4.main,env)
-    scheduler_hourly.every().hour.at(":00").do(close_nc_check.main,env)
-    scheduler_hourly.every().hour.at(":02").do(eos.main,env)
-    scheduler_hourly.every().hour.at(":00").do(AGV_Spur_Picks.main,env)
-    scheduler_alerts.every().hour.at(":00").do(NCM_bandolier_milan_output.main,env)
+   # scheduler_hourly.every().hour.at(":00").do(outputz1.main,env)
+   # scheduler_hourly.every().hour.at(":00").do(outputz2_123.main,env)
+    #scheduler_hourly.every().hour.at(":00").do(outputz2_45.main,env)
+   # scheduler_hourly.every().hour.at(":00").do(outputz2_8.main,env)
+   # scheduler_hourly.every().hour.at(":00").do(outputz3.main,env)
+   # scheduler_hourly.every().hour.at(":00").do(outputz4.main,env)
+   # scheduler_hourly.every().hour.at(":00").do(close_nc_check.main,env)
+   # scheduler_hourly.every().hour.at(":02").do(eos.main,env)
+   # scheduler_hourly.every().hour.at(":00").do(AGV_Spur_Picks.main,env)
+    #scheduler_alerts.every().hour.at(":00").do(NCM_bandolier_milan_output.main,env)
 
     #define alert scheduler
     scheduler_alerts.every().hour.at(":00").do(z2_contamination.main,env)
-    scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
-    scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
-    scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
+    #scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
+   # scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
+   # scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
 
 
     #define staffing scheduler
-    scheduler_passdown.every().day.at("14:35").do(staffing.main,env)
-    scheduler_passdown.every().day.at("02:35").do(staffing.main,env)
+    #scheduler_passdown.every().day.at("14:35").do(staffing.main,env)
+    #scheduler_passdown.every().day.at("02:35").do(staffing.main,env)
     
     if env == "dev":
         logging.info("BranchName: %s", branchName)
