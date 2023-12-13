@@ -24,13 +24,15 @@ from resources.alerts import cta123_fixtures
 from resources.alerts import z2_fixtures
 from resources.alerts import bma123_hipot
 from resources.alerts import bma123_c3a_dispense
-from resources.alerts import z2_contamination
+# from resources.alerts import z2_contamination
 from resources.alerts import bma123_Z2_FOD_weekly
+
 
 from resources.passdown import cta123_eqt_email
 
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
+
 
 if __name__ == '__main__':
     
@@ -57,7 +59,7 @@ if __name__ == '__main__':
     scheduler_alerts.every().hour.at(":00").do(NCM_bandolier_milan_output.main,env)
 
     #define alert scheduler
-    scheduler_alerts.every().hour.at(":00").do(z2_contamination.main,env)
+    # scheduler_alerts.every().hour.at(":00").do(z2_contamination.main,env)
     scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
