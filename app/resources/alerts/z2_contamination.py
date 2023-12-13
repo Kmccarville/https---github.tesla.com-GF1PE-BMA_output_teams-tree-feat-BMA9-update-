@@ -30,7 +30,7 @@ def get_contaminated_modules(threshold_count):
 	END AS 'NC Disposition'
     
             FROM
-                nc force index (ix_nc_processname_created)
+                nc #force index (ix_nc_processname_created)
               #  nc force index (ix_nc_processname_created)
                 inner join thing t
                 on t.id = nc.thingid
@@ -43,7 +43,7 @@ def get_contaminated_modules(threshold_count):
                 nc.symptom = 'COSMETIC/DAMAGE'
                     AND nc.subsymptom = 'CONTAMINATION/ DEBRIS'
                     AND nc.processname = '3BM-Module'
-                    AND nc.created >= NOW() - INTERVAL 40 hour
+                    AND nc.created >= NOW() - INTERVAL 20 hour
                     and nc.description not like '%%max pull test%%'
                     and (nc.description like '%%foreign%%' or nc.description like '%%fiber%%' or nc.description like '%%tape%%' or nc.description like '%%adhesive%%' or nc.description like '%%glove%%')
             """
