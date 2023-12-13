@@ -59,7 +59,7 @@ if __name__ == '__main__':
     scheduler_alerts.every().hour.at(":00").do(NCM_bandolier_milan_output.main,env)
 
     #define alert scheduler
-    # scheduler_alerts.every().hour.at(":00").do(z2_contamination.main,env)
+    scheduler_alerts.every().hour.at(":00").do(z2_contamination.main,env)
     scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
