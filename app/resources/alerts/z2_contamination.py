@@ -29,9 +29,7 @@ def get_contaminated_modules(threshold_count):
         else 'Pending Review'
 	END AS 'NC Disposition'
     
-            FROM
-                nc #force index (ix_nc_processname_created)
-              #  nc force index (ix_nc_processname_created)
+            FROM nc                
                 inner join thing t
                 on t.id = nc.thingid
                 inner join actor a
