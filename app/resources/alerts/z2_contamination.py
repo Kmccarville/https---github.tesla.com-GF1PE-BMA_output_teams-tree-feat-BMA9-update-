@@ -74,28 +74,28 @@ def get_contaminated_modules(threshold_count):
     for row in df.iterrows():
         if row[1][0] == '3BM1':
             count_3BM1 = count_3BM1 + 1
-            tname_3BM1.append(row[1][2])
-            concat_3BM1.append(row[1][3])
-            ncdispo_3BM1.append(row[1][4])
+            tname_3BM1.append(row[1][1])
+            concat_3BM1.append(row[1][2])
+            ncdispo_3BM1.append(row[1][3])
 
 
         elif row[1][0] == '3BM2':
             count_3BM2 = count_3BM2 + 1
-            tname_3BM2.append(row[1][2])
-            concat_3BM2.append(row[1][3])
-            ncdispo_3BM2.append(row[1][4])
+            tname_3BM2.append(row[1][1])
+            concat_3BM2.append(row[1][2])
+            ncdispo_3BM2.append(row[1][3])
 
         elif row[1][0] == '3BM3':
             count_3BM3 = count_3BM3 + 1
-            tname_3BM3.append(row[1][2])
-            concat_3BM3.append(row[1][3])
-            ncdispo_3BM3.append(row[1][4])
+            tname_3BM3.append(row[1][1])
+            concat_3BM3.append(row[1][2])
+            ncdispo_3BM3.append(row[1][3])
         
         elif row[1][0] == '3BM8':
             count_3BM8 = count_3BM8 + 1
-            tname_3BM8.append(row[1][2])
-            concat_3BM8.append(row[1][3])
-            ncdispo_3BM8.append(row[1][4])
+            tname_3BM8.append(row[1][1])
+            concat_3BM8.append(row[1][2])
+            ncdispo_3BM8.append(row[1][3])
 
     content_html = ""
 
