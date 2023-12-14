@@ -141,7 +141,7 @@ def get_contaminated_modules(threshold_count):
         """
     return content_html
 
-def main(env, threshold_count = 1):
+def main(env, threshold_count = 0):
 
     header_html = """
                         <tr>
