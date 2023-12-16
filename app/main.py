@@ -68,7 +68,7 @@ if __name__ == '__main__':
     #define staffing scheduler
     scheduler_passdown.every().day.at("14:35").do(staffing.main,env)
     scheduler_passdown.every().day.at("02:35").do(staffing.main,env)
-    scheduler_passdown.every().day.at("14:").do(bma123_Z2_FOD_weekly.main,env)
+    scheduler_passdown.every().day.at("09:00").do(bma123_Z2_FOD_weekly.main,env)
 
     
     if env == "dev":
