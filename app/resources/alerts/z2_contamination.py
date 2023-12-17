@@ -173,8 +173,8 @@ def main(env, threshold_count = 0):
     
         # teams_msg.addSection(summary_card)
         teams_msg.addSection(output_card)
-        teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
-        teams_msg.addSection("OCAP will be attached here W/O 12/18. For any questions, please reach out to M. Tolliver")
+        teams_msg.addLinkButton("OCAP will be attached here week of 12/18." , "Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
+        
         #SEND IT
         try:
             teams_msg.send()
