@@ -59,7 +59,7 @@ if __name__ == '__main__':
     scheduler_alerts.every().hour.at(":00").do(NCM_bandolier_milan_output.main,env)
 
     #define alert scheduler
-    # scheduler_alerts.every().hour.at(":00").do(z2_contamination.main,env)
+    scheduler_alerts.every().hour.at(":00").do(z2_contamination.main,env)
     scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
     scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
@@ -68,8 +68,6 @@ if __name__ == '__main__':
     #define staffing scheduler
     scheduler_passdown.every().day.at("14:35").do(staffing.main,env)
     scheduler_passdown.every().day.at("02:35").do(staffing.main,env)
-    scheduler_passdown.every().day.at("09:00").do(bma123_Z2_FOD_weekly.main,env)
-
     
     if env == "dev":
         logging.info("BranchName: %s", branchName)
@@ -79,7 +77,7 @@ if __name__ == '__main__':
         logging.info("Run all command executed")
         scheduler_hourly.run_all(delay_seconds=10)
         scheduler_alerts.run_all(delay_seconds=10)
-        scheduler_passdown.run_all(delay_seconds=10))
+        scheduler_passdown.run_all(delay_seconds=10)
         devHeading.main(start=False)
         logging.info("Run all command complete. Quiting Program")
         quit()
