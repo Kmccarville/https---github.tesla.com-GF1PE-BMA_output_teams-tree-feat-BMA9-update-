@@ -79,7 +79,7 @@ if __name__ == '__main__':
         logging.info("Run all command executed")
         scheduler_hourly.run_all(delay_seconds=10)
         scheduler_alerts.run_all(delay_seconds=10)
-        scheduler_passdown.run_all(delay_seconds=10)
+        scheduler_passdown.run_all(delay_seconds=10))
         devHeading.main(start=False)
         logging.info("Run all command complete. Quiting Program")
         quit()
