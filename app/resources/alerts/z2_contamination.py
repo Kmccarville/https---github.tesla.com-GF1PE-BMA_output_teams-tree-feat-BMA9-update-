@@ -161,7 +161,6 @@ def main(env, threshold_count = 0):
         #making the hourly teams message
         teams_msg = pymsteams.connectorcard(webhook)
         title = 'FOD / Contamination Alert'
-        caption = 'Please perform OCAP where nc count >= 2 from one line/hour'
         teams_msg.title(title)
         teams_msg.summary('summary')
         K8S_BLUE = '#3970e4'
@@ -175,6 +174,7 @@ def main(env, threshold_count = 0):
         # teams_msg.addSection(summary_card)
         teams_msg.addSection(output_card)
         teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
+        teams_msg.addSection("OCAP will be attached here W/O 12/18. For any questions, please reach out to M. Tolliver")
         #SEND IT
         try:
             teams_msg.send()
