@@ -24,7 +24,7 @@ from resources.alerts import cta123_fixtures
 from resources.alerts import z2_fixtures
 from resources.alerts import bma123_hipot
 from resources.alerts import bma123_c3a_dispense
-# from resources.alerts import z2_contamination
+from resources.alerts import z2_contamination
 from resources.alerts import bma123_Z2_FOD_weekly
 
 
