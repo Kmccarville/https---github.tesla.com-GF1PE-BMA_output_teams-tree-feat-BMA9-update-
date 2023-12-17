@@ -161,6 +161,7 @@ def main(env, threshold_count = 0):
         #making the hourly teams message
         teams_msg = pymsteams.connectorcard(webhook)
         title = 'FOD / Contamination Alert'
+        caption = 'Please perform OCAP where nc count >= 2 from one line/hour'
         teams_msg.title(title)
         teams_msg.summary('summary')
         K8S_BLUE = '#3970e4'
