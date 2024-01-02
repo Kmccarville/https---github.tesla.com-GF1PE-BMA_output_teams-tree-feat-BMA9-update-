@@ -6,6 +6,7 @@ from resources import outputz2_8
 from resources import outputz3
 from resources import outputz4
 from resources import NCM_bandolier_milan_output
+from resources import NCM_module_output
 
 import numpy as np
 import pandas as pd
@@ -26,6 +27,7 @@ def main(env,local_run=False):
         outputz3.main(env,eos=True)
         outputz4.main(env,eos=True)
         NCM_bandolier_milan_output.main(env,eos=True)
+        NCM_module_output.main(env,eos=True)
         eos_report(env)
         if it_is_24 or local_run:
             eos_report(env,do_24=True)
