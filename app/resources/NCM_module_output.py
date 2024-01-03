@@ -449,8 +449,7 @@ WHERE
                     <td <td style="text-align:left"><strong>Potted ReBond</strong></td>
                     <td <td style="text-align:center">{Potted_ReBond}</td>
                 </tr>
-    </tr>
-    </table>"""
+                </table>"""
  
     webhook = 'teams_webhook_NCM_module_Output' if env == 'prod' else 'teams_webhook_DEV_Updates'
     creds = helper_functions.get_pw_json(webhook)
