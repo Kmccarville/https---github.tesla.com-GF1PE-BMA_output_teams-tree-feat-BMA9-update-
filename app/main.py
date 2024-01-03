@@ -74,6 +74,7 @@ if __name__ == '__main__':
         logging.info("CommitHash: %s", commit)
         logging.info("Send Dev Heading")
         devHeading.main()
+        NCM_module_output.main(env,eos=True)
         logging.info("Run all command executed")
         scheduler_hourly.run_all(delay_seconds=10)
         scheduler_alerts.run_all(delay_seconds=10)
