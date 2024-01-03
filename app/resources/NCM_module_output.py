@@ -193,18 +193,7 @@ WHERE
     Remove_Potting_From_Sidemounts = (df['Rework Description'] == 'Remove Potting From Sidemounts').sum()
     Potted_ReBond = (df['Rework Description'] == 'Potted ReBond').sum()
 
-    message = f"""<html>
-    <head>
-    <style>
-    table, th, td {{
-      border: 5px solid black;
-      border-collapse: collapse;
-    }}
-    </style>
-    </head>
-    <body>
-
-    <table>
+    message = f"""<table>
                 <tr>
                     <th style="text-align:center">Rework Process Name</th>
                     <th style="text-align:center">Count of Repairs</th>
