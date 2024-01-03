@@ -18,6 +18,7 @@ from resources import close_nc_check
 from resources import eos
 from resources import AGV_Spur_Picks
 from resources import NCM_bandolier_milan_output
+from resources import NCM_module_output
 from resources import staffing
 from resources.alerts import cta45_ct
 from resources.alerts import cta123_fixtures
