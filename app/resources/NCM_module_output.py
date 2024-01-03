@@ -22,7 +22,7 @@ def sendTeamsMessage(webhook, title, summary, message,color='#cc0000'):
     # SEND text to Teams
     teams_msg.send()
 
-def main(env, eos):
+def main(env, eos=False):
     lookback=12 if eos
     now=datetime.utcnow()
     now_sub1hr=now+timedelta(hours=-lookback)
