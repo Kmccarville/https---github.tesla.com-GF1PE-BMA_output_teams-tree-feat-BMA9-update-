@@ -106,7 +106,7 @@ def get_contaminated_modules(threshold_count):
                 <td style="text-align:center">3BM1</td>
                 <td style="text-align:center">{tname_3BM1[i]}</td>
 		<td style="text-align:center">{concat_3BM1[i]}</td>
-        <td style="text-align:center">{ncdispo_3BM1[i]}</td>
+        
             </tr>
         """
     if count_3BM2 > threshold_count:
@@ -116,7 +116,7 @@ def get_contaminated_modules(threshold_count):
                 <td style="text-align:center">3BM2</td>
                 <td style="text-align:center">{tname_3BM2[i]}</td>
 		<td style="text-align:center">{concat_3BM2[i]}</td>
-        <td style="text-align:center">{ncdispo_3BM2[i]}</td>
+        
             </tr>
         """
     if count_3BM3 > threshold_count:
@@ -126,7 +126,7 @@ def get_contaminated_modules(threshold_count):
                 <td style="text-align:center">3BM3</td>
                 <td style="text-align:center">{tname_3BM3[i]}</td>
 		<td style="text-align:center">{concat_3BM3[i]}</td>
-        <td style="text-align:center">{ncdispo_3BM3[i]}</td>
+        
             </tr>
         """
     if count_3BM8 > threshold_count:
@@ -136,7 +136,7 @@ def get_contaminated_modules(threshold_count):
                 <td style="text-align:center">3BM8</td>
                 <td style="text-align:center">{tname_3BM8[i]}</td>
 		<td style="text-align:center">{concat_3BM8[i]}</td>
-        <td style="text-align:center">{ncdispo_3BM8[i]}</td>
+        
             </tr>
         """
     return content_html
@@ -148,7 +148,7 @@ def main(env, threshold_count = 0):
                         <th style="text-align:center"><strong>LINE</strong></th>
                         <th style="text-align:center"><strong>Thing Serial</strong></th>
 			<th style="text-align:center"><strong>Contaminant Category</strong></th>
-            <th style="text-align:center"><strong>NC Disposition</strong></th>
+        
                         </tr>
                     """
     content_html = get_contaminated_modules(threshold_count)
@@ -173,7 +173,7 @@ def main(env, threshold_count = 0):
     
         # teams_msg.addSection(summary_card)
         teams_msg.addSection(output_card)
-        teams_msg.addLinkButton("OCAP will be attached here week of 12/18." , "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
+        # teams_msg.addLinkButton("OCAP will be attached here week of 12/18." , "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
 
         #SEND IT
         try:
