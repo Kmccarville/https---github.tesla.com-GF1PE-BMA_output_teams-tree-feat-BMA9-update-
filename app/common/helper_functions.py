@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 #email sender libs
 import smtplib
 import time
@@ -29,7 +30,8 @@ try:
         pw_json = json.load(f)
         f.close()
 except:
-    with open('app\local_creds.json') as f:
+    parent_folder = os.getcwd()
+    with open(parent_folder + "/local_creds.json") as f:
         pw_json = json.load(f)
         pw_json = pw_json['credentials']
         f.close()
