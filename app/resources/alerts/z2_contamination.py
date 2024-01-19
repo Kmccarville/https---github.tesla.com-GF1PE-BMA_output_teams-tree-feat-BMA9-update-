@@ -1,13 +1,12 @@
-import common.helper_functions as helper_functions
+import logging
+from datetime import datetime, timedelta
 
-from datetime import datetime
-from datetime import timedelta
+import common.helper_functions as helper_functions
+import numpy as np
+import pandas as pd
+import pymsteams
 from sqlalchemy import text
 
-import logging
-import pandas as pd
-import numpy as np
-import pymsteams
 
 def get_contaminated_modules(threshold_count):
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')

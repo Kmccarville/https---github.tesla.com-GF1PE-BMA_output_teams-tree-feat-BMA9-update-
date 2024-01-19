@@ -1,23 +1,22 @@
 import json
-import time
-import traceback
-import sqlalchemy
-from sqlalchemy import text
-from urllib.parse import quote
-from datetime import timedelta
-import pandas as pd
-import pytz
-from datetime import datetime
-import pymsteams
 import logging
-
 #email sender libs
 import smtplib
-from email.mime.multipart import MIMEMultipart
+import time
+import traceback
+from datetime import datetime, timedelta
+from email import encoders
 from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
-from email import encoders
+from urllib.parse import quote
+
+import pandas as pd
+import pymsteams
+import pytz
+import sqlalchemy
+from sqlalchemy import text
 
 
 def file_reader(FilePath):

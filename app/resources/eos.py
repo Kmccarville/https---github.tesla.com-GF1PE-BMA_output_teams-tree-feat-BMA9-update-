@@ -1,20 +1,15 @@
-from common import helper_functions
-from resources import outputz1
-from resources import outputz2_123
-from resources import outputz2_45
-from resources import outputz2_8
-from resources import outputz3
-from resources import outputz4
-from resources import NCM_bandolier_milan_output
-from resources import NCM_module_output
+import logging
+import traceback
+from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
 import pymsteams
-from datetime import datetime
-from datetime import timedelta
-import logging
-import traceback
+from common import helper_functions
+from resources import (NCM_bandolier_milan_output, NCM_module_output, outputz1,
+                       outputz2_8, outputz2_45, outputz2_123, outputz3,
+                       outputz4)
+
 
 def main(env,local_run=False):
     it_is_eos,it_is_24 = helper_functions.is_it_eos_or_24()

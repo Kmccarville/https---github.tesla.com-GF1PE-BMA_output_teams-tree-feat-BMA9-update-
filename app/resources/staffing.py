@@ -1,12 +1,13 @@
-import pandas as pd
-import sqlalchemy
-from urllib.parse import quote
-from datetime import datetime,timedelta
-import pytz
 import logging
-import pymsteams
+from datetime import datetime, timedelta
+from urllib.parse import quote
 
 import common.helper_functions as helper_functions
+import pandas as pd
+import pymsteams
+import pytz
+import sqlalchemy
+
 
 def main(env):
   logging.info("Staffing Main Started")

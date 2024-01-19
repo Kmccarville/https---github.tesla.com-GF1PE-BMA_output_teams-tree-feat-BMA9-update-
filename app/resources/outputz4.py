@@ -1,18 +1,17 @@
-from common import helper_functions
-
-from datetime import datetime
-from datetime import timedelta
-from pytz import timezone
-import pytz
 import logging
-from sqlalchemy import text
+import traceback
+from datetime import datetime, timedelta
+from io import StringIO
+
 import pandas as pd
 import pymsteams
+import pytz
 import requests
-from io import StringIO
+from common import helper_functions
+from pytz import timezone
 from requests.auth import HTTPBasicAuth
+from sqlalchemy import text
 
-import traceback
 
 def get_mc1_pallets(db,lookback):
     percent = '%'

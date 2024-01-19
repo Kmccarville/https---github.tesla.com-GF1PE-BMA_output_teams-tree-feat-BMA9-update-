@@ -1,30 +1,29 @@
-from mysql import connector
-from datetime import datetime
-from datetime import timedelta
-import pandas as pd
-from sqlalchemy import create_engine
-import pymysql
-import os
-import time as t
-import urllib
-import numpy as np 
-import json
-import pytz
-from pytz import timezone
-import logging
-import matplotlib.pyplot as plt
 import base64
-import io
 import binascii
-from matplotlib import rcParams
+import io
+import json
+import logging
 import math
-import six
-import matplotlib as mpl
+import os
 import re
 import sys
+import time as t
+import urllib
+from datetime import datetime, timedelta
 
 import common.error_handler as error_handler
 import common.helper_creds as helper_creds
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pymysql
+import pytz
+import six
+from matplotlib import rcParams
+from mysql import connector
+from pytz import timezone
+from sqlalchemy import create_engine
 
 logging.basicConfig(level=logging.INFO)
 

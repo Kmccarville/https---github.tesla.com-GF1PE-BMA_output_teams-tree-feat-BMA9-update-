@@ -1,8 +1,10 @@
-import requests
 import json
-import sys, traceback
 import logging
 import os
+import sys
+import traceback
+
+import requests
 
 debug=False
 mattermostBotName = "Error Bot"
