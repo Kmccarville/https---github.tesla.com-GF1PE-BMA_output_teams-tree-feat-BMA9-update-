@@ -315,9 +315,11 @@ def get_starved_blocked_table(db,start,end):
                     '[3BM03_50000_00]03/_OEE_Reporting/TSMs/InputStation',
                     '[3BM04_01_50000_00]04_01/_OEE_Reporting/TSMs/Ingress01_IngressTransfer',
                     '[3BM04_02_50000_00]04_02/_OEE_Reporting/TSMs/Ingress02_IngressTransfer',
-                    '[3BM04_03_50000_00]04_03/_OEE_Reporting/TSMs/Ingress03_IngressTransfer',
-                    '[3BM5-50100-01]TSL0091 Ingress/Main/TSM/LatchFaultReporting'
+                    '[3BM04_03_50000_00]04_03/_OEE_Reporting/TSMs/Ingress03_IngressTransfer'
                     ]
+    
+    LINE5_INGRESS = ['[3BM5-50580-01]Robot/Mdl_Robot_HMI']
+    
     PO_PATHS = [
                 '[3BM01_50000_00]01/_OEE_Reporting/TSMs/Packout1_Packout',
                 '[3BM02_50000_00]02/_OEE_Reporting/TSMs/Packout1_Packout',
@@ -328,6 +330,7 @@ def get_starved_blocked_table(db,start,end):
     seconds_between = (end - start).seconds
 
     ing_df = helper_functions.query_tsm_state(db,start, end, INGRESS_PATHS, 'Starved')
+    ing5_df = helper_functions.query_tsm_state(db,start, end, LINE5_INGRESS, 'Starved',2) #1 is starved by empty pallet, 2 is starved by BMA4
     po_df = helper_functions.query_tsm_state(db,start, end, PO_PATHS, 'Starved',1)
     po_bd_df = helper_functions.query_tsm_state(db,start, end, PO_PATHS, 'Blocked',1)
 
@@ -335,7 +338,7 @@ def get_starved_blocked_table(db,start,end):
     ing2_starved = round(helper_functions.get_val(ing_df,'3BM2','LINE','Duration')/seconds_between*100,1)
     ing3_starved = round(helper_functions.get_val(ing_df,'3BM3','LINE','Duration')/seconds_between*100,1)
     ing4_starved = round(helper_functions.get_val(ing_df,'3BM4','LINE','Duration')/seconds_between*100/3,1)
-    ing5_starved = round(helper_functions.get_val(ing_df,'3BM5','LINE','Duration')/seconds_between*100,1)
+    ing5_starved = round(helper_functions.get_val(ing5_df,'3BM5','LINE','Duration')/seconds_between*100,1)
 
     po1_starved = round(helper_functions.get_val(po_df,'3BM1','LINE','Duration')/seconds_between*100,1)
     po2_starved = round(helper_functions.get_val(po_df,'3BM2','LINE','Duration')/seconds_between*100,1)
