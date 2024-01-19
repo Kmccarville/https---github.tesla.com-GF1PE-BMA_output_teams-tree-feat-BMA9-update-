@@ -1,4 +1,6 @@
 import logging
+import multiprocessing as mp
+import time
 import traceback
 from datetime import datetime, timedelta
 
@@ -14,15 +16,33 @@ from resources import (NCM_bandolier_milan_output, NCM_module_output, outputz1,
 def main(env,local_run=False):
     it_is_eos,it_is_24 = helper_functions.is_it_eos_or_24()
     if it_is_eos or local_run:
+        if env == "dev":             
+            start_time = time.perf_counter()
         logging.info('Running End of Shift Report')
-        outputz1.main(env,eos=True)
-        outputz2_123.main(env,eos=True)
-        outputz2_45.main(env,eos=True)
-        outputz2_8.main(env,eos=True)
-        outputz3.main(env,eos=True)
-        outputz4.main(env,eos=True)
-        NCM_bandolier_milan_output.main(env,eos=True)
-        NCM_module_output.main(env,eos=True)
+        
+        calls = [
+           outputz1.main,
+           outputz2_123.main,
+           outputz2_45.main,
+           outputz2_8.main,
+           outputz3.main,
+           outputz4.main,
+           NCM_bandolier_milan_output.main,
+           NCM_module_output.main
+        ]
+        
+        procs = []
+        for call in calls:
+            proc = mp.Process(target=call, args=(env, True,))
+            procs.append(proc)
+            proc.start()
+        for proc in procs:
+            proc.join()
+
+        if env == "dev":
+            finish_time = time.perf_counter()
+            logging.info("EOS Report Time: " + str(finish_time - start_time) + " Seconds")
+   
         eos_report(env)
         if it_is_24 or local_run:
             eos_report(env,do_24=True)
