@@ -98,15 +98,6 @@ def get_val(df,query_val,query_col,return_col):
         val = 0
     return val
 
-#parse dataframes for line-based value
-def get_val_2(df,query_val,query_col,query_val2,query_col2,return_col):
-    if len(df):
-        sub_df = df.query(f"{query_col}=='{query_val}' and {query_col2}=='{query_val2}'")
-        val = sub_df.iloc[0][return_col] if len(sub_df) else 0
-    else:
-        val = 0
-    return val
-
 # dynamic get_val for line-based values
 def get_vals(df, return_col, *query_pairs):
     """Gets dynamic value for 1 or more query pairs in data frame
@@ -127,8 +118,7 @@ def get_vals(df, return_col, *query_pairs):
             logging.info('Invalid pair at index' + str(index))
             return 0
             
-    sub_query = " & ".join([f'{val} == {col}' for val, col in query_pairs]) 
-    
+    sub_query = " and ".join([f"{col}=='{val}'" for val, col in query_pairs]) 
     if len(df):
         sub_df = df.query(sub_query)
         val = sub_df.iloc[0][return_col] if len(sub_df) else 0
