@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 import pymsteams
 from common import helper_functions
+from common.constants import TESLA_RED
+
 
 branchName=os.getenv('ENVVAR1')
 commit=os.getenv('ENVVAR2')
@@ -46,7 +48,6 @@ def main(start=True):
     title = 'BMA Output Teams Build Triggered' if start==True else "BMA Output Teams Build Completed Successfully"
     teams_msg.title(title)
     teams_msg.summary('summary')
-    TESLA_RED = '#cc0000'
     msg_color = TESLA_RED
     teams_msg.color(msg_color)
 

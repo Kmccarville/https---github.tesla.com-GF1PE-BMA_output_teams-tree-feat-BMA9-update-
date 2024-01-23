@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import pymsteams
 import pytz
+from common.constants import K8S_BLUE, TESLA_RED
 from resources import z3_wb_teep
 
 warnings.filterwarnings("ignore")
@@ -583,8 +584,6 @@ def main(env,eos=False):
     title = 'Zone 3 EOS Report' if eos else 'Zone 3 Hourly Update'
     teams_msg.title(title)
     teams_msg.summary('summary')
-    K8S_BLUE = '#3970e4'
-    TESLA_RED = '#cc0000'
     msg_color = TESLA_RED if eos else K8S_BLUE
     teams_msg.color(msg_color)
     #make a card with output data

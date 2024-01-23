@@ -28,7 +28,13 @@ def e_handler(e, trace=None, subject=None, handleType=0):
     </body>
     </html>
     '''
-    payload={"text": "Error Exception", "html":html, "recipients":"mberlied@tesla.com", "cc":"mberlied@tesla.com", "Bcc":"mberlied@tesla.com"}
+    payload= {
+        "text": "Error Exception",
+        "html": html, 
+        "recipients": "mberlied@tesla.com",
+        "cc":"mberlied@tesla.com",
+        "Bcc":"mberlied@tesla.com"
+    }
     subject = subject if subject is not None else "BMA Teams Poster Error Exception"
 
     if debug:

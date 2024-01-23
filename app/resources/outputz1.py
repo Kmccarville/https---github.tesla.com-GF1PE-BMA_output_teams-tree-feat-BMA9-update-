@@ -5,6 +5,7 @@ import common.helper_functions as helper_functions
 import numpy as np
 import pandas as pd
 import pymsteams
+from common.constants import K8S_BLUE, TESLA_RED
 from sqlalchemy import text
 
 
@@ -247,7 +248,6 @@ def cta_records(lookback,cta4,cta5,cta6,cta7,webhook):
                 title = f'NEW RECORD ACHEIVED FOR {lineName} | {lookback} HOUR'
                 record_msg.title(title)
                 record_msg.summary('summary')
-                TESLA_RED = '#cc0000'
                 msg_color = TESLA_RED
                 record_msg.color(msg_color)
                 #make a card with the hourly data
@@ -527,8 +527,6 @@ def main(env,eos=False):
     title = 'Zone1 EOS Report' if eos else 'Zone1 Hourly Update'
     teams_msg.title(title)
     teams_msg.summary('summary')
-    K8S_BLUE = '#3970e4'
-    TESLA_RED = '#cc0000'
     msg_color = TESLA_RED if eos else K8S_BLUE
     teams_msg.color(msg_color)
     #make a card with the hourly data

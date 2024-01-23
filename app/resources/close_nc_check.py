@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import pymsteams
 from common import helper_functions
+from common.constants import K8S_BLUE
 
 
 def main(env):
@@ -64,7 +65,6 @@ def main(env):
         title = 'Auto Close NC Report'
         teams_msg.title(title)
         teams_msg.summary('summary')
-        K8S_BLUE = '#3970e4'
         msg_color = K8S_BLUE
         teams_msg.color(msg_color)
 

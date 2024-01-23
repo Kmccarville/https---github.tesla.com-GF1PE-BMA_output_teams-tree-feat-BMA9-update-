@@ -5,6 +5,7 @@ import common.helper_functions as helper_functions
 import numpy as np
 import pandas as pd
 import pymsteams
+from common.constants import TESLA_RED
 from sqlalchemy import text
 
 
@@ -162,8 +163,6 @@ def main(env, threshold_count = 0):
         title = 'FOD / Contamination Alert'
         teams_msg.title(title)
         teams_msg.summary('summary')
-        K8S_BLUE = '#3970e4'
-        TESLA_RED = '#cc0000'
         msg_color = TESLA_RED #if eos else K8S_BLUE
         teams_msg.color(msg_color)
         #make a card with the hourly data

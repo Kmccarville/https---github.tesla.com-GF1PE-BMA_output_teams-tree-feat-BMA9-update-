@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import pymsteams
 from common import helper_functions
+from common.constants import K8S_BLUE, TESLA_RED
 
 
 def get_mamc_yield_table(start,end):
@@ -276,7 +277,6 @@ def mamc_records(lookback,mamc1,mamc2,mamc3,webhook):
                 title = f'NEW RECORD ACHEIVED FOR {lineName} | {lookback} HOUR'
                 record_msg.title(title)
                 record_msg.summary('summary')
-                TESLA_RED = '#cc0000'
                 msg_color = TESLA_RED
                 record_msg.color(msg_color)
                 #make a card with the hourly data
@@ -361,7 +361,6 @@ def ac3a_records(lookback,c3a1,c3a2,c3a3,webhook):
                 title = f'NEW RECORD ACHEIVED FOR {lineName} | {lookback} HOUR'
                 record_msg.title(title)
                 record_msg.summary('summary')
-                TESLA_RED = '#cc0000'
                 msg_color = TESLA_RED
                 record_msg.color(msg_color)
                 #make a card with the hourly data
@@ -505,8 +504,6 @@ def main(env,eos=False):
     title = 'BMA123 ZONE2 EOS Report' if eos else 'BMA123 ZONE2 Hourly Update'
     teams_msg.title(title)
     teams_msg.summary('summary')
-    K8S_BLUE = '#3970e4'
-    TESLA_RED = '#cc0000'
     msg_color = TESLA_RED if eos else K8S_BLUE
     teams_msg.color(msg_color)
     
