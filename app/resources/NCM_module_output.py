@@ -99,7 +99,8 @@ FROM
         INNER JOIN
     thing t ON t.id = tp.thingid
 WHERE
-    tp.flowstepname IN ('ModuleNCM-11100' , 'ModuleNCM-14000',
+    tp.flowstepname IN ('ModuleNCM-11100',
+        'ModuleNCM-14000',
         'ModuleNCM-14100',
         'ModuleNCM-14200',
         'ModuleNCM-14300',
@@ -125,7 +126,37 @@ WHERE
         'ModuleNCM-14901',
         'ModuleNCM-12600',
         'ModuleNCM-12700',
-        'ModuleNCM-12900')
+        'ModuleNCM-12900',
+        'ModuleNCM-15000',
+        'ModuleNCM-15100',
+        'ModuleNCM-17100',
+        'ModuleNCM-11000',
+        'ModuleNCM-11200',
+        'ModuleNCM-11300',
+        'ModuleNCM-11500',
+        'ModuleNCM-11600',
+        'ModuleNCM-11700',
+        'ModuleNCM-11800',
+        'ModuleNCM-11900',
+        'ModuleNCM-12100',
+        'ModuleNCM-12400',
+        'ModuleNCM-12500',
+        'ModuleNCM-13600',
+        'ModuleNCM-13700',
+        'ModuleNCM-13800',
+        'ModuleNCM-13900',
+        'ModuleNCM-16200',
+        'ModuleNCM-16600',
+        'ModuleNCM-17400',
+        'ModuleNCM-17500',
+        'ModuleNCM-17600',
+        'ScrapREVIEW',
+        'ModuleNCM-12200',
+        'ModuleNCM-16500',
+        'ModuleNCM-16100',
+        'ModuleNCM-15200',
+        'ModuleNCM-15300',
+        'ModuleNCM-16300')
     AND tp.stepstatus = 'Exited'
     AND tp.exited > NOW() - INTERVAL {lookback} HOUR"""
         
