@@ -8,6 +8,7 @@ import pymsteams
 import pytz
 import requests
 from common import helper_functions
+from common.constants import K8S_BLUE, TESLA_RED
 from pytz import timezone
 from requests.auth import HTTPBasicAuth
 from sqlalchemy import text
@@ -104,6 +105,126 @@ def get_starved_table(db, start, end):
         </tr>
         """
     return html
+
+def get_fpy_dfs(db, lookback, line='MC1'):
+    line_val = '908336' if line == 'MC1' else '906294'
+    
+    query = f"""
+        SELECT
+        prod.Process,
+        prod.Shift_Day,
+        prod.Shift,
+        prod.Total_Production,
+        prod.Total_Production - ifnull(nc.NC_Count, 0) as Good_Mods,
+        ifnull(nc.NC_Count, 0) as Defect_Mods,
+        (prod.Total_Production - ifnull(nc.NC_Count, 0)) / prod.Total_Production as FPY
+
+
+        FROM
+
+        (SELECT
+        --  tp.flowstepid,
+        left(tp.flowstepname, 3) as Process,
+        date_format(convert_tz(tp.completed, 'UTC', 'US/Pacific') - interval 6 hour, "%Y-%m/%d")   as Shift_Day,  ### This is to force night shifts onto 1 calendar day ###
+        CASE FLOOR((UNIX_TIMESTAMP(CONVERT_TZ(tp.completed,'UTC','US/Pacific'))-1452405600) % 1209600 / 43200 )   ### 1209600 = seconds in 2 weeks and 43200 = seconds in 12 hours ###
+                WHEN 0 THEN 'A'
+                WHEN 1 THEN 'C'
+                WHEN 2 THEN 'A'
+                WHEN 3 THEN 'C'
+                WHEN 4 THEN 'A'
+                WHEN 5 THEN 'C'
+                WHEN 6 THEN 'A'
+                WHEN 7 THEN 'C'
+                WHEN 8 THEN 'B'
+                WHEN 9 THEN 'D'
+                WHEN 10 THEN 'B'
+                WHEN 11 THEN 'D'
+                WHEN 12 THEN 'B'
+                WHEN 13 THEN 'D'
+                WHEN 14 THEN 'A'
+                WHEN 15 THEN 'C'
+                WHEN 16 THEN 'A'
+                WHEN 17 THEN 'C'
+                WHEN 18 THEN 'A'
+                WHEN 19 THEN 'C'
+                WHEN 20 THEN 'B'
+                WHEN 21 THEN 'D'
+                WHEN 22 THEN 'B'
+                WHEN 23 THEN 'D'
+                WHEN 24 THEN 'B'
+                WHEN 25 THEN 'D'
+                WHEN 26 THEN 'B'
+                WHEN 27 THEN 'D'
+            END   AS 'Shift',
+        count(distinct(tp.thingid)) as Total_Production
+            
+            from thingpath tp
+            where tp.flowstepid in ('{line_val}')   ### MC1 and MC2 ###
+            and tp.completed > now() - interval {lookback} hour
+            and tp.iscurrent = 0
+            
+            group by 1,2,3
+            )prod
+            
+        left join
+        
+        (select
+        nc.detectedatprocess as Process,
+        date_format(convert_tz(nc.created, 'UTC', 'US/Pacific') - interval 6 hour, "%Y-%m/%d")   as Shift_Day,  ### This is to force night shifts onto 1 calendar day ###
+        CASE FLOOR((UNIX_TIMESTAMP(CONVERT_TZ(nc.created,'UTC','US/Pacific'))-1452405600) % 1209600 / 43200 )   ### 1209600 = seconds in 2 weeks and 43200 = seconds in 12 hours ###
+                WHEN 0 THEN 'A'
+                WHEN 1 THEN 'C'
+                WHEN 2 THEN 'A'
+                WHEN 3 THEN 'C'
+                WHEN 4 THEN 'A'
+                WHEN 5 THEN 'C'
+                WHEN 6 THEN 'A'
+                WHEN 7 THEN 'C'
+                WHEN 8 THEN 'B'
+                WHEN 9 THEN 'D'
+                WHEN 10 THEN 'B'
+                WHEN 11 THEN 'D'
+                WHEN 12 THEN 'B'
+                WHEN 13 THEN 'D'
+                WHEN 14 THEN 'A'
+                WHEN 15 THEN 'C'
+                WHEN 16 THEN 'A'
+                WHEN 17 THEN 'C'
+                WHEN 18 THEN 'A'
+                WHEN 19 THEN 'C'
+                WHEN 20 THEN 'B'
+                WHEN 21 THEN 'D'
+                WHEN 22 THEN 'B'
+                WHEN 23 THEN 'D'
+                WHEN 24 THEN 'B'
+                WHEN 25 THEN 'D'
+                WHEN 26 THEN 'B'
+                WHEN 27 THEN 'D'
+            END   as Shift,
+        count(distinct(nc.thingid)) as NC_Count
+            
+        from nc
+        
+        where nc.detectedatprocess in ('{line}')
+        and nc.created > now() - interval {lookback} HOUR
+
+        group by 1,2,3
+        ) as nc on nc.Process = prod.Process and nc.Shift_Day = prod.Shift_Day and nc.Shift = prod.Shift
+
+        group by 1,2,3,4,5,6,7
+        order by prod.Shift_Day asc,
+                        prod.Shift asc   
+    """
+    
+    # combine dataframes here from mc1 df and mc2 df
+    df = pd.read_sql(text(query), db)
+    return df
+
+def get_fpy(db, lookback):
+    mc1_line = get_fpy_dfs(db, lookback, 'MC1')
+    mc2_line = get_fpy_dfs(db, lookback, 'MC2')
+    #df = pd.concat([mc1_line, mc2_line], ignore_index=True, axis=0)
+    return mc1_line, mc2_line
 
 def getDirFeedData(line, uph, eos): 
     #...................................................#
@@ -294,14 +415,34 @@ def main(env, eos=False):
         mc2_ic23_color = 'red'
 
     starve_table = get_starved_table(plc_con, start, end)  # pull starvation data
+    
+    FPY_GOAL = 90
+    mc1_fpy = None
+    mc2_fpy = None
+    mc1_fpy_color = 'red' 
+    mc2_fpy_color = 'red'
 
+    # FPY = passing parts / total parts * 100
+    
+    if eos:
+        mos_con_sparq = helper_functions.get_sql_conn('mos_rpt2', schema='sparq')
+        mc1_fpy, mc2_fpy = get_fpy(mos_con_sparq, lookback)     
+        mc1_fpy = mc1_fpy.iloc[-1]['FPY'] * 100
+        mc2_fpy = mc2_fpy.iloc[-1]['FPY'] * 100
+        
+        if mc1_fpy > FPY_GOAL:
+            mc1_fpy_color = 'green'
+        
+        if mc2_fpy > FPY_GOAL:
+            mc2_fpy_color = 'green'
+        mos_con_sparq.close()
+        
     mos_con.close()
     plc_con.close()
     pr_con.close()
 
     hourly_goal_dict = helper_functions.get_zone_line_goals(zone=4,hours=lookback)
     # Setup teams output table
-    title = 'Zone 4 Hourly Update'
     html = f"""<table>
             <tr>
                 <th style="text-align:right"></th>
@@ -341,9 +482,11 @@ def main(env, eos=False):
             </tr>
             </table>"""
     na_html = "---"
+    
     pallet_html = f"""
                 <tr>
                     <th style="text-align:right"></th>
+                    {'<th style="text-align:center">FPY (%)</th>' if eos else ""}
                     <th style="text-align:center">NIC</th>
                     <th style="text-align:center">IC</th>
                     <th style="text-align:center">NIC 1_4</th>
@@ -353,6 +496,7 @@ def main(env, eos=False):
                 </tr>
                 <tr>
                     <td style="text-align:right"><strong>MC1</strong></td>
+                    {'<td <td style="text-align:center;color:{}">{:.2f}</td>'.format(mc1_fpy_color, mc1_fpy) if eos else ""}
                     <td <td style="text-align:center;color:{mc1_nic_color}">{mc1_nic_pallets}</td>
                     <td <td style="text-align:center;color:{mc1_ic_color}">{mc1_ic_pallets}</td>
                     <td <td style="text-align:center">{na_html}</td>
@@ -362,6 +506,7 @@ def main(env, eos=False):
                 </tr>
                 <tr>
                     <td style="text-align:right"><strong>MC2</strong></td>
+                    {'<td <td style="text-align:center;color:{}">{}</td>'.format(mc2_fpy_color, mc2_fpy) if eos else ""}
                     <td <td style="text-align:center">{na_html}</td>
                     <td <td style="text-align:center">{na_html}</td>
                     <td <td style="text-align:center;color:{mc2_nic14_color}">{mc2_nic14_pallets} ({mc2_nic1_pallets}+{mc2_nic4_pallets})</td>
@@ -371,6 +516,7 @@ def main(env, eos=False):
                 </tr>
                 <tr>
                     <td style="text-align:right"><strong>GOAL</strong></td>
+                    {'<td <td style="text-align:center">{:.2f}</td>'.format(FPY_GOAL) if eos else ""}
                     <td <td style="text-align:center">{MC1_NIC_GREEN}</td>
                     <td <td style="text-align:center">{MC1_IC_GREEN}</td>
                     <td <td style="text-align:center">{MC2_NIC_GREEN}</td>
@@ -395,8 +541,6 @@ def main(env, eos=False):
     title = 'Zone 4 EOS Report' if eos else 'Zone 4 Hourly Update'
     teams_msg.title(title)
     teams_msg.summary('summary')
-    K8S_BLUE = '#3970e4'
-    TESLA_RED = '#cc0000'
     msg_color = TESLA_RED if eos else K8S_BLUE
     teams_msg.color(msg_color)
 
