@@ -28,7 +28,8 @@ from resources.alerts import bma123_c3a_dispense
 from resources.alerts import z2_contamination
 from resources.alerts import bma123_Z2_FOD_weekly
 
-
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
 from resources.passdown import cta123_eqt_email
 
 logging.basicConfig(level=logging.INFO)
@@ -36,39 +37,38 @@ logging.info("main_active")
 
 
 if __name__ == '__main__':
-    
+    PST_TZ = "America/Los_Angeles"
+        
     branchName=os.getenv('ENVVAR1')
     commit=os.getenv('ENVVAR2')
     env=os.getenv('ENVVAR3')
     logging.info("Code is running...better go catch it!")
     logging.info("Environment: %s", env)
 
-    scheduler_hourly = schedule.Scheduler()
-    scheduler_alerts = schedule.Scheduler()
-    scheduler_passdown = schedule.Scheduler()
+    scheduler = BackgroundScheduler()
     
     #define hourly scheduler
-    scheduler_hourly.every().hour.at(":00").do(outputz1.main,env)
-    scheduler_hourly.every().hour.at(":00").do(outputz2_123.main,env)
-    scheduler_hourly.every().hour.at(":00").do(outputz2_45.main,env)
-    scheduler_hourly.every().hour.at(":00").do(outputz2_8.main,env)
-    scheduler_hourly.every().hour.at(":00").do(outputz3.main,env)
-    scheduler_hourly.every().hour.at(":00").do(outputz4.main,env)
-    scheduler_hourly.every().hour.at(":00").do(close_nc_check.main,env)
-    scheduler_hourly.every().hour.at(":02").do(eos.main,env)
-    scheduler_hourly.every().hour.at(":00").do(AGV_Spur_Picks.main,env)
-    scheduler_alerts.every().hour.at(":00").do(NCM_bandolier_milan_output.main,env)
+    scheduler.add_job(outputz1.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
+    scheduler.add_job(outputz2_123.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
+    scheduler.add_job(outputz2_45.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
+    scheduler.add_job(outputz2_8.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
+    scheduler.add_job(outputz3.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
+    scheduler.add_job(outputz4.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
+    scheduler.add_job(close_nc_check.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
+    scheduler.add_job(eos.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
+    scheduler.add_job(AGV_Spur_Picks.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
+    scheduler.add_job(NCM_bandolier_milan_output.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
 
     #define alert scheduler
-    scheduler_alerts.every().hour.at(":00").do(z2_contamination.main,env)
-    scheduler_alerts.every().hour.at(":00").do(z2_fixtures.main,env)
-    scheduler_alerts.every().hour.at(":00").do(bma123_hipot.main,env)
-    scheduler_alerts.every().hour.at(":00").do(bma123_c3a_dispense.main,env)
-
+    scheduler.add_job(z2_contamination.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
+    scheduler.add_job(z2_fixtures.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
+    scheduler.add_job(bma123_hipot.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
+    scheduler.add_job(bma123_c3a_dispense.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
 
     #define staffing scheduler
-    scheduler_passdown.every().day.at("14:35").do(staffing.main,env)
-    scheduler_passdown.every().day.at("02:35").do(staffing.main,env)
+    scheduler.add_job(staffing.main, CronTrigger.from_crontab('35 14,2 * * *', PST_TZ), args=[env])
+        
+    scheduler.start()
     
     if env == "dev":
         logging.info("BranchName: %s", branchName)
@@ -77,9 +77,6 @@ if __name__ == '__main__':
         devHeading.main()
         NCM_module_output.main(env,eos=True)
         logging.info("Run all command executed")
-        scheduler_hourly.run_all(delay_seconds=10)
-        scheduler_alerts.run_all(delay_seconds=10)
-        scheduler_passdown.run_all(delay_seconds=10)
         devHeading.main(start=False)
         logging.info("Run all command complete. Quiting Program")
         quit()
@@ -87,8 +84,5 @@ if __name__ == '__main__':
         logging.info("Hourly run schedule initiated")
         
         while True:
-            scheduler_hourly.run_pending()
-            scheduler_alerts.run_pending()
-            scheduler_passdown.run_pending()
             time.sleep(1)
 
