@@ -416,26 +416,30 @@ def main(env, eos=False):
 
     starve_table = get_starved_table(plc_con, start, end)  # pull starvation data
     
-    FPY_GOAL = 90
+    FPY_GOAL = 94
     mc1_fpy = None
     mc2_fpy = None
     mc1_fpy_color = 'red' 
     mc2_fpy_color = 'red'
 
     # FPY = passing parts / total parts * 100
-    
-    if eos:
-        mos_con_sparq = helper_functions.get_sql_conn('mos_rpt2', schema='sparq')
-        mc1_fpy, mc2_fpy = get_fpy(mos_con_sparq, lookback)     
+    mos_con_sparq = helper_functions.get_sql_conn('mos_rpt2', schema='sparq')
+    mc1_fpy, mc2_fpy = get_fpy(mos_con_sparq, lookback)     
+    if mc1_fpy.shape[0] < 1:
+        mc1_fpy = 0
+    else:
         mc1_fpy = mc1_fpy.iloc[-1]['FPY'] * 100
+    if mc2_fpy.shape[0] < 1:
+        mc2_fpy = 0
+    else:
         mc2_fpy = mc2_fpy.iloc[-1]['FPY'] * 100
-        
-        if mc1_fpy > FPY_GOAL:
-            mc1_fpy_color = 'green'
-        
-        if mc2_fpy > FPY_GOAL:
-            mc2_fpy_color = 'green'
-        mos_con_sparq.close()
+    
+    if mc1_fpy > FPY_GOAL:
+        mc1_fpy_color = 'green'
+    
+    if mc2_fpy > FPY_GOAL:
+        mc2_fpy_color = 'green'
+    mos_con_sparq.close()
         
     mos_con.close()
     plc_con.close()
@@ -447,7 +451,9 @@ def main(env, eos=False):
             <tr>
                 <th style="text-align:right"></th>
                 <th style="text-align:center">UPH</th>
-                <th style="text-align:center">GOAL</th>
+                <th style="text-align:center">UPH Goal</th>
+                <th style="text-align:center">FPY (%)</th>
+                <th style="text-align:center">FPY Goal (%)</th>
                 <th style="text-align:center">DF Count</th>
                 <th style="text-align:center">DF Rate (%)</th>
                 <th style="text-align:center">DF Bad Part</th>
@@ -457,6 +463,8 @@ def main(env, eos=False):
                 <td style="text-align:right"><strong>MC1</strong></td>
                 <td style="text-align:center">{mc1_output/4:.1f}</td>
                 <td style="text-align:center">{int(hourly_goal_dict['MC1'])}</td>
+                <td style="text-align:center;color:{mc1_fpy_color}">{mc1_fpy:.2f}</td>
+                <td style="text-align:center">{FPY_GOAL:.2f}</td>
                 <td style="text-align:center">{int(mc1_df_count)}</td>
                 <td style="text-align:center">---</td>
                 <td style="text-align:center">---</td>
@@ -466,6 +474,8 @@ def main(env, eos=False):
                 <td style="text-align:right"><strong>MC2</strong></td>
                 <td style="text-align:center">{mc2_output/4:.1f}</td>
                 <td style="text-align:center">{int(hourly_goal_dict['MC2'])}</td>
+                <td style="text-align:center;color:{mc2_fpy_color}">{mc2_fpy}</td>
+                <td style="text-align:center">{FPY_GOAL:.2f}</td>
                 <td style="text-align:center">{int(mc2_df_count)}</td>
                 <td style="text-align:center">{mc2_df_performance:.1f}</td>
                 <td style="text-align:center">{int(mc2_df_badpart)}</td>
@@ -474,6 +484,8 @@ def main(env, eos=False):
             <tr>
                 <td style="text-align:right"><strong>TOTAL</strong></td>
                 <td style="text-align:center"><b>{mic_total/4:.1f}</b></td>
+                <td style="text-align:center">---</td>
+                <td style="text-align:center">---</td>
                 <td style="text-align:center">---</td>
                 <td style="text-align:center"><b>{total_df_count:.1f}</b></td>
                 <td style="text-align:center"><b>---</b></td>
@@ -486,7 +498,6 @@ def main(env, eos=False):
     pallet_html = f"""
                 <tr>
                     <th style="text-align:right"></th>
-                    {'<th style="text-align:center">FPY (%)</th>' if eos else ""}
                     <th style="text-align:center">NIC</th>
                     <th style="text-align:center">IC</th>
                     <th style="text-align:center">NIC 1_4</th>
@@ -496,7 +507,6 @@ def main(env, eos=False):
                 </tr>
                 <tr>
                     <td style="text-align:right"><strong>MC1</strong></td>
-                    {'<td <td style="text-align:center;color:{}">{:.2f}</td>'.format(mc1_fpy_color, mc1_fpy) if eos else ""}
                     <td <td style="text-align:center;color:{mc1_nic_color}">{mc1_nic_pallets}</td>
                     <td <td style="text-align:center;color:{mc1_ic_color}">{mc1_ic_pallets}</td>
                     <td <td style="text-align:center">{na_html}</td>
@@ -506,7 +516,6 @@ def main(env, eos=False):
                 </tr>
                 <tr>
                     <td style="text-align:right"><strong>MC2</strong></td>
-                    {'<td <td style="text-align:center;color:{}">{}</td>'.format(mc2_fpy_color, mc2_fpy) if eos else ""}
                     <td <td style="text-align:center">{na_html}</td>
                     <td <td style="text-align:center">{na_html}</td>
                     <td <td style="text-align:center;color:{mc2_nic14_color}">{mc2_nic14_pallets} ({mc2_nic1_pallets}+{mc2_nic4_pallets})</td>
@@ -516,7 +525,6 @@ def main(env, eos=False):
                 </tr>
                 <tr>
                     <td style="text-align:right"><strong>GOAL</strong></td>
-                    {'<td <td style="text-align:center">{:.2f}</td>'.format(FPY_GOAL) if eos else ""}
                     <td <td style="text-align:center">{MC1_NIC_GREEN}</td>
                     <td <td style="text-align:center">{MC1_IC_GREEN}</td>
                     <td <td style="text-align:center">{MC2_NIC_GREEN}</td>
