@@ -439,8 +439,8 @@ def main(env, eos=False):
     
     if mc2_fpy > FPY_GOAL:
         mc2_fpy_color = 'green'
-    mos_con_sparq.close()
         
+    mos_con_sparq.close() 
     mos_con.close()
     plc_con.close()
     pr_con.close()
