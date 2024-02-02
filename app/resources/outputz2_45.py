@@ -45,7 +45,7 @@ def get_starve_block_table(start_time,end_time):
             <td style="text-align:center">{c_st120_bma5_percent}%</td>
         </tr>
         """
-
+    plc_con.close()
     return html
 
 def get_blocked_table(start_time,end_time):
@@ -67,6 +67,7 @@ def get_blocked_table(start_time,end_time):
             <td style="text-align:center">{st50_bma5_percent}%</td>
         </tr>
         """
+    plc_con.close()
     return html
 
 def get_mamc_fpy(start_time,end_time,con):

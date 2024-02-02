@@ -494,5 +494,6 @@ def get_zone_line_goals(zone,hours):
     hourly_dict = {}
     for row in df.itertuples(False,'Tuples'):
         hourly_dict[row.LINE] = row.HOURLY_GOAL
-        
+    
+    prodeng_con.close()
     return hourly_dict
