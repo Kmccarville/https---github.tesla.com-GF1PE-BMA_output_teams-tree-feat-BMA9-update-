@@ -28,7 +28,7 @@ from resources.alerts import bma123_c3a_dispense
 from resources.alerts import z2_contamination
 from resources.alerts import bma123_Z2_FOD_weekly
 
-from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.background import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 from resources.passdown import cta123_eqt_email
 
@@ -45,7 +45,13 @@ if __name__ == '__main__':
     logging.info("Code is running...better go catch it!")
     logging.info("Environment: %s", env)
 
-    scheduler = BackgroundScheduler()
+    if env == "dev":
+        logging.info("BranchName: %s", branchName)
+        logging.info("CommitHash: %s", commit)
+        logging.info("Send Dev Heading")
+        devHeading.main()
+        
+    scheduler = BlockingScheduler()
     
     #define hourly scheduler
     scheduler.add_job(outputz1.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
@@ -66,23 +72,6 @@ if __name__ == '__main__':
     scheduler.add_job(bma123_c3a_dispense.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
 
     #define staffing scheduler
-    scheduler.add_job(staffing.main, CronTrigger.from_crontab('35 14,2 * * *', PST_TZ), args=[env])
+    scheduler.add_job(staffing.main, CronTrigger.from_crontab('35 6,18 * * *', PST_TZ), args=[env])
         
     scheduler.start()
-    
-    if env == "dev":
-        logging.info("BranchName: %s", branchName)
-        logging.info("CommitHash: %s", commit)
-        logging.info("Send Dev Heading")
-        devHeading.main()
-        NCM_module_output.main(env,eos=True)
-        logging.info("Run all command executed")
-        devHeading.main(start=False)
-        logging.info("Run all command complete. Quiting Program")
-        quit()
-    else:
-        logging.info("Hourly run schedule initiated")
-        
-        while True:
-            time.sleep(1)
-
