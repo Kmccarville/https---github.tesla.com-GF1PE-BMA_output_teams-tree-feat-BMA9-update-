@@ -3,6 +3,7 @@ import schedule
 import logging 
 import os
 from pytz import timezone
+from datetime import datetime
 
 from common import helper_functions
 
@@ -44,34 +45,38 @@ if __name__ == '__main__':
     env=os.getenv('ENVVAR3')
     logging.info("Code is running...better go catch it!")
     logging.info("Environment: %s", env)
+    
+    scheduler = BlockingScheduler()
+    job_list = []
+    #define hourly scheduler
+    job_list.append(scheduler.add_job(outputz1.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
+    job_list.append(scheduler.add_job(outputz2_123.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
+    job_list.append(scheduler.add_job(outputz2_45.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
+    job_list.append(scheduler.add_job(outputz2_8.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
+    job_list.append(scheduler.add_job(outputz3.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
+    job_list.append(scheduler.add_job(outputz4.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
+    job_list.append(scheduler.add_job(close_nc_check.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
+    job_list.append(scheduler.add_job(eos.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
+    job_list.append(scheduler.add_job(AGV_Spur_Picks.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
+    job_list.append(scheduler.add_job(NCM_bandolier_milan_output.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
 
+    #define alert scheduler
+    job_list.append(scheduler.add_job(z2_contamination.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
+    job_list.append(scheduler.add_job(z2_fixtures.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
+    job_list.append(scheduler.add_job(bma123_hipot.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
+    job_list.append(scheduler.add_job(bma123_c3a_dispense.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env]))
+
+    #define staffing scheduler
+    job_list.append(scheduler.add_job(staffing.main, CronTrigger.from_crontab('35 6,18 * * *', PST_TZ), args=[env]))
+    
+    
     if env == "dev":
         logging.info("BranchName: %s", branchName)
         logging.info("CommitHash: %s", commit)
         logging.info("Send Dev Heading")
         devHeading.main()
-        
-    scheduler = BlockingScheduler()
-    
-    #define hourly scheduler
-    scheduler.add_job(outputz1.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-    scheduler.add_job(outputz2_123.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-    scheduler.add_job(outputz2_45.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-    scheduler.add_job(outputz2_8.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-    scheduler.add_job(outputz3.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-    scheduler.add_job(outputz4.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-    scheduler.add_job(close_nc_check.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-    scheduler.add_job(eos.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-    scheduler.add_job(AGV_Spur_Picks.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-    scheduler.add_job(NCM_bandolier_milan_output.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-
-    #define alert scheduler
-    scheduler.add_job(z2_contamination.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-    scheduler.add_job(z2_fixtures.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-    scheduler.add_job(bma123_hipot.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-    scheduler.add_job(bma123_c3a_dispense.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env])
-
-    #define staffing scheduler
-    scheduler.add_job(staffing.main, CronTrigger.from_crontab('35 6,18 * * *', PST_TZ), args=[env])
-        
-    scheduler.start()
+        for job in job_list:
+            job.modify(next_run_time=datetime.now())
+        scheduler.start()
+    else:
+        scheduler.start()
