@@ -1,12 +1,13 @@
 #Auto Posting for Milan output - trigger around 7 PM everyday
-from common import helper_functions 
-import pandas as pd
+from datetime import datetime, timedelta
 from urllib.parse import quote
-import sqlalchemy
-import pymysql
+
+import pandas as pd
 import pymsteams
-from datetime import datetime
-from datetime import timedelta
+import pymysql
+import sqlalchemy
+from common import helper_functions
+
 
 def sendTeamsMessage(webhook, title, summary, message,color='#cc0000'):
     teams_msg = pymsteams.connectorcard(webhook)

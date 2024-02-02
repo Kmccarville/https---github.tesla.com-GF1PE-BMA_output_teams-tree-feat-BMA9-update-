@@ -1,12 +1,13 @@
-from common import helper_functions
-
-from datetime import datetime
-from datetime import timedelta
 import logging
+import traceback
+from datetime import datetime, timedelta
+
 import numpy as np
 import pandas as pd
 import pymsteams
-import traceback
+from common import helper_functions
+from common.constants import K8S_BLUE, TESLA_RED
+
 
 def get_mamc_ncs(db,start,end):
     query=f"""
@@ -102,7 +103,6 @@ def bma8_records(lookback,c3a8,webhook):
                 title = f'NEW RECORD ACHEIVED FOR {lineName} | {lookback} HOUR'
                 record_msg.title(title)
                 record_msg.summary('summary')
-                TESLA_RED = '#cc0000'
                 msg_color = TESLA_RED
                 record_msg.color(msg_color)
                 #make a card with the hourly data
@@ -202,10 +202,10 @@ def main(env,eos=False):
     title = 'BMA8 EOS Report' if eos else 'BMA8 Hourly Update'
     teams_msg.title(title)
     teams_msg.summary('summary')
-    K8S_BLUE = '#3970e4'
-    TESLA_RED = '#cc0000'
     msg_color = TESLA_RED if eos else K8S_BLUE
     teams_msg.color(msg_color)
+    teams_msg.printme()
+    print(teams_msg)
 
     #create cards for each major html
     output_card = pymsteams.cardsection()

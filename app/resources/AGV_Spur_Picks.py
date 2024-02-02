@@ -1,9 +1,11 @@
-from common import helper_functions 
-import pandas as pd
 from urllib.parse import quote
-import sqlalchemy
-import pymysql
+
+import pandas as pd
 import pymsteams
+import pymysql
+import sqlalchemy
+from common import helper_functions
+
 
 def sendTeamsMessage(webhook, title, summary, message,color='#cc0000'):
    
@@ -56,34 +58,28 @@ WHERE
     #Lift_A_Spur = df['Route'].value_counts()['Module Rack Empty Return from Config to AGV Spur']
     #Lift_A_Spur = Lift_A_Spur1 + Lift_A_Spur2
     Total_Counts = len(df)
-    
-    if Lift_A_Spur >= 20:
-        color_S = 'red'
-    elif 10<= Lift_A_Spur <20: 
-        color_S = 'orange'
-    else:
-        color_S = 'green'
-         
-    if Lift_B_Spur >= 20:
-        color_LB = 'red'
-    elif 10<= Lift_B_Spur <20: 
-        color_LB = 'orange'
-    else:
-        color_LB = 'green'
-
-    if Manual_pack >= 20:
-        color_M = 'red'
-    elif 10<= Manual_pack <20:
-        color_M = 'orange'
-    else:
-        color_M = 'green'
-
-    if BP6_PickItems >= 20:
-        color_B = 'red'
-    elif 10<= BP6_PickItems <20:
-        color_B = 'orange'
-    else:
-        color_B = 'green'
+        
+    # (value, lower limit, upper limit)
+    color_thresholds = {
+        'Lift_A_Spur': [(Lift_A_Spur, 10, 20)], 
+        'Lift_B_Spur': [(Lift_B_Spur, 10, 20)],
+        'Manual_pack': [(Manual_pack, 10, 20)],
+        'BP6_PickItems': [(BP6_PickItems, 10, 20)]
+    }
+            
+    for key in color_thresholds.keys():
+        val, lower, upper = color_thresholds[key][0]
+        if val >= upper:
+            color_thresholds[key].append('red')
+        elif lower <= val < upper:
+            color_thresholds[key].append('orange')
+        else: 
+            color_thresholds[key].append('green') 
+            
+    color_S = color_thresholds['Lift_A_Spur'][1]
+    color_LB = color_thresholds['Lift_B_Spur'][1]
+    color_M = color_thresholds['Manual_pack'][1]
+    color_B = color_thresholds['BP6_PickItems'][1]        
 
     message = f"""<table>
                 <tr>

@@ -1,11 +1,12 @@
-from common import helper_functions
-
-from datetime import datetime
-from datetime import timedelta
 import logging
+from datetime import datetime, timedelta
+
 import numpy as np
 import pandas as pd
 import pymsteams
+from common import helper_functions
+from common.constants import K8S_BLUE, TESLA_RED
+
 
 def get_mamc_yield_table(start,end):
     mos_con = helper_functions.get_sql_conn('mos_rpt2')
@@ -263,8 +264,6 @@ def main(env,eos=False):
     title = 'BMA8 ZONE2 EOS Report' if eos else 'BMA8 ZONE2 Hourly Update'
     teams_msg.title(title)
     teams_msg.summary('summary')
-    K8S_BLUE = '#3970e4'
-    TESLA_RED = '#cc0000'
     msg_color = TESLA_RED if eos else K8S_BLUE
     teams_msg.color(msg_color)
     

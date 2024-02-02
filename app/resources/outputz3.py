@@ -1,13 +1,13 @@
-import common.helper_functions as helper_functions
-
-from datetime import datetime
-from datetime import timedelta
 import logging
-import pandas as pd
-import pytz
-import pymsteams
 import warnings
+from datetime import datetime, timedelta
+
+import common.helper_functions as helper_functions
 import numpy as np
+import pandas as pd
+import pymsteams
+import pytz
+from common.constants import K8S_BLUE, TESLA_RED
 from resources import z3_wb_teep
 
 warnings.filterwarnings("ignore")
@@ -185,50 +185,49 @@ def get_mttr_df(env,eos,db,start,end):
 
 def mttr_to_html(df):
 
-    quad1a_target = round(helper_functions.get_val_2(df,1,'LINE','A','QUAD','IDEAL_MIN'),1)
-    quad1b_target = round(helper_functions.get_val_2(df,1,'LINE','B','QUAD','IDEAL_MIN'),1)
-    quad1c_target = round(helper_functions.get_val_2(df,1,'LINE','C','QUAD','IDEAL_MIN'),1)
-    quad1d_target = round(helper_functions.get_val_2(df,1,'LINE','D','QUAD','IDEAL_MIN'),1)
-
-    quad2a_target = round(helper_functions.get_val_2(df,2,'LINE','A','QUAD','IDEAL_MIN'),1)
-    quad2b_target = round(helper_functions.get_val_2(df,2,'LINE','B','QUAD','IDEAL_MIN'),1)
-    quad2c_target = round(helper_functions.get_val_2(df,2,'LINE','C','QUAD','IDEAL_MIN'),1)
-    quad2d_target = round(helper_functions.get_val_2(df,2,'LINE','D','QUAD','IDEAL_MIN'),1)
+    quad1a_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (1,'LINE'),('A','QUAD')),1)
+    quad1b_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (1,'LINE'),('B','QUAD')),1)
+    quad1c_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (1,'LINE'),('C','QUAD')),1)
+    quad1d_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (1,'LINE'),('D','QUAD')),1)
     
-    quad3a_target = round(helper_functions.get_val_2(df,3,'LINE','A','QUAD','IDEAL_MIN'),1)
-    quad3b_target = round(helper_functions.get_val_2(df,3,'LINE','B','QUAD','IDEAL_MIN'),1)
-    quad3c_target = round(helper_functions.get_val_2(df,3,'LINE','C','QUAD','IDEAL_MIN'),1)
-    quad3d_target = round(helper_functions.get_val_2(df,3,'LINE','D','QUAD','IDEAL_MIN'),1)
-
-    quad4a_target = round(helper_functions.get_val_2(df,4,'LINE','A','QUAD','IDEAL_MIN'),1)
-    quad4b_target = round(helper_functions.get_val_2(df,4,'LINE','B','QUAD','IDEAL_MIN'),1)
-    quad4c_target = round(helper_functions.get_val_2(df,4,'LINE','C','QUAD','IDEAL_MIN'),1)
-
-    quad5a_target = round(helper_functions.get_val_2(df,5,'LINE','A','QUAD','IDEAL_MIN'),1)
-    quad5b_target = round(helper_functions.get_val_2(df,5,'LINE','B','QUAD','IDEAL_MIN'),1)
-
-    #
-    quad1a_actual = round(helper_functions.get_val_2(df,1,'LINE','A','QUAD','ACTUAL_MIN'),1)
-    quad1b_actual = round(helper_functions.get_val_2(df,1,'LINE','B','QUAD','ACTUAL_MIN'),1)
-    quad1c_actual = round(helper_functions.get_val_2(df,1,'LINE','C','QUAD','ACTUAL_MIN'),1)
-    quad1d_actual = round(helper_functions.get_val_2(df,1,'LINE','D','QUAD','ACTUAL_MIN'),1)
-
-    quad2a_actual = round(helper_functions.get_val_2(df,2,'LINE','A','QUAD','ACTUAL_MIN'),1)
-    quad2b_actual = round(helper_functions.get_val_2(df,2,'LINE','B','QUAD','ACTUAL_MIN'),1)
-    quad2c_actual = round(helper_functions.get_val_2(df,2,'LINE','C','QUAD','ACTUAL_MIN'),1)
-    quad2d_actual = round(helper_functions.get_val_2(df,2,'LINE','D','QUAD','ACTUAL_MIN'),1)
+    quad2a_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (2,'LINE'),('A','QUAD')),1)
+    quad2b_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (2,'LINE'),('B','QUAD')),1)
+    quad2c_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (2,'LINE'),('C','QUAD')),1)
+    quad2d_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (2,'LINE'),('D','QUAD')),1)
     
-    quad3a_actual = round(helper_functions.get_val_2(df,3,'LINE','A','QUAD','ACTUAL_MIN'),1)
-    quad3b_actual = round(helper_functions.get_val_2(df,3,'LINE','B','QUAD','ACTUAL_MIN'),1)
-    quad3c_actual = round(helper_functions.get_val_2(df,3,'LINE','C','QUAD','ACTUAL_MIN'),1)
-    quad3d_actual = round(helper_functions.get_val_2(df,3,'LINE','D','QUAD','ACTUAL_MIN'),1)
-
-    quad4a_actual = round(helper_functions.get_val_2(df,4,'LINE','A','QUAD','ACTUAL_MIN'),1)
-    quad4b_actual = round(helper_functions.get_val_2(df,4,'LINE','B','QUAD','ACTUAL_MIN'),1)
-    quad4c_actual = round(helper_functions.get_val_2(df,4,'LINE','C','QUAD','ACTUAL_MIN'),1)
-
-    quad5a_actual = round(helper_functions.get_val_2(df,5,'LINE','A','QUAD','ACTUAL_MIN'),1)
-    quad5b_actual = round(helper_functions.get_val_2(df,5,'LINE','B','QUAD','ACTUAL_MIN'),1)
+    quad3a_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (3,'LINE'),('A','QUAD')),1)
+    quad3b_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (3,'LINE'),('B','QUAD')),1)
+    quad3c_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (3,'LINE'),('C','QUAD')),1)
+    quad3d_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (3,'LINE'),('D','QUAD')),1)
+    
+    quad4a_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (4,'LINE'),('A','QUAD')),1)
+    quad4b_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (4,'LINE'),('B','QUAD')),1)
+    quad4c_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (4,'LINE'),('C','QUAD')),1)
+    
+    quad5a_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (5,'LINE'),('A','QUAD')),1)
+    quad5b_target = round(helper_functions.get_vals(df, 'IDEAL_MIN', (5,'LINE'),('B','QUAD')),1)
+    
+    quad1a_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (1,'LINE'),('A','QUAD')), 1)
+    quad1b_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (1,'LINE'),('B','QUAD')), 1)
+    quad1c_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (1,'LINE'),('C','QUAD')), 1)
+    quad1d_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (1,'LINE'),('D','QUAD')), 1)
+    
+    quad2a_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (2,'LINE'),('A','QUAD')), 1)
+    quad2b_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (2,'LINE'),('B','QUAD')), 1)
+    quad2c_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (2,'LINE'),('C','QUAD')), 1)
+    quad2d_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (2,'LINE'),('D','QUAD')), 1)
+    
+    quad3a_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (3,'LINE'),('A','QUAD')), 1)
+    quad3b_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (3,'LINE'),('B','QUAD')), 1)
+    quad3c_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (3,'LINE'),('C','QUAD')), 1)
+    quad3d_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (3,'LINE'),('D','QUAD')), 1)
+    
+    quad4a_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (4,'LINE'),('A','QUAD')), 1)
+    quad4b_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (4,'LINE'),('B','QUAD')), 1)
+    quad4c_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (4,'LINE'),('C','QUAD')), 1)
+    
+    quad5a_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (5,'LINE'),('A','QUAD')), 1)
+    quad5b_actual = round(helper_functions.get_vals(df, 'ACTUAL_MIN', (5,'LINE'),('B','QUAD')), 1)
 
     html=f"""
         <tr>
@@ -588,8 +587,6 @@ def main(env,eos=False):
     title = 'Zone 3 EOS Report' if eos else 'Zone 3 Hourly Update'
     teams_msg.title(title)
     teams_msg.summary('summary')
-    K8S_BLUE = '#3970e4'
-    TESLA_RED = '#cc0000'
     msg_color = TESLA_RED if eos else K8S_BLUE
     teams_msg.color(msg_color)
     #make a card with output data
