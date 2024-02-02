@@ -1,6 +1,7 @@
 import logging
 import os
 
+
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -12,6 +13,7 @@ from resources.alerts import (bma123_c3a_dispense, bma123_hipot,
 
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
+
 
 def listener(event):
     if event.exception:
@@ -59,7 +61,6 @@ if __name__ == '__main__':
         logging.info("CommitHash: %s", commit)
         logging.info("Send Dev Heading")
         devHeading.main()
-        
         for job in job_list:
             job.modify(next_run_time=datetime.now())
             
