@@ -1,12 +1,11 @@
-import common.helper_functions as helper_functions
+import logging
+from datetime import datetime, timedelta
 
-from datetime import datetime
-from datetime import timedelta
+import common.helper_functions as helper_functions
+import numpy as np
+import pandas as pd
 from sqlalchemy import text
 
-import logging
-import pandas as pd
-import numpy as np
 
 def get_fixture_table():
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')

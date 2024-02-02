@@ -1,23 +1,23 @@
 import json
-import time
-import traceback
-import sqlalchemy
-from sqlalchemy import text
-from urllib.parse import quote
-from datetime import timedelta
-import pandas as pd
-import pytz
-from datetime import datetime
-import pymsteams
 import logging
-
+import os
 #email sender libs
 import smtplib
-from email.mime.multipart import MIMEMultipart
+import time
+import traceback
+from datetime import datetime, timedelta
+from email import encoders
 from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.utils import COMMASPACE, formatdate
-from email import encoders
+from urllib.parse import quote
+
+import pandas as pd
+import pymsteams
+import pytz
+import sqlalchemy
+from sqlalchemy import text
 
 
 def file_reader(FilePath):
@@ -30,7 +30,8 @@ try:
         pw_json = json.load(f)
         f.close()
 except:
-    with open('app\local_creds.json') as f:
+    parent_folder = os.getcwd()
+    with open(parent_folder + "/local_creds.json") as f:
         pw_json = json.load(f)
         pw_json = pw_json['credentials']
         f.close()
@@ -97,14 +98,33 @@ def get_val(df,query_val,query_col,return_col):
         val = 0
     return val
 
-#parse dataframes for line-based value
-def get_val_2(df,query_val,query_col,query_val2,query_col2,return_col):
+# dynamic get_val for line-based values
+def get_vals(df, return_col, *query_pairs):
+    """Gets dynamic value for 1 or more query pairs in data frame
+
+    Args:
+        df: data frame
+        return_col: output column
+        query_pairs: query_val and query_col in format of (query_val, query_col)
+
+    Example:
+        get_vals('df', 'return_col', ('val1', 'col1'), ('val2', 'col2'))
+    """
+    if not query_pairs:
+        return 0
+    
+    for index, pair in enumerate(query_pairs):
+        if len(pair) != 2:
+            logging.info('Invalid pair at index' + str(index))
+            return 0
+            
+    sub_query = " and ".join([f"{col}=='{val}'" for val, col in query_pairs]) 
     if len(df):
-        sub_df = df.query(f"{query_col}=='{query_val}' and {query_col2}=='{query_val2}'")
+        sub_df = df.query(sub_query)
         val = sub_df.iloc[0][return_col] if len(sub_df) else 0
     else:
         val = 0
-    return val
+    return val    
 
 #mackenzie october16
 def get_C3Abuffer_count(db,line):

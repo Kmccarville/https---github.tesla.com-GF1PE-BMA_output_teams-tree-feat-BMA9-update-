@@ -1,12 +1,14 @@
-import pandas as pd
-import sqlalchemy
-from urllib.parse import quote
-from datetime import datetime,timedelta
-import pytz
 import logging
-import pymsteams
+from datetime import datetime, timedelta
+from urllib.parse import quote
 
 import common.helper_functions as helper_functions
+import pandas as pd
+import pymsteams
+import pytz
+import sqlalchemy
+from common.constants import STAFFING_GREEN, TESLA_RED
+
 
 def main(env):
   logging.info("Staffing Main Started")
@@ -99,10 +101,7 @@ def main(env):
   title = f"Battery Module SOS Staffing Report ({total_attainment:.0f}%)"
   teams_msg.title(title)
   teams_msg.summary('SOS-Staffing')
-  K8S_BLUE = '#3970e4'
-  GREEN = '#3cb043'
-  TESLA_RED = '#cc0000'
-  msg_color = TESLA_RED if total_attainment < attainment_threshold else GREEN
+  msg_color = TESLA_RED if total_attainment < attainment_threshold else STAFFING_GREEN
   teams_msg.color(msg_color)
   staff_card = pymsteams.cardsection()
   staff_card.text(full_html)

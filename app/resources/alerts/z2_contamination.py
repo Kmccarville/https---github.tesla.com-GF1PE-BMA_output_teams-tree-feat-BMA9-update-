@@ -1,13 +1,13 @@
-import common.helper_functions as helper_functions
+import logging
+from datetime import datetime, timedelta
 
-from datetime import datetime
-from datetime import timedelta
+import common.helper_functions as helper_functions
+import numpy as np
+import pandas as pd
+import pymsteams
+from common.constants import TESLA_RED
 from sqlalchemy import text
 
-import logging
-import pandas as pd
-import numpy as np
-import pymsteams
 
 def get_contaminated_modules(threshold_count):
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
@@ -163,8 +163,6 @@ def main(env, threshold_count = 0):
         title = 'FOD / Contamination Alert'
         teams_msg.title(title)
         teams_msg.summary('summary')
-        K8S_BLUE = '#3970e4'
-        TESLA_RED = '#cc0000'
         msg_color = TESLA_RED #if eos else K8S_BLUE
         teams_msg.color(msg_color)
         #make a card with the hourly data

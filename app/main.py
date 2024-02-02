@@ -1,41 +1,16 @@
-import time
-import schedule
-import logging 
+import logging
 import os
-from pytz import timezone
-from datetime import datetime
-
-from common import helper_functions
-
-from resources import devHeading
-from resources import outputz1
-from resources import outputz2_123
-from resources import outputz2_45
-from resources import outputz2_8
-from resources import outputz2_8_Rev2
-from resources import outputz3
-from resources import outputz4
-from resources import close_nc_check
-from resources import eos
-from resources import AGV_Spur_Picks
-from resources import NCM_bandolier_milan_output
-from resources import NCM_module_output
-from resources import staffing
-from resources.alerts import cta45_ct
-from resources.alerts import cta123_fixtures
-from resources.alerts import z2_fixtures
-from resources.alerts import bma123_hipot
-from resources.alerts import bma123_c3a_dispense
-from resources.alerts import z2_contamination
-from resources.alerts import bma123_Z2_FOD_weekly
 
 from apscheduler.schedulers.background import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
-from resources.passdown import cta123_eqt_email
+from resources import (AGV_Spur_Picks, NCM_bandolier_milan_output, close_nc_check, devHeading, eos,
+                       outputz1, outputz2_8, outputz2_45,
+                       outputz2_123, outputz3, outputz4, staffing)
+from resources.alerts import (bma123_c3a_dispense, bma123_hipot,
+                              z2_contamination, z2_fixtures)
 
 logging.basicConfig(level=logging.INFO)
 logging.info("main_active")
-
 
 if __name__ == '__main__':
     PST_TZ = "America/Los_Angeles"
@@ -75,8 +50,10 @@ if __name__ == '__main__':
         logging.info("CommitHash: %s", commit)
         logging.info("Send Dev Heading")
         devHeading.main()
+
         for job in job_list:
             job.modify(next_run_time=datetime.now())
         scheduler.start()
+
     else:
         scheduler.start()

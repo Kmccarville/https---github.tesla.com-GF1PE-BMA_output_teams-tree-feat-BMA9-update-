@@ -1,11 +1,13 @@
-import common.helper_functions as helper_functions
-from datetime import datetime
-from datetime import timedelta
 import logging
-from sqlalchemy import text
+from datetime import datetime, timedelta
+
+import common.helper_functions as helper_functions
+import numpy as np
 import pandas as pd
 import pymsteams
-import numpy as np
+from common.constants import K8S_BLUE, TESLA_RED
+from sqlalchemy import text
+
 
 def get_starve_block_table(start_time,end_time):
     seconds_between = (end_time - start_time).seconds
@@ -385,8 +387,6 @@ def main(env,eos=False):
     title = 'BMA45 ZONE2 EOS Report' if eos else 'BMA45 ZONE2 Hourly Update'
     teams_msg.title(title)
     teams_msg.summary('summary')
-    K8S_BLUE = '#3970e4'
-    TESLA_RED = '#cc0000'
     msg_color = TESLA_RED if eos else K8S_BLUE
     teams_msg.color(msg_color)
     #make a card with the hourly data
