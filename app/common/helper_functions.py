@@ -30,12 +30,18 @@ try:
         pw_json = json.load(f)
         f.close()
 except:
-    parent_folder = os.getcwd()
-    with open(parent_folder + "/local_creds.json") as f:
-        pw_json = json.load(f)
-        pw_json = pw_json['credentials']
-        f.close()
-    pass
+    try:
+        parent_folder = os.getcwd()
+        with open(parent_folder + "app/local_creds.json") as f:
+            pw_json = json.load(f)
+            pw_json = pw_json['credentials']
+            f.close()
+    except:
+        with open("app/local_creds.json") as f:
+            pw_json = json.load(f)
+            pw_json = pw_json['credentials']
+            f.close()
+        pass
 
 def get_pw_json(key):
     return pw_json[key]

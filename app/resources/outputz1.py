@@ -184,7 +184,7 @@ def get_cta_yield(db,lookback):
     df = pd.read_sql(text(query), db)
     return df
 
-def cta_records(lookback,cta4,cta5,cta6,cta7,webhook):
+def cta_records(lookback,cta4,cta5,cta6,cta7,cta9,webhook):
     logging.info(f'Starting {lookback} hour ACTA records')
     # check for output records for 1 hour
     record_con = helper_functions.get_sql_conn('pedb',schema='records')
@@ -193,8 +193,9 @@ def cta_records(lookback,cta4,cta5,cta6,cta7,webhook):
     line5 = cta5
     line6 = cta6
     line7 = cta7
-    names = ['CTA4','CTA5','CTA6','CTA7']
-    carsets = [line4,line5,line6,line7]
+    line9 = cta9
+    names = ['CTA4','CTA5','CTA6','CTA7','CTA9']
+    carsets = [line4,line5,line6,line7,line9]
     newRecordArray = []
     prevShiftArray = []
     prevDateArray = []
@@ -276,18 +277,19 @@ def main(env,eos=False):
     end=start+timedelta(hours=lookback)
 
     #define globals
-    NUM_LINES = 4
+    NUM_LINES = 5
     NUM_LANES = 8
     CTA_DIVISOR = 28
     CTA4_FLOWSTEP = '3BM4-25000'
     CTA5_FLOWSTEP = '3BM5-25000'
     CTA6_FLOWSTEP = '3BM6-25000'
-    CTA7_FLOWSTEP = '3BM7-25000'  
+    CTA7_FLOWSTEP = '3BM7-25000'
+    CTA9_FLOWSTEP = 'GFNV-BT1-3BM-25000'
     
     #create line arrays
-    LINES = ['3BM4','3BM5','3BM6','3BM7']
+    LINES = ['3BM4','3BM5','3BM6','3BM7','3BM9']
     # changed from FLOWSTEPS = [CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA123_FLOWSTEP,CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA6_FLOWSTEP,CTA7_FLOWSTEP] on 10/18
-    FLOWSTEPS = [CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA6_FLOWSTEP,CTA7_FLOWSTEP]
+    FLOWSTEPS = [CTA4_FLOWSTEP,CTA5_FLOWSTEP,CTA6_FLOWSTEP,CTA7_FLOWSTEP,CTA9_FLOWSTEP]
     
     hourly_goal_dict = helper_functions.get_zone_line_goals(zone=1,hours=lookback)
 
@@ -307,6 +309,8 @@ def main(env,eos=False):
     cta6_yield = []
     cta7_outputs = []
     cta7_yield = []
+    cta9_outputs = []
+    cta9_yield = []
 
     for line in range(NUM_LINES):
         cta_outputs.append(helper_functions.get_output_val(df_output,FLOWSTEPS[line],LINES[line]))
@@ -317,12 +321,14 @@ def main(env,eos=False):
         cta5_outputs.append(helper_functions.get_output_val(df_output,CTA5_FLOWSTEP,'3BM5',actor=f"3BM5-20000-{lane_num}"))
         cta6_outputs.append(helper_functions.get_output_val(df_output,CTA6_FLOWSTEP,'3BM6',actor=f"3BM6-20000-{lane_num}"))
         cta7_outputs.append(helper_functions.get_output_val(df_output,CTA7_FLOWSTEP,'3BM7',actor=f"3BM7-20000-{lane_num}"))
+        cta9_outputs.append(helper_functions.get_output_val(df_output,CTA9_FLOWSTEP,'GFNV',actor=f"GFNV-BT1-3BM9-25000-0{lane_num}"))
         if eos:
             cta4_yield.append(helper_functions.get_val(df_cta_yield, f"3BM4-20000-{lane_num}",'LINE','YIELD'))
             cta5_yield.append(helper_functions.get_val(df_cta_yield, f"3BM5-20000-{lane_num}",'LINE','YIELD'))
             cta6_yield.append(helper_functions.get_val(df_cta_yield, f"3BM6-20000-{lane_num}",'LINE','YIELD'))
             cta7_yield.append(helper_functions.get_val(df_cta_yield, f"3BM7-20000-{lane_num}",'LINE','YIELD'))
-    cta_total = np.sum(cta4_outputs) + np.sum(cta5_outputs) + np.sum(cta6_outputs) + np.sum(cta7_outputs)
+            cta9_yield.append(helper_functions.get_val(df_cta_yield, f"GFNV-BT1-3BM9-25000-0{lane_num}",'LINE','YIELD'))
+    cta_total = np.sum(cta4_outputs) + np.sum(cta5_outputs) + np.sum(cta6_outputs) + np.sum(cta7_outputs) + np.sum(cta9_outputs)
 
     #create html outp9ut
     header_html = """<tr>
@@ -398,6 +404,19 @@ def main(env,eos=False):
                 <td style="text-align:center">---</td>
                 <td style="text-align:center">---</td>
             """
+    cta9_html = f"""
+            <tr>
+                <td style="text-align:right"><strong>CTA9</strong></td>
+                <td style="text-align:center"><strong>{np.sum(cta9_outputs)/CTA_DIVISOR:.1f}</td>
+                <td style="text-align:center"><strong>---</td>
+            """
+    cta9_yield_html = f"""
+            <tr>
+                <td style="text-align:right">YIELD %</strong></td>
+                <td style="text-align:center">---</td>
+                <td style="text-align:center">---</td>
+            """
+
     
     zone1_combined = f"""
             <tr>
@@ -448,8 +467,8 @@ def main(env,eos=False):
                                 <td style="text-align:center;{color_str}">---</td>
                                 """
 
-            #cta7 has 2 lanes
-            if i < 2:
+            #cta7 has 3 lanes
+            if i < 3:
                 color_str = ""
                 cta7_html += f"""
                             <td style="text-align:center">{cta7_outputs[i]/CTA_DIVISOR:.1f}</td>
@@ -467,6 +486,26 @@ def main(env,eos=False):
                     cta7_yield_html += f"""
                                 <td style="text-align:center;{color_str}">---</td>
                                 """
+            #cta9 has 2 lanes
+            if i < 2:
+                color_str = ""
+                cta9_html += f"""
+                            <td style="text-align:center">{cta9_outputs[i]/CTA_DIVISOR:.1f}</td>
+                            """
+                if eos:
+                    cta9_yield_html += f"""
+                                <td style="text-align:center;{color_str}">{cta9_yield[i]}</td>
+                                """
+            else:
+                color_str = ""
+                cta9_html += f"""
+                            <td style="text-align:center">---</td>
+                            """
+                if eos:
+                    cta9_yield_html += f"""
+                                <td style="text-align:center;{color_str}">---</td>
+                                """
+
         else:
             cta4_html += f"""
                         <td style="text-align:center">{cta4_outputs[i]/CTA_DIVISOR:.1f}</td>
@@ -476,6 +515,7 @@ def main(env,eos=False):
                         """
             cta6_html += nolane_html
             cta7_html += nolane_html
+            cta9_html += nolane_html
             if eos:
                 cta4_yield_html += f"""
                             <td style="text-align:center;{color_str}">{cta4_yield[i]}</td>
@@ -489,6 +529,9 @@ def main(env,eos=False):
                 cta7_yield_html += f"""
                             <td style="text-align:center;{color_str}">---</td>
                             """
+                cta9_yield_html += f"""
+                            <td style="text-align:center;{color_str}">---</td>
+                            """
 
     #finish table
     cta4_html += "</tr>"
@@ -499,11 +542,13 @@ def main(env,eos=False):
     cta6_yield_html += "</tr>"
     cta7_html += "</tr>"
     cta7_yield_html += "</tr>"
+    cta9_html += "</tr>"
+    cta9_yield_html += "</tr>"
 
     if eos:
-        cta_html = '<table>' + header_html +cta4_html + cta4_yield_html + cta5_html + cta5_yield_html + cta6_html + cta6_yield_html + cta7_html + cta7_yield_html + zone1_combined + '</table>'
+        cta_html = '<table>' + header_html +cta4_html + cta4_yield_html + cta5_html + cta5_yield_html + cta6_html + cta6_yield_html + cta7_html + cta7_yield_html + cta9_html + cta9_yield_html + zone1_combined + '</table>'
     else:
-        cta_html = '<table>' + header_html + cta4_html + cta5_html + cta6_html + cta7_html + zone1_combined + '</table>'
+        cta_html = '<table>' + header_html + cta4_html + cta5_html + cta6_html + cta7_html + cta9_html + zone1_combined + '</table>'
 
     op_starved_html = get_starve_by_operator(start,end)
     mamc_starved_html = get_starve_block_table(start,end)
@@ -517,50 +562,55 @@ def main(env,eos=False):
                         </tr>
                     """
     tsm_html = "<table>" + "<caption>Performance</caption>" + tsm_header_html + mamc_starved_html + "</table>"
-    
     webhook_key = 'teams_webhook_Zone1_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
-    
-    #making the hourly teams message
-    teams_msg = pymsteams.connectorcard(webhook)
-    title = 'Zone1 EOS Report' if eos else 'Zone1 Hourly Update'
-    teams_msg.title(title)
-    teams_msg.summary('summary')
-    msg_color = TESLA_RED if eos else K8S_BLUE
-    teams_msg.color(msg_color)
-    #make a card with the hourly data
-    output_card = pymsteams.cardsection()
-    output_card.text(cta_html)
-    
-    operator_card = pymsteams.cardsection()
-    operator_card.text(op_starved_html)
-    
-    tsm_card = pymsteams.cardsection()
-    tsm_card.text(tsm_html)
 
-    # teams_msg.addSection(summary_card)
-    teams_msg.addSection(output_card)
-    # teams_msg.addSection(operator_card) #remove operator card temp
-    teams_msg.addSection(tsm_card)
-    teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
-    #SEND IT
-    try:
-        teams_msg.send()
-    except pymsteams.TeamsWebhookException:
-        logging.warn("Webhook timed out, retry once")
+    webhook_key = 'teams_webhook_CTA9_CTA10_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
+    webhook_json = helper_functions.get_pw_json(webhook_key)
+    webhook9_10 = webhook_json['url']
+
+    for webhook in [webhook,webhook9_10]:
+        #making the hourly teams message
+        teams_msg = pymsteams.connectorcard(webhook)
+        title = 'Zone1 EOS Report' if eos else 'Zone1 Hourly Update'
+        teams_msg.title(title)
+        teams_msg.summary('summary')
+        msg_color = TESLA_RED if eos else K8S_BLUE
+        teams_msg.color(msg_color)
+        #make a card with the hourly data
+        output_card = pymsteams.cardsection()
+        output_card.text(cta_html)
+        
+        operator_card = pymsteams.cardsection()
+        operator_card.text(op_starved_html)
+        
+        tsm_card = pymsteams.cardsection()
+        tsm_card.text(tsm_html)
+
+        # teams_msg.addSection(summary_card)
+        teams_msg.addSection(output_card)
+        # teams_msg.addSection(operator_card) #remove operator card temp
+        teams_msg.addSection(tsm_card)
+        teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
+        #SEND IT
         try:
             teams_msg.send()
         except pymsteams.TeamsWebhookException:
-            logging.exception("Webhook timed out twice -- pass to next area")
+            logging.warn("Webhook timed out, retry once")
+            try:
+                teams_msg.send()
+            except pymsteams.TeamsWebhookException:
+                logging.exception("Webhook timed out twice -- pass to next area")
 
     # do records
     cta4 = np.sum(cta4_outputs)/CTA_DIVISOR
     cta5 = np.sum(cta5_outputs)/CTA_DIVISOR
     cta6 = np.sum(cta6_outputs)/CTA_DIVISOR
     cta7 = np.sum(cta7_outputs)/CTA_DIVISOR
-    webhook_key = 'teams_webhook_Zone1_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
+    cta9 = np.sum(cta9_outputs)/CTA_DIVISOR
+    webhook_key = 'teams_webhook_CTA9_CTA10_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
 
-    cta_records(lookback,cta4,cta5,cta6,cta7,webhook)
+    cta_records(lookback,cta4,cta5,cta6,cta7,cta9,webhook)
