@@ -609,7 +609,7 @@ def main(env,eos=False):
     cta6 = np.sum(cta6_outputs)/CTA_DIVISOR
     cta7 = np.sum(cta7_outputs)/CTA_DIVISOR
     cta9 = np.sum(cta9_outputs)/CTA_DIVISOR
-    webhook_key = 'teams_webhook_Zone1_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
+    webhook_key = 'teams_webhook_CTA9_CTA10_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
 
