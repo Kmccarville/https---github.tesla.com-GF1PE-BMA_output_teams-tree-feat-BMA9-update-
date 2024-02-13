@@ -562,42 +562,46 @@ def main(env,eos=False):
                         </tr>
                     """
     tsm_html = "<table>" + "<caption>Performance</caption>" + tsm_header_html + mamc_starved_html + "</table>"
-    
     webhook_key = 'teams_webhook_Zone1_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
-    
-    #making the hourly teams message
-    teams_msg = pymsteams.connectorcard(webhook)
-    title = 'Zone1 EOS Report' if eos else 'Zone1 Hourly Update'
-    teams_msg.title(title)
-    teams_msg.summary('summary')
-    msg_color = TESLA_RED if eos else K8S_BLUE
-    teams_msg.color(msg_color)
-    #make a card with the hourly data
-    output_card = pymsteams.cardsection()
-    output_card.text(cta_html)
-    
-    operator_card = pymsteams.cardsection()
-    operator_card.text(op_starved_html)
-    
-    tsm_card = pymsteams.cardsection()
-    tsm_card.text(tsm_html)
 
-    # teams_msg.addSection(summary_card)
-    teams_msg.addSection(output_card)
-    # teams_msg.addSection(operator_card) #remove operator card temp
-    teams_msg.addSection(tsm_card)
-    teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
-    #SEND IT
-    try:
-        teams_msg.send()
-    except pymsteams.TeamsWebhookException:
-        logging.warn("Webhook timed out, retry once")
+    webhook_key = 'teams_webhook_CTA9_CTA10_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
+    webhook_json = helper_functions.get_pw_json(webhook_key)
+    webhook9_10 = webhook_json['url']
+
+    for webhook in [webhook,webhook9_10]:
+        #making the hourly teams message
+        teams_msg = pymsteams.connectorcard(webhook)
+        title = 'Zone1 EOS Report' if eos else 'Zone1 Hourly Update'
+        teams_msg.title(title)
+        teams_msg.summary('summary')
+        msg_color = TESLA_RED if eos else K8S_BLUE
+        teams_msg.color(msg_color)
+        #make a card with the hourly data
+        output_card = pymsteams.cardsection()
+        output_card.text(cta_html)
+        
+        operator_card = pymsteams.cardsection()
+        operator_card.text(op_starved_html)
+        
+        tsm_card = pymsteams.cardsection()
+        tsm_card.text(tsm_html)
+
+        # teams_msg.addSection(summary_card)
+        teams_msg.addSection(output_card)
+        # teams_msg.addSection(operator_card) #remove operator card temp
+        teams_msg.addSection(tsm_card)
+        teams_msg.addLinkButton("Questions?", "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
+        #SEND IT
         try:
             teams_msg.send()
         except pymsteams.TeamsWebhookException:
-            logging.exception("Webhook timed out twice -- pass to next area")
+            logging.warn("Webhook timed out, retry once")
+            try:
+                teams_msg.send()
+            except pymsteams.TeamsWebhookException:
+                logging.exception("Webhook timed out twice -- pass to next area")
 
     # do records
     cta4 = np.sum(cta4_outputs)/CTA_DIVISOR
