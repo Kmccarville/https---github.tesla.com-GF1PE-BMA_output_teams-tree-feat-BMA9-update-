@@ -614,3 +614,40 @@ def main(env,eos=False):
     webhook = webhook_json['url']
 
     cta_records(lookback,cta4,cta5,cta6,cta7,cta9,webhook)
+    
+    if env == 'prod':
+        teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
+        historize_to_db(teams_con, 'CTA4', hourly_goal_dict['3BM4'], *cta4_outputs, np.sum(cta4_outputs), CTA_DIVISOR)
+        historize_to_db(teams_con, 'CTA5', hourly_goal_dict['3BM5'], *cta5_outputs, np.sum(cta5_outputs), CTA_DIVISOR)
+        historize_to_db(teams_con, 'CTA6', None, *cta6_outputs, np.sum(cta6_outputs), CTA_DIVISOR)
+        historize_to_db(teams_con, 'CTA7', None, *cta7_outputs, np.sum(cta7_outputs), CTA_DIVISOR)
+        historize_to_db(teams_con, 'CTA9', None, *cta9_outputs, np.sum(cta9_outputs), CTA_DIVISOR)
+        teams_con.close()
+    
+    webhook_key = 'teams_webhook_Zone1_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
+    webhook_json = helper_functions.get_pw_json(webhook_key)
+    webhook = webhook_json['url']
+
+    cta_records(lookback,cta4,cta5,cta6,cta7,webhook)
+
+def historize_to_db(db, _id, goal, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, total, CTA_DIVISOR):
+    curr_date = datetime.now().date()
+    fdate = curr_date.strftime('%Y-%m-%d')
+    hour = datetime.now().hour
+    df_insert = pd.DataFrame({
+        'cta_id' : [_id],
+        'goal' : [round(goal/CTA_DIVISOR, 2) if goal is not None else None],
+        'ln1' : [round(ln1/CTA_DIVISOR, 2) if ln1 is not None else None],
+        'ln2' : [round(ln2/CTA_DIVISOR, 2) if ln2 is not None else None],
+        'ln3' : [round(ln3/CTA_DIVISOR, 2) if ln3 is not None else None],
+        'ln4' : [round(ln4/CTA_DIVISOR, 2) if ln4 is not None else None],
+        'ln5' : [round(ln5/CTA_DIVISOR, 2) if ln5 is not None else None],
+        'ln6' : [round(ln6/CTA_DIVISOR, 2) if ln6 is not None else None],
+        'ln7' : [round(ln7/CTA_DIVISOR, 2) if ln7 is not None else None],
+        'ln8' : [round(ln8/CTA_DIVISOR, 2) if ln8 is not None else None],
+        'total': [total],
+        'hour': [hour],
+        'date': [fdate]
+    }, index=['line'])
+                
+    df_insert.to_sql('zone1', con=db, if_exists='append', index=False)
