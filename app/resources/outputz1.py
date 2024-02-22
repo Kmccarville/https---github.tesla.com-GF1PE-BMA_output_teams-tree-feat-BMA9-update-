@@ -628,7 +628,7 @@ def main(env,eos=False):
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
 
-    cta_records(lookback,cta4,cta5,cta6,cta7,webhook)
+    cta_records(lookback,cta4,cta5,cta6,cta7,cta9, webhook)
 
 def historize_to_db(db, _id, goal, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, total, CTA_DIVISOR):
     curr_date = datetime.now().date()
