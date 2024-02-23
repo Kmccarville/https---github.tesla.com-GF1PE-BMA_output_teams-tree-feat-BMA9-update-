@@ -617,11 +617,14 @@ def main(env,eos=False):
     
     if env == 'prod':
         teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
-        historize_to_db(teams_con, 'CTA4', hourly_goal_dict['3BM4'], *cta4_outputs, np.sum(cta4_outputs), CTA_DIVISOR)
-        historize_to_db(teams_con, 'CTA5', hourly_goal_dict['3BM5'], *cta5_outputs, np.sum(cta5_outputs), CTA_DIVISOR)
-        historize_to_db(teams_con, 'CTA6', None, *cta6_outputs, np.sum(cta6_outputs), CTA_DIVISOR)
-        historize_to_db(teams_con, 'CTA7', None, *cta7_outputs, np.sum(cta7_outputs), CTA_DIVISOR)
-        historize_to_db(teams_con, 'CTA9', None, *cta9_outputs, np.sum(cta9_outputs), CTA_DIVISOR)
+        try:
+            historize_to_db(teams_con, 'CTA4', hourly_goal_dict['3BM4'], *cta4_outputs, np.sum(cta4_outputs), CTA_DIVISOR)
+            historize_to_db(teams_con, 'CTA5', hourly_goal_dict['3BM5'], *cta5_outputs, np.sum(cta5_outputs), CTA_DIVISOR)
+            historize_to_db(teams_con, 'CTA6', None, *cta6_outputs, np.sum(cta6_outputs), CTA_DIVISOR)
+            historize_to_db(teams_con, 'CTA7', None, *cta7_outputs, np.sum(cta7_outputs), CTA_DIVISOR)
+            historize_to_db(teams_con, 'CTA9', None, *cta9_outputs, np.sum(cta9_outputs), CTA_DIVISOR)
+        except Exception as e:
+            logging.exception(f'Historization for z1 failed. See: {e}')
         teams_con.close()
     
     webhook_key = 'teams_webhook_Zone1_Records' if env=='prod' else 'teams_webhook_DEV_Updates'

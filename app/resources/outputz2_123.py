@@ -568,36 +568,39 @@ def main(env,eos=False):
     if env == 'prod':
         teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
         TARGET_CYCLE_TIME = 67 # sec
-        historize_to_db(teams_con,
-                        1,
-                        mamc_outputs[0],
-                        c3a_outputs[0],
-                        int(hourly_goal_dict['3BM1']),
-                        int(C3A_Buffer_Outputs[0]),
-                        TARGET_CYCLE_TIME,
-                        *bma1_perf_metrics,
-                        bma1_mamc_yield,
-                        NORMAL_DIVISOR)
-        historize_to_db(teams_con,
-                        2,
-                        mamc_outputs[1],
-                        c3a_outputs[1],
-                        int(hourly_goal_dict['3BM2']),
-                        int(C3A_Buffer_Outputs[1]),
-                        TARGET_CYCLE_TIME,
-                        *bma2_perf_metrics,
-                        bma2_mamc_yield,
-                        NORMAL_DIVISOR)
-        historize_to_db(teams_con,
-                        3,
-                        mamc_outputs[2],
-                        c3a_outputs[2],
-                        int(hourly_goal_dict['3BM3']),
-                        int(C3A_Buffer_Outputs[2]),
-                        TARGET_CYCLE_TIME,
-                        *bma3_perf_metrics,
-                        bma3_mamc_yield,
-                        NORMAL_DIVISOR)
+        try:
+            historize_to_db(teams_con,
+                            1,
+                            mamc_outputs[0],
+                            c3a_outputs[0],
+                            int(hourly_goal_dict['3BM1']),
+                            int(C3A_Buffer_Outputs[0]),
+                            TARGET_CYCLE_TIME,
+                            *bma1_perf_metrics,
+                            bma1_mamc_yield,
+                            NORMAL_DIVISOR)
+            historize_to_db(teams_con,
+                            2,
+                            mamc_outputs[1],
+                            c3a_outputs[1],
+                            int(hourly_goal_dict['3BM2']),
+                            int(C3A_Buffer_Outputs[1]),
+                            TARGET_CYCLE_TIME,
+                            *bma2_perf_metrics,
+                            bma2_mamc_yield,
+                            NORMAL_DIVISOR)
+            historize_to_db(teams_con,
+                            3,
+                            mamc_outputs[2],
+                            c3a_outputs[2],
+                            int(hourly_goal_dict['3BM3']),
+                            int(C3A_Buffer_Outputs[2]),
+                            TARGET_CYCLE_TIME,
+                            *bma3_perf_metrics,
+                            bma3_mamc_yield,
+                            NORMAL_DIVISOR)
+        except Exception as e:
+            logging.exception(f'Historization for z2_123 failed. See: {e}')
         teams_con.close()
         
     webhook_key = 'teams_webhook_Zone2_123_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
