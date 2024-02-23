@@ -218,7 +218,6 @@ def main(env,eos=False):
     msg_color = TESLA_RED if eos else K8S_BLUE
     teams_msg.color(msg_color)
     teams_msg.printme()
-    print(teams_msg)
 
     #create cards for each major html
     output_card = pymsteams.cardsection()
