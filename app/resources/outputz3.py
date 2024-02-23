@@ -333,23 +333,29 @@ def get_starved_blocked_table(db,start,end):
     po_df = helper_functions.query_tsm_state(db,start, end, PO_PATHS, 'Starved',1)
     po_bd_df = helper_functions.query_tsm_state(db,start, end, PO_PATHS, 'Blocked',1)
 
+    ing_starved = []
     ing1_starved = round(helper_functions.get_val(ing_df,'3BM1','LINE','Duration')/seconds_between*100,1)
     ing2_starved = round(helper_functions.get_val(ing_df,'3BM2','LINE','Duration')/seconds_between*100,1)
     ing3_starved = round(helper_functions.get_val(ing_df,'3BM3','LINE','Duration')/seconds_between*100,1)
     ing4_starved = round(helper_functions.get_val(ing_df,'3BM4','LINE','Duration')/seconds_between*100/3,1)
     ing5_starved = round(helper_functions.get_val(ing5_df,'3BM5','LINE','Duration')/seconds_between*100,1)
-
+    ing_starved.extend([ing1_starved, ing2_starved, ing3_starved, ing4_starved, ing5_starved])
+    
+    po_starved = []
     po1_starved = round(helper_functions.get_val(po_df,'3BM1','LINE','Duration')/seconds_between*100,1)
     po2_starved = round(helper_functions.get_val(po_df,'3BM2','LINE','Duration')/seconds_between*100,1)
     po3_starved = round(helper_functions.get_val(po_df,'3BM3','LINE','Duration')/seconds_between*100,1)
     po4_starved = round(helper_functions.get_val(po_df,'3BM4','LINE','Duration')/seconds_between*100,1)
     po5_starved = round(helper_functions.get_val(po_df,'3BM5','LINE','Duration')/seconds_between*100,1)
+    po_starved.extend([po1_starved, po2_starved, po3_starved, po4_starved, po5_starved])
 
+    po_blocked = []
     po1_blocked = round(helper_functions.get_val(po_bd_df,'3BM1','LINE','Duration')/seconds_between*100,1)
     po2_blocked = round(helper_functions.get_val(po_bd_df,'3BM2','LINE','Duration')/seconds_between*100,1)
     po3_blocked = round(helper_functions.get_val(po_bd_df,'3BM3','LINE','Duration')/seconds_between*100,1)
     po4_blocked = round(helper_functions.get_val(po_bd_df,'3BM4','LINE','Duration')/seconds_between*100,1)
     po5_blocked = round(helper_functions.get_val(po_bd_df,'3BM5','LINE','Duration')/seconds_between*100,1)
+    po_blocked.extend([po1_blocked, po2_blocked, po3_blocked, po4_blocked, po5_blocked])
 
     html=f"""
         <tr>
@@ -385,7 +391,7 @@ def get_starved_blocked_table(db,start,end):
             <td style="text-align:center">{po5_blocked}%</td>
         </tr>
         """
-    return html
+    return html, ing_starved, po_starved, po_blocked
 
 def get_empty_bonders(db,tagpath):
     query = f"""
@@ -434,23 +440,29 @@ def get_bond_yield_table(db,start,end):
     df2.loc[:,'POS_CELL_YIELD'] = (df2['POS_CELL_COUNT']-df2['POS_CELL_FAIL_COUNT'])/df2['POS_CELL_COUNT']*100
     df2.loc[:,'NEG_CELL_YIELD'] = (df2['NEG_CELL_COUNT']-df2['NEG_CELL_FAIL_COUNT'])/df2['NEG_CELL_COUNT']*100
 
+    pos_cell_yield = []
     pos_cell_yield_1 = helper_functions.get_val(df2,'3BM1','LINE','POS_CELL_YIELD')
     pos_cell_yield_2 = helper_functions.get_val(df2,'3BM2','LINE','POS_CELL_YIELD')
     pos_cell_yield_3 = helper_functions.get_val(df2,'3BM3','LINE','POS_CELL_YIELD')
     pos_cell_yield_4 = helper_functions.get_val(df2,'3BM4','LINE','POS_CELL_YIELD')
     pos_cell_yield_5 = helper_functions.get_val(df2,'3BM5','LINE','POS_CELL_YIELD')
-
+    pos_cell_yield.extend([pos_cell_yield_1, pos_cell_yield_2, pos_cell_yield_3, pos_cell_yield_4, pos_cell_yield_5])
+    
+    neg_cell_yield = []
     neg_cell_yield_1 = helper_functions.get_val(df2,'3BM1','LINE','NEG_CELL_YIELD')
     neg_cell_yield_2 = helper_functions.get_val(df2,'3BM2','LINE','NEG_CELL_YIELD')
     neg_cell_yield_3 = helper_functions.get_val(df2,'3BM3','LINE','NEG_CELL_YIELD')
     neg_cell_yield_4 = helper_functions.get_val(df2,'3BM4','LINE','NEG_CELL_YIELD')
     neg_cell_yield_5 = helper_functions.get_val(df2,'3BM5','LINE','NEG_CELL_YIELD')
+    neg_cell_yield.extend([neg_cell_yield_1, neg_cell_yield_2, neg_cell_yield_3, neg_cell_yield_4, neg_cell_yield_5])
 
+    num_bonds = []
     bonds_1 = helper_functions.get_val(df2,'3BM1','LINE','NUM_BONDS')
     bonds_2 = helper_functions.get_val(df2,'3BM2','LINE','NUM_BONDS')
     bonds_3 = helper_functions.get_val(df2,'3BM3','LINE','NUM_BONDS')
     bonds_4 = helper_functions.get_val(df2,'3BM4','LINE','NUM_BONDS')
     bonds_5 = helper_functions.get_val(df2,'3BM5','LINE','NUM_BONDS')
+    num_bonds.extend([bonds_1, bonds_2, bonds_3, bonds_4, bonds_5])
 
     html=f"""
         <tr>
@@ -486,7 +498,7 @@ def get_bond_yield_table(db,start,end):
             <td style="text-align:center">{bonds_5:.0f}</td>
         </tr>
         """
-    return html
+    return html, pos_cell_yield, neg_cell_yield, num_bonds
     
 def main(env,eos=False):
     #begin by defining timestamps
@@ -508,9 +520,9 @@ def main(env,eos=False):
     ict_con = helper_functions.get_sql_conn('interconnect_eng')
 
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
-    starved_blocked_table = get_starved_blocked_table(plc_con,start,end)
+    starved_blocked_table, ing_starved, po_starved, po_blocked = get_starved_blocked_table(plc_con,start,end)
     mttr_df = get_mttr_df(env,eos,ict_con,start,end)
-    yield_table = get_bond_yield_table(ict_con,start,end)
+    yield_table, pos_cell_yield, neg_cell_yield, num_bonds = get_bond_yield_table(ict_con,start,end)
 
     #get empty bonder spots
     L1_EMPTY_TAGPATH = '02/_Summary/line1free'
@@ -528,14 +540,20 @@ def main(env,eos=False):
     plc_con.close()
     ict_con.close()
 
+    carsets = []
+    carsets_goal = []
     output1 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM1')/NORMAL_DIVISOR,1)
     output2 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM2')/NORMAL_DIVISOR,1)
     output3 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM3')/NORMAL_DIVISOR,1)
     output4 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM4')/NORMAL_DIVISOR,1)
     output5 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM5')/NORMAL_DIVISOR,1)  
+    carsets.extend([output1, output2, output3, output4, output5])
     total_output = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP)/NORMAL_DIVISOR,1)
 
     hourly_goal_dict = helper_functions.get_zone_line_goals(zone=3,hours=lookback)
+    
+    carsets_goal.extend([int(hourly_goal_dict['3BM1']), int(hourly_goal_dict['3BM2']), 
+                        int(hourly_goal_dict['3BM3']), int(hourly_goal_dict['3BM4']), int(hourly_goal_dict['3BM5'])])
     output_table=f"""
                 <tr>
                     <td></td>
@@ -577,7 +595,22 @@ def main(env,eos=False):
         wb_html = "No Consumables Changed This Hour"
 
     # wb_teep_html = z3_wb_teep.bonder_main(start,end)
-
+    if env == 'prod':
+        teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
+        try:
+            historize_to_db(teams_con,
+                            carsets,
+                            carsets_goal,
+                            pos_cell_yield,
+                            neg_cell_yield,
+                            num_bonds,
+                            ing_starved,
+                            po_starved,
+                            po_blocked)
+        except Exception as e:
+            logging.exception(f'Historization for z3 failed. See: {e}')
+        teams_con.close()
+        
     webhook_key = 'teams_webhook_Zone3_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
@@ -616,3 +649,27 @@ def main(env,eos=False):
             teams_msg.send()
         except pymsteams.TeamsWebhookException:
             logging.exception("Webhook timed out twice -- pass to next area")
+            
+    
+def historize_to_db(db, carsets, carsets_goal, pos_cell_yield, neg_cell_yield,
+                    num_bonds, ingress_starve, po_starve, po_blocked):
+    curr_date = datetime.now().date()
+    fdate = curr_date.strftime('%Y-%m-%d')
+    hour = datetime.now().hour
+    NUM_LINES = 5
+    for _id in range(NUM_LINES):
+        df_insert = pd.DataFrame({
+            'line' : [_id + 1],
+            'carsets': [round(carsets[_id], 2) if carsets[_id] is not None else None],
+            'carsets_goal': [carsets_goal[_id] if carsets_goal[_id] is not None else None],
+            'pos_cell_yield_%': [pos_cell_yield[_id] if pos_cell_yield[_id] is not None else None],
+            'neg_cell_yield_%': [neg_cell_yield[_id] if neg_cell_yield[_id] is not None else None],
+            'num_bonds': [num_bonds[_id] if num_bonds[_id] is not None else None],
+            'ingress_starve_%': [ingress_starve[_id] if ingress_starve[_id] is not None else None],
+            'po_starve_%': [po_starve[_id] if po_starve[_id] is not None else None],
+            'po_blocked_%': [po_blocked[_id] if po_blocked[_id] is not None else None],
+            'hour': [hour],
+            'date': [fdate]
+        }, index=['line'])
+    
+        df_insert.to_sql('zone3', con=db, if_exists='append', index=False)
