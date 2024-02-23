@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 import pymsteams
+import pytz
 from common import helper_functions
 from common.constants import K8S_BLUE, TESLA_RED
 
@@ -243,8 +244,11 @@ def main(env,eos=False):
     bma8_records(lookback,c3a8,webhook)
 
 def historize_to_db(db, mamc, c3a, num_ncs, NORMAL_DIVISOR):
-    curr = datetime.now()
-    sql_date = curr.strftime('%Y-%m-%d %H:%M:%S')
+    curr = datetime.utcnow()
+    pst = pytz.timezone('America/Los_Angeles')
+    pst_time = curr.replace(tzinfo=pytz.utc).astimezone(pst)
+    sql_date = pst_time.strftime('%Y-%m-%d %H:%M:%S')
+    
     df_insert = pd.DataFrame({
         'MAMC' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],
         'C3A' : [round(c3a/NORMAL_DIVISOR, 2) if c3a is not None else None],

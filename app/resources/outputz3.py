@@ -653,8 +653,10 @@ def main(env,eos=False):
     
 def historize_to_db(db, carsets, carsets_goal, pos_cell_yield, neg_cell_yield,
                     num_bonds, ingress_starve, po_starve, po_blocked):
-    curr = datetime.now()
-    sql_date = curr.strftime('%Y-%m-%d %H:%M:%S')
+    curr = datetime.utcnow()
+    pst = pytz.timezone('America/Los_Angeles')
+    pst_time = curr.replace(tzinfo=pytz.utc).astimezone(pst)
+    sql_date = pst_time.strftime('%Y-%m-%d %H:%M:%S')
     NUM_LINES = 5
     for _id in range(NUM_LINES):
         df_insert = pd.DataFrame({

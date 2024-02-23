@@ -5,6 +5,7 @@ import common.helper_functions as helper_functions
 import numpy as np
 import pandas as pd
 import pymsteams
+import pytz
 from common.constants import K8S_BLUE, TESLA_RED
 from sqlalchemy import text
 
@@ -450,8 +451,11 @@ def main(env,eos=False):
 
 def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, mamc_st10, 
                     c3a_st120, ic, nic, mamc_fpy, NORMAL_DIVISOR):
-    curr = datetime.now()
-    sql_date = curr.strftime('%Y-%m-%d %H:%M:%S')
+    curr = datetime.utcnow()
+    pst = pytz.timezone('America/Los_Angeles')
+    pst_time = curr.replace(tzinfo=pytz.utc).astimezone(pst)
+    sql_date = pst_time.strftime('%Y-%m-%d %H:%M:%S')
+    
     df_insert = pd.DataFrame({
         'LINE' : [_id],
         'MAMC' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],

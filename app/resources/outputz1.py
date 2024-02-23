@@ -5,6 +5,7 @@ import common.helper_functions as helper_functions
 import numpy as np
 import pandas as pd
 import pymsteams
+import pytz
 from common.constants import K8S_BLUE, TESLA_RED
 from sqlalchemy import text
 
@@ -634,8 +635,10 @@ def main(env,eos=False):
     cta_records(lookback,cta4,cta5,cta6,cta7,cta9, webhook)
 
 def historize_to_db(db, _id, goal, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, total, CTA_DIVISOR):
-    curr = datetime.now()
-    sql_date = curr.strftime('%Y-%m-%d %H:%M:%S')
+    curr = datetime.utcnow()
+    pst = pytz.timezone('America/Los_Angeles')
+    pst_time = curr.replace(tzinfo=pytz.utc).astimezone(pst)
+    sql_date = pst_time.strftime('%Y-%m-%d %H:%M:%S')
     df_insert = pd.DataFrame({
         'CTA_ID' : [_id],
         'GOAL' : [round(goal/CTA_DIVISOR, 2) if goal is not None else None],

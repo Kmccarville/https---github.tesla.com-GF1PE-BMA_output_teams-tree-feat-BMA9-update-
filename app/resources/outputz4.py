@@ -9,7 +9,7 @@ import pytz
 import requests
 from common import helper_functions
 from common.constants import K8S_BLUE, TESLA_RED
-from pytz import timezone
+import pytz
 from requests.auth import HTTPBasicAuth
 from sqlalchemy import text
 
@@ -235,7 +235,7 @@ def getDirFeedData(line, uph, eos):
   
     #eval start & end tstamp for query
     now = datetime.now(tz=pytz.utc)
-    now = now.astimezone(timezone('US/Pacific'))
+    now = now.astimezone(pytz.timezone('US/Pacific'))
     now_sub1hr = now + timedelta(hours = -lookback)
     
     start = now_sub1hr.replace(minute = 00, second = 00, microsecond = 00)
@@ -597,8 +597,11 @@ def main(env, eos=False):
 def historize_to_db(db, _id, uph, uph_goal, fpy, fpy_goal,
                     nic, ic, nic_1_4, nic_2_3, ic_1_4, ic_2_3,
                     pack_in, pack_out, no_23_s, no_25_s):
-    curr = datetime.now()
-    sql_date = curr.strftime('%Y-%m-%d %H:%M:%S')
+    curr = datetime.utcnow()
+    pst = pytz.timezone('America/Los_Angeles')
+    pst_time = curr.replace(tzinfo=pytz.utc).astimezone(pst)
+    sql_date = pst_time.strftime('%Y-%m-%d %H:%M:%S')
+    
     df_insert = pd.DataFrame({
         'LINE' : [_id],
         'UPH': [round(uph, 2) if uph is not None else None],
