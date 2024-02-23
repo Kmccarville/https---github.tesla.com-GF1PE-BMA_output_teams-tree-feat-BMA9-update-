@@ -45,7 +45,7 @@ def get_mamc_yield_table(start,end):
         <td style="text-align:center">{bma3_yield}%</td>
     </tr>
     """
-    return html
+    return html, bma1_yield, bma2_yield, bma3_yield
 
 #Shiftly-Dispense-Yield 
 def get_c3a_yield_table(start,end):
@@ -91,6 +91,10 @@ def get_c3a_yield_table(start,end):
 def get_performance_table(start,end):
 
     plc_con = helper_functions.get_sql_conn('plc_db')
+    bma1_perf_metrics = []
+    bma2_perf_metrics = []
+    bma3_perf_metrics = []
+    
     seconds_between = (end - start).seconds
     AUTO_CLOSER_PATHS = [
                         '[3BM1_29500_01]Line1A/Closer/TSM/StateControl',
@@ -101,8 +105,11 @@ def get_performance_table(start,end):
     auto_close_df = helper_functions.query_tsm_state(plc_con,start, end, AUTO_CLOSER_PATHS, 'Starved')
     #get percentage (divide by seconds in between start and end and multiply by 100%)
     auto_close_bma1_percent = round(helper_functions.get_val(auto_close_df,'3BM1','LINE','Duration')/seconds_between*100,1)
+    bma1_perf_metrics.append(auto_close_bma1_percent)
     auto_close_bma2_percent = round(helper_functions.get_val(auto_close_df,'3BM2','LINE','Duration')/seconds_between*100,1)
+    bma2_perf_metrics.append(auto_close_bma2_percent)
     auto_close_bma3_percent = round(helper_functions.get_val(auto_close_df,'3BM3','LINE','Duration')/seconds_between*100,1)
+    bma3_perf_metrics.append(auto_close_bma3_percent)
     
     BANDO_CT_PATHS = [
                         '[3BM1_29500_01]BandoLandCT/CycleTimeReporting/PalletInfeed',
@@ -115,8 +122,11 @@ def get_performance_table(start,end):
 
     bando_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,BANDO_CT_PATHS,BANDO_LOW_LIMIT,BANDO_HIGH_LIMIT)
     bando_ct_bma1 = round(helper_functions.get_val(bando_df,'3BM1','LINE','CT_SEC'),1)
+    bma1_perf_metrics.append(bando_ct_bma1)
     bando_ct_bma2 = round(helper_functions.get_val(bando_df,'3BM2','LINE','CT_SEC'),1)
+    bma2_perf_metrics.append(bando_ct_bma2)
     bando_ct_bma3 = round(helper_functions.get_val(bando_df,'3BM3','LINE','CT_SEC'),1)
+    bma3_perf_metrics.append(bando_ct_bma3)
     
     
     C3A_Egress_Blocked_Paths = [
@@ -127,8 +137,11 @@ def get_performance_table(start,end):
     C3A_Egress_Blocked_df = helper_functions.query_tsm_state_by_lane(plc_con,start, end, C3A_Egress_Blocked_Paths, 'Blocked')
     #get percentage (divide by seconds in between start and end and multiply by 100%)
     EgressBlock_bma1_percent = round(helper_functions.get_val(C3A_Egress_Blocked_df,'3BM1','LINE','Duration')/seconds_between*100,1)
+    bma1_perf_metrics.append(EgressBlock_bma1_percent)
     EgressBlock_bma2_percent = round(helper_functions.get_val(C3A_Egress_Blocked_df,'3BM2','LINE','Duration')/seconds_between*100,1)
+    bma2_perf_metrics.append(EgressBlock_bma2_percent)
     EgressBlock_bma3_percent = round(helper_functions.get_val(C3A_Egress_Blocked_df,'3BM3','LINE','Duration')/seconds_between*100,1)
+    bma3_perf_metrics.append(EgressBlock_bma3_percent)
     
     SIDEMOUNT_CT_PATHS = [
                         '[3BM1_29500_01]ManualStationReporting/SidemountInstall/StateControl',
@@ -141,8 +154,11 @@ def get_performance_table(start,end):
 
     sidemount_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,SIDEMOUNT_CT_PATHS,SIDEMOUNT_LOW_LIMIT,SIDEMOUNT_HIGH_LIMIT)
     sidemount_ct_bma1 = round(helper_functions.get_val(sidemount_df,'3BM1','LINE','CT_SEC'),1)
+    bma1_perf_metrics.append(sidemount_ct_bma1)
     sidemount_ct_bma2 = round(helper_functions.get_val(sidemount_df,'3BM2','LINE','CT_SEC'),1)
+    bma2_perf_metrics.append(sidemount_ct_bma2)
     sidemount_ct_bma3 = round(helper_functions.get_val(sidemount_df,'3BM3','LINE','CT_SEC'),1)
+    bma3_perf_metrics.append(sidemount_ct_bma3)
     
     QIS_CT_PATHS = [
                         '[3BM1_29500_01]EquipmentReporting/QualityInspection_EquipmentReportHMI',
@@ -155,8 +171,11 @@ def get_performance_table(start,end):
 
     qis_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,QIS_CT_PATHS,QIS_LOW_LIMIT,QIS_HIGH_LIMIT)
     qis_ct_bma1 = round(helper_functions.get_val(qis_df,'3BM1','LINE','CT_SEC'),1)
+    bma1_perf_metrics.append(qis_ct_bma1)
     qis_ct_bma2 = round(helper_functions.get_val(qis_df,'3BM2','LINE','CT_SEC'),1)
+    bma2_perf_metrics.append(qis_ct_bma2)
     qis_ct_bma3 = round(helper_functions.get_val(qis_df,'3BM3','LINE','CT_SEC'),1)
+    bma3_perf_metrics.append(qis_ct_bma3)
 
     plc_con.close()
     
@@ -211,7 +230,7 @@ def get_performance_table(start,end):
         </tr>
         """
     
-    return html
+    return html, bma1_perf_metrics, bma2_perf_metrics, bma3_perf_metrics
 
 def mamc_records(lookback,mamc1,mamc2,mamc3,webhook):
     logging.info(f'Starting {lookback} hour ACTA records')
@@ -482,8 +501,8 @@ def main(env,eos=False):
                 """
     # starved_table = get_starved_table(start,end)
     # cycle_time_table = get_cycle_time_table(start,end)
-    performance_table = get_performance_table(start,end)
-    mamc_yield_table = get_mamc_yield_table(start,end)
+    performance_table, bma1_perf_metrics, bma2_perf_metrics, bma3_perf_metrics = get_performance_table(start,end)
+    mamc_yield_table, bma1_mamc_yield, bma2_mamc_yield, bma3_mamc_yield = get_mamc_yield_table(start,end)
     if eos:
         c3a_yield_table = get_c3a_yield_table(start,end)
 
@@ -545,7 +564,68 @@ def main(env,eos=False):
     line1 = c3a_outputs[0]/NORMAL_DIVISOR
     line2 = c3a_outputs[1]/NORMAL_DIVISOR
     line3 = c3a_outputs[2]/NORMAL_DIVISOR
+    
+    if env == 'prod':
+        teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
+        TARGET_CYCLE_TIME = 67 # sec
+        historize_to_db(teams_con,
+                        1,
+                        mamc_outputs[0],
+                        c3a_outputs[0],
+                        int(hourly_goal_dict['3BM1']),
+                        int(C3A_Buffer_Outputs[0]),
+                        TARGET_CYCLE_TIME,
+                        *bma1_perf_metrics,
+                        bma1_mamc_yield,
+                        NORMAL_DIVISOR)
+        historize_to_db(teams_con,
+                        2,
+                        mamc_outputs[1],
+                        c3a_outputs[1],
+                        int(hourly_goal_dict['3BM2']),
+                        int(C3A_Buffer_Outputs[1]),
+                        TARGET_CYCLE_TIME,
+                        *bma2_perf_metrics,
+                        bma2_mamc_yield,
+                        NORMAL_DIVISOR)
+        historize_to_db(teams_con,
+                        3,
+                        mamc_outputs[2],
+                        c3a_outputs[2],
+                        int(hourly_goal_dict['3BM3']),
+                        int(C3A_Buffer_Outputs[2]),
+                        TARGET_CYCLE_TIME,
+                        *bma3_perf_metrics,
+                        bma3_mamc_yield,
+                        NORMAL_DIVISOR)
+        teams_con.close()
+        
     webhook_key = 'teams_webhook_Zone2_123_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
     ac3a_records(lookback,line1,line2,line3,webhook)
+
+def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, c3a_buffer_counter, target_cycle_time, 
+                    starved_auto_closer, bandoland_cycle_time, blocked_c3a_egress, sidemount_cycle_time, 
+                    qis_cycle_time, mamc_yield, NORMAL_DIVISOR):
+    curr_date = datetime.now().date()
+    fdate = curr_date.strftime('%Y-%m-%d')
+    hour = datetime.now().hour
+    df_insert = pd.DataFrame({
+        'line' : [_id],
+        'mamc' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],
+        'c3a' : [round(c3a/NORMAL_DIVISOR, 2) if c3a is not None else None],
+        'c3a_mamc_goal' : [round(c3a_mamc_goal, 2) if c3a_mamc_goal is not None else None],
+        'c3a_buffer_count' : [c3a_buffer_counter if c3a_buffer_counter is not None else None],
+        'target_cycle_time' : [target_cycle_time if target_cycle_time is not None else None],
+        'bandoland_cycle_time' : [bandoland_cycle_time if bandoland_cycle_time is not None else None],
+        'sidemount_cycle_time' : [sidemount_cycle_time if sidemount_cycle_time is not None else None],
+        'qis_cycle_time' : [qis_cycle_time if qis_cycle_time is not None else None],
+        'starved_auto_closer_%' : [starved_auto_closer if starved_auto_closer is not None else None],
+        'blocked_c3a_egress_%': [blocked_c3a_egress if blocked_c3a_egress is not None else None],
+        'mamc_yield_%': [round(mamc_yield, 2) if mamc_yield is not None else None],
+        'hour': [hour],
+        'date': [fdate]
+    }, index=['line'])
+                
+    df_insert.to_sql('zone2_bma123', con=db, if_exists='append', index=False)
