@@ -653,23 +653,21 @@ def main(env,eos=False):
     
 def historize_to_db(db, carsets, carsets_goal, pos_cell_yield, neg_cell_yield,
                     num_bonds, ingress_starve, po_starve, po_blocked):
-    curr_date = datetime.now().date()
-    fdate = curr_date.strftime('%Y-%m-%d')
-    hour = datetime.now().hour
+    curr = datetime.now()
+    sql_date = curr.strftime('%Y-%m-%d %H:%M:%S')
     NUM_LINES = 5
     for _id in range(NUM_LINES):
         df_insert = pd.DataFrame({
-            'line' : [_id + 1],
-            'carsets': [round(carsets[_id], 2) if carsets[_id] is not None else None],
-            'carsets_goal': [carsets_goal[_id] if carsets_goal[_id] is not None else None],
-            'pos_cell_yield_%': [pos_cell_yield[_id] if pos_cell_yield[_id] is not None else None],
-            'neg_cell_yield_%': [neg_cell_yield[_id] if neg_cell_yield[_id] is not None else None],
-            'num_bonds': [num_bonds[_id] if num_bonds[_id] is not None else None],
-            'ingress_starve_%': [ingress_starve[_id] if ingress_starve[_id] is not None else None],
-            'po_starve_%': [po_starve[_id] if po_starve[_id] is not None else None],
-            'po_blocked_%': [po_blocked[_id] if po_blocked[_id] is not None else None],
-            'hour': [hour],
-            'date': [fdate]
+            'LINE' : [_id + 1],
+            'CARSETS': [round(carsets[_id], 2) if carsets[_id] is not None else None],
+            'CARSETS_GOAL': [carsets_goal[_id] if carsets_goal[_id] is not None else None],
+            'POS_CELL_YIELD': [pos_cell_yield[_id] if pos_cell_yield[_id] is not None else None],
+            'NEG_CELL_YIELD': [neg_cell_yield[_id] if neg_cell_yield[_id] is not None else None],
+            'NUM_BONDS': [num_bonds[_id] if num_bonds[_id] is not None else None],
+            'INGRESS_STARVE': [ingress_starve[_id] if ingress_starve[_id] is not None else None],
+            'PO_STARVE': [po_starve[_id] if po_starve[_id] is not None else None],
+            'PO_BLOCKED': [po_blocked[_id] if po_blocked[_id] is not None else None],
+            'START_TIME': [sql_date]
         }, index=['line'])
     
         df_insert.to_sql('zone3', con=db, if_exists='append', index=False)

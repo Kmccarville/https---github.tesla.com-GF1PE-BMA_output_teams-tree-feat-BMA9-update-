@@ -611,24 +611,23 @@ def main(env,eos=False):
 def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, c3a_buffer_counter, target_cycle_time, 
                     starved_auto_closer, bandoland_cycle_time, blocked_c3a_egress, sidemount_cycle_time, 
                     qis_cycle_time, mamc_yield, NORMAL_DIVISOR):
-    curr_date = datetime.now().date()
-    fdate = curr_date.strftime('%Y-%m-%d')
+    curr = datetime.now()
+    sql_date = curr.strftime('%Y-%m-%d %H:%M:%S')
     hour = datetime.now().hour
     df_insert = pd.DataFrame({
-        'line' : [_id],
-        'mamc' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],
-        'c3a' : [round(c3a/NORMAL_DIVISOR, 2) if c3a is not None else None],
-        'c3a_mamc_goal' : [round(c3a_mamc_goal, 2) if c3a_mamc_goal is not None else None],
-        'c3a_buffer_count' : [c3a_buffer_counter if c3a_buffer_counter is not None else None],
-        'target_cycle_time' : [target_cycle_time if target_cycle_time is not None else None],
-        'bandoland_cycle_time' : [bandoland_cycle_time if bandoland_cycle_time is not None else None],
-        'sidemount_cycle_time' : [sidemount_cycle_time if sidemount_cycle_time is not None else None],
-        'qis_cycle_time' : [qis_cycle_time if qis_cycle_time is not None else None],
-        'starved_auto_closer_%' : [starved_auto_closer if starved_auto_closer is not None else None],
-        'blocked_c3a_egress_%': [blocked_c3a_egress if blocked_c3a_egress is not None else None],
-        'mamc_yield_%': [round(mamc_yield, 2) if mamc_yield is not None else None],
-        'hour': [hour],
-        'date': [fdate]
+        'LINE' : [_id],
+        'MAMC' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],
+        'C3A' : [round(c3a/NORMAL_DIVISOR, 2) if c3a is not None else None],
+        'C3A_MAMC_GOAL' : [round(c3a_mamc_goal, 2) if c3a_mamc_goal is not None else None],
+        'C3A_BUFFER_COUNT' : [c3a_buffer_counter if c3a_buffer_counter is not None else None],
+        'TARGET_CYCLE_TIME' : [target_cycle_time if target_cycle_time is not None else None],
+        'BANDOLAND_CYCLE_TIME' : [bandoland_cycle_time if bandoland_cycle_time is not None else None],
+        'SIDEMOUNT_CYCLE_TIME' : [sidemount_cycle_time if sidemount_cycle_time is not None else None],
+        'QIS_CYCLE_TIME' : [qis_cycle_time if qis_cycle_time is not None else None],
+        'STARVED_AUTO_CLOSER' : [starved_auto_closer if starved_auto_closer is not None else None],
+        'BLOCKED_C3A_EGRESS': [blocked_c3a_egress if blocked_c3a_egress is not None else None],
+        'MAMC_YIELD': [round(mamc_yield, 2) if mamc_yield is not None else None],
+        'START_TIME': [sql_date]
     }, index=['line'])
                 
     df_insert.to_sql('zone2_bma123', con=db, if_exists='append', index=False)

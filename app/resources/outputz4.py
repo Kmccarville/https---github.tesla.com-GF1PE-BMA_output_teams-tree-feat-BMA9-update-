@@ -597,28 +597,25 @@ def main(env, eos=False):
 def historize_to_db(db, _id, uph, uph_goal, fpy, fpy_goal,
                     nic, ic, nic_1_4, nic_2_3, ic_1_4, ic_2_3,
                     pack_in, pack_out, no_23_s, no_25_s):
-    curr_date = datetime.now().date()
-    fdate = curr_date.strftime('%Y-%m-%d')
-    hour = datetime.now().hour
-    
+    curr = datetime.now()
+    sql_date = curr.strftime('%Y-%m-%d %H:%M:%S')
     df_insert = pd.DataFrame({
-        'line' : [_id],
-        'uph': [round(uph, 2) if uph is not None else None],
-        'uph_goal': [uph_goal if uph_goal is not None else None],
-        'fpy_%': [round(fpy, 2) if fpy is not None else None],
-        'fpy_goal_%': [fpy_goal if fpy_goal is not None else None],
-        'nic': [nic if nic is not None else None],
-        'ic': [ic if ic is not None else None],
-        'nic_1_4': [nic_1_4 if nic_1_4 is not None else None],
-        'nic_2_3': [nic_2_3 if nic_2_3 is not None else None],
-        'ic_1_4': [ic_1_4 if ic_1_4 is not None else None],
-        'ic_2_3': [ic_2_3 if ic_2_3 is not None else None],
-        'pack_in_%': [pack_in if pack_in is not None else None],
-        'pack_out_%': [pack_out if pack_out is not None else None],
-        'no_23_s_%': [no_23_s if no_23_s is not None else None],
-        'no_25_s_%': [no_25_s if no_25_s is not None else None],
-        'hour': [hour],
-        'date': [fdate]
+        'LINE' : [_id],
+        'UPH': [round(uph, 2) if uph is not None else None],
+        'UPH_GOAL': [uph_goal if uph_goal is not None else None],
+        'FPY': [round(fpy, 2) if fpy is not None else None],
+        'FPY_GOAL': [fpy_goal if fpy_goal is not None else None],
+        'NIC': [nic if nic is not None else None],
+        'IC': [ic if ic is not None else None],
+        'NIC_1_4': [nic_1_4 if nic_1_4 is not None else None],
+        'NIC_2_3': [nic_2_3 if nic_2_3 is not None else None],
+        'IC_1_4': [ic_1_4 if ic_1_4 is not None else None],
+        'IC_2_3': [ic_2_3 if ic_2_3 is not None else None],
+        'PACK_IN': [pack_in if pack_in is not None else None],
+        'PACK_OUT': [pack_out if pack_out is not None else None],
+        'NO_23_S': [no_23_s if no_23_s is not None else None],
+        'NO_25_S': [no_25_s if no_25_s is not None else None],
+        'START_TIME': [sql_date]
     }, index=['line'])
 
     df_insert.to_sql('zone4', con=db, if_exists='append', index=False)

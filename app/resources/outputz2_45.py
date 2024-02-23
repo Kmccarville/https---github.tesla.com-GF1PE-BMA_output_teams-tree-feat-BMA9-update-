@@ -450,21 +450,19 @@ def main(env,eos=False):
 
 def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, mamc_st10, 
                     c3a_st120, ic, nic, mamc_fpy, NORMAL_DIVISOR):
-    curr_date = datetime.now().date()
-    fdate = curr_date.strftime('%Y-%m-%d')
-    hour = datetime.now().hour
+    curr = datetime.now()
+    sql_date = curr.strftime('%Y-%m-%d %H:%M:%S')
     df_insert = pd.DataFrame({
-        'line' : [_id],
-        'mamc' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],
-        'c3a' : [round(c3a/NORMAL_DIVISOR, 2) if c3a is not None else None],
-        'c3a_mamc_goal' : [round(c3a_mamc_goal, 2) if c3a_mamc_goal is not None else None],
-        'mamc_st10_%' : [mamc_st10 if  mamc_st10 is not None else None],
-        'c3a_st120_%' : [c3a_st120 if c3a_st120 is not None else None],
-        'mamc_fpy_%' : [round(float(mamc_fpy.replace('%', '')), 2) if mamc_fpy is not None else None],
-        'ic_%' : [round(float(ic.replace('%', '')), 2) if ic is not None else None],
-        'nic_%': [round(float(nic.replace('%', '')), 2) if nic is not None else None],
-        'hour': [hour],
-        'date': [fdate]
+        'LINE' : [_id],
+        'MAMC' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],
+        'C3A' : [round(c3a/NORMAL_DIVISOR, 2) if c3a is not None else None],
+        'C3A_MAMC_GOAL' : [round(c3a_mamc_goal, 2) if c3a_mamc_goal is not None else None],
+        'MAMC_ST10' : [mamc_st10 if  mamc_st10 is not None else None],
+        'C3A_ST120' : [c3a_st120 if c3a_st120 is not None else None],
+        'MAMC_FPY' : [round(float(mamc_fpy.replace('%', '')), 2) if mamc_fpy is not None else None],
+        'IC' : [round(float(ic.replace('%', '')), 2) if ic is not None else None],
+        'NIC': [round(float(nic.replace('%', '')), 2) if nic is not None else None],
+        'START_TIME': [sql_date]
     }, index=['line'])
     
     df_insert.to_sql('zone2_bma45', con=db, if_exists='append', index=False)

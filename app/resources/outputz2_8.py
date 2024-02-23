@@ -243,15 +243,13 @@ def main(env,eos=False):
     bma8_records(lookback,c3a8,webhook)
 
 def historize_to_db(db, mamc, c3a, num_ncs, NORMAL_DIVISOR):
-    curr_date = datetime.now().date()
-    fdate = curr_date.strftime('%Y-%m-%d')
-    hour = datetime.now().hour
+    curr = datetime.now()
+    sql_date = curr.strftime('%Y-%m-%d %H:%M:%S')
     df_insert = pd.DataFrame({
-        'mamc' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],
-        'c3a' : [round(c3a/NORMAL_DIVISOR, 2) if c3a is not None else None],
-        'num_ncs' : [num_ncs if num_ncs is not None else None],
-        'hour': [hour],
-        'date': [fdate]
+        'MAMC' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],
+        'C3A' : [round(c3a/NORMAL_DIVISOR, 2) if c3a is not None else None],
+        'NUM_NCS' : [num_ncs if num_ncs is not None else None],
+        'START_TIME': [sql_date]
     }, index=['line'])
     
     df_insert.to_sql('zone2_bma8', con=db, if_exists='append', index=False)

@@ -634,23 +634,21 @@ def main(env,eos=False):
     cta_records(lookback,cta4,cta5,cta6,cta7,cta9, webhook)
 
 def historize_to_db(db, _id, goal, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, total, CTA_DIVISOR):
-    curr_date = datetime.now().date()
-    fdate = curr_date.strftime('%Y-%m-%d')
-    hour = datetime.now().hour
+    curr = datetime.now()
+    sql_date = curr.strftime('%Y-%m-%d %H:%M:%S')
     df_insert = pd.DataFrame({
-        'cta_id' : [_id],
-        'goal' : [round(goal/CTA_DIVISOR, 2) if goal is not None else None],
-        'ln1' : [round(ln1/CTA_DIVISOR, 2) if ln1 is not None else None],
-        'ln2' : [round(ln2/CTA_DIVISOR, 2) if ln2 is not None else None],
-        'ln3' : [round(ln3/CTA_DIVISOR, 2) if ln3 is not None else None],
-        'ln4' : [round(ln4/CTA_DIVISOR, 2) if ln4 is not None else None],
-        'ln5' : [round(ln5/CTA_DIVISOR, 2) if ln5 is not None else None],
-        'ln6' : [round(ln6/CTA_DIVISOR, 2) if ln6 is not None else None],
-        'ln7' : [round(ln7/CTA_DIVISOR, 2) if ln7 is not None else None],
-        'ln8' : [round(ln8/CTA_DIVISOR, 2) if ln8 is not None else None],
-        'total': [total],
-        'hour': [hour],
-        'date': [fdate]
+        'CTA_ID' : [_id],
+        'GOAL' : [round(goal/CTA_DIVISOR, 2) if goal is not None else None],
+        'LN1' : [round(ln1/CTA_DIVISOR, 2) if ln1 is not None else None],
+        'LN2' : [round(ln2/CTA_DIVISOR, 2) if ln2 is not None else None],
+        'LN3' : [round(ln3/CTA_DIVISOR, 2) if ln3 is not None else None],
+        'LN4' : [round(ln4/CTA_DIVISOR, 2) if ln4 is not None else None],
+        'LN5' : [round(ln5/CTA_DIVISOR, 2) if ln5 is not None else None],
+        'LN6' : [round(ln6/CTA_DIVISOR, 2) if ln6 is not None else None],
+        'LN7' : [round(ln7/CTA_DIVISOR, 2) if ln7 is not None else None],
+        'LN8' : [round(ln8/CTA_DIVISOR, 2) if ln8 is not None else None],
+        'TOTAL': [total],
+        'START_TIME': [sql_date]
     }, index=['line'])
                 
     df_insert.to_sql('zone1', con=db, if_exists='append', index=False)
