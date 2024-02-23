@@ -39,8 +39,9 @@ def get_mamc_ncs_table(db,start,end):
         order by 2 desc
     """
     df = pd.read_sql(query,db)
+    ncs = df['NCs'].sum()
     ncs_table = df.to_html(index=False,justify='center')
-    return ncs_table
+    return ncs_table, ncs
 
 def bma8_records(lookback,c3a8,webhook):
     logging.info(f'Starting {lookback} hour ACTA records')
@@ -158,7 +159,7 @@ def main(env,eos=False):
     mamc_output_ncs = get_mamc_ncs(mos_con,start, end)
     c3a_outputs = helper_functions.get_output_val(df_output,C3A_FLOWSTEP,C3A_LINE)
     
-    NC_Table_html = get_mamc_ncs_table(mos_con,start,end)
+    NC_Table_html, num_ncs = get_mamc_ncs_table(mos_con,start,end)
     
     hourly_goal_dict = helper_functions.get_zone_line_goals(zone=2,hours=lookback)
 
@@ -192,6 +193,18 @@ def main(env,eos=False):
     #create full bma html with the above htmls
     output_html = '<table>' + bma_header_html + mamc_output_html + c3a_output_html + NC_Table_html + '</table>'
 
+    if env == 'prod':
+        teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
+        try:
+            historize_to_db(teams_con,
+                            mamc_output_good,
+                            c3a_outputs,
+                            num_ncs,
+                            NORMAL_DIVISOR)
+        except Exception as e:
+            logging.exception(f'Historization for z2_8 failed. See: {e}')
+        teams_con.close()
+        
     #get webhook based on environment
     webhook_key = 'teams_webhook_BMA8_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
@@ -229,3 +242,17 @@ def main(env,eos=False):
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
     bma8_records(lookback,c3a8,webhook)
+
+def historize_to_db(db, mamc, c3a, num_ncs, NORMAL_DIVISOR):
+    curr_date = datetime.now().date()
+    fdate = curr_date.strftime('%Y-%m-%d')
+    hour = datetime.now().hour
+    df_insert = pd.DataFrame({
+        'mamc' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],
+        'c3a' : [round(c3a/NORMAL_DIVISOR, 2) if c3a is not None else None],
+        'num_ncs' : [num_ncs if num_ncs is not None else None],
+        'hour': [hour],
+        'date': [fdate]
+    }, index=['line'])
+    
+    df_insert.to_sql('zone2_bma8', con=db, if_exists='append', index=False)

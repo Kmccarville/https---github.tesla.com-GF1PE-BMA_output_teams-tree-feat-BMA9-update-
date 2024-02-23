@@ -405,7 +405,7 @@ def main(env,eos=False):
                             fpy_mamc_5,
                             NORMAL_DIVISOR)
         except Exception as e:
-            logging.exception(f'Historization for z2_123 failed. See: {e}')
+            logging.exception(f'Historization for z2_45 failed. See: {e}')
         teams_con.close()
 
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
