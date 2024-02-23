@@ -104,7 +104,7 @@ def get_starved_table(db, start, end):
             <td style="text-align:center">{pi2_starved5}%</td>
         </tr>
         """
-    return html
+    return html, pi1_starved, pi2_starved, po1_starved, po2_starved, pi2_starved6, pi2_starved5
 
 def get_fpy_dfs(db, lookback, line='MC1'):
     line_val = '908336' if line == 'MC1' else '906294'
@@ -414,7 +414,7 @@ def main(env, eos=False):
     else: 
         mc2_ic23_color = 'red'
 
-    starve_table = get_starved_table(plc_con, start, end)  # pull starvation data
+    starve_table, mc1_pi, mc2_pi, mc1_po, mc2_po, no23, no25 = get_starved_table(plc_con, start, end)  # pull starvation data
     
     FPY_GOAL = 94
     mc1_fpy = None
@@ -537,6 +537,22 @@ def main(env, eos=False):
     # Setup teams starvation table
     starved_html = "<table>" + "<caption><u>MTR Starvation</u></caption>" + starve_table + "</table>"
 
+    if env == 'prod':
+        teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
+        try:
+            MC1_DIVISOR, MC2_DIVISOR = 4, 4
+            historize_to_db(teams_con, 'MC1', mc1_output/MC1_DIVISOR, int(hourly_goal_dict['MC1']), mc1_fpy, FPY_GOAL,
+                            mc1_nic_pallets, mc1_ic_pallets, None, None, None, None,
+                            mc1_pi, mc1_po, None, None)
+            historize_to_db(teams_con, 'MC2', mc2_output/MC2_DIVISOR, int(hourly_goal_dict['MC2']), mc2_fpy, FPY_GOAL,
+                            None, None, mc2_nic14_pallets, mc2_nic23_pallets,
+                            mc2_ic14_pallets, mc2_ic23_pallets,
+                            mc2_pi, mc2_po, no23, no25)
+            
+        except Exception as e:
+            logging.exception(f'Historization for z4 failed. See: {e}')
+        teams_con.close()
+
     # get webhook based on environment
 
     webhook_key = 'teams_webhook_Zone4_Updates' if env == 'prod' else 'teams_webhook_DEV_Updates'
@@ -577,3 +593,32 @@ def main(env, eos=False):
         except pymsteams.TeamsWebhookException:
             logging.exception("Webhook timed out twice -- pass to next area")
             # helper_functions.e_handler(e)
+
+def historize_to_db(db, _id, uph, uph_goal, fpy, fpy_goal,
+                    nic, ic, nic_1_4, nic_2_3, ic_1_4, ic_2_3,
+                    pack_in, pack_out, no_23_s, no_25_s):
+    curr_date = datetime.now().date()
+    fdate = curr_date.strftime('%Y-%m-%d')
+    hour = datetime.now().hour
+    
+    df_insert = pd.DataFrame({
+        'line' : [_id],
+        'uph': [round(uph, 2) if uph is not None else None],
+        'uph_goal': [uph_goal if uph_goal is not None else None],
+        'fpy_%': [round(fpy, 2) if fpy is not None else None],
+        'fpy_goal_%': [fpy_goal if fpy_goal is not None else None],
+        'nic': [nic if nic is not None else None],
+        'ic': [ic if ic is not None else None],
+        'nic_1_4': [nic_1_4 if nic_1_4 is not None else None],
+        'nic_2_3': [nic_2_3 if nic_2_3 is not None else None],
+        'ic_1_4': [ic_1_4 if ic_1_4 is not None else None],
+        'ic_2_3': [ic_2_3 if ic_2_3 is not None else None],
+        'pack_in_%': [pack_in if pack_in is not None else None],
+        'pack_out_%': [pack_out if pack_out is not None else None],
+        'no_23_s_%': [no_23_s if no_23_s is not None else None],
+        'no_25_s_%': [no_25_s if no_25_s is not None else None],
+        'hour': [hour],
+        'date': [fdate]
+    }, index=['line'])
+
+    df_insert.to_sql('zone4', con=db, if_exists='append', index=False)
