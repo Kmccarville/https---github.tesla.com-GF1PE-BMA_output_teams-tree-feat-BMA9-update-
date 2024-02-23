@@ -46,7 +46,7 @@ def get_starve_block_table(start_time,end_time):
         </tr>
         """
     plc_con.close()
-    return html
+    return html, m_st10_bma4_percent, m_st10_bma5_percent, c_st120_bma4_percent, c_st120_bma5_percent
 
 def get_blocked_table(start_time,end_time):
     seconds_between = (end_time - start_time).seconds
@@ -323,7 +323,7 @@ def main(env,eos=False):
     #create full bma html with the above htmls
     bma_html = '<table>' + bma_header_html + mamc_output_html + c3a_output_html + goal_html + '</table>'
 
-    mamc_starved_html = get_starve_block_table(start,end)
+    mamc_starved_html, m_st10_4, m_st10_5, c3a_st120_4, c3a_st120_5 = get_starve_block_table(start,end)
     tsm_header_html = """
                         <tr>
                         <td></td>
@@ -379,6 +379,35 @@ def main(env,eos=False):
 
     c3a_fpy_html = "<table>" + "<caption>C3A DISPENSE FPY</caption>" + c3a_fpy_header_html + ic_fpy_html + nic_fpy_html + "</table>"    
 
+    if env == 'prod':
+        teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
+        try:
+            historize_to_db(teams_con,
+                            4,
+                            mamc_outputs[0],
+                            c3a_outputs[0],
+                            int(hourly_goal_dict['3BM4']),
+                            m_st10_4,
+                            c3a_st120_4,
+                            fpy_mamc_4,
+                            fpy_c3a_4_ic,
+                            fpy_c3a_4_nic,
+                            NORMAL_DIVISOR)
+            historize_to_db(teams_con,
+                            5,
+                            mamc_outputs[1],
+                            c3a_outputs[1],
+                            int(hourly_goal_dict['3BM5']),
+                            m_st10_5,
+                            c3a_st120_5,
+                            fpy_c3a_5_ic,
+                            fpy_c3a_5_nic,
+                            fpy_mamc_5,
+                            NORMAL_DIVISOR)
+        except Exception as e:
+            logging.exception(f'Historization for z2_123 failed. See: {e}')
+        teams_con.close()
+
     webhook_key = 'teams_webhook_BMA45_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
@@ -417,3 +446,25 @@ def main(env,eos=False):
             teams_msg.send()
         except pymsteams.TeamsWebhookException:
             logging.exception("Webhook timed out twice -- pass to next area")
+
+
+def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, mamc_st10, 
+                    c3a_st120, ic, nic, mamc_fpy, NORMAL_DIVISOR):
+    curr_date = datetime.now().date()
+    fdate = curr_date.strftime('%Y-%m-%d')
+    hour = datetime.now().hour
+    df_insert = pd.DataFrame({
+        'line' : [_id],
+        'mamc' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],
+        'c3a' : [round(c3a/NORMAL_DIVISOR, 2) if c3a is not None else None],
+        'c3a_mamc_goal' : [round(c3a_mamc_goal, 2) if c3a_mamc_goal is not None else None],
+        'mamc_st10_%' : [mamc_st10 if  mamc_st10 is not None else None],
+        'c3a_st120_%' : [c3a_st120 if c3a_st120 is not None else None],
+        'mamc_fpy_%' : [round(float(mamc_fpy.replace('%', '')), 2) if mamc_fpy is not None else None],
+        'ic_%' : [round(float(ic.replace('%', '')), 2) if ic is not None else None],
+        'nic_%': [round(float(nic.replace('%', '')), 2) if nic is not None else None],
+        'hour': [hour],
+        'date': [fdate]
+    }, index=['line'])
+    
+    df_insert.to_sql('zone2_bma45', con=db, if_exists='append', index=False)
