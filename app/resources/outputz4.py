@@ -541,10 +541,10 @@ def main(env, eos=False):
         teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
         try:
             MC1_DIVISOR, MC2_DIVISOR = 4, 4
-            historize_to_db(teams_con, 'MC1', mc1_output/MC1_DIVISOR, int(hourly_goal_dict['MC1']), mc1_fpy, FPY_GOAL,
+            historize_to_db(teams_con, 41, mc1_output/MC1_DIVISOR, int(hourly_goal_dict['MC1']), mc1_fpy, FPY_GOAL,
                             mc1_nic_pallets, mc1_ic_pallets, None, None, None, None,
                             mc1_pi, mc1_po, None, None)
-            historize_to_db(teams_con, 'MC2', mc2_output/MC2_DIVISOR, int(hourly_goal_dict['MC2']), mc2_fpy, FPY_GOAL,
+            historize_to_db(teams_con, 42, mc2_output/MC2_DIVISOR, int(hourly_goal_dict['MC2']), mc2_fpy, FPY_GOAL,
                             None, None, mc2_nic14_pallets, mc2_nic23_pallets,
                             mc2_ic14_pallets, mc2_ic23_pallets,
                             mc2_pi, mc2_po, no23, no25)

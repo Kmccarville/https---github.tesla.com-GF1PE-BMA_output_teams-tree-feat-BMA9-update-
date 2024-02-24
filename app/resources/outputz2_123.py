@@ -571,7 +571,7 @@ def main(env,eos=False):
         TARGET_CYCLE_TIME = 67 # sec
         try:
             historize_to_db(teams_con,
-                            1,
+                            21,
                             mamc_outputs[0],
                             c3a_outputs[0],
                             int(hourly_goal_dict['3BM1']),
@@ -581,7 +581,7 @@ def main(env,eos=False):
                             bma1_mamc_yield,
                             NORMAL_DIVISOR)
             historize_to_db(teams_con,
-                            2,
+                            22,
                             mamc_outputs[1],
                             c3a_outputs[1],
                             int(hourly_goal_dict['3BM2']),
@@ -591,7 +591,7 @@ def main(env,eos=False):
                             bma2_mamc_yield,
                             NORMAL_DIVISOR)
             historize_to_db(teams_con,
-                            3,
+                            23,
                             mamc_outputs[2],
                             c3a_outputs[2],
                             int(hourly_goal_dict['3BM3']),

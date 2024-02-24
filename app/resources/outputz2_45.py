@@ -384,7 +384,7 @@ def main(env,eos=False):
         teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
         try:
             historize_to_db(teams_con,
-                            4,
+                            24,
                             mamc_outputs[0],
                             c3a_outputs[0],
                             int(hourly_goal_dict['3BM4']),
@@ -395,7 +395,7 @@ def main(env,eos=False):
                             fpy_c3a_4_nic,
                             NORMAL_DIVISOR)
             historize_to_db(teams_con,
-                            5,
+                            25,
                             mamc_outputs[1],
                             c3a_outputs[1],
                             int(hourly_goal_dict['3BM5']),

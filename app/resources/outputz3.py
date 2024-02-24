@@ -660,7 +660,7 @@ def historize_to_db(db, carsets, carsets_goal, pos_cell_yield, neg_cell_yield,
     NUM_LINES = 5
     for _id in range(NUM_LINES):
         df_insert = pd.DataFrame({
-            'LINE' : [_id + 1],
+            'LINE' : [int('3' + str(_id + 1))],
             'CARSETS': [round(carsets[_id], 2) if carsets[_id] is not None else None],
             'CARSETS_GOAL': [carsets_goal[_id] if carsets_goal[_id] is not None else None],
             'POS_CELL_YIELD': [pos_cell_yield[_id] if pos_cell_yield[_id] is not None else None],
