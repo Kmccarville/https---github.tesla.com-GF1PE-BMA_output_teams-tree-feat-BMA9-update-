@@ -7,7 +7,7 @@ import pandas as pd
 import pymsteams
 import pytz
 from common import helper_functions
-from common.constants import K8S_BLUE, TESLA_RED
+from common.constants import K8S_BLUE, TESLA_RED, Z2_DIVISOR
 
 
 def get_mamc_ncs(db,start,end):
@@ -138,7 +138,6 @@ def main(env,eos=False):
     logging.info(str(end))
 
     #define globals
-    NORMAL_DIVISOR = 4
     MAMC_FLOWSTEP = '3BM8-29500'
     MAMC_FLOWSTEP2 = '3BM8-29600'
     MAMC_LINE = '3BM8'
@@ -175,13 +174,13 @@ def main(env,eos=False):
     #create mamc output row
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
-            <td style="text-align:left">{mamc_output_good/NORMAL_DIVISOR:.2f} (+ {mamc_output_ncs/NORMAL_DIVISOR:.2f} NCs)</td>
+            <td style="text-align:left">{mamc_output_good/Z2_DIVISOR:.2f} (+ {mamc_output_ncs/Z2_DIVISOR:.2f} NCs)</td>
             </tr>
     """
     #create c3a output row
     c3a_output_html = f"""<tr>
             <td style="text-align:center"><strong>C3A</strong></td>
-            <td style="text-align:left">{c3a_outputs/NORMAL_DIVISOR:.2f}</td>
+            <td style="text-align:left">{c3a_outputs/Z2_DIVISOR:.2f}</td>
             </tr>
     """
     
@@ -200,8 +199,7 @@ def main(env,eos=False):
             historize_to_db(teams_con,
                             mamc_output_good,
                             c3a_outputs,
-                            num_ncs,
-                            NORMAL_DIVISOR)
+                            num_ncs)
         except Exception as e:
             logging.exception(f'Historization for z2_8 failed. See: {e}')
         teams_con.close()
@@ -237,21 +235,21 @@ def main(env,eos=False):
             logging.exception("Webhook timed out twice -- pass to next area")
 
     # do records for C3A8 1 12 24 hour only for now
-    c3a8 = c3a_outputs/NORMAL_DIVISOR
+    c3a8 = c3a_outputs/Z2_DIVISOR
     webhook_key = 'teams_webhook_BMA8_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
     bma8_records(lookback,c3a8,webhook)
 
-def historize_to_db(db, mamc, c3a, num_ncs, NORMAL_DIVISOR):
+def historize_to_db(db, mamc, c3a, num_ncs):
     curr = datetime.utcnow()
     pst = pytz.timezone('America/Los_Angeles')
     pst_time = curr.replace(tzinfo=pytz.utc).astimezone(pst)
     sql_date = pst_time.strftime('%Y-%m-%d %H:%M:%S')
     
     df_insert = pd.DataFrame({
-        'MAMC' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],
-        'C3A' : [round(c3a/NORMAL_DIVISOR, 2) if c3a is not None else None],
+        'MAMC' : [round(mamc/Z2_DIVISOR, 2) if mamc is not None else None],
+        'C3A' : [round(c3a/Z2_DIVISOR, 2) if c3a is not None else None],
         'NUM_NCS' : [num_ncs if num_ncs is not None else None],
         'START_TIME': [sql_date]
     }, index=['line'])

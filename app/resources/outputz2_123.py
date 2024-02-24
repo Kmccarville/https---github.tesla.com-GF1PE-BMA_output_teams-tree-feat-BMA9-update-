@@ -6,7 +6,7 @@ import pandas as pd
 import pymsteams
 import pytz
 from common import helper_functions
-from common.constants import K8S_BLUE, TESLA_RED
+from common.constants import K8S_BLUE, TESLA_RED, Z2_DIVISOR
 
 
 def get_mamc_yield_table(start,end):
@@ -414,7 +414,6 @@ def main(env,eos=False):
     logging.info(str(end))
 
     #define globals
-    NORMAL_DIVISOR = 4
     MAMC_295_FLOWSTEP= '3BM-29500'
     MAMC_296_FLOWSTEP= '3BM-29600'
     C3A_FLOWSTEP = '3BM-40001'
@@ -460,18 +459,18 @@ def main(env,eos=False):
     #create mamc output row
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
-            <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.2f}</td>
-            <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.2f}</td>
-            <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.2f}</td>
-            <td style="text-align:center"><strong>{total_mamc_output/NORMAL_DIVISOR:.2f}</strong></td>
+            <td style="text-align:center">{mamc_outputs[0]/Z2_DIVISOR:.2f}</td>
+            <td style="text-align:center">{mamc_outputs[1]/Z2_DIVISOR:.2f}</td>
+            <td style="text-align:center">{mamc_outputs[2]/Z2_DIVISOR:.2f}</td>
+            <td style="text-align:center"><strong>{total_mamc_output/Z2_DIVISOR:.2f}</strong></td>
             """
     #create c3a output row
     c3a_output_html = f"""<tr>
             <td style="text-align:center"><strong>C3A</strong></td>
-            <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.2f}</td>
-            <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.2f}</td>
-            <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.2f}</td>
-            <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.2f}</strong></td>
+            <td style="text-align:center">{c3a_outputs[0]/Z2_DIVISOR:.2f}</td>
+            <td style="text-align:center">{c3a_outputs[1]/Z2_DIVISOR:.2f}</td>
+            <td style="text-align:center">{c3a_outputs[2]/Z2_DIVISOR:.2f}</td>
+            <td style="text-align:center"><strong>{total_c3a_output/Z2_DIVISOR:.2f}</strong></td>
             """
     
     z2_goal_html = f"""<tr>
@@ -553,18 +552,18 @@ def main(env,eos=False):
 
     # do mamc records MAMC123 1 hour ONLY for now
     if lookback == 1:
-        mamc1 = mamc_outputs[0]/NORMAL_DIVISOR
-        mamc2 = mamc_outputs[1]/NORMAL_DIVISOR
-        mamc3 = mamc_outputs[2]/NORMAL_DIVISOR
+        mamc1 = mamc_outputs[0]/Z2_DIVISOR
+        mamc2 = mamc_outputs[1]/Z2_DIVISOR
+        mamc3 = mamc_outputs[2]/Z2_DIVISOR
         webhook_key = 'teams_webhook_Zone2_123_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
         webhook_json = helper_functions.get_pw_json(webhook_key)
         webhook = webhook_json['url']
         mamc_records(lookback,mamc1,mamc2,mamc3,webhook)
 
     # do records for AC3A 1 12 24 hour only for now
-    line1 = c3a_outputs[0]/NORMAL_DIVISOR
-    line2 = c3a_outputs[1]/NORMAL_DIVISOR
-    line3 = c3a_outputs[2]/NORMAL_DIVISOR
+    line1 = c3a_outputs[0]/Z2_DIVISOR
+    line2 = c3a_outputs[1]/Z2_DIVISOR
+    line3 = c3a_outputs[2]/Z2_DIVISOR
     
     if env == 'prod':
         teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
@@ -578,8 +577,7 @@ def main(env,eos=False):
                             int(C3A_Buffer_Outputs[0]),
                             TARGET_CYCLE_TIME,
                             *bma1_perf_metrics,
-                            bma1_mamc_yield,
-                            NORMAL_DIVISOR)
+                            bma1_mamc_yield)
             historize_to_db(teams_con,
                             22,
                             mamc_outputs[1],
@@ -588,8 +586,7 @@ def main(env,eos=False):
                             int(C3A_Buffer_Outputs[1]),
                             TARGET_CYCLE_TIME,
                             *bma2_perf_metrics,
-                            bma2_mamc_yield,
-                            NORMAL_DIVISOR)
+                            bma2_mamc_yield)
             historize_to_db(teams_con,
                             23,
                             mamc_outputs[2],
@@ -598,8 +595,7 @@ def main(env,eos=False):
                             int(C3A_Buffer_Outputs[2]),
                             TARGET_CYCLE_TIME,
                             *bma3_perf_metrics,
-                            bma3_mamc_yield,
-                            NORMAL_DIVISOR)
+                            bma3_mamc_yield)
         except Exception as e:
             logging.exception(f'Historization for z2_123 failed. See: {e}')
         teams_con.close()
@@ -611,7 +607,7 @@ def main(env,eos=False):
 
 def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, c3a_buffer_counter, target_cycle_time, 
                     starved_auto_closer, bandoland_cycle_time, blocked_c3a_egress, sidemount_cycle_time, 
-                    qis_cycle_time, mamc_yield, NORMAL_DIVISOR):
+                    qis_cycle_time, mamc_yield):
     curr = datetime.utcnow()
     pst = pytz.timezone('America/Los_Angeles')
     pst_time = curr.replace(tzinfo=pytz.utc).astimezone(pst)
@@ -619,8 +615,8 @@ def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, c3a_buffer_counter, targe
     
     df_insert = pd.DataFrame({
         'LINE' : [_id],
-        'MAMC' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],
-        'C3A' : [round(c3a/NORMAL_DIVISOR, 2) if c3a is not None else None],
+        'MAMC' : [round(mamc/Z2_DIVISOR, 2) if mamc is not None else None],
+        'C3A' : [round(c3a/Z2_DIVISOR, 2) if c3a is not None else None],
         'C3A_MAMC_GOAL' : [round(c3a_mamc_goal, 2) if c3a_mamc_goal is not None else None],
         'C3A_BUFFER_COUNT' : [c3a_buffer_counter if c3a_buffer_counter is not None else None],
         'TARGET_CYCLE_TIME' : [target_cycle_time if target_cycle_time is not None else None],

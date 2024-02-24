@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pymsteams
 import pytz
-from common.constants import K8S_BLUE, TESLA_RED
+from common.constants import K8S_BLUE, TESLA_RED, Z2_DIVISOR
 from sqlalchemy import text
 
 
@@ -250,7 +250,6 @@ def main(env,eos=False):
     end=start+timedelta(hours=lookback)
 
     #define globals
-    NORMAL_DIVISOR = 4
     MAMC_FLOWSTEP_END= '34000'
     C3A_FLOWSTEP_END = '45000'
     LINES = ['3BM4','3BM5']
@@ -302,17 +301,17 @@ def main(env,eos=False):
     #create mamc output row
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
-            <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center"><strong>{(total_mamc4_output + total_mamc5_output)/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center">{mamc_outputs[0]/Z2_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[1]/Z2_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{(total_mamc4_output + total_mamc5_output)/Z2_DIVISOR:.1f}</strong></td>
             </tr>
     """
     #create c3a output row
     c3a_output_html = f"""<tr>
             <td style="text-align:center"><strong>C3A</strong></td>
-            <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center"><strong>{(total_c3a4_output + total_c3a5_output)/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center">{c3a_outputs[0]/Z2_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[1]/Z2_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{(total_c3a4_output + total_c3a5_output)/Z2_DIVISOR:.1f}</strong></td>
             </tr>
     """
     goal_html = f"""<tr>
@@ -392,8 +391,7 @@ def main(env,eos=False):
                             c3a_st120_4,
                             fpy_mamc_4,
                             fpy_c3a_4_ic,
-                            fpy_c3a_4_nic,
-                            NORMAL_DIVISOR)
+                            fpy_c3a_4_nic)
             historize_to_db(teams_con,
                             25,
                             mamc_outputs[1],
@@ -403,8 +401,7 @@ def main(env,eos=False):
                             c3a_st120_5,
                             fpy_c3a_5_ic,
                             fpy_c3a_5_nic,
-                            fpy_mamc_5,
-                            NORMAL_DIVISOR)
+                            fpy_mamc_5)
         except Exception as e:
             logging.exception(f'Historization for z2_45 failed. See: {e}')
         teams_con.close()
@@ -450,7 +447,7 @@ def main(env,eos=False):
 
 
 def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, mamc_st10, 
-                    c3a_st120, ic, nic, mamc_fpy, NORMAL_DIVISOR):
+                    c3a_st120, ic, nic, mamc_fpy):
     curr = datetime.utcnow()
     pst = pytz.timezone('America/Los_Angeles')
     pst_time = curr.replace(tzinfo=pytz.utc).astimezone(pst)
@@ -458,8 +455,8 @@ def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, mamc_st10,
     
     df_insert = pd.DataFrame({
         'LINE' : [_id],
-        'MAMC' : [round(mamc/NORMAL_DIVISOR, 2) if mamc is not None else None],
-        'C3A' : [round(c3a/NORMAL_DIVISOR, 2) if c3a is not None else None],
+        'MAMC' : [round(mamc/Z2_DIVISOR, 2) if mamc is not None else None],
+        'C3A' : [round(c3a/Z2_DIVISOR, 2) if c3a is not None else None],
         'C3A_MAMC_GOAL' : [round(c3a_mamc_goal, 2) if c3a_mamc_goal is not None else None],
         'MAMC_ST10_STARVED_PERCENT' : [mamc_st10 if  mamc_st10 is not None else None],
         'C3A_ST120_BLOCKED_PERCENT' : [c3a_st120 if c3a_st120 is not None else None],

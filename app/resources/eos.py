@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import pymsteams
 from common import helper_functions
+from common.constants import Z1_DIVISOR, Z2_DIVISOR, Z3_DIVISOR, Z4_DIVISOR
 from resources import (NCM_bandolier_milan_output, NCM_module_output, outputz1,
                        outputz2_8, outputz2_45, outputz2_123, outputz3,
                        outputz4)
@@ -49,9 +50,6 @@ def main(env,local_run=False):
 
 def eos_report(env,do_24=False):
     logging.info('Start Battery End of Shift. 24_Hour Value: %s' % do_24)
-    #define globals
-    NORMAL_DIVISOR = 4
-    CTA_DIVISOR = 28
     #define all flowsteps to be used
     DF_FLOWSTEP = pd.DataFrame({
                                     'LINE' : ['3BM1','3BM2','3BM3','3BM4','3BM5','3BM6','3BM7','3BM8','GFNV'],
@@ -156,43 +154,43 @@ def eos_report(env,do_24=False):
             <td style="text-align:center">---</td>
             <td style="text-align:center">---</td>
             <td style="text-align:center">---</td>
-            <td style="text-align:center">{cta_outputs[3]/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center">{cta_outputs[4]/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center">{cta_outputs[5]/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center">{cta_outputs[6]/CTA_DIVISOR:.1f}</td>
+            <td style="text-align:center">{cta_outputs[3]/Z1_DIVISOR:.1f}</td>
+            <td style="text-align:center">{cta_outputs[4]/Z1_DIVISOR:.1f}</td>
+            <td style="text-align:center">{cta_outputs[5]/Z1_DIVISOR:.1f}</td>
+            <td style="text-align:center">{cta_outputs[6]/Z1_DIVISOR:.1f}</td>
             <td style="text-align:center">---</td>
-            <td style="text-align:center">{cta_outputs[8]/CTA_DIVISOR:.1f}</td>
-            <td style="text-align:center"><strong>{total_cta_ouput/CTA_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center">{cta_outputs[8]/Z1_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{total_cta_ouput/Z1_DIVISOR:.1f}</strong></td>
             </tr>
             """
     #create mamc output row
     mamc_html = f"""<tr>
             <td style="text-align:center"><strong>ZONE2 MAMC</strong></td>
-            <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{mamc_outputs[1]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{mamc_outputs[2]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{mamc_outputs[3]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{mamc_outputs[4]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[0]/Z2_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[1]/Z2_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[2]/Z2_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[3]/Z2_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[4]/Z2_DIVISOR:.1f}</td>
             <td style="text-align:center">---</td>
             <td style="text-align:center">---</td>
-            <td style="text-align:center">{mamc_outputs[7]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[7]/Z2_DIVISOR:.1f}</td>
             <td style="text-align:center">---</td>
-            <td style="text-align:center"><strong>{(total_mamc_ouput)/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{(total_mamc_ouput)/Z2_DIVISOR:.1f}</strong></td>
             </tr>
             """
     #create c3a output row
     c3a_html = f"""<tr>
             <td style="text-align:center"><strong>ZONE2 C3A</strong></td>
-            <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{c3a_outputs[1]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{c3a_outputs[2]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{c3a_outputs[3]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{c3a_outputs[4]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[0]/Z3_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[1]/Z3_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[2]/Z3_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[3]/Z3_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[4]/Z3_DIVISOR:.1f}</td>
             <td style="text-align:center">---</td>
             <td style="text-align:center">---</td>
-            <td style="text-align:center">{c3a_outputs[7]/NORMAL_DIVISOR:.1f}</td>
+            <td style="text-align:center">{c3a_outputs[7]/Z3_DIVISOR:.1f}</td>
             <td style="text-align:center">---</td>
-            <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center"><strong>{total_c3a_output/Z3_DIVISOR:.1f}</strong></td>
             </tr>
             """
 
@@ -212,12 +210,12 @@ def eos_report(env,do_24=False):
             </tr>
             <tr>
             <td style="text-align:center"><strong>ZONE3</strong></td>
-            <td style="text-align:center">{z3_outputs[0]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{z3_outputs[1]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{z3_outputs[2]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{z3_outputs[3]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{z3_outputs[4]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center"><strong>{total_z3_output/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center">{z3_outputs[0]/Z3_DIVISOR:.1f}</td>
+            <td style="text-align:center">{z3_outputs[1]/Z3_DIVISOR:.1f}</td>
+            <td style="text-align:center">{z3_outputs[2]/Z3_DIVISOR:.1f}</td>
+            <td style="text-align:center">{z3_outputs[3]/Z3_DIVISOR:.1f}</td>
+            <td style="text-align:center">{z3_outputs[4]/Z3_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{total_z3_output/Z3_DIVISOR:.1f}</strong></td>
             </tr>
             </table>
             """
@@ -232,9 +230,9 @@ def eos_report(env,do_24=False):
             </tr>
             <tr>
             <td style="text-align:center"><strong>ZONE4</strong></td>
-            <td style="text-align:center">{z4_outputs[0]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center">{z4_outputs[1]/NORMAL_DIVISOR:.1f}</td>
-            <td style="text-align:center"><strong>{total_z4_output/NORMAL_DIVISOR:.1f}</strong></td>
+            <td style="text-align:center">{z4_outputs[0]/Z4_DIVISOR:.1f}</td>
+            <td style="text-align:center">{z4_outputs[1]/Z4_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{total_z4_output/Z4_DIVISOR:.1f}</strong></td>
             </tr>
             </table>
             """
@@ -276,24 +274,24 @@ def eos_report(env,do_24=False):
         webhook_key = 'teams_webhook_Zone1_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
         webhook_json = helper_functions.get_pw_json(webhook_key)
         webhook = webhook_json['url']
-        cta4 = cta_outputs[3]/CTA_DIVISOR
-        cta5 = cta_outputs[4]/CTA_DIVISOR
-        cta6 = cta_outputs[5]/CTA_DIVISOR
-        cta7 = cta_outputs[6]/CTA_DIVISOR
-        cta9 = cta_outputs[8]/CTA_DIVISOR
+        cta4 = cta_outputs[3]/Z1_DIVISOR
+        cta5 = cta_outputs[4]/Z1_DIVISOR
+        cta6 = cta_outputs[5]/Z1_DIVISOR
+        cta7 = cta_outputs[6]/Z1_DIVISOR
+        cta9 = cta_outputs[8]/Z1_DIVISOR
         outputz1.cta_records(24,cta4,cta5,cta6,cta7,cta9,webhook)
 
         # C3A123 24hr records
         webhook_key = 'teams_webhook_Zone2_123_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
         webhook_json = helper_functions.get_pw_json(webhook_key)
         webhook = webhook_json['url']
-        c3a1 = c3a_outputs[0]/NORMAL_DIVISOR
-        c3a2 = c3a_outputs[1]/NORMAL_DIVISOR
-        c3a3 = c3a_outputs[2]/NORMAL_DIVISOR
+        c3a1 = c3a_outputs[0]/Z2_DIVISOR
+        c3a2 = c3a_outputs[1]/Z2_DIVISOR
+        c3a3 = c3a_outputs[2]/Z2_DIVISOR
         outputz2_123.ac3a_records(24,c3a1,c3a2,c3a3,webhook)
 
         # C3A8 24hr records
-        c3a8 = c3a_outputs[5]/NORMAL_DIVISOR
+        c3a8 = c3a_outputs[5]/Z2_DIVISOR
         webhook_key = 'teams_webhook_BMA8_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
         webhook_json = helper_functions.get_pw_json(webhook_key)
         webhook = webhook_json['url']

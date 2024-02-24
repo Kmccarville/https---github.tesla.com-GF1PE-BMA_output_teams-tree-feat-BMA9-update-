@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import pymsteams
 import pytz
-from common.constants import K8S_BLUE, TESLA_RED
+from common.constants import K8S_BLUE, TESLA_RED, Z3_DIVISOR
 from resources import z3_wb_teep
 
 warnings.filterwarnings("ignore")
@@ -510,7 +510,6 @@ def main(env,eos=False):
     end=start+timedelta(hours=lookback)
     
     #define global variables
-    NORMAL_DIVISOR = 4
     PO_FLOWSTEP = '3BM-57000'
     flowsteps = [PO_FLOWSTEP]
 
@@ -542,13 +541,13 @@ def main(env,eos=False):
 
     carsets = []
     carsets_goal = []
-    output1 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM1')/NORMAL_DIVISOR,1)
-    output2 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM2')/NORMAL_DIVISOR,1)
-    output3 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM3')/NORMAL_DIVISOR,1)
-    output4 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM4')/NORMAL_DIVISOR,1)
-    output5 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM5')/NORMAL_DIVISOR,1)  
+    output1 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM1')/Z3_DIVISOR,1)
+    output2 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM2')/Z3_DIVISOR,1)
+    output3 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM3')/Z3_DIVISOR,1)
+    output4 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM4')/Z3_DIVISOR,1)
+    output5 = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP,'3BM5')/Z3_DIVISOR,1)  
     carsets.extend([output1, output2, output3, output4, output5])
-    total_output = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP)/NORMAL_DIVISOR,1)
+    total_output = round(helper_functions.get_output_val(df_output,PO_FLOWSTEP)/Z3_DIVISOR,1)
 
     hourly_goal_dict = helper_functions.get_zone_line_goals(zone=3,hours=lookback)
     
