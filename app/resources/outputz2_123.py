@@ -106,11 +106,8 @@ def get_performance_table(start,end):
     auto_close_df = helper_functions.query_tsm_state(plc_con,start, end, AUTO_CLOSER_PATHS, 'Starved')
     #get percentage (divide by seconds in between start and end and multiply by 100%)
     auto_close_bma1_percent = round(helper_functions.get_val(auto_close_df,'3BM1','LINE','Duration')/seconds_between*100,1)
-    bma1_perf_metrics.append(auto_close_bma1_percent)
     auto_close_bma2_percent = round(helper_functions.get_val(auto_close_df,'3BM2','LINE','Duration')/seconds_between*100,1)
-    bma2_perf_metrics.append(auto_close_bma2_percent)
     auto_close_bma3_percent = round(helper_functions.get_val(auto_close_df,'3BM3','LINE','Duration')/seconds_between*100,1)
-    bma3_perf_metrics.append(auto_close_bma3_percent)
     
     BANDO_CT_PATHS = [
                         '[3BM1_29500_01]BandoLandCT/CycleTimeReporting/PalletInfeed',
@@ -123,11 +120,8 @@ def get_performance_table(start,end):
 
     bando_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,BANDO_CT_PATHS,BANDO_LOW_LIMIT,BANDO_HIGH_LIMIT)
     bando_ct_bma1 = round(helper_functions.get_val(bando_df,'3BM1','LINE','CT_SEC'),1)
-    bma1_perf_metrics.append(bando_ct_bma1)
     bando_ct_bma2 = round(helper_functions.get_val(bando_df,'3BM2','LINE','CT_SEC'),1)
-    bma2_perf_metrics.append(bando_ct_bma2)
     bando_ct_bma3 = round(helper_functions.get_val(bando_df,'3BM3','LINE','CT_SEC'),1)
-    bma3_perf_metrics.append(bando_ct_bma3)
     
     
     C3A_Egress_Blocked_Paths = [
@@ -138,11 +132,8 @@ def get_performance_table(start,end):
     C3A_Egress_Blocked_df = helper_functions.query_tsm_state_by_lane(plc_con,start, end, C3A_Egress_Blocked_Paths, 'Blocked')
     #get percentage (divide by seconds in between start and end and multiply by 100%)
     EgressBlock_bma1_percent = round(helper_functions.get_val(C3A_Egress_Blocked_df,'3BM1','LINE','Duration')/seconds_between*100,1)
-    bma1_perf_metrics.append(EgressBlock_bma1_percent)
     EgressBlock_bma2_percent = round(helper_functions.get_val(C3A_Egress_Blocked_df,'3BM2','LINE','Duration')/seconds_between*100,1)
-    bma2_perf_metrics.append(EgressBlock_bma2_percent)
     EgressBlock_bma3_percent = round(helper_functions.get_val(C3A_Egress_Blocked_df,'3BM3','LINE','Duration')/seconds_between*100,1)
-    bma3_perf_metrics.append(EgressBlock_bma3_percent)
     
     SIDEMOUNT_CT_PATHS = [
                         '[3BM1_29500_01]ManualStationReporting/SidemountInstall/StateControl',
@@ -155,11 +146,8 @@ def get_performance_table(start,end):
 
     sidemount_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,SIDEMOUNT_CT_PATHS,SIDEMOUNT_LOW_LIMIT,SIDEMOUNT_HIGH_LIMIT)
     sidemount_ct_bma1 = round(helper_functions.get_val(sidemount_df,'3BM1','LINE','CT_SEC'),1)
-    bma1_perf_metrics.append(sidemount_ct_bma1)
     sidemount_ct_bma2 = round(helper_functions.get_val(sidemount_df,'3BM2','LINE','CT_SEC'),1)
-    bma2_perf_metrics.append(sidemount_ct_bma2)
     sidemount_ct_bma3 = round(helper_functions.get_val(sidemount_df,'3BM3','LINE','CT_SEC'),1)
-    bma3_perf_metrics.append(sidemount_ct_bma3)
     
     QIS_CT_PATHS = [
                         '[3BM1_29500_01]EquipmentReporting/QualityInspection_EquipmentReportHMI',
@@ -172,11 +160,12 @@ def get_performance_table(start,end):
 
     qis_df = helper_functions.query_tsm_cycle_time(plc_con,start,end,QIS_CT_PATHS,QIS_LOW_LIMIT,QIS_HIGH_LIMIT)
     qis_ct_bma1 = round(helper_functions.get_val(qis_df,'3BM1','LINE','CT_SEC'),1)
-    bma1_perf_metrics.append(qis_ct_bma1)
     qis_ct_bma2 = round(helper_functions.get_val(qis_df,'3BM2','LINE','CT_SEC'),1)
-    bma2_perf_metrics.append(qis_ct_bma2)
     qis_ct_bma3 = round(helper_functions.get_val(qis_df,'3BM3','LINE','CT_SEC'),1)
-    bma3_perf_metrics.append(qis_ct_bma3)
+
+    bma1_perf_metrics.extend([auto_close_bma1_percent, bando_ct_bma1, EgressBlock_bma1_percent, sidemount_ct_bma1, qis_ct_bma1])
+    bma2_perf_metrics.extend([auto_close_bma2_percent, bando_ct_bma2, EgressBlock_bma2_percent, sidemount_ct_bma2, qis_ct_bma2])
+    bma3_perf_metrics.extend([auto_close_bma3_percent, bando_ct_bma3, EgressBlock_bma3_percent, sidemount_ct_bma3, qis_ct_bma3])
 
     plc_con.close()
     
