@@ -1,5 +1,5 @@
 import pandas as pd
-import helper_functions
+import common.helper_functions as helper_functions
 
 # Colors
 K8S_BLUE = '#3970e4'
