@@ -5,7 +5,8 @@ import common.helper_functions as helper_functions
 import numpy as np
 import pandas as pd
 import pymsteams
-from common.constants import K8S_BLUE, TESLA_RED
+import pytz
+from common.constants import K8S_BLUE, TESLA_RED, Z1_DIVISOR
 from sqlalchemy import text
 
 
@@ -279,7 +280,6 @@ def main(env,eos=False):
     #define globals
     NUM_LINES = 5
     NUM_LANES = 8
-    CTA_DIVISOR = 28
     CTA4_FLOWSTEP = '3BM4-25000'
     CTA5_FLOWSTEP = '3BM5-25000'
     CTA6_FLOWSTEP = '3BM6-25000'
@@ -348,7 +348,7 @@ def main(env,eos=False):
     cta4_html = f"""
                 <tr>
                     <td style="text-align:right"><strong>CTA4</strong></td>
-                    <td style="text-align:center"><strong>{np.sum(cta4_outputs)/CTA_DIVISOR:.1f}</td>
+                    <td style="text-align:center"><strong>{np.sum(cta4_outputs)/Z1_DIVISOR:.1f}</td>
                     <td style="text-align:center"><strong>{int(hourly_goal_dict['3BM4'])}</td>
                     <td style="text-align:center">---</td>
                     <td style="text-align:center">---</td>
@@ -364,7 +364,7 @@ def main(env,eos=False):
     cta5_html = f"""
             <tr>
                 <td style="text-align:right"><strong>CTA5</strong></td>
-                <td style="text-align:center"><strong>{np.sum(cta5_outputs)/CTA_DIVISOR:.1f}</td>
+                <td style="text-align:center"><strong>{np.sum(cta5_outputs)/Z1_DIVISOR:.1f}</td>
                 <td style="text-align:center"><strong>{int(hourly_goal_dict['3BM5'])}</td>
                 <td style="text-align:center">---</td>
                 <td style="text-align:center">---</td>
@@ -382,7 +382,7 @@ def main(env,eos=False):
     cta6_html = f"""
             <tr>
                 <td style="text-align:right"><strong>CTA6</strong></td>
-                <td style="text-align:center"><strong>{np.sum(cta6_outputs)/CTA_DIVISOR:.1f}</td>
+                <td style="text-align:center"><strong>{np.sum(cta6_outputs)/Z1_DIVISOR:.1f}</td>
                 <td style="text-align:center"><strong>---</td>
             """
     cta6_yield_html = f"""
@@ -395,7 +395,7 @@ def main(env,eos=False):
     cta7_html = f"""
             <tr>
                 <td style="text-align:right"><strong>CTA7</strong></td>
-                <td style="text-align:center"><strong>{np.sum(cta7_outputs)/CTA_DIVISOR:.1f}</td>
+                <td style="text-align:center"><strong>{np.sum(cta7_outputs)/Z1_DIVISOR:.1f}</td>
                 <td style="text-align:center"><strong>---</td>
             """
     cta7_yield_html = f"""
@@ -407,7 +407,7 @@ def main(env,eos=False):
     cta9_html = f"""
             <tr>
                 <td style="text-align:right"><strong>CTA9</strong></td>
-                <td style="text-align:center"><strong>{np.sum(cta9_outputs)/CTA_DIVISOR:.1f}</td>
+                <td style="text-align:center"><strong>{np.sum(cta9_outputs)/Z1_DIVISOR:.1f}</td>
                 <td style="text-align:center"><strong>---</td>
             """
     cta9_yield_html = f"""
@@ -421,7 +421,7 @@ def main(env,eos=False):
     zone1_combined = f"""
             <tr>
             <td style="text-align:right"><strong>ZONE1</strong></td>
-            <td style="text-align:center"><strong>{cta_total/CTA_DIVISOR:.1f}</td>
+            <td style="text-align:center"><strong>{cta_total/Z1_DIVISOR:.1f}</td>
             """
 
     nolane_html = f"""<td style="text-align:center">---</td>"""
@@ -432,12 +432,12 @@ def main(env,eos=False):
             if i > 1:
                 color_str = ""
                 cta4_html += f"""
-                            <td style="text-align:center">{cta4_outputs[i]/CTA_DIVISOR:.1f}</td>
+                            <td style="text-align:center">{cta4_outputs[i]/Z1_DIVISOR:.1f}</td>
                             """
                 # skip 5.2/3
                 if i > 2:
                     cta5_html += f"""
-                                <td style="text-align:center">{cta5_outputs[i]/CTA_DIVISOR:.1f}</td>
+                                <td style="text-align:center">{cta5_outputs[i]/Z1_DIVISOR:.1f}</td>
                                 """
                 if eos:
                     cta4_yield_html += f"""
@@ -451,7 +451,7 @@ def main(env,eos=False):
             if i < 3 :
                 color_str = ""
                 cta6_html += f"""
-                            <td style="text-align:center">{cta6_outputs[i]/CTA_DIVISOR:.1f}</td>
+                            <td style="text-align:center">{cta6_outputs[i]/Z1_DIVISOR:.1f}</td>
                             """
                 if eos:
                     cta6_yield_html += f"""
@@ -471,7 +471,7 @@ def main(env,eos=False):
             if i < 3:
                 color_str = ""
                 cta7_html += f"""
-                            <td style="text-align:center">{cta7_outputs[i]/CTA_DIVISOR:.1f}</td>
+                            <td style="text-align:center">{cta7_outputs[i]/Z1_DIVISOR:.1f}</td>
                             """
                 if eos:
                     cta7_yield_html += f"""
@@ -490,7 +490,7 @@ def main(env,eos=False):
             if i < 2:
                 color_str = ""
                 cta9_html += f"""
-                            <td style="text-align:center">{cta9_outputs[i]/CTA_DIVISOR:.1f}</td>
+                            <td style="text-align:center">{cta9_outputs[i]/Z1_DIVISOR:.1f}</td>
                             """
                 if eos:
                     cta9_yield_html += f"""
@@ -508,10 +508,10 @@ def main(env,eos=False):
 
         else:
             cta4_html += f"""
-                        <td style="text-align:center">{cta4_outputs[i]/CTA_DIVISOR:.1f}</td>
+                        <td style="text-align:center">{cta4_outputs[i]/Z1_DIVISOR:.1f}</td>
                         """
             cta5_html += f"""
-                        <td style="text-align:center;{color_str}">{cta5_outputs[i]/CTA_DIVISOR:.1f}</td>
+                        <td style="text-align:center;{color_str}">{cta5_outputs[i]/Z1_DIVISOR:.1f}</td>
                         """
             cta6_html += nolane_html
             cta7_html += nolane_html
@@ -604,13 +604,50 @@ def main(env,eos=False):
                 logging.exception("Webhook timed out twice -- pass to next area")
 
     # do records
-    cta4 = np.sum(cta4_outputs)/CTA_DIVISOR
-    cta5 = np.sum(cta5_outputs)/CTA_DIVISOR
-    cta6 = np.sum(cta6_outputs)/CTA_DIVISOR
-    cta7 = np.sum(cta7_outputs)/CTA_DIVISOR
-    cta9 = np.sum(cta9_outputs)/CTA_DIVISOR
+    cta4 = np.sum(cta4_outputs)/Z1_DIVISOR
+    cta5 = np.sum(cta5_outputs)/Z1_DIVISOR
+    cta6 = np.sum(cta6_outputs)/Z1_DIVISOR
+    cta7 = np.sum(cta7_outputs)/Z1_DIVISOR
+    cta9 = np.sum(cta9_outputs)/Z1_DIVISOR
     webhook_key = 'teams_webhook_CTA9_CTA10_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
 
     cta_records(lookback,cta4,cta5,cta6,cta7,cta9,webhook)
+    
+    if env == 'prod':
+        teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
+        try:
+            historize_to_db(teams_con, 14, hourly_goal_dict['3BM4'], *cta4_outputs, np.sum(cta4_outputs))
+            historize_to_db(teams_con, 15, hourly_goal_dict['3BM5'], *cta5_outputs, np.sum(cta5_outputs))
+            historize_to_db(teams_con, 16, None, *cta6_outputs, np.sum(cta6_outputs))
+            historize_to_db(teams_con, 17, None, *cta7_outputs, np.sum(cta7_outputs))
+            historize_to_db(teams_con, 19, None, *cta9_outputs, np.sum(cta9_outputs))
+        except Exception as e:
+            logging.exception(f'Historization for z1 failed. See: {e}')
+        teams_con.close()
+    
+    webhook_key = 'teams_webhook_Zone1_Records' if env=='prod' else 'teams_webhook_DEV_Updates'
+    webhook_json = helper_functions.get_pw_json(webhook_key)
+    webhook = webhook_json['url']
+
+    cta_records(lookback,cta4,cta5,cta6,cta7,cta9, webhook)
+
+def historize_to_db(db, _id, goal, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, total):
+    sql_date = helper_functions.get_sql_pst_time()
+    df_insert = pd.DataFrame({
+        'LINE_ID' : [_id],
+        'CARSET_GOAL' : [round(goal/Z1_DIVISOR, 2) if goal is not None else None],
+        'LANE1_CARSETS' : [round(ln1/Z1_DIVISOR, 2) if ln1 is not None else None],
+        'LANE2_CARSETS' : [round(ln2/Z1_DIVISOR, 2) if ln2 is not None else None],
+        'LANE3_CARSETS' : [round(ln3/Z1_DIVISOR, 2) if ln3 is not None else None],
+        'LANE4_CARSETS' : [round(ln4/Z1_DIVISOR, 2) if ln4 is not None else None],
+        'LANE5_CARSETS' : [round(ln5/Z1_DIVISOR, 2) if ln5 is not None else None],
+        'LANE6_CARSETS' : [round(ln6/Z1_DIVISOR, 2) if ln6 is not None else None],
+        'LANE7_CARSETS' : [round(ln7/Z1_DIVISOR, 2) if ln7 is not None else None],
+        'LANE8_CARSETS' : [round(ln8/Z1_DIVISOR, 2) if ln8 is not None else None],
+        'TOTAL': [total],
+        'START_TIME': [sql_date]
+    }, index=['line'])
+                
+    df_insert.to_sql('zone1', con=db, if_exists='append', index=False)

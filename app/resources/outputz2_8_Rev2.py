@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pymsteams
 from common import helper_functions
-from common.constants import K8S_BLUE, TESLA_RED
+from common.constants import K8S_BLUE, TESLA_RED, Z2_DIVISOR
 
 
 def get_mamc_yield_table(start,end):
@@ -188,7 +188,6 @@ def main(env,eos=False):
     logging.info(str(end))
 
     #define globals
-    NORMAL_DIVISOR = 4
     MAMC_295_FLOWSTEP= '3BM8-29500'
     MAMC_296_FLOWSTEP= '3BM8-29600'
     C3A_FLOWSTEP = '3BM8-44000'
@@ -226,14 +225,14 @@ def main(env,eos=False):
     #create mamc output row
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
-            <td style="text-align:center">{mamc_outputs[0]/NORMAL_DIVISOR:.2f}</td>
-            <td style="text-align:center"><strong>{total_mamc_output/NORMAL_DIVISOR:.2f}</strong></td>
+            <td style="text-align:center">{mamc_outputs[0]/Z2_DIVISOR:.2f}</td>
+            <td style="text-align:center"><strong>{total_mamc_output/Z2_DIVISOR:.2f}</strong></td>
             """
     #create c3a output row
     c3a_output_html = f"""<tr>
             <td style="text-align:center"><strong>C3A</strong></td>
-            <td style="text-align:center">{c3a_outputs[0]/NORMAL_DIVISOR:.2f}</td>
-            <td style="text-align:center"><strong>{total_c3a_output/NORMAL_DIVISOR:.2f}</strong></td>
+            <td style="text-align:center">{c3a_outputs[0]/Z2_DIVISOR:.2f}</td>
+            <td style="text-align:center"><strong>{total_c3a_output/Z2_DIVISOR:.2f}</strong></td>
             """
 
     #create full bma html with the above htmls

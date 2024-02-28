@@ -8,8 +8,8 @@ import pymsteams
 import pytz
 import requests
 from common import helper_functions
-from common.constants import K8S_BLUE, TESLA_RED
-from pytz import timezone
+from common.constants import K8S_BLUE, TESLA_RED, Z4_DIVISOR
+import pytz
 from requests.auth import HTTPBasicAuth
 from sqlalchemy import text
 
@@ -104,7 +104,7 @@ def get_starved_table(db, start, end):
             <td style="text-align:center">{pi2_starved5}%</td>
         </tr>
         """
-    return html
+    return html, pi1_starved, pi2_starved, po1_starved, po2_starved, pi2_starved6, pi2_starved5
 
 def get_fpy_dfs(db, lookback, line='MC1'):
     line_val = '908336' if line == 'MC1' else '906294'
@@ -235,7 +235,7 @@ def getDirFeedData(line, uph, eos):
   
     #eval start & end tstamp for query
     now = datetime.now(tz=pytz.utc)
-    now = now.astimezone(timezone('US/Pacific'))
+    now = now.astimezone(pytz.timezone('US/Pacific'))
     now_sub1hr = now + timedelta(hours = -lookback)
     
     start = now_sub1hr.replace(minute = 00, second = 00, microsecond = 00)
@@ -414,7 +414,7 @@ def main(env, eos=False):
     else: 
         mc2_ic23_color = 'red'
 
-    starve_table = get_starved_table(plc_con, start, end)  # pull starvation data
+    starve_table, mc1_pi, mc2_pi, mc1_po, mc2_po, no23, no25 = get_starved_table(plc_con, start, end)  # pull starvation data
     
     FPY_GOAL = 94
     mc1_fpy = None
@@ -537,6 +537,21 @@ def main(env, eos=False):
     # Setup teams starvation table
     starved_html = "<table>" + "<caption><u>MTR Starvation</u></caption>" + starve_table + "</table>"
 
+    if env == 'prod':
+        teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
+        try:
+            historize_to_db(teams_con, 41, mc1_output/Z4_DIVISOR, int(hourly_goal_dict['MC1']), mc1_fpy, FPY_GOAL,
+                            mc1_nic_pallets, mc1_ic_pallets, None, None, None, None,
+                            mc1_pi, mc1_po, None, None)
+            historize_to_db(teams_con, 42, mc2_output/Z4_DIVISOR, int(hourly_goal_dict['MC2']), mc2_fpy, FPY_GOAL,
+                            None, None, mc2_nic14_pallets, mc2_nic23_pallets,
+                            mc2_ic14_pallets, mc2_ic23_pallets,
+                            mc2_pi, mc2_po, no23, no25)
+            
+        except Exception as e:
+            logging.exception(f'Historization for z4 failed. See: {e}')
+        teams_con.close()
+
     # get webhook based on environment
 
     webhook_key = 'teams_webhook_Zone4_Updates' if env == 'prod' else 'teams_webhook_DEV_Updates'
@@ -577,3 +592,28 @@ def main(env, eos=False):
         except pymsteams.TeamsWebhookException:
             logging.exception("Webhook timed out twice -- pass to next area")
             # helper_functions.e_handler(e)
+
+def historize_to_db(db, _id, uph, uph_goal, fpy, fpy_goal,
+                    nic, ic, nic_1_4, nic_2_3, ic_1_4, ic_2_3,
+                    pack_in, pack_out, no_23_s, no_25_s):
+    sql_date = helper_functions.get_sql_pst_time()    
+    df_insert = pd.DataFrame({
+        'LINE_ID' : [_id],
+        'UPH': [round(uph, 2) if uph is not None else None],
+        'UPH_GOAL': [uph_goal if uph_goal is not None else None],
+        'FPY_PERCENT': [round(fpy, 2) if fpy is not None else None],
+        'FPY_GOAL_PERCENT': [round(fpy_goal, 2) if fpy_goal is not None else None],
+        'PALLET_NIC': [nic if nic is not None else None],
+        'PALLET_IC': [ic if ic is not None else None],
+        'PALLET_NIC_1_4': [nic_1_4 if nic_1_4 is not None else None],
+        'PALLET_NIC_2_3': [nic_2_3 if nic_2_3 is not None else None],
+        'PALLET_IC_1_4': [ic_1_4 if ic_1_4 is not None else None],
+        'PALLET_IC_2_3': [ic_2_3 if ic_2_3 is not None else None],
+        'STARVATION_PACK_IN_PERCENT': [pack_in if pack_in is not None else None],
+        'STARVATION_PACK_OUT_PERCENT': [pack_out if pack_out is not None else None],
+        'STARVATION_NO_23_S_PERCENT': [no_23_s if no_23_s is not None else None],
+        'STARVATION_NO_25_S_PERCENT': [no_25_s if no_25_s is not None else None],
+        'START_TIME': [sql_date]
+    }, index=['line'])
+
+    df_insert.to_sql('zone4', con=db, if_exists='append', index=False)
