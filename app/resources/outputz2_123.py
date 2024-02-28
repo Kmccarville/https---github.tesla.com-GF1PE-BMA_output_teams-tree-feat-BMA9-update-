@@ -597,11 +597,7 @@ def main(env,eos=False):
 def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, c3a_buffer_counter, target_cycle_time, 
                     starved_auto_closer, bandoland_cycle_time, blocked_c3a_egress, sidemount_cycle_time, 
                     qis_cycle_time, mamc_yield):
-    curr = datetime.utcnow()
-    pst = pytz.timezone('America/Los_Angeles')
-    pst_time = curr.replace(tzinfo=pytz.utc).astimezone(pst)
-    sql_date = pst_time.strftime('%Y-%m-%d %H:%M:%S')
-    
+    sql_date = helper_functions.get_sql_pst_time()
     df_insert = pd.DataFrame({
         'LINE' : [_id],
         'MAMC' : [round(mamc/Z2_DIVISOR, 2) if mamc is not None else None],

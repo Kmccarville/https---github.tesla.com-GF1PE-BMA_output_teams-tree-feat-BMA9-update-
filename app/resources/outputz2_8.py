@@ -242,11 +242,7 @@ def main(env,eos=False):
     bma8_records(lookback,c3a8,webhook)
 
 def historize_to_db(db, mamc, c3a, num_ncs):
-    curr = datetime.utcnow()
-    pst = pytz.timezone('America/Los_Angeles')
-    pst_time = curr.replace(tzinfo=pytz.utc).astimezone(pst)
-    sql_date = pst_time.strftime('%Y-%m-%d %H:%M:%S')
-    
+    sql_date = helper_functions.get_sql_pst_time()
     df_insert = pd.DataFrame({
         'MAMC' : [round(mamc/Z2_DIVISOR, 2) if mamc is not None else None],
         'C3A' : [round(c3a/Z2_DIVISOR, 2) if c3a is not None else None],

@@ -634,10 +634,7 @@ def main(env,eos=False):
     cta_records(lookback,cta4,cta5,cta6,cta7,cta9, webhook)
 
 def historize_to_db(db, _id, goal, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, total):
-    curr = datetime.utcnow()
-    pst = pytz.timezone('America/Los_Angeles')
-    pst_time = curr.replace(tzinfo=pytz.utc).astimezone(pst)
-    sql_date = pst_time.strftime('%Y-%m-%d %H:%M:%S')
+    sql_date = helper_functions.get_sql_pst_time()
     df_insert = pd.DataFrame({
         'CTA_ID' : [_id],
         'GOAL' : [round(goal/Z1_DIVISOR, 2) if goal is not None else None],

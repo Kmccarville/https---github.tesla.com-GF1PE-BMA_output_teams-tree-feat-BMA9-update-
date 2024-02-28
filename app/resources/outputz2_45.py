@@ -448,11 +448,7 @@ def main(env,eos=False):
 
 def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, mamc_st10, 
                     c3a_st120, ic, nic, mamc_fpy):
-    curr = datetime.utcnow()
-    pst = pytz.timezone('America/Los_Angeles')
-    pst_time = curr.replace(tzinfo=pytz.utc).astimezone(pst)
-    sql_date = pst_time.strftime('%Y-%m-%d %H:%M:%S')
-    
+    sql_date = helper_functions.get_sql_pst_time()
     df_insert = pd.DataFrame({
         'LINE' : [_id],
         'MAMC' : [round(mamc/Z2_DIVISOR, 2) if mamc is not None else None],

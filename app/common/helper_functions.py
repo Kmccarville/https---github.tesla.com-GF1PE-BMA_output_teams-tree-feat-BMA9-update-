@@ -94,7 +94,7 @@ def get_shift_and_date():
         else:
             shift = 'B' if shiftHour in range(0,12) else 'D'
     return shift,shiftDate
-
+  
 #parse dataframes for line-based value
 def get_val(df,query_val,query_col,return_col):
     if len(df):
@@ -399,6 +399,14 @@ def convert_from_utc_to_pst(inp_time):
     utc_time=utc.localize(inp_time)
     pst_time = utc_time.astimezone(pst)
     return pst_time
+
+def get_sql_pst_time():
+    curr = datetime.utcnow()
+    pst = pytz.timezone('America/Los_Angeles')
+    pst_time = curr.replace(tzinfo=pytz.utc).astimezone(pst)
+    pst_time = pst_time.replace(minute=0, second=0)
+    sql_date = pst_time.strftime('%Y-%m-%d %H:%M:%S')
+    return sql_date
 
 def send_alert(webhook_key,title,df,caption="",link_title="",link_button=""):
     webhook_json = get_pw_json(webhook_key)
