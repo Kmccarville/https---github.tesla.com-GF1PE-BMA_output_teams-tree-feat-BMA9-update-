@@ -658,13 +658,13 @@ def historize_to_db(db, carsets, carsets_goal, pos_cell_yield, neg_cell_yield,
         df_insert = pd.DataFrame({
             'LINE' : [int('3' + str(_id + 1))],
             'CARSETS': [round(carsets[_id], 2) if carsets[_id] is not None else None],
-            'CARSETS_GOAL': [carsets_goal[_id] if carsets_goal[_id] is not None else None],
-            'POS_CELL_YIELD': [pos_cell_yield[_id] if pos_cell_yield[_id] is not None else None],
-            'NEG_CELL_YIELD': [neg_cell_yield[_id] if neg_cell_yield[_id] is not None else None],
+            'CARSET_GOAL': [carsets_goal[_id] if carsets_goal[_id] is not None else None],
+            'POS_CELL_YIELD_PERCENT': [pos_cell_yield[_id] if pos_cell_yield[_id] is not None else None],
+            'NEG_CELL_YIELD_PERCENT': [neg_cell_yield[_id] if neg_cell_yield[_id] is not None else None],
             'NUM_BONDS': [num_bonds[_id] if num_bonds[_id] is not None else None],
-            'INGRESS_STARVE': [ingress_starve[_id] if ingress_starve[_id] is not None else None],
-            'PO_STARVE': [po_starve[_id] if po_starve[_id] is not None else None],
-            'PO_BLOCKED': [po_blocked[_id] if po_blocked[_id] is not None else None],
+            'INGRESS_STARVE_PERCENT': [ingress_starve[_id] if ingress_starve[_id] is not None else None],
+            'PO_STARVE_PERCENT': [po_starve[_id] if po_starve[_id] is not None else None],
+            'PO_BLOCKED_PERCENT': [po_blocked[_id] if po_blocked[_id] is not None else None],
             'START_TIME': [sql_date]
         }, index=['line'])
     

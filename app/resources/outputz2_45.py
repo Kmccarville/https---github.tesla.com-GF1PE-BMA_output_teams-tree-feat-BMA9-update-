@@ -451,14 +451,14 @@ def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, mamc_st10,
     sql_date = helper_functions.get_sql_pst_time()
     df_insert = pd.DataFrame({
         'LINE' : [_id],
-        'MAMC' : [round(mamc/Z2_DIVISOR, 2) if mamc is not None else None],
-        'C3A' : [round(c3a/Z2_DIVISOR, 2) if c3a is not None else None],
+        'MAMC_OUTPUT' : [round(mamc/Z2_DIVISOR, 2) if mamc is not None else None],
+        'C3A_OUTPUT' : [round(c3a/Z2_DIVISOR, 2) if c3a is not None else None],
         'C3A_MAMC_GOAL' : [round(c3a_mamc_goal, 2) if c3a_mamc_goal is not None else None],
-        'MAMC_ST10_STARVED' : [mamc_st10 if  mamc_st10 is not None else None],
-        'C3A_ST120_BLOCKED' : [c3a_st120 if c3a_st120 is not None else None],
-        'MAMC_FPY' : [round(float(mamc_fpy.replace('%', '')), 2) if mamc_fpy is not None else None],
-        'IC' : [round(float(ic.replace('%', '')), 2) if ic is not None else None],
-        'NIC': [round(float(nic.replace('%', '')), 2) if nic is not None else None],
+        'MAMC_ST10_STARVED_PERCENT' : [mamc_st10 if  mamc_st10 is not None else None],
+        'C3A_ST120_BLOCKED_PERCENT' : [c3a_st120 if c3a_st120 is not None else None],
+        'MAMC_FPY_PERCENT' : [round(float(mamc_fpy.replace('%', '')), 2) if mamc_fpy is not None else None],
+        'C3A_DISPENSE_IC_FPY_PERCENT' : [round(float(ic.replace('%', '')), 2) if ic is not None else None],
+        'C3A_DISPENSE_NIC_FPY_PERCENT': [round(float(nic.replace('%', '')), 2) if nic is not None else None],
         'START_TIME': [sql_date]
     }, index=['line'])
     

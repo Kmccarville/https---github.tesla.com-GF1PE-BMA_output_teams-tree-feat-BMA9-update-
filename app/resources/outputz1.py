@@ -637,7 +637,7 @@ def historize_to_db(db, _id, goal, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, total
     sql_date = helper_functions.get_sql_pst_time()
     df_insert = pd.DataFrame({
         'CTA_ID' : [_id],
-        'GOAL' : [round(goal/Z1_DIVISOR, 2) if goal is not None else None],
+        'CARSET_GOAL' : [round(goal/Z1_DIVISOR, 2) if goal is not None else None],
         'LANE1_CARSETS' : [round(ln1/Z1_DIVISOR, 2) if ln1 is not None else None],
         'LANE2_CARSETS' : [round(ln2/Z1_DIVISOR, 2) if ln2 is not None else None],
         'LANE3_CARSETS' : [round(ln3/Z1_DIVISOR, 2) if ln3 is not None else None],

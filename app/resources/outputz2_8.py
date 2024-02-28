@@ -244,8 +244,8 @@ def main(env,eos=False):
 def historize_to_db(db, mamc, c3a, num_ncs):
     sql_date = helper_functions.get_sql_pst_time()
     df_insert = pd.DataFrame({
-        'MAMC' : [round(mamc/Z2_DIVISOR, 2) if mamc is not None else None],
-        'C3A' : [round(c3a/Z2_DIVISOR, 2) if c3a is not None else None],
+        'MAMC_OUTPUT' : [round(mamc/Z2_DIVISOR, 2) if mamc is not None else None],
+        'C3A_OUTPUT' : [round(c3a/Z2_DIVISOR, 2) if c3a is not None else None],
         'NUM_NCS' : [num_ncs if num_ncs is not None else None],
         'START_TIME': [sql_date]
     }, index=['line'])

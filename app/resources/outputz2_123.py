@@ -600,17 +600,17 @@ def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, c3a_buffer_counter, targe
     sql_date = helper_functions.get_sql_pst_time()
     df_insert = pd.DataFrame({
         'LINE' : [_id],
-        'MAMC' : [round(mamc/Z2_DIVISOR, 2) if mamc is not None else None],
-        'C3A' : [round(c3a/Z2_DIVISOR, 2) if c3a is not None else None],
+        'MAMC_OUTPUT' : [round(mamc/Z2_DIVISOR, 2) if mamc is not None else None],
+        'C3A_OUTPUT' : [round(c3a/Z2_DIVISOR, 2) if c3a is not None else None],
         'C3A_MAMC_GOAL' : [round(c3a_mamc_goal, 2) if c3a_mamc_goal is not None else None],
         'C3A_BUFFER_COUNT' : [c3a_buffer_counter if c3a_buffer_counter is not None else None],
-        'TARGET_CYCLE_TIME' : [target_cycle_time if target_cycle_time is not None else None],
-        'BANDOLAND_CYCLE_TIME' : [bandoland_cycle_time if bandoland_cycle_time is not None else None],
-        'SIDEMOUNT_CYCLE_TIME' : [sidemount_cycle_time if sidemount_cycle_time is not None else None],
-        'QIS_CYCLE_TIME' : [qis_cycle_time if qis_cycle_time is not None else None],
-        'STARVED_AUTO_CLOSER' : [starved_auto_closer if starved_auto_closer is not None else None],
-        'BLOCKED_C3A_EGRESS': [blocked_c3a_egress if blocked_c3a_egress is not None else None],
-        'MAMC_YIELD': [round(mamc_yield, 2) if mamc_yield is not None else None],
+        'TARGET_CYCLE_TIME_SEC' : [target_cycle_time if target_cycle_time is not None else None],
+        'BANDOLAND_CYCLE_TIME_SEC' : [bandoland_cycle_time if bandoland_cycle_time is not None else None],
+        'SIDEMOUNT_CYCLE_TIME_SEC' : [sidemount_cycle_time if sidemount_cycle_time is not None else None],
+        'QIS_CYCLE_TIME_SEC' : [qis_cycle_time if qis_cycle_time is not None else None],
+        'STARVED_AUTO_CLOSER_PERCENT' : [starved_auto_closer if starved_auto_closer is not None else None],
+        'BLOCKED_C3A_EGRESS_PERCENT': [blocked_c3a_egress if blocked_c3a_egress is not None else None],
+        'MAMC_YIELD_PERCENT': [round(mamc_yield, 2) if mamc_yield is not None else None],
         'START_TIME': [sql_date]
     }, index=['line'])
                 
