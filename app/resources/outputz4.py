@@ -598,7 +598,7 @@ def historize_to_db(db, _id, uph, uph_goal, fpy, fpy_goal,
                     pack_in, pack_out, no_23_s, no_25_s):
     sql_date = helper_functions.get_sql_pst_time()    
     df_insert = pd.DataFrame({
-        'LINE' : [_id],
+        'LINE_ID' : [_id],
         'UPH': [round(uph, 2) if uph is not None else None],
         'UPH_GOAL': [uph_goal if uph_goal is not None else None],
         'FPY_PERCENT': [round(fpy, 2) if fpy is not None else None],
