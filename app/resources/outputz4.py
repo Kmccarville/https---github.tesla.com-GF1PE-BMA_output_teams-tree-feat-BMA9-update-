@@ -540,10 +540,10 @@ def main(env, eos=False):
     if env == 'prod':
         teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
         try:
-            historize_to_db(teams_con, 41, mc1_output/Z4_DIVISOR, int(hourly_goal_dict['MC1']), mc1_fpy, FPY_GOAL,
+            historize_to_db(teams_con, 41, mc1_output/Z4_DIVISOR, mc1_fpy, FPY_GOAL,
                             mc1_nic_pallets, mc1_ic_pallets, None, None, None, None,
                             mc1_pi, mc1_po, None, None)
-            historize_to_db(teams_con, 42, mc2_output/Z4_DIVISOR, int(hourly_goal_dict['MC2']), mc2_fpy, FPY_GOAL,
+            historize_to_db(teams_con, 42, mc2_output/Z4_DIVISOR, mc2_fpy, FPY_GOAL,
                             None, None, mc2_nic14_pallets, mc2_nic23_pallets,
                             mc2_ic14_pallets, mc2_ic23_pallets,
                             mc2_pi, mc2_po, no23, no25)
@@ -593,14 +593,13 @@ def main(env, eos=False):
             logging.exception("Webhook timed out twice -- pass to next area")
             # helper_functions.e_handler(e)
 
-def historize_to_db(db, _id, uph, uph_goal, fpy, fpy_goal,
+def historize_to_db(db, _id, uph, fpy, fpy_goal,
                     nic, ic, nic_1_4, nic_2_3, ic_1_4, ic_2_3,
                     pack_in, pack_out, no_23_s, no_25_s):
     sql_date = helper_functions.get_sql_pst_time()    
     df_insert = pd.DataFrame({
         'LINE_ID' : [_id],
         'UPH': [round(uph, 2) if uph is not None else None],
-        'UPH_GOAL': [uph_goal if uph_goal is not None else None],
         'FPY_PERCENT': [round(fpy, 2) if fpy is not None else None],
         'FPY_GOAL_PERCENT': [round(fpy_goal, 2) if fpy_goal is not None else None],
         'PALLET_NIC': [nic if nic is not None else None],
