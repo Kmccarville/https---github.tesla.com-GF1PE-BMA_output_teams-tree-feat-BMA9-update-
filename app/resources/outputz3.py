@@ -599,7 +599,6 @@ def main(env,eos=False):
         try:
             historize_to_db(teams_con,
                             carsets,
-                            carsets_goal,
                             pos_cell_yield,
                             neg_cell_yield,
                             num_bonds,
@@ -650,7 +649,7 @@ def main(env,eos=False):
             logging.exception("Webhook timed out twice -- pass to next area")
             
     
-def historize_to_db(db, carsets, carsets_goal, pos_cell_yield, neg_cell_yield,
+def historize_to_db(db, carsets, pos_cell_yield, neg_cell_yield,
                     num_bonds, ingress_starve, po_starve, po_blocked):
     sql_date = helper_functions.get_sql_pst_time()
     NUM_LINES = 5
@@ -658,7 +657,6 @@ def historize_to_db(db, carsets, carsets_goal, pos_cell_yield, neg_cell_yield,
         df_insert = pd.DataFrame({
             'LINE_ID' : [int('3' + str(_id + 1))],
             'CARSETS': [round(carsets[_id], 2) if carsets[_id] is not None else None],
-            'CARSET_GOAL': [carsets_goal[_id] if carsets_goal[_id] is not None else None],
             'POS_CELL_YIELD_PERCENT': [pos_cell_yield[_id] if pos_cell_yield[_id] is not None else None],
             'NEG_CELL_YIELD_PERCENT': [neg_cell_yield[_id] if neg_cell_yield[_id] is not None else None],
             'NUM_BONDS': [num_bonds[_id] if num_bonds[_id] is not None else None],

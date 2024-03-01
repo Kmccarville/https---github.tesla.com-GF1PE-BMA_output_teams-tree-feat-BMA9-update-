@@ -618,11 +618,11 @@ def main(env,eos=False):
     if env == 'prod':
         teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
         try:
-            historize_to_db(teams_con, 14, hourly_goal_dict['3BM4'], *cta4_outputs, np.sum(cta4_outputs))
-            historize_to_db(teams_con, 15, hourly_goal_dict['3BM5'], *cta5_outputs, np.sum(cta5_outputs))
-            historize_to_db(teams_con, 16, None, *cta6_outputs, np.sum(cta6_outputs))
-            historize_to_db(teams_con, 17, None, *cta7_outputs, np.sum(cta7_outputs))
-            historize_to_db(teams_con, 19, None, *cta9_outputs, np.sum(cta9_outputs))
+            historize_to_db(teams_con, 14, *cta4_outputs, np.sum(cta4_outputs))
+            historize_to_db(teams_con, 15, *cta5_outputs, np.sum(cta5_outputs))
+            historize_to_db(teams_con, 16, *cta6_outputs, np.sum(cta6_outputs))
+            historize_to_db(teams_con, 17, *cta7_outputs, np.sum(cta7_outputs))
+            historize_to_db(teams_con, 19, *cta9_outputs, np.sum(cta9_outputs))
         except Exception as e:
             logging.exception(f'Historization for z1 failed. See: {e}')
         teams_con.close()
@@ -633,11 +633,10 @@ def main(env,eos=False):
 
     cta_records(lookback,cta4,cta5,cta6,cta7,cta9, webhook)
 
-def historize_to_db(db, _id, goal, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, total):
+def historize_to_db(db, _id, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, total):
     sql_date = helper_functions.get_sql_pst_time()
     df_insert = pd.DataFrame({
         'LINE_ID' : [_id],
-        'CARSET_GOAL' : [round(goal/Z1_DIVISOR, 2) if goal is not None else None],
         'LANE1_CARSETS' : [round(ln1/Z1_DIVISOR, 2) if ln1 is not None else None],
         'LANE2_CARSETS' : [round(ln2/Z1_DIVISOR, 2) if ln2 is not None else None],
         'LANE3_CARSETS' : [round(ln3/Z1_DIVISOR, 2) if ln3 is not None else None],
@@ -646,7 +645,7 @@ def historize_to_db(db, _id, goal, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, total
         'LANE6_CARSETS' : [round(ln6/Z1_DIVISOR, 2) if ln6 is not None else None],
         'LANE7_CARSETS' : [round(ln7/Z1_DIVISOR, 2) if ln7 is not None else None],
         'LANE8_CARSETS' : [round(ln8/Z1_DIVISOR, 2) if ln8 is not None else None],
-        'TOTAL': [total],
+        'TOTAL': [round(total/Z1_DIVISOR, 2)],
         'START_TIME': [sql_date]
     }, index=['line'])
                 
