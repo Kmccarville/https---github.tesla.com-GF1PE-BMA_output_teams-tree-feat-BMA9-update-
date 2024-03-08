@@ -278,10 +278,10 @@ def getDirFeedData(line, uph, eos):
             not_ready = 0
             bad_kit = 0
         else:
-            directfeed = int(df['SUCCESS'][0])
-            bad_part = int(df['WRONG_PART'][0])
-            bad_kit = int(df['BAD_KIT'][0])
-            not_ready = int(df['MC2_FULL'][0])
+            directfeed = int(df['SUCCESS'].sum())
+            bad_part = int(df['WRONG_PART'].sum())
+            bad_kit = int(df['BAD_KIT'].sum())
+            not_ready = int(df['MC2_FULL'].sum())
             try:
                 df_performance = round((directfeed/(directfeed + bad_kit + bad_part + not_ready)) * 100 ,0)
             except:
@@ -292,9 +292,13 @@ def getDirFeedData(line, uph, eos):
                 ict_con = helper_functions.get_sql_conn('interconnect_eng')
                 part_list = df['partnumber'].to_list()
                 suffix_map = {}
-                part_map = {}
-                
+                bad_kits_map = {}
+                bad_parts_map = {}
                 for part in part_list:
+                    part_bad_kits = df.loc[(df['partnumber'] == part), 'BAD_KIT'].sum()
+                    part_wrong_parts = df.loc[(df['partnumber'] == part), 'WRONG_PART'].sum()
+                    if part_bad_kits < 1 and part_wrong_parts < 1:
+                        continue
                     query = f"""
                         SELECT MODEL_SUFFIX FROM m3_bm_process_parameters.static_part_number
                         WHERE Z3_ACTIVE=1 AND UUT_PART_NUMBER LIKE '{part}'
@@ -304,13 +308,16 @@ def getDirFeedData(line, uph, eos):
                         idx = suffix_df['MODEL_SUFFIX'].first_valid_index()
                         suffix = suffix_df['MODEL_SUFFIX'].iloc[idx]
                         suffix_map[suffix] = suffix_map.get(suffix, 0) + 1
-                        part_map[(suffix, part)] = part_map.get((suffix, part), 0) + 1
+                        bad_kits_map[(suffix, part)] = bad_kits_map.get((suffix, part), 0) + part_bad_kits
+                        bad_parts_map[(suffix, part)] = bad_parts_map.get((suffix, part), 0) + part_wrong_parts
                 return_obj['SuffixMap'] = suffix_map 
-                return_obj['PartMap'] = part_map
+                return_obj['BadKitsMap'] = bad_kits_map
+                return_obj['BadPartsMap'] = bad_parts_map
                 ict_con.close()
             except Exception as e:
-                return_obj['SuffixMap'] = None
-                return_obj['PartMap'] = None
+                return_obj['SuffixMap'] = {}
+                return_obj['BadKitsMap'] = {}
+                return_obj['BadPartsMap'] = {}
                 logging.error(e)
     else:
         logging.info("Z4 Directfeed data pull - Splunk/DB API failed")
@@ -362,7 +369,8 @@ def main(env, eos=False):
     mc2_df_badpart = mc2_dirfeed['BadPart']
     mc2_df_badkit = mc2_dirfeed['BadKit']
     mc2_df_suffix = mc2_dirfeed['SuffixMap']
-    mc2_df_parts = mc2_dirfeed['PartMap']
+    mc2_df_bad_kits_map = mc2_dirfeed['BadKitsMap']
+    mc2_df_bad_parts_map = mc2_dirfeed['BadPartsMap']
     mc2_df_performance = mc2_dirfeed['DF_Performance']
   
     total_df_count = mc1_df_count + mc2_df_count
@@ -545,64 +553,31 @@ def main(env, eos=False):
         </tr>
     """
     
-    suffix_part_rows = ""
-    for key, val in mc2_df_parts.items():
-        (suffix, part) = key
-        suffix_part_rows += f"""
-            <tr>
-                <td style="text-align:center">{suffix}</td>
-                <td style="text-align:center">{part}</td>
-                <td style="text-align:center">{val}</td>
-            </tr>
-        """
-    
     suffix_count_rows = ""
-    for suffix, count in mc2_df_suffix.items():
+    for suffix in mc2_df_suffix.keys():
+        bad_kits_count = sum([val for key, val in mc2_df_bad_kits_map.items() if key[0] == suffix])
+        bad_parts_count = sum([val for key, val in mc2_df_bad_parts_map.items() if key[0] == suffix])
         suffix_count_rows += f"""
             <tr>
                 <td colspan="2" style="text-align:right">{suffix}</td>
-                <td style="text-align:center">{count}</td>
+                <td style="text-align:center">{bad_kits_count if bad_kits_count > 0 else '---'}</td>
+                <td style="text-align:center">{bad_parts_count if bad_parts_count > 0 else '---'}</td>
             </tr>
         """
         
         
-    bad_kits_html = f"""
+    bad_kits_parts_html = f"""
         <tr>
-            <th colspan="1" style="text-align:left"><strong>MC2</strong></th>
-            <th colspan="2" style="text-align:left">Total Bad Kits: {int(mc2_df_badkit)}</th>
+            <th colspan="2" style="text-align:center"><strong>MC2</strong></th>
+            <th style="text-align:left">Total Bad Kits: {int(mc2_df_badkit)}</th>
+            <th style="text-align:left">Total Wrong Parts: {int(mc2_df_badpart)}</th>
         </tr>
-        <tr>
-            <td style="text-align:center">Suffix</td>
-            <td style="text-align:center">Part Number</td>
-            <td style="text-align:center">Bad Kits</td>
-        </tr>
-        {suffix_part_rows}
         <tr>
             <td colspan="2" style="text-align:right"><strong>Suffix</strong></td>
-            <td style="text-align:left">Count</td>
+            <td style="text-align:center">Bad Kits Suffix Count</td>
+            <td style="text-align:center">Wrong Parts Suffix Count</td>
         </tr>
         {suffix_count_rows}
-    """
-    
-    wrong_parts_html = f"""
-        <tr>
-            <th style="text-align:right"></th>
-            <th style="text-align:center">Suffix</th>
-            <th style="text-align:center">Part Number</th>
-            <th style="text-align:center">Wrong Parts</th>
-        </tr>
-        <tr>
-            <td style="text-align:right"><strong>MC2</strong></td>
-            <td style="text-align:center">{int(mc1_df_count)}</td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
-        </tr>
-        <tr>
-            <td style="text-align:right"><strong>TOTAL</strong></td>
-            <td style="text-align:center"><b>{total_df_count:.1f}</b></td>
-            <td style="text-align:center"><b>---</b></td>
-            <td style="text-align:center">---</td>
-        </tr>
     """
     
     pallet_html = f"""
@@ -645,8 +620,7 @@ def main(env, eos=False):
     """
            
     direct_feed_html = "<table>" + "<caption><u>Direct Feed</u></caption>" + direct_feed_html + "</table>" 
-    bad_kits_html = "<table>" + "<caption><u>Bad Kits Breakdown</u></caption>" + bad_kits_html + "</table>"
-    wrong_parts_html = "<table>" + "<caption><u>Wrong Parts Breakdown</u></caption>" + wrong_parts_html + "</table>"
+    bad_kits_parts_html = "<table>" + "<caption><u>Bad Kits / Wrong Parts Breakdown</u></caption>" + bad_kits_parts_html + "</table>"
     pallet_html = "<table>" + "<caption><u>Pallet Count</u></caption>" + pallet_html + "</table>"
     starved_html = "<table>" + "<caption><u>MTR Starvation</u></caption>" + starve_table + "</table>"
 
@@ -689,13 +663,9 @@ def main(env, eos=False):
     direct_feed_card.text(direct_feed_html)
     teams_msg.addSection(direct_feed_card)
 
-    bad_kits_card = pymsteams.cardsection()
-    bad_kits_card.text(bad_kits_html)
-    teams_msg.addSection(bad_kits_card)
-    
-    wrong_parts_card = pymsteams.cardsection()
-    wrong_parts_card.text(wrong_parts_html)
-    teams_msg.addSection(wrong_parts_card)
+    bad_kits_parts_card = pymsteams.cardsection()
+    bad_kits_parts_card.text(bad_kits_parts_html)
+    teams_msg.addSection(bad_kits_parts_card)
     
     pallet_card = pymsteams.cardsection()
     pallet_card.text(pallet_html)
