@@ -518,41 +518,6 @@ def main(env, eos=False):
             
     na_html = "---"
     
-    direct_feed_html = f"""
-        <tr>
-            <th style="text-align:right"></th>
-            <th style="text-align:center">DF Count</th>
-            <th style="text-align:center">DF Rate (%)</th>
-            <th style="text-align:center">DF Bad Kit</th>
-            <th style="text-align:center">DF Bad Part</th>
-            <th style="text-align:center">DF Not Ready</th>
-        </tr>
-        <tr>
-            <td style="text-align:right"><strong>MC1</strong></td>
-            <td style="text-align:center">{int(mc1_df_count)}</td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
-        </tr>
-        <tr>
-            <td style="text-align:right"><strong>MC2</strong></td>
-            <td style="text-align:center">{int(mc2_df_count)}</td>
-            <td style="text-align:center">{mc2_df_performance:.1f}</td>
-            <td style="text-align:center">{mc2_df_badkit}</td>
-            <td style="text-align:center">{int(mc2_df_badpart)}</td>
-            <td style="text-align:center">{int(mc2_df_notready)}</td>
-        </tr>
-        <tr>
-            <td style="text-align:right"><strong>TOTAL</strong></td>
-            <td style="text-align:center"><b>{total_df_count:.1f}</b></td>
-            <td style="text-align:center"><b>---</b></td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
-            <td style="text-align:center">---</td>
-        </tr>
-    """
-    
     suffix_count_rows = ""
     for suffix in mc2_df_suffix.keys():
         bad_kits_count = sum([val for key, val in mc2_df_bad_kits_map.items() if key[0] == suffix])
@@ -566,16 +531,29 @@ def main(env, eos=False):
         """
         
         
-    bad_kits_parts_html = f"""
+    direct_feed_html = f"""
         <tr>
-            <th colspan="2" style="text-align:center"><strong>MC2</strong></th>
-            <th style="text-align:left">Total Bad Kits: {int(mc2_df_badkit)}</th>
-            <th style="text-align:left">Total Wrong Parts: {int(mc2_df_badpart)}</th>
+            <th colspan="2" style="text-align:center">DF Count</th>
+            <th style="text-align:center">DF Rate (%)</th>
+            <th style="text-align:center">DF Not Ready</th>
+        </tr>
+        <tr>
+            <td colspan="2"  style="text-align:center">{int(mc2_df_count)}</td>
+            <td style="text-align:center">{mc2_df_performance:.1f}</td>
+            <td style="text-align:center">{int(mc2_df_notready)}</td>
+        </tr>
+        <tr style="height:20px">
+            <td colspan="4" style="text-align:center border: none;"></td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center"></td>
+            <td colspan="1" style="text-align:left"><strong>DF Bad Kits:</strong> {int(mc2_df_badkit)}</td>
+            <td colspan="1" style="text-align:left"><strong>DF Bad Parts:</strong> {int(mc2_df_badpart)}</td>
         </tr>
         <tr>
             <td colspan="2" style="text-align:right"><strong>Suffix</strong></td>
-            <td style="text-align:center">Bad Kits Suffix Count</td>
-            <td style="text-align:center">Wrong Parts Suffix Count</td>
+            <td colspan="1" style="text-align:center">Bad Kits Suffix Count</td>
+            <td colspan="1" style="text-align:center">Wrong Parts Suffix Count</td>
         </tr>
         {suffix_count_rows}
     """
@@ -619,8 +597,7 @@ def main(env, eos=False):
         </tr>
     """
            
-    direct_feed_html = "<table>" + "<caption><u>Direct Feed</u></caption>" + direct_feed_html + "</table>" 
-    bad_kits_parts_html = "<table>" + "<caption><u>Bad Kits / Wrong Parts Breakdown</u></caption>" + bad_kits_parts_html + "</table>"
+    direct_feed_html = "<table>" + "<caption><u>Direct Feed Breakdown (MC2)</u></caption>" + direct_feed_html + "</table>"
     pallet_html = "<table>" + "<caption><u>Pallet Count</u></caption>" + pallet_html + "</table>"
     starved_html = "<table>" + "<caption><u>MTR Starvation</u></caption>" + starve_table + "</table>"
 
@@ -662,10 +639,6 @@ def main(env, eos=False):
     direct_feed_card = pymsteams.cardsection()
     direct_feed_card.text(direct_feed_html)
     teams_msg.addSection(direct_feed_card)
-
-    bad_kits_parts_card = pymsteams.cardsection()
-    bad_kits_parts_card.text(bad_kits_parts_html)
-    teams_msg.addSection(bad_kits_parts_card)
     
     pallet_card = pymsteams.cardsection()
     pallet_card.text(pallet_html)
