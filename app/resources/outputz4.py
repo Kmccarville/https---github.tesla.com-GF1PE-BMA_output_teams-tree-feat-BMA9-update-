@@ -531,29 +531,24 @@ def main(env, eos=False):
         """
         
         
-    direct_feed_html = f"""
+    direct_feed_summary_html = f"""
         <tr>
             <th colspan="2" style="text-align:center">DF Count</th>
             <th style="text-align:center">DF Rate (%)</th>
             <th style="text-align:center">DF Not Ready</th>
         </tr>
         <tr>
-            <td colspan="2"  style="text-align:center">{int(mc2_df_count)}</td>
+            <td colspan="2"  style="text-align:center;color:{'red' if int(mc2_df_count) < 22 else 'green'}">{int(mc2_df_count)}</td>
             <td style="text-align:center">{mc2_df_performance:.1f}</td>
             <td style="text-align:center">{int(mc2_df_notready)}</td>
         </tr>
-        <tr style="height:20px">
-            <td colspan="4" style="text-align:center border: none;"></td>
-        </tr>
+    """
+    
+    direct_feed_kit_html = f"""
         <tr>
-            <td colspan="2" style="text-align:center"></td>
-            <td colspan="1" style="text-align:left"><strong>DF Bad Kits:</strong> {int(mc2_df_badkit)}</td>
-            <td colspan="1" style="text-align:left"><strong>DF Bad Parts:</strong> {int(mc2_df_badpart)}</td>
-        </tr>
-        <tr>
-            <td colspan="2" style="text-align:right"><strong>Suffix</strong></td>
-            <td colspan="1" style="text-align:center">Bad Kits Suffix Count</td>
-            <td colspan="1" style="text-align:center">Wrong Parts Suffix Count</td>
+            <th colspan="2" style="text-align:center"><strong>Suffix</strong></th>
+            <th colspan="1" style="text-align:left"><strong>DF Total Bad Kits:</strong> {int(mc2_df_badkit)}</th>
+            <th colspan="1" style="text-align:left"><strong>DF Total Bad Parts:</strong> {int(mc2_df_badpart)}</th>
         </tr>
         {suffix_count_rows}
     """
@@ -597,7 +592,8 @@ def main(env, eos=False):
         </tr>
     """
            
-    direct_feed_html = "<table>" + "<caption><u>Direct Feed Breakdown (MC2)</u></caption>" + direct_feed_html + "</table>"
+    direct_feed_summary_html = "<table>" + "<caption><u>Direct Feed Breakdown (MC2)</u></caption>" + direct_feed_summary_html + "</table>"
+    direct_feed_kit_html = "<table>" + direct_feed_kit_html + "</table>"
     pallet_html = "<table>" + "<caption><u>Pallet Count</u></caption>" + pallet_html + "</table>"
     starved_html = "<table>" + "<caption><u>MTR Starvation</u></caption>" + starve_table + "</table>"
 
@@ -636,9 +632,13 @@ def main(env, eos=False):
     output_card.text(html)
     teams_msg.addSection(output_card)
     
-    direct_feed_card = pymsteams.cardsection()
-    direct_feed_card.text(direct_feed_html)
-    teams_msg.addSection(direct_feed_card)
+    direct_feed_summary_card = pymsteams.cardsection()
+    direct_feed_summary_card.text(direct_feed_summary_html)
+    teams_msg.addSection(direct_feed_summary_card)
+    
+    direct_feed_kit_card = pymsteams.cardsection()
+    direct_feed_kit_card.text(direct_feed_kit_html)
+    teams_msg.addSection(direct_feed_kit_card)
     
     pallet_card = pymsteams.cardsection()
     pallet_card.text(pallet_html)
