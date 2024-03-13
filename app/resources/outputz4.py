@@ -249,13 +249,14 @@ def getDirFeedData(line, uph, eos):
     user = creds['user']
     pw = creds['password']
     mc1_query = f"""search index=mes sourcetype="ignition:custom:json:log" logger_name="GFNV_MC1_DirectFeed" | fields- _raw | spath input=message | where DirectFeedAction="True" | stats c(container) as container"""
-    mc2_query= f"""search index=mes sourcetype="ignition:custom:json:log" logger_name="GFNV_MC2_DirectFeed" |spath input=message |eval df_reason=case(directfeed="True","SUCCESS",mtr_qty_good=="true" AND proj_delta_good=="false" AND type_good=="false", "WRONG_PART", mtr_qty_good=="false", "MC2_FULL") |stats count(eval(directfeed="True")) as SUCCESS, count(eval(mtr_qty_good=="true" AND proj_delta_good=="false" AND type_good=="false")) as WRONG_PART, count(eval(mtr_qty_good=="false")) as MC2_FULL"""
+    mc2_query = f"""search index=mes sourcetype="ignition:custom:json:log" logger_name="GFNV_MC2_DirectFeed" |spath input=message |eval df_reason=case(directfeed="True","SUCCESS",Kitmatch="False", "BAD_KIT",mtr_qty_good=="true" AND proj_delta_good=="false" AND type_good=="false", "WRONG_PART", mtr_qty_good=="false", "MC2_FULL") |stats count(eval(directfeed="True")) as SUCCESS, count(eval(Kitmatch="False")) as BAD_KIT, count(eval(mtr_qty_good=="true" AND proj_delta_good=="false" AND type_good=="false")) as WRONG_PART, count(eval(mtr_qty_good=="false")) as MC2_FULL, BY partnumber"""
+    df_performance = None
+    if line == 'MC1': 
+        query = mc1_query 
+    else: 
+        query = mc2_query
     
-    if line == 'MC1': query = mc1_query 
-    else: query = mc2_query
-
     return_obj = {}
-
     response = requests.get( 
                             url='https://splunkapi.teslamotors.com/services/search/jobs/export', 
                             auth=   HTTPBasicAuth(user, pw),
@@ -268,30 +269,64 @@ def getDirFeedData(line, uph, eos):
                                     'output_mode': 'csv' # (atom | csv | json | json_cols | json_rows | raw | xml) 
                                     } 
                             ) 
-    
     if response.text: 
         splunk_text = StringIO(response.text) # convert csv string into a StringIO to be processed by pandas 
         df = pd.read_csv(splunk_text)
         if line == 'MC1':
-            directfeed = int(df['container'][0])  #splunk search return only one value
+            directfeed = int(df['container'][0])
             bad_part = 0
             not_ready = 0
-            df_performance = 0
+            bad_kit = 0
         else:
-            directfeed = int(df['SUCCESS'][0])
-            bad_part = int(df['WRONG_PART'][0])
-            not_ready = int(df['MC2_FULL'][0])
+            directfeed = int(df['SUCCESS'].sum())
+            bad_part = int(df['WRONG_PART'].sum())
+            bad_kit = int(df['BAD_KIT'].sum())
+            not_ready = int(df['MC2_FULL'].sum())
             try:
-                df_performance = round((directfeed/(directfeed + bad_part + not_ready)) * 100 ,0)
+                df_performance = round((directfeed/(directfeed + bad_kit + bad_part + not_ready)) * 100 ,0)
             except:
                 df_performance = 0
+                
+        if line == 'MC2':
+            try:    
+                ict_con = helper_functions.get_sql_conn('interconnect_eng')
+                part_list = df['partnumber'].to_list()
+                suffix_map = {}
+                bad_kits_map = {}
+                bad_parts_map = {}
+                for part in part_list:
+                    part_bad_kits = df.loc[(df['partnumber'] == part), 'BAD_KIT'].sum()
+                    part_wrong_parts = df.loc[(df['partnumber'] == part), 'WRONG_PART'].sum()
+                    if part_bad_kits < 1 and part_wrong_parts < 1:
+                        continue
+                    query = f"""
+                        SELECT MODEL_SUFFIX FROM m3_bm_process_parameters.static_part_number
+                        WHERE Z3_ACTIVE=1 AND UUT_PART_NUMBER LIKE '{part}'
+                    """
+                    suffix_df = pd.read_sql(text(query), ict_con)
+                    if suffix_df.shape[0]:
+                        idx = suffix_df['MODEL_SUFFIX'].first_valid_index()
+                        suffix = suffix_df['MODEL_SUFFIX'].iloc[idx]
+                        suffix_map[suffix] = suffix_map.get(suffix, 0) + 1
+                        bad_kits_map[(suffix, part)] = bad_kits_map.get((suffix, part), 0) + part_bad_kits
+                        bad_parts_map[(suffix, part)] = bad_parts_map.get((suffix, part), 0) + part_wrong_parts
+                return_obj['SuffixMap'] = suffix_map 
+                return_obj['BadKitsMap'] = bad_kits_map
+                return_obj['BadPartsMap'] = bad_parts_map
+                ict_con.close()
+            except Exception as e:
+                return_obj['SuffixMap'] = {}
+                return_obj['BadKitsMap'] = {}
+                return_obj['BadPartsMap'] = {}
+                logging.error(e)
     else:
-        logging.info("Z4 Directfeed data pull - Splunk API failed")
-    
+        logging.info("Z4 Directfeed data pull - Splunk/DB API failed")
     
     return_obj['DirectFeed'] = directfeed
+    return_obj['BadKit'] = bad_kit
     return_obj['BadPart'] = bad_part
     return_obj['NotReady'] = not_ready
+    
     try:
         return_obj['Rate'] = round((directfeed/(uph/4))*100,0)
     except:
@@ -326,13 +361,16 @@ def main(env, eos=False):
     #direct feed stats - start
     mc1_dirfeed = getDirFeedData('MC1', mc1_output, eos)
     mc1_df_count = mc1_dirfeed['DirectFeed']
-    mc1_df_rate = mc1_dirfeed['Rate']
 
     mc2_dirfeed = getDirFeedData('MC2', mc2_output, eos)
     mc2_df_count = mc2_dirfeed['DirectFeed']
     mc2_df_rate = mc2_dirfeed['Rate']
     mc2_df_notready = mc2_dirfeed['NotReady']
     mc2_df_badpart = mc2_dirfeed['BadPart']
+    mc2_df_badkit = mc2_dirfeed['BadKit']
+    mc2_df_suffix = mc2_dirfeed['SuffixMap']
+    mc2_df_bad_kits_map = mc2_dirfeed['BadKitsMap']
+    mc2_df_bad_parts_map = mc2_dirfeed['BadPartsMap']
     mc2_df_performance = mc2_dirfeed['DF_Performance']
   
     total_df_count = mc1_df_count + mc2_df_count
@@ -454,10 +492,6 @@ def main(env, eos=False):
                 <th style="text-align:center">UPH Goal</th>
                 <th style="text-align:center">FPY (%)</th>
                 <th style="text-align:center">FPY Goal (%)</th>
-                <th style="text-align:center">DF Count</th>
-                <th style="text-align:center">DF Rate (%)</th>
-                <th style="text-align:center">DF Bad Part</th>
-                <th style="text-align:center">DF Not Ready</th>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC1</strong></td>
@@ -465,10 +499,6 @@ def main(env, eos=False):
                 <td style="text-align:center">{int(hourly_goal_dict['MC1'])}</td>
                 <td style="text-align:center;color:{mc1_fpy_color}">{mc1_fpy:.2f}</td>
                 <td style="text-align:center">{FPY_GOAL:.2f}</td>
-                <td style="text-align:center">{int(mc1_df_count)}</td>
-                <td style="text-align:center">---</td>
-                <td style="text-align:center">---</td>
-                <td style="text-align:center">---</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>MC2</strong></td>
@@ -476,10 +506,6 @@ def main(env, eos=False):
                 <td style="text-align:center">{int(hourly_goal_dict['MC2'])}</td>
                 <td style="text-align:center;color:{mc2_fpy_color}">{mc2_fpy:.2f}</td>
                 <td style="text-align:center">{FPY_GOAL:.2f}</td>
-                <td style="text-align:center">{int(mc2_df_count)}</td>
-                <td style="text-align:center">{mc2_df_performance:.1f}</td>
-                <td style="text-align:center">{int(mc2_df_badpart)}</td>
-                <td style="text-align:center">{int(mc2_df_notready)}</td>
             </tr>
             <tr>
                 <td style="text-align:right"><strong>TOTAL</strong></td>
@@ -487,54 +513,88 @@ def main(env, eos=False):
                 <td style="text-align:center">---</td>
                 <td style="text-align:center">---</td>
                 <td style="text-align:center">---</td>
-                <td style="text-align:center"><b>{total_df_count:.1f}</b></td>
-                <td style="text-align:center"><b>---</b></td>
-                <td style="text-align:center">---</td>
-                <td style="text-align:center">---</td>
             </tr>
             </table>"""
+            
     na_html = "---"
     
+    suffix_count_rows = ""
+    for suffix in mc2_df_suffix.keys():
+        bad_kits_count = sum([val for key, val in mc2_df_bad_kits_map.items() if key[0] == suffix])
+        bad_parts_count = sum([val for key, val in mc2_df_bad_parts_map.items() if key[0] == suffix])
+        suffix_count_rows += f"""
+            <tr>
+                <td colspan="2" style="text-align:right">{suffix}</td>
+                <td style="text-align:center">{bad_kits_count if bad_kits_count > 0 else '---'}</td>
+                <td style="text-align:center">{bad_parts_count if bad_parts_count > 0 else '---'}</td>
+            </tr>
+        """
+        
+        
+    direct_feed_summary_html = f"""
+        <tr>
+            <th colspan="2" style="text-align:center">DF Count</th>
+            <th style="text-align:center">DF Rate (%)</th>
+            <th style="text-align:center">DF Not Ready</th>
+        </tr>
+        <tr>
+            <td colspan="2"  style="text-align:center;color:{'red' if int(mc2_df_count) < 22 else 'green'}">{int(mc2_df_count)}</td>
+            <td style="text-align:center">{mc2_df_performance:.1f}</td>
+            <td style="text-align:center">{int(mc2_df_notready)}</td>
+        </tr>
+    """
+    
+    direct_feed_kit_html = f"""
+        <tr>
+            <th colspan="2" style="text-align:center"><strong>Suffix</strong></th>
+            <th colspan="1" style="text-align:left"><strong>DF Total Bad Kits:</strong> {int(mc2_df_badkit)}</th>
+            <th colspan="1" style="text-align:left"><strong>DF Total Bad Parts:</strong> {int(mc2_df_badpart)}</th>
+        </tr>
+        {suffix_count_rows}
+    """
+    
     pallet_html = f"""
-                <tr>
-                    <th style="text-align:right"></th>
-                    <th style="text-align:center">NIC</th>
-                    <th style="text-align:center">IC</th>
-                    <th style="text-align:center">NIC 1_4</th>
-                    <th style="text-align:center">NIC 2_3</th>
-                    <th style="text-align:center">IC 1_4</th>
-                    <th style="text-align:center">IC 2_3</th>
-                </tr>
-                <tr>
-                    <td style="text-align:right"><strong>MC1</strong></td>
-                    <td <td style="text-align:center;color:{mc1_nic_color}">{mc1_nic_pallets}</td>
-                    <td <td style="text-align:center;color:{mc1_ic_color}">{mc1_ic_pallets}</td>
-                    <td <td style="text-align:center">{na_html}</td>
-                    <td <td style="text-align:center">{na_html}</td>
-                    <td <td style="text-align:center">{na_html}</td>
-                    <td <td style="text-align:center">{na_html}</td>
-                </tr>
-                <tr>
-                    <td style="text-align:right"><strong>MC2</strong></td>
-                    <td <td style="text-align:center">{na_html}</td>
-                    <td <td style="text-align:center">{na_html}</td>
-                    <td <td style="text-align:center;color:{mc2_nic14_color}">{mc2_nic14_pallets} ({mc2_nic1_pallets}+{mc2_nic4_pallets})</td>
-                    <td <td style="text-align:center;color:{mc2_nic23_color}">{mc2_nic23_pallets} ({mc2_nic2_pallets}+{mc2_nic3_pallets})</td>
-                    <td <td style="text-align:center;color:{mc2_ic14_color}">{mc2_ic14_pallets}</td>
-                    <td <td style="text-align:center;color:{mc2_ic23_color}">{mc2_ic23_pallets}</td>
-                </tr>
-                <tr>
-                    <td style="text-align:right"><strong>GOAL</strong></td>
-                    <td <td style="text-align:center">{MC1_NIC_GREEN}</td>
-                    <td <td style="text-align:center">{MC1_IC_GREEN}</td>
-                    <td <td style="text-align:center">{MC2_NIC_GREEN}</td>
-                    <td <td style="text-align:center">{MC2_NIC_GREEN}</td>
-                    <td <td style="text-align:center">{MC2_IC_GREEN}</td>
-                    <td <td style="text-align:center">{MC2_IC_GREEN}</td>
-                </tr>
-                """
+        <tr>
+            <th style="text-align:right"></th>
+            <th style="text-align:center">NIC</th>
+            <th style="text-align:center">IC</th>
+            <th style="text-align:center">NIC 1_4</th>
+            <th style="text-align:center">NIC 2_3</th>
+            <th style="text-align:center">IC 1_4</th>
+            <th style="text-align:center">IC 2_3</th>
+        </tr>
+        <tr>
+            <td style="text-align:right"><strong>MC1</strong></td>
+            <td <td style="text-align:center;color:{mc1_nic_color}">{mc1_nic_pallets}</td>
+            <td <td style="text-align:center;color:{mc1_ic_color}">{mc1_ic_pallets}</td>
+            <td <td style="text-align:center">{na_html}</td>
+            <td <td style="text-align:center">{na_html}</td>
+            <td <td style="text-align:center">{na_html}</td>
+            <td <td style="text-align:center">{na_html}</td>
+        </tr>
+        <tr>
+            <td style="text-align:right"><strong>MC2</strong></td>
+            <td <td style="text-align:center">{na_html}</td>
+            <td <td style="text-align:center">{na_html}</td>
+            <td <td style="text-align:center;color:{mc2_nic14_color}">{mc2_nic14_pallets} ({mc2_nic1_pallets}+{mc2_nic4_pallets})</td>
+            <td <td style="text-align:center;color:{mc2_nic23_color}">{mc2_nic23_pallets} ({mc2_nic2_pallets}+{mc2_nic3_pallets})</td>
+            <td <td style="text-align:center;color:{mc2_ic14_color}">{mc2_ic14_pallets}</td>
+            <td <td style="text-align:center;color:{mc2_ic23_color}">{mc2_ic23_pallets}</td>
+        </tr>
+        <tr>
+            <td style="text-align:right"><strong>GOAL</strong></td>
+            <td <td style="text-align:center">{MC1_NIC_GREEN}</td>
+            <td <td style="text-align:center">{MC1_IC_GREEN}</td>
+            <td <td style="text-align:center">{MC2_NIC_GREEN}</td>
+            <td <td style="text-align:center">{MC2_NIC_GREEN}</td>
+            <td <td style="text-align:center">{MC2_IC_GREEN}</td>
+            <td <td style="text-align:center">{MC2_IC_GREEN}</td>
+        </tr>
+    """
+           
+    direct_feed_summary_html = "<table>" + "<caption><u>Direct Feed Breakdown (MC2)</u></caption>" + direct_feed_summary_html + "</table>"
+    direct_feed_kit_html = "<table>" + direct_feed_kit_html + "</table>"
     pallet_html = "<table>" + "<caption><u>Pallet Count</u></caption>" + pallet_html + "</table>"
-    # Setup teams starvation table
     starved_html = "<table>" + "<caption><u>MTR Starvation</u></caption>" + starve_table + "</table>"
 
     if env == 'prod':
@@ -571,14 +631,23 @@ def main(env, eos=False):
     output_card = pymsteams.cardsection()
     output_card.text(html)
     teams_msg.addSection(output_card)
-    # create cards for pallet counts
+    
+    direct_feed_summary_card = pymsteams.cardsection()
+    direct_feed_summary_card.text(direct_feed_summary_html)
+    teams_msg.addSection(direct_feed_summary_card)
+    
+    direct_feed_kit_card = pymsteams.cardsection()
+    direct_feed_kit_card.text(direct_feed_kit_html)
+    teams_msg.addSection(direct_feed_kit_card)
+    
     pallet_card = pymsteams.cardsection()
     pallet_card.text(pallet_html)
     teams_msg.addSection(pallet_card)
-    # make a card with starvation data
+
     starved_card = pymsteams.cardsection()
     starved_card.text(starved_html)
     teams_msg.addSection(starved_card)
+    
     # add a link to the confluence page
     teams_msg.addLinkButton("Questions?",
                             "https://confluence.teslamotors.com/display/PRODENG/Battery+Module+Hourly+Update")
