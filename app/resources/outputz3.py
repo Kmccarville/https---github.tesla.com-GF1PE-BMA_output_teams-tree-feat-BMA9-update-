@@ -604,7 +604,8 @@ def main(env,eos=False):
                             num_bonds,
                             ing_starved,
                             po_starved,
-                            po_blocked)
+                            po_blocked,
+                            eos)
         except Exception as e:
             logging.exception(f'Historization for z3 failed. See: {e}')
         teams_con.close()
@@ -650,7 +651,7 @@ def main(env,eos=False):
             
     
 def historize_to_db(db, carsets, pos_cell_yield, neg_cell_yield,
-                    num_bonds, ingress_starve, po_starve, po_blocked):
+                    num_bonds, ingress_starve, po_starve, po_blocked,eos):
     sql_date = helper_functions.get_sql_pst_time()
     NUM_LINES = 5
     for _id in range(NUM_LINES):
@@ -663,7 +664,8 @@ def historize_to_db(db, carsets, pos_cell_yield, neg_cell_yield,
             'STARVATION_INGRESS_PERCENT': [ingress_starve[_id] if ingress_starve[_id] is not None else None],
             'STARVATION_PO_PERCENT': [po_starve[_id] if po_starve[_id] is not None else None],
             'BLOCKED_PO_PERCENT': [po_blocked[_id] if po_blocked[_id] is not None else None],
-            'START_TIME': [sql_date]
+            'END_TIME': [sql_date],
+            'END_OF_SHIFT' : [int(eos)]
         }, index=['line'])
     
         df_insert.to_sql('zone3', con=db, if_exists='append', index=False)

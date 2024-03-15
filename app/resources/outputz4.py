@@ -602,11 +602,11 @@ def main(env, eos=False):
         try:
             historize_to_db(teams_con, 41, mc1_output/Z4_DIVISOR, mc1_fpy, FPY_GOAL,
                             mc1_nic_pallets, mc1_ic_pallets, None, None, None, None,
-                            mc1_pi, mc1_po, None, None)
+                            mc1_pi, mc1_po, None, None,eos)
             historize_to_db(teams_con, 42, mc2_output/Z4_DIVISOR, mc2_fpy, FPY_GOAL,
                             None, None, mc2_nic14_pallets, mc2_nic23_pallets,
                             mc2_ic14_pallets, mc2_ic23_pallets,
-                            mc2_pi, mc2_po, no23, no25)
+                            mc2_pi, mc2_po, no23, no25,eos)
             
         except Exception as e:
             logging.exception(f'Historization for z4 failed. See: {e}')
@@ -664,7 +664,7 @@ def main(env, eos=False):
 
 def historize_to_db(db, _id, uph, fpy, fpy_goal,
                     nic, ic, nic_1_4, nic_2_3, ic_1_4, ic_2_3,
-                    pack_in, pack_out, no_23_s, no_25_s):
+                    pack_in, pack_out, no_23_s, no_25_s,eos):
     sql_date = helper_functions.get_sql_pst_time()    
     df_insert = pd.DataFrame({
         'LINE_ID' : [_id],
@@ -681,7 +681,8 @@ def historize_to_db(db, _id, uph, fpy, fpy_goal,
         'STARVATION_PACK_OUT_PERCENT': [pack_out if pack_out is not None else None],
         'STARVATION_NO_23_S_PERCENT': [no_23_s if no_23_s is not None else None],
         'STARVATION_NO_25_S_PERCENT': [no_25_s if no_25_s is not None else None],
-        'START_TIME': [sql_date]
+        'END_TIME': [sql_date],
+        'END_OF_SHIFT' : [int(eos)]
     }, index=['line'])
 
     df_insert.to_sql('zone4', con=db, if_exists='append', index=False)
