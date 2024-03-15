@@ -199,7 +199,8 @@ def main(env,eos=False):
             historize_to_db(teams_con,
                             mamc_output_good,
                             c3a_outputs,
-                            num_ncs)
+                            num_ncs,
+                            eos)
         except Exception as e:
             logging.exception(f'Historization for z2_8 failed. See: {e}')
         teams_con.close()
@@ -241,13 +242,14 @@ def main(env,eos=False):
     webhook = webhook_json['url']
     bma8_records(lookback,c3a8,webhook)
 
-def historize_to_db(db, mamc, c3a, num_ncs):
+def historize_to_db(db, mamc, c3a, num_ncs,eos):
     sql_date = helper_functions.get_sql_pst_time()
     df_insert = pd.DataFrame({
         'MAMC_OUTPUT' : [round(mamc/Z2_DIVISOR, 2) if mamc is not None else None],
         'C3A_OUTPUT' : [round(c3a/Z2_DIVISOR, 2) if c3a is not None else None],
         'NUM_NCS' : [num_ncs if num_ncs is not None else None],
-        'START_TIME': [sql_date]
+        'END_TIME': [sql_date],
+        'END_OF_SHIFT' : [int(eos)]
     }, index=['line'])
     
     df_insert.to_sql('zone2_bma8', con=db, if_exists='append', index=False)

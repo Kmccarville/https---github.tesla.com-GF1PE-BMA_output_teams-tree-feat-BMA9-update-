@@ -391,7 +391,8 @@ def main(env,eos=False):
                             c3a_st120_4,
                             fpy_mamc_4,
                             fpy_c3a_4_ic,
-                            fpy_c3a_4_nic)
+                            fpy_c3a_4_nic,
+                            eos)
             historize_to_db(teams_con,
                             25,
                             mamc_outputs[1],
@@ -401,7 +402,8 @@ def main(env,eos=False):
                             c3a_st120_5,
                             fpy_c3a_5_ic,
                             fpy_c3a_5_nic,
-                            fpy_mamc_5)
+                            fpy_mamc_5,
+                            eos)
         except Exception as e:
             logging.exception(f'Historization for z2_45 failed. See: {e}')
         teams_con.close()
@@ -447,7 +449,7 @@ def main(env,eos=False):
 
 
 def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, mamc_st10, 
-                    c3a_st120, ic, nic, mamc_fpy):
+                    c3a_st120, ic, nic, mamc_fpy,eos):
     sql_date = helper_functions.get_sql_pst_time()
     df_insert = pd.DataFrame({
         'LINE_ID' : [_id],
@@ -459,7 +461,8 @@ def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, mamc_st10,
         'MAMC_FPY_PERCENT' : [round(float(mamc_fpy.replace('%', '')), 2) if mamc_fpy is not None else None],
         'C3A_DISPENSE_IC_FPY_PERCENT' : [round(float(ic.replace('%', '')), 2) if ic is not None else None],
         'C3A_DISPENSE_NIC_FPY_PERCENT': [round(float(nic.replace('%', '')), 2) if nic is not None else None],
-        'START_TIME': [sql_date]
+        'END_TIME': [sql_date],
+        'END_OF_SHIFT' : [int(eos)]
     }, index=['line'])
     
     df_insert.to_sql('zone2_bma45', con=db, if_exists='append', index=False)

@@ -618,11 +618,11 @@ def main(env,eos=False):
     if env == 'prod':
         teams_con = helper_functions.get_sql_conn('pedb', schema='teams_output')
         try:
-            historize_to_db(teams_con, 14, *cta4_outputs, np.sum(cta4_outputs))
-            historize_to_db(teams_con, 15, *cta5_outputs, np.sum(cta5_outputs))
-            historize_to_db(teams_con, 16, *cta6_outputs, np.sum(cta6_outputs))
-            historize_to_db(teams_con, 17, *cta7_outputs, np.sum(cta7_outputs))
-            historize_to_db(teams_con, 19, *cta9_outputs, np.sum(cta9_outputs))
+            historize_to_db(teams_con, 14, *cta4_outputs, np.sum(cta4_outputs),eos)
+            historize_to_db(teams_con, 15, *cta5_outputs, np.sum(cta5_outputs),eos)
+            historize_to_db(teams_con, 16, *cta6_outputs, np.sum(cta6_outputs),eos)
+            historize_to_db(teams_con, 17, *cta7_outputs, np.sum(cta7_outputs),eos)
+            historize_to_db(teams_con, 19, *cta9_outputs, np.sum(cta9_outputs),eos)
         except Exception as e:
             logging.exception(f'Historization for z1 failed. See: {e}')
         teams_con.close()
@@ -633,7 +633,7 @@ def main(env,eos=False):
 
     cta_records(lookback,cta4,cta5,cta6,cta7,cta9, webhook)
 
-def historize_to_db(db, _id, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, total):
+def historize_to_db(db, _id, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, total,eos):
     sql_date = helper_functions.get_sql_pst_time()
     df_insert = pd.DataFrame({
         'LINE_ID' : [_id],
@@ -646,7 +646,8 @@ def historize_to_db(db, _id, ln1, ln2, ln3, ln4, ln5, ln6, ln7, ln8, total):
         'LANE7_CARSETS' : [round(ln7/Z1_DIVISOR, 2) if ln7 is not None else None],
         'LANE8_CARSETS' : [round(ln8/Z1_DIVISOR, 2) if ln8 is not None else None],
         'TOTAL': [round(total/Z1_DIVISOR, 2)],
-        'START_TIME': [sql_date]
+        'END_TIME': [sql_date],
+        'END_OF_SHIFT' : [int(eos)]
     }, index=['line'])
                 
     df_insert.to_sql('zone1', con=db, if_exists='append', index=False)

@@ -566,7 +566,8 @@ def main(env,eos=False):
                             int(C3A_Buffer_Outputs[0]),
                             TARGET_CYCLE_TIME,
                             *bma1_perf_metrics,
-                            bma1_mamc_yield)
+                            bma1_mamc_yield,
+                            eos)
             historize_to_db(teams_con,
                             22,
                             mamc_outputs[1],
@@ -575,7 +576,8 @@ def main(env,eos=False):
                             int(C3A_Buffer_Outputs[1]),
                             TARGET_CYCLE_TIME,
                             *bma2_perf_metrics,
-                            bma2_mamc_yield)
+                            bma2_mamc_yield,
+                            eos)
             historize_to_db(teams_con,
                             23,
                             mamc_outputs[2],
@@ -584,7 +586,8 @@ def main(env,eos=False):
                             int(C3A_Buffer_Outputs[2]),
                             TARGET_CYCLE_TIME,
                             *bma3_perf_metrics,
-                            bma3_mamc_yield)
+                            bma3_mamc_yield,
+                            eos)
         except Exception as e:
             logging.exception(f'Historization for z2_123 failed. See: {e}')
         teams_con.close()
@@ -596,7 +599,7 @@ def main(env,eos=False):
 
 def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, c3a_buffer_counter, target_cycle_time, 
                     starved_auto_closer, bandoland_cycle_time, blocked_c3a_egress, sidemount_cycle_time, 
-                    qis_cycle_time, mamc_yield):
+                    qis_cycle_time, mamc_yield,eos):
     sql_date = helper_functions.get_sql_pst_time()
     df_insert = pd.DataFrame({
         'LINE_ID' : [_id],
@@ -611,7 +614,8 @@ def historize_to_db(db, _id, mamc, c3a, c3a_mamc_goal, c3a_buffer_counter, targe
         'STARVATION_AUTO_CLOSER_PERCENT' : [starved_auto_closer if starved_auto_closer is not None else None],
         'BLOCKED_C3A_EGRESS_PERCENT': [blocked_c3a_egress if blocked_c3a_egress is not None else None],
         'MAMC_YIELD_PERCENT': [round(mamc_yield, 2) if mamc_yield is not None else None],
-        'START_TIME': [sql_date]
+        'END_TIME': [sql_date],
+        'END_OF_SHIFT' : [int(eos)]
     }, index=['line'])
                 
     df_insert.to_sql('zone2_bma123', con=db, if_exists='append', index=False)
