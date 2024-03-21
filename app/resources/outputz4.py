@@ -371,9 +371,9 @@ def main(env, eos=False):
     mc2_df_notready = mc2_dirfeed['NotReady']
     mc2_df_badpart = mc2_dirfeed['BadPart']
     mc2_df_badkit = mc2_dirfeed['BadKit']
-    mc2_df_suffix = mc2_dirfeed['SuffixMap']
-    mc2_df_bad_kits_map = mc2_dirfeed['BadKitsMap']
-    mc2_df_bad_parts_map = mc2_dirfeed['BadPartsMap']
+    mc2_df_suffix = mc2_dirfeed['SuffixMap'] if 'SuffixMap' in mc2_dirfeed.keys() else {}
+    mc2_df_bad_kits_map = mc2_dirfeed['BadKitsMap']  if 'BadKitsMap' in mc2_dirfeed.keys() else {}
+    mc2_df_bad_parts_map = mc2_dirfeed['BadPartsMap']  if 'BadPartsMap' in mc2_dirfeed.keys() else {}
     mc2_df_performance = mc2_dirfeed['DF_Performance']
   
     total_df_count = mc1_df_count + mc2_df_count
