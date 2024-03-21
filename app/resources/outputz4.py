@@ -269,6 +269,7 @@ def getDirFeedData(line, uph, eos):
                                     'output_mode': 'csv' # (atom | csv | json | json_cols | json_rows | raw | xml) 
                                     } 
                             ) 
+    df_performance = 0
     if response.text: 
         splunk_text = StringIO(response.text) # convert csv string into a StringIO to be processed by pandas 
         df = pd.read_csv(splunk_text)
