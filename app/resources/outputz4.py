@@ -269,6 +269,7 @@ def getDirFeedData(line, uph, eos):
                                     'output_mode': 'csv' # (atom | csv | json | json_cols | json_rows | raw | xml) 
                                     } 
                             ) 
+    df_performance = 0
     if response.text: 
         splunk_text = StringIO(response.text) # convert csv string into a StringIO to be processed by pandas 
         df = pd.read_csv(splunk_text)
@@ -319,13 +320,16 @@ def getDirFeedData(line, uph, eos):
                 return_obj['BadKitsMap'] = {}
                 return_obj['BadPartsMap'] = {}
                 logging.error(e)
+        return_obj['DirectFeed'] = directfeed
+        return_obj['BadKit'] = bad_kit
+        return_obj['BadPart'] = bad_part
+        return_obj['NotReady'] = not_ready
     else:
         logging.info("Z4 Directfeed data pull - Splunk/DB API failed")
-    
-    return_obj['DirectFeed'] = directfeed
-    return_obj['BadKit'] = bad_kit
-    return_obj['BadPart'] = bad_part
-    return_obj['NotReady'] = not_ready
+        return_obj['DirectFeed'] = 0
+        return_obj['BadKit'] = 0
+        return_obj['BadPart'] = 0
+        return_obj['NotReady'] = 0
     
     try:
         return_obj['Rate'] = round((directfeed/(uph/4))*100,0)
@@ -368,9 +372,9 @@ def main(env, eos=False):
     mc2_df_notready = mc2_dirfeed['NotReady']
     mc2_df_badpart = mc2_dirfeed['BadPart']
     mc2_df_badkit = mc2_dirfeed['BadKit']
-    mc2_df_suffix = mc2_dirfeed['SuffixMap']
-    mc2_df_bad_kits_map = mc2_dirfeed['BadKitsMap']
-    mc2_df_bad_parts_map = mc2_dirfeed['BadPartsMap']
+    mc2_df_suffix = mc2_dirfeed['SuffixMap'] if 'SuffixMap' in mc2_dirfeed.keys() else {}
+    mc2_df_bad_kits_map = mc2_dirfeed['BadKitsMap']  if 'BadKitsMap' in mc2_dirfeed.keys() else {}
+    mc2_df_bad_parts_map = mc2_dirfeed['BadPartsMap']  if 'BadPartsMap' in mc2_dirfeed.keys() else {}
     mc2_df_performance = mc2_dirfeed['DF_Performance']
   
     total_df_count = mc1_df_count + mc2_df_count
