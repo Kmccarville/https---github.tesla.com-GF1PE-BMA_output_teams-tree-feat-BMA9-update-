@@ -319,13 +319,16 @@ def getDirFeedData(line, uph, eos):
                 return_obj['BadKitsMap'] = {}
                 return_obj['BadPartsMap'] = {}
                 logging.error(e)
+        return_obj['DirectFeed'] = directfeed
+        return_obj['BadKit'] = bad_kit
+        return_obj['BadPart'] = bad_part
+        return_obj['NotReady'] = not_ready
     else:
         logging.info("Z4 Directfeed data pull - Splunk/DB API failed")
-    
-    return_obj['DirectFeed'] = directfeed
-    return_obj['BadKit'] = bad_kit
-    return_obj['BadPart'] = bad_part
-    return_obj['NotReady'] = not_ready
+        return_obj['DirectFeed'] = 0
+        return_obj['BadKit'] = 0
+        return_obj['BadPart'] = 0
+        return_obj['NotReady'] = 0
     
     try:
         return_obj['Rate'] = round((directfeed/(uph/4))*100,0)
