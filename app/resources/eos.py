@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 import pymsteams
-from common import helper_functions
+from common import helper_functions, eos_plot
 from common.constants import Z1_DIVISOR, Z2_DIVISOR, Z3_DIVISOR, Z4_DIVISOR
 from resources import (NCM_bandolier_milan_output, NCM_module_output, outputz1,
                        outputz2_8, outputz2_45, outputz2_123, outputz3,
@@ -259,6 +259,7 @@ def eos_report(env,do_24=False):
     eos_msg.addSection(bma_card)
     eos_msg.addSection(z3_card)
     eos_msg.addSection(z4_card)
+    eos_msg.addLinkButton("View Plot", eos_plot.get_link())
     #SEND IT
     try:
         eos_msg.send()
