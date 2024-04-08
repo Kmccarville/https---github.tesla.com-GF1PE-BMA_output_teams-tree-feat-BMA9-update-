@@ -42,7 +42,7 @@ if __name__ == '__main__':
     job_list.append(scheduler.add_job(outputz3.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="outputz3", misfire_grace_time=None))
     job_list.append(scheduler.add_job(outputz4.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="outputz4", misfire_grace_time=None))
     job_list.append(scheduler.add_job(close_nc_check.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="close_nc_check", misfire_grace_time=None))
-    job_list.append(scheduler.add_job(eos.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="eos", misfire_grace_time=None))
+    job_list.append(scheduler.add_job(eos.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="eos", misfire_grace_time=None, max_instances=2))
     job_list.append(scheduler.add_job(AGV_Spur_Picks.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="AGV_Spur_Picks", misfire_grace_time=None))
     job_list.append(scheduler.add_job(NCM_bandolier_milan_output.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="NCM_bandolier_milan_output", misfire_grace_time=None))
 
