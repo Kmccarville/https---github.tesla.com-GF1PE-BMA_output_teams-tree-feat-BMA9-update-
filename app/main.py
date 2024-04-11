@@ -6,7 +6,7 @@ from datetime import datetime
 from apscheduler.events import EVENT_JOB_ERROR, EVENT_JOB_EXECUTED
 from apscheduler.schedulers.background import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
-from resources import (AGV_Spur_Picks, NCM_bandolier_milan_output,
+from resources import (AGV_Spur_Picks, NCM_bandolier_output,
                        close_nc_check, devHeading, eos, outputz1, outputz2_8,
                        outputz2_45, outputz2_123, outputz3, outputz4, staffing)
 from resources.alerts import (bma123_c3a_dispense, bma123_hipot,
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     job_list.append(scheduler.add_job(close_nc_check.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="close_nc_check", misfire_grace_time=None))
     job_list.append(scheduler.add_job(eos.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="eos", misfire_grace_time=None, max_instances=2))
     job_list.append(scheduler.add_job(AGV_Spur_Picks.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="AGV_Spur_Picks", misfire_grace_time=None))
-    job_list.append(scheduler.add_job(NCM_bandolier_milan_output.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="NCM_bandolier_milan_output", misfire_grace_time=None))
+    job_list.append(scheduler.add_job(NCM_bandolier_output.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="NCM_bandolier_output", misfire_grace_time=None))
 
     #define alert scheduler
     job_list.append(scheduler.add_job(z2_contamination.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="z2_contamination"))
