@@ -1,4 +1,5 @@
-#Auto Posting for Milan output - trigger around 7 PM everyday
+#Auto Posting for Milan output - trigger around 6 PM everyday
+#Auto Posting for Giga  output - trigger around 6 PM everyday
 from datetime import datetime, timedelta
 from urllib.parse import quote
 
@@ -47,8 +48,8 @@ WHERE
     tp.flowstepname = '3BM-20104-NCM'
         AND tp.iscurrent = 0
         AND tp.exited > NOW() - INTERVAL {lookback} HOUR 
-        AND tp.exitcompletioncode = 'PASS'
-        AND a.name = 'Bando-Rework-Milan-01'"""
+        AND tp.exitcompletioncode = 'RTL'
+        AND a.name = 'MCTA-REWORK-3F-01'"""
     
     db = helper_functions.get_sql_conn('mos_rpt2',schema="sparq")
     df = pd.read_sql(query,db)
@@ -58,7 +59,7 @@ WHERE
     if eos:
         message = f"""<html>
             <tr>
-                <td <td> Milan Output for the shift : </td>
+                <td <td> Giga Output for the shift : </td>
                 <td <td style="color: #0000ff" > {u1}</td>
                 <td <td> bandoliers </td>
             </tr>
@@ -67,16 +68,16 @@ WHERE
     else:
         message = f"""<html>
             <tr>
-                <td <td> Milan Output for the past hour : </td>
+                <td <td> Giga Output for the past hour : </td>
                 <td <td style="color: #0000ff" > {u1}</td>
                 <td <td> bandoliers </td>
             </tr>
         </html>""" 
 
         
-    webhook = 'teams_webhook_NCM_Bando_Milan_Update' if env == 'prod' else 'teams_webhook_DEV_Updates'
+    webhook = 'teams_webhook_NCM_Bando_Update' if env == 'prod' else 'teams_webhook_DEV_Updates'
     creds = helper_functions.get_pw_json(webhook)
     webhookURL = creds['url'] 
-    msg_title = 'NCM - Milan Update'
-    msg_summary = "Daily Update"
+    msg_title = 'Bandolier NCM'
+    msg_summary = "Bandolier NCM"
     sendTeamsMessage(webhookURL,msg_title,msg_summary,message)   
