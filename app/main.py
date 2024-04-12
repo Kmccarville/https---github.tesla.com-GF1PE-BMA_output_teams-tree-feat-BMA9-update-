@@ -38,6 +38,7 @@ if __name__ == '__main__':
     job_list.append(scheduler.add_job(outputz1.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name='outputz1', misfire_grace_time=None))
     job_list.append(scheduler.add_job(outputz2_123.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name='outputz2_123', misfire_grace_time=None))
     job_list.append(scheduler.add_job(outputz2_45.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="outputz2_45", misfire_grace_time=None))
+    job_list.append(scheduler.add_job(outputz2_910.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="outputz2_910", misfire_grace_time=None))
     job_list.append(scheduler.add_job(outputz2_8.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="outputz2_8", misfire_grace_time=None))
     job_list.append(scheduler.add_job(outputz3.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="outputz3", misfire_grace_time=None))
     job_list.append(scheduler.add_job(outputz4.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="outputz4", misfire_grace_time=None))
@@ -45,6 +46,7 @@ if __name__ == '__main__':
     job_list.append(scheduler.add_job(eos.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="eos", misfire_grace_time=None))
     job_list.append(scheduler.add_job(AGV_Spur_Picks.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="AGV_Spur_Picks", misfire_grace_time=None))
     job_list.append(scheduler.add_job(NCM_bandolier_milan_output.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="NCM_bandolier_milan_output", misfire_grace_time=None))
+    
 
     #define alert scheduler
     job_list.append(scheduler.add_job(z2_contamination.main, CronTrigger.from_crontab('0 * * * *', PST_TZ), args=[env], name="z2_contamination"))
