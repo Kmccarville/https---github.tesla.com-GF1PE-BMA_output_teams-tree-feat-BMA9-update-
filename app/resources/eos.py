@@ -9,7 +9,7 @@ import pandas as pd
 import pymsteams
 from common import helper_functions
 from common.constants import Z1_DIVISOR, Z2_DIVISOR, Z3_DIVISOR, Z4_DIVISOR
-from resources import (NCM_bandolier_milan_output, NCM_module_output, outputz1,
+from resources import (NCM_bandolier_output, NCM_module_output, outputz1,
                        outputz2_8, outputz2_45, outputz2_123, outputz3,
                        outputz4)
 
@@ -28,7 +28,7 @@ def main(env,local_run=False):
            outputz2_8.main,
            outputz3.main,
            outputz4.main,
-           NCM_bandolier_milan_output.main,
+           NCM_bandolier_output.main,
            NCM_module_output.main
         ]
         
