@@ -8,7 +8,7 @@ from apscheduler.schedulers.background import BlockingScheduler
 from apscheduler.triggers.cron import CronTrigger
 from resources import (AGV_Spur_Picks, NCM_bandolier_milan_output,
                        close_nc_check, devHeading, eos, outputz1, outputz2_8,
-                       outputz2_45, outputz2_123, outputz3, outputz4, staffing)
+                       outputz2_45, outputz2_123, outputz3, outputz4,outputz2_910, staffing)
 from resources.alerts import (bma123_c3a_dispense, bma123_hipot,
                               z2_contamination, z2_fixtures)
 
