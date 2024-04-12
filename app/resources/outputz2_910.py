@@ -242,8 +242,8 @@ def main(env,eos=False):
         mamc_outputs.append(helper_functions.get_output_val(df_output,f"{line}-{MAMC_FLOWSTEP_END}",line))
         c3a_outputs.append(helper_functions.get_output_val(df_output,f"{line}-{C3A_FLOWSTEP_END}",line))
 
-    total_mamc9_output = helper_functions.get_output_val(df_output,f"GFNV-BT1-3BM'-{MAMC_FLOWSTEP_END}")
-    total_c3a9_output = helper_functions.get_output_val(df_output,f"GFNV-BT1-3BM'-{C3A_FLOWSTEP_END}")
+    total_mamc9_output = helper_functions.get_output_val(df_output,f"GFNV-BT1-3BM-{MAMC_FLOWSTEP_END}")
+    total_c3a9_output = helper_functions.get_output_val(df_output,f"GFNV-BT1-3BM-{C3A_FLOWSTEP_END}")
 
    
 
