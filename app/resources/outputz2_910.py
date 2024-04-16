@@ -259,7 +259,6 @@ def main(env,eos=False):
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
             <td style="text-align:center">{mamc_outputs[0]/Z2_DIVISOR:.1f}</td>
-            <td style="text-align:center">{mamc_outputs[1]/Z2_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{(total_mamc9_output)/Z2_DIVISOR:.1f}</strong></td>
             </tr>
     """
