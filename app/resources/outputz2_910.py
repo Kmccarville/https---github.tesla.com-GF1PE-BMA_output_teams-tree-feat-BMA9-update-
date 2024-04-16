@@ -255,6 +255,8 @@ def main(env,eos=False):
             <th style="text-align:center">TOTAL</th>
             </tr>
     """
+
+    
     #create mamc output row
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
@@ -262,6 +264,8 @@ def main(env,eos=False):
             <td style="text-align:center"><strong>{(total_mamc9_output)/Z2_DIVISOR:.1f}</strong></td>
             </tr>
     """
+
+
     #create c3a output row
     c3a_output_html = f"""<tr>
             <td style="text-align:center"><strong>C3A</strong></td>
