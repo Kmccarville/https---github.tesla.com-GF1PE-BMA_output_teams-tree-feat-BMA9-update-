@@ -356,7 +356,7 @@ def main(env,eos=False):
     webhook_key = 'teams_webhook_BMA910_Updates' if env=='prod' else 'teams_webhook_DEV_Updates'
     webhook_json = helper_functions.get_pw_json(webhook_key)
     webhook = webhook_json['url']
-    
+    #test
     #making the hourly teams message
     teams_msg = pymsteams.connectorcard(webhook)
     title = 'BMA910 ZONE2 EOS Report' if eos else 'BMA910 ZONE2 Hourly Update'
