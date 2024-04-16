@@ -256,11 +256,11 @@ def main(env,eos=False):
             </tr>
     """
 
-    
+
     #create mamc output row
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
-            <td style="text-align:center">{mamc_outputs[0]/Z2_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs/Z2_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{(total_mamc9_output)/Z2_DIVISOR:.1f}</strong></td>
             </tr>
     """
@@ -276,8 +276,8 @@ def main(env,eos=False):
     """
     goal_html = f"""<tr>
             <td style="text-align:center"><strong>GOAL</strong></td>
-            <td style="text-align:center">{int(hourly_goal_dict['3BM4'])}</td>
-            <td style="text-align:center">{int(hourly_goal_dict['3BM5'])}</td>
+            <td style="text-align:center">{int(hourly_goal_dict['3BM9'])}</td>
+     
             </tr>
     """
     #create full bma html with the above htmls
