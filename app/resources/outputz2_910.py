@@ -212,12 +212,12 @@ def main(env,eos=False):
     #define globals
     MAMC_FLOWSTEP_END= '48500'
     C3A_FLOWSTEP_END = '66000'
-    LINES = ['GFNV-BT1-3BM']
+    LINES = 'GFNV-BT1-3BM'
 
     flowsteps = []
-    for line in LINES:
-        flowsteps.append(f"{line}-{MAMC_FLOWSTEP_END}")
-        flowsteps.append(f"{line}-{C3A_FLOWSTEP_END}")
+    
+    flowsteps.append(f"{LINES}-{MAMC_FLOWSTEP_END}")
+    flowsteps.append(f"{LINES}-{C3A_FLOWSTEP_END}")
 
     mos_con = helper_functions.get_sql_conn('mos_rpt2',schema='sparq')
     df_output = helper_functions.get_flowstep_outputs(mos_con,start,end,flowsteps)
@@ -238,12 +238,12 @@ def main(env,eos=False):
 
     mamc_outputs = []
     c3a_outputs = []
-    for line in LINES:
-        mamc_outputs.append(helper_functions.get_output_val(df_output,f"{line}-{MAMC_FLOWSTEP_END}",line))
-        c3a_outputs.append(helper_functions.get_output_val(df_output,f"{line}-{C3A_FLOWSTEP_END}",line))
+    
+    mamc_outputs.append(helper_functions.get_output_val(df_output,f"{LINES}-{MAMC_FLOWSTEP_END}",LINES))
+    c3a_outputs.append(helper_functions.get_output_val(df_output,f"{LINES}-{C3A_FLOWSTEP_END}",LINES))
 
-    total_mamc9_output = helper_functions.get_output_val(df_output,f"GFNV-BT1-3BM-{MAMC_FLOWSTEP_END}")
-    total_c3a9_output = helper_functions.get_output_val(df_output,f"GFNV-BT1-3BM-{C3A_FLOWSTEP_END}")
+    total_mamc9_output = helper_functions.get_output_val(df_output,f"{LINES}-{MAMC_FLOWSTEP_END}")
+    total_c3a9_output = helper_functions.get_output_val(df_output,f"{LINES}-{C3A_FLOWSTEP_END}")
 
    
 
@@ -260,7 +260,7 @@ def main(env,eos=False):
     #create mamc output row
     mamc_output_html = f"""<tr>
             <td style="text-align:center"><strong>MAMC</strong></td>
-            <td style="text-align:center">{mamc_outputs/Z2_DIVISOR:.1f}</td>
+            <td style="text-align:center">{mamc_outputs[0]/Z2_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{(total_mamc9_output)/Z2_DIVISOR:.1f}</strong></td>
             </tr>
     """
@@ -270,7 +270,6 @@ def main(env,eos=False):
     c3a_output_html = f"""<tr>
             <td style="text-align:center"><strong>C3A</strong></td>
             <td style="text-align:center">{c3a_outputs[0]/Z2_DIVISOR:.1f}</td>
-            <td style="text-align:center">{c3a_outputs[1]/Z2_DIVISOR:.1f}</td>
             <td style="text-align:center"><strong>{(total_c3a9_output)/Z2_DIVISOR:.1f}</strong></td>
             </tr>
     """
